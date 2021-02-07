@@ -6,6 +6,7 @@ import "nprogress/nprogress.css";
 import { Suspense } from "react";
 import NoSSR from "react-no-ssr";
 import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
+import DialogProvider from "~/components/DialogProvider";
 import MainLayout from "~/layouts/MainLayout";
 import "~/styles/main.scss";
 
@@ -67,17 +68,19 @@ const App = ({ Component, pageProps }) => {
         <>
             <DefaultSeo title="NCMT" description="NCMT Dashboard" />
             <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
-                <ChakraProvider>
-                    <NoSSR>
-                        <Suspense fallback={<PageSpinner />}>
-                            <ContentWrapper>
-                                <Layout {...layoutProps}>
-                                    <Component {...pageProps} />
-                                </Layout>
-                            </ContentWrapper>
-                        </Suspense>
-                    </NoSSR>
-                </ChakraProvider>
+                <NoSSR>
+                    <ChakraProvider>
+                        <DialogProvider>
+                            <Suspense fallback={<PageSpinner />}>
+                                <ContentWrapper>
+                                    <Layout {...layoutProps}>
+                                        <Component {...pageProps} />
+                                    </Layout>
+                                </ContentWrapper>
+                            </Suspense>
+                        </DialogProvider>
+                    </ChakraProvider>
+                </NoSSR>
             </FirebaseAppProvider>
         </>
     );

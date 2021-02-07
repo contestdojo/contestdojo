@@ -14,9 +14,10 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { useFirestoreCollectionData } from "reactfire";
+import { useFirestore, useFirestoreCollectionData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
+import { useDialog } from "~/components/DialogProvider";
 import { delay, useEventData, useOrgData } from "~/helpers/utils";
 
 const StudentCard = ({ id, idx, fname, lname, email, ...props }) => {
@@ -47,7 +48,7 @@ const StudentCard = ({ id, idx, fname, lname, email, ...props }) => {
 
 const TeamCard = ({ id, name, students }) => {
     return (
-        <Stack spacing={0} flex={1} p={2} borderWidth={1} borderRadius="md">
+        <Stack spacing={0} flex={1} p={2} borderWidth={1} borderRadius="md" minHeight="xs">
             <Heading p={2} as="h4" size="md">
                 {name}
             </Heading>
@@ -146,7 +147,7 @@ const Students = ({ students, onAddStudent }) => {
                 )}
             </Droppable>
             <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
-                Add Student
+                Invite Student
             </Button>
             <AddStudentModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddStudent} {...formState} />
         </>
@@ -154,6 +155,11 @@ const Students = ({ students, onAddStudent }) => {
 };
 
 const Event = () => {
+    // Functions
+    const functions = useFunctions();
+    const createStudentAccount = functions.httpsCallable("createStudentAccount");
+
+    // Data
     const { ref: orgRef, data: org } = useOrgData();
     const { ref: eventRef, data: event } = useEventData();
 
@@ -173,12 +179,29 @@ const Event = () => {
         studentsByTeam[key].push(student);
     }
 
+    // Dialog
+    const [openDialog] = useDialog();
+
     const handleAddTeam = async ({ name }) => {
         await teamsRef.add({ name: name, org: orgRef });
     };
 
-    const handleAddStudent = async ({ fname, lname, email }) => {
-        await studentsRef.add({ fname, lname, email, org: orgRef });
+    const handleAddStudent = async values => {
+        const { data } = await createStudentAccount(values);
+        const { existed, uid, fname, lname, email } = data;
+
+        const studentRef = studentsRef.doc(uid);
+        const snap = await studentRef.get();
+        if (snap.exists) throw new Error("This student is already associated with an organization.");
+
+        await studentRef.set({ fname, lname, email, org: orgRef });
+
+        if (!existed) {
+            openDialog(
+                "Student Invited",
+                "Created a new student account. An email has been sent to the student containing login details."
+            );
+        }
     };
 
     const handleDragEnd = ({ source, destination, draggableId }) => {

@@ -35,7 +35,7 @@ const AddStudentModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
         <Modal isOpen={isOpen} initialFocusRef={ref} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>Add Student</ModalHeader>
+                <ModalHeader>Invite Student</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody pb={6}>
                     <form id="add-student" onSubmit={handleSubmit(onSubmit)}>
