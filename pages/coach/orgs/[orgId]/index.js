@@ -19,7 +19,7 @@ const EventCard = ({ id, name, date: { seconds } }) => {
             <Box as="h5" color="gray.500">
                 {date.format("D/M/YYYY")}
             </Box>
-            <NextLink href={`/orgs/${orgId}/${id}`} passHref>
+            <NextLink href={`/coach/orgs/${orgId}/${id}`} passHref>
                 <Button as="a" mt={2} colorScheme="blue" size="sm">
                     Register
                 </Button>

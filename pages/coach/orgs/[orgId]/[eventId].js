@@ -129,23 +129,25 @@ const Students = ({ students, onAddStudent }) => {
     return (
         <>
             <Heading size="lg">Unassigned Students</Heading>
-            <Droppable droppableId="unassigned" direction="horizontal">
-                {provided => (
-                    <Wrap
-                        style={{ marginLeft: "-0.5rem", marginRight: "-0.5rem" }}
-                        spacing={0}
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                    >
-                        {students.map((x, idx) => (
-                            <WrapItem>
-                                <StudentCard key={x.id} idx={idx} {...x} width={300} />
-                            </WrapItem>
-                        ))}
-                        {provided.placeholder}
-                    </Wrap>
-                )}
-            </Droppable>
+            {students.length > 0 && (
+                <Droppable droppableId="unassigned" direction="horizontal">
+                    {provided => (
+                        <Wrap
+                            style={{ marginLeft: "-0.5rem", marginRight: "-0.5rem" }}
+                            spacing={0}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
+                            {students.map((x, idx) => (
+                                <WrapItem>
+                                    <StudentCard key={x.id} idx={idx} {...x} width={300} />
+                                </WrapItem>
+                            ))}
+                            {provided.placeholder}
+                        </Wrap>
+                    )}
+                </Droppable>
+            )}
             <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
                 Invite Student
             </Button>

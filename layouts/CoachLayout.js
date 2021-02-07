@@ -1,33 +1,38 @@
-import { Box, Button, Divider, Flex, Heading, Link, Spacer, Spinner, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, Heading, Link, Spacer, VStack } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { AuthCheck, useAuth, useFirestore, useFirestoreCollectionData } from "reactfire";
-import { useUserRef } from "~/helpers/utils";
+import { useAuth, useFirestore, useFirestoreCollectionData } from "reactfire";
+import AuthWrapper from "~/components/AuthWrapper";
+import { useUserData } from "~/helpers/utils";
 
 const Navigation = () => {
     const auth = useAuth();
 
+    const router = useRouter();
     const firestore = useFirestore();
-    const userRef = useUserRef();
+    const { ref: userRef, data: userData } = useUserData();
     const orgsRef = firestore.collection("orgs").where("admin", "==", userRef);
     const { data: orgs } = useFirestoreCollectionData(orgsRef, { idField: "id" });
+
+    if (userData.type !== "coach") {
+        router.replace("/");
+    }
 
     return (
         <VStack flexBasis={300} boxShadow="0 0 10px rgba(0, 0, 0, 0.1)" spacing={0} divider={<Divider />}>
             <Box padding={6}>
-                <Heading textAlign="center">Name</Heading>
+                <Heading textAlign="center">Coach</Heading>
             </Box>
 
-            <VStack spacing={6} paddingY={6}>
+            <VStack spacing={6} pt={6} pb={12} flex={1}>
                 <Heading size={3}>Organizations</Heading>
 
                 {orgs.map(x => (
-                    <NextLink href={`/orgs/${x.id}`} key={x.id}>
+                    <NextLink href={`/coach/orgs/${x.id}`} key={x.id}>
                         <Link>{x.name}</Link>
                     </NextLink>
                 ))}
-                <NextLink href={`/orgs/new`} passHref>
+                <NextLink href={`/coach/orgs/new`} passHref>
                     <Button as="a" colorScheme="blue">
                         New Organization
                     </Button>
@@ -36,8 +41,6 @@ const Navigation = () => {
                 <Spacer />
 
                 <Button onClick={() => auth.signOut()}>Sign Out</Button>
-
-                <Text>TODO: Make the sidebar look good</Text>
             </VStack>
         </VStack>
     );
@@ -52,25 +55,10 @@ const ContentWrapper = ({ children }) => (
     </Flex>
 );
 
-const AuthWrapper = ({ children }) => {
-    const auth = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                router.replace("/login");
-            }
-        });
-    }, []);
-
-    return <AuthCheck fallback={<Spinner />}>{children}</AuthCheck>;
-};
-
-const MainLayout = ({ children }) => (
-    <AuthWrapper>
+const CoachLayout = ({ children }) => (
+    <AuthWrapper type="coach">
         <ContentWrapper>{children}</ContentWrapper>
     </AuthWrapper>
 );
 
-export default MainLayout;
+export default CoachLayout;

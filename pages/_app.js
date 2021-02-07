@@ -1,13 +1,15 @@
 import { Center, ChakraProvider, Spinner } from "@chakra-ui/react";
 import { DefaultSeo } from "next-seo";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { Suspense } from "react";
 import NoSSR from "react-no-ssr";
 import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
 import DialogProvider from "~/components/DialogProvider";
-import MainLayout from "~/layouts/MainLayout";
+import CoachLayout from "~/layouts/CoachLayout";
+import EmptyLayout from "~/layouts/EmptyLayout";
+import StudentLayout from "~/layouts/StudentLayout";
 import "~/styles/main.scss";
 
 Router.events.on("routeChangeStart", NProgress.start);
@@ -61,7 +63,15 @@ const ContentWrapper = ({ children }) => {
 };
 
 const App = ({ Component, pageProps }) => {
-    const Layout = Component.layout ?? MainLayout;
+    const router = useRouter();
+
+    const DefaultLayout = router.pathname.startsWith("/coach")
+        ? CoachLayout
+        : router.pathname.startsWith("/student")
+        ? StudentLayout
+        : EmptyLayout;
+
+    const Layout = Component.layout ?? DefaultLayout;
     const layoutProps = Component.layoutProps ?? {};
 
     return (

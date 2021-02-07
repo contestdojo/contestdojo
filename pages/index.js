@@ -1,21 +1,24 @@
-import { Button, VStack } from "@chakra-ui/react";
-import { useAuth } from "reactfire";
+import { useRouter } from "next/router";
+import AuthWrapper from "~/components/AuthWrapper";
 import { useUserData } from "~/helpers/utils";
 
-const Home = () => {
-    const auth = useAuth();
+const HomePage = () => {
+    const router = useRouter();
     const { data: user } = useUserData();
 
-    return (
-        <VStack>
-            <p>
-                Signed in as: {user.fname} {user.lname}
-            </p>
-            <Button colorScheme="blue" onClick={() => auth.signOut()}>
-                Sign Out
-            </Button>
-        </VStack>
-    );
+    if (user.type == "coach") {
+        router.replace("/coach");
+    } else if (user.type == "student") {
+        router.replace("/student");
+    }
+
+    return null;
 };
+
+const Home = () => (
+    <AuthWrapper>
+        <HomePage />
+    </AuthWrapper>
+);
 
 export default Home;

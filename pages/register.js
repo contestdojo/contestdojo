@@ -168,6 +168,4 @@ const Register = () => (
     </Suspense>
 );
 
-Register.layout = EmptyLayout;
-
 export default Register;

@@ -26,7 +26,7 @@ const NewOrganization = () => {
                 admin: userRef,
             });
             setFormState({ isLoading: false, error: null });
-            router.push(`/orgs/${ref.id}`);
+            router.push(`/coach/orgs/${ref.id}`);
         } catch (err) {
             setFormState({ isLoading: false, error: err });
         }

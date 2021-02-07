@@ -116,6 +116,4 @@ const Login = () => (
     </Suspense>
 );
 
-Login.layout = EmptyLayout;
-
 export default Login;
