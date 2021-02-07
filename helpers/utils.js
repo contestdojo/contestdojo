@@ -15,7 +15,8 @@ export const useUserRef = () => {
 };
 
 export const useUserData = () => {
-    return useFirestoreDocData(useUserRef(), { idField: "uid" });
+    const ref = useUserRef();
+    return { ref, ...useFirestoreDocData(ref, { idField: "uid" }) };
 };
 
 export const useEventRef = () => {
@@ -26,7 +27,8 @@ export const useEventRef = () => {
 };
 
 export const useEventData = () => {
-    return useFirestoreDocData(useEventRef(), { idField: "id" });
+    const ref = useEventRef();
+    return { ref, ...useFirestoreDocData(ref, { idField: "id" }) };
 };
 
 export const useOrgRef = () => {
@@ -37,5 +39,6 @@ export const useOrgRef = () => {
 };
 
 export const useOrgData = () => {
-    return useFirestoreDocData(useOrgRef(), { idField: "id" });
+    const ref = useOrgRef();
+    return { ref, ...useFirestoreDocData(ref, { idField: "id" }) };
 };

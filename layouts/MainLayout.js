@@ -45,9 +45,9 @@ const Navigation = () => {
 const ContentWrapper = ({ children }) => (
     <Flex height="100vh">
         <Navigation />
-        <Flex flex="1" padding={12} justifyContent="center">
-            {children}
-        </Flex>
+        <Box flex={1} padding={12} overflow="scroll">
+            <Flex justifyContent="center">{children}</Flex>
+        </Box>
     </Flex>
 );
 

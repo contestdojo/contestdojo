@@ -1,4 +1,4 @@
-import { Heading, Stack } from "@chakra-ui/react";
+import { Flex, Heading, Stack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useFirestore } from "reactfire";

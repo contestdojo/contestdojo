@@ -12,7 +12,7 @@ const EventCard = ({ id, name, date: { seconds } }) => {
     const { orgId } = router.query;
     const date = dayjs.unix(seconds);
     return (
-        <Box p={6} maxWidth="sm" borderWidth={1} borderRadius="lg">
+        <Box p={6} maxWidth="sm" borderWidth={1} borderRadius="md">
             <Box as="h4" fontWeight="semibold" isTruncated>
                 {name}
             </Box>
