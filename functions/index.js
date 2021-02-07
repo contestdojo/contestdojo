@@ -1,6 +1,9 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const generator = require("generate-password");
+const sendgrid = require("@sendgrid/mail");
 
+sendgrid.setApiKey(functions.config().sendgrid.key);
 admin.initializeApp();
 
 exports.createStudentAccount = functions.https.onCall(async ({ fname, lname, email }, context) => {
@@ -19,10 +22,15 @@ exports.createStudentAccount = functions.https.onCall(async ({ fname, lname, ema
 
         existed = false;
 
+        const password = generator.generate({
+            length: 12,
+            numbers: true,
+        });
+
         // User didn't exist, create user now
         user = await admin.auth().createUser({
             email,
-            password: "helloworld",
+            password,
             displayName: `${fname} ${lname}`,
         });
 
@@ -32,6 +40,18 @@ exports.createStudentAccount = functions.https.onCall(async ({ fname, lname, ema
             lname,
             email,
             type: "student",
+        });
+
+        await sendgrid.send({
+            to: email,
+            from: "ncmt@oliver.ni",
+            templateId: "d-8c5c1f774b5c41138c5018d05396ecd0",
+            dynamicTemplateData: {
+                fname,
+                lname,
+                email,
+                password,
+            },
         });
     }
 
@@ -55,11 +75,3 @@ exports.createStudentAccount = functions.https.onCall(async ({ fname, lname, ema
         uid: user.uid,
     };
 });
-
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
