@@ -1,19 +1,21 @@
-import { Button, VStack } from "@chakra-ui/react";
-import { useAuth } from "reactfire";
+import { VStack } from "@chakra-ui/react";
+import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import { useUserData } from "~/helpers/utils";
 
 const Home = () => {
-    const auth = useAuth();
-    const { data: user } = useUserData();
+    const { ref: userRef, data: user } = useUserData();
+
+    const firestore = useFirestore();
+    const eventsQuery = firestore.collectionGroup("students").where("user", "==", userRef);
+    const events = useFirestoreCollectionData(eventsQuery, { idField: "id" });
+
+    console.log(events);
 
     return (
         <VStack>
             <p>
                 Signed in as: {user.fname} {user.lname}
             </p>
-            <Button colorScheme="blue" onClick={() => auth.signOut()}>
-                Sign Out
-            </Button>
         </VStack>
     );
 };

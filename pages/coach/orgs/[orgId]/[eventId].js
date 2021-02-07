@@ -158,6 +158,7 @@ const Students = ({ students, onAddStudent }) => {
 
 const Event = () => {
     // Functions
+    const firestore = useFirestore();
     const functions = useFunctions();
     const createStudentAccount = functions.httpsCallable("createStudentAccount");
 
@@ -196,7 +197,13 @@ const Event = () => {
         const snap = await studentRef.get();
         if (snap.exists) throw new Error("This student is already associated with an organization.");
 
-        await studentRef.set({ fname, lname, email, org: orgRef });
+        await studentRef.set({
+            fname,
+            lname,
+            email,
+            user: firestore.collection("users").doc(uid),
+            org: orgRef,
+        });
 
         if (!existed) {
             openDialog(
