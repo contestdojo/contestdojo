@@ -2,43 +2,70 @@ import {
     Box,
     Button,
     Divider,
+    Flex,
     Heading,
     HStack,
-    SimpleGrid,
     Stack,
     Text,
     Tooltip,
     useDisclosure,
+    Wrap,
+    WrapItem,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useFirestoreCollectionData } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
 import { delay, useEventData, useOrgData } from "~/helpers/utils";
 
-const StudentCard = ({ fname, lname, email }) => {
+const StudentCard = ({ id, idx, fname, lname, email, ...props }) => {
     return (
-        <Box borderWidth={1} borderRadius="md" p={4}>
-            <Heading as="h4" size="md">
-                {fname} {lname}
-            </Heading>
-            <Text>{email}</Text>
-        </Box>
+        <Draggable draggableId={id} index={idx}>
+            {provided => (
+                <Box
+                    m={2}
+                    p={4}
+                    borderWidth={1}
+                    borderRadius="md"
+                    backgroundColor="white"
+                    transition="width 0.2s"
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    {...props}
+                >
+                    <Heading as="h4" size="md">
+                        {fname} {lname}
+                    </Heading>
+                    <Text>{email}</Text>
+                </Box>
+            )}
+        </Draggable>
     );
 };
 
-const TeamCard = ({ name }) => {
+const TeamCard = ({ id, name, students }) => {
     return (
-        <Box flex={1} borderWidth={1} borderRadius="md" p={4}>
-            <Heading as="h4" size="md">
+        <Stack spacing={0} flex={1} p={2} borderWidth={1} borderRadius="md">
+            <Heading p={2} as="h4" size="md">
                 {name}
             </Heading>
-            <Text></Text>
-        </Box>
+            <Droppable droppableId={id}>
+                {provided => (
+                    <Flex direction="column" flex={1} ref={provided.innerRef} {...provided.droppableProps}>
+                        {students.map((x, idx) => (
+                            <StudentCard key={x.id} idx={idx} {...x} />
+                        ))}
+                        {provided.placeholder}
+                    </Flex>
+                )}
+            </Droppable>
+        </Stack>
     );
 };
 
-const Teams = ({ event, teams, onAddTeam }) => {
+const Teams = ({ event, teams, onAddTeam, studentsByTeam }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [formState, setFormState] = useState({ isLoading: false, error: null });
 
@@ -58,11 +85,11 @@ const Teams = ({ event, teams, onAddTeam }) => {
         <>
             <Heading size="lg">Teams</Heading>
             {teams.length > 0 && (
-                <HStack direction="row" spacing={4}>
+                <Stack direction="row" spacing={4}>
                     {teams.map(x => (
-                        <TeamCard key={x.id} {...x} />
+                        <TeamCard key={x.id} {...x} students={studentsByTeam[x.id] ?? []} />
                     ))}
-                </HStack>
+                </Stack>
             )}
             {teams.length < event.maxTeams ? (
                 <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
@@ -101,11 +128,23 @@ const Students = ({ students, onAddStudent }) => {
     return (
         <>
             <Heading size="lg">Unassigned Students</Heading>
-            <SimpleGrid minChildWidth={300} spacing={4}>
-                {students.map(x => (
-                    <StudentCard key={x.id} {...x} />
-                ))}
-            </SimpleGrid>
+            <Droppable droppableId="unassigned" direction="horizontal">
+                {provided => (
+                    <Wrap
+                        style={{ marginLeft: "-0.5rem", marginRight: "-0.5rem" }}
+                        spacing={0}
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                    >
+                        {students.map((x, idx) => (
+                            <WrapItem>
+                                <StudentCard key={x.id} idx={idx} {...x} width={300} />
+                            </WrapItem>
+                        ))}
+                        {provided.placeholder}
+                    </Wrap>
+                )}
+            </Droppable>
             <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
                 Add Student
             </Button>
@@ -142,17 +181,28 @@ const Event = () => {
         await studentsRef.add({ fname, lname, email, org: orgRef });
     };
 
+    const handleDragEnd = ({ source, destination, draggableId }) => {
+        if (!destination) return;
+        if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+
+        studentsRef.doc(draggableId).update({
+            team: destination.droppableId === "unassigned" ? null : teamsRef.doc(destination.droppableId),
+        });
+    };
+
     return (
-        <Stack spacing={6} flex={1}>
-            <HStack alignItems="flex-end" spacing={6}>
-                <Heading size="2xl">{event.name}</Heading>
-                <Heading size="lg">{org.name}</Heading>
-            </HStack>
-            <Divider />
-            <Teams event={event} teams={teams} onAddTeam={handleAddTeam} />
-            <Divider />
-            <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />
-        </Stack>
+        <DragDropContext onDragEnd={handleDragEnd}>
+            <Stack spacing={6} flex={1}>
+                <HStack alignItems="flex-end" spacing={6}>
+                    <Heading size="2xl">{event.name}</Heading>
+                    <Heading size="lg">{org.name}</Heading>
+                </HStack>
+                <Divider />
+                <Teams event={event} teams={teams} studentsByTeam={studentsByTeam} onAddTeam={handleAddTeam} />
+                <Divider />
+                <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />
+            </Stack>
+        </DragDropContext>
     );
 };
 

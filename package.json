@@ -5,7 +5,8 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build",
-        "start": "next start"
+        "start": "next start",
+        "emulators": "firebase emulators:start --import ./exports --export-on-exit"
     },
     "dependencies": {
         "@chakra-ui/react": "^1.2.1",
@@ -23,6 +24,7 @@
         "nprogress": "^0.2.0",
         "prettier": "^2.2.1",
         "react": "0.0.0-experimental-27659559e",
+        "react-beautiful-dnd": "^13.0.0",
         "react-dom": "0.0.0-experimental-27659559e",
         "react-hook-form": "^6.15.1",
         "react-no-ssr": "^1.1.0",

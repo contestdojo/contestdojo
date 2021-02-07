@@ -1,8 +1,7 @@
-import { Box, Button, Center, Divider, Flex, Heading, Link, Spacer, Spinner, VStack } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, Heading, Link, Spacer, Spinner, Text, VStack } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { Suspense, useEffect } from "react";
-import NoSSR from "react-no-ssr";
+import { useEffect } from "react";
 import { AuthCheck, useAuth, useFirestore, useFirestoreCollectionData } from "reactfire";
 import { useUserRef } from "~/helpers/utils";
 
@@ -17,7 +16,7 @@ const Navigation = () => {
     return (
         <VStack flexBasis={300} boxShadow="0 0 10px rgba(0, 0, 0, 0.1)" spacing={0} divider={<Divider />}>
             <Box padding={6}>
-                <Heading textAlign="center">NCMT</Heading>
+                <Heading textAlign="center">Name</Heading>
             </Box>
 
             <VStack spacing={6} paddingY={6}>
@@ -37,6 +36,8 @@ const Navigation = () => {
                 <Spacer />
 
                 <Button onClick={() => auth.signOut()}>Sign Out</Button>
+
+                <Text>TODO: Make the sidebar look good</Text>
             </VStack>
         </VStack>
     );
@@ -66,20 +67,10 @@ const AuthWrapper = ({ children }) => {
     return <AuthCheck fallback={<Spinner />}>{children}</AuthCheck>;
 };
 
-const PageSpinner = () => (
-    <Center height="100vh">
-        <Spinner />
-    </Center>
-);
-
 const MainLayout = ({ children }) => (
-    <NoSSR>
-        <Suspense fallback={<PageSpinner />}>
-            <AuthWrapper>
-                <ContentWrapper>{children}</ContentWrapper>
-            </AuthWrapper>
-        </Suspense>
-    </NoSSR>
+    <AuthWrapper>
+        <ContentWrapper>{children}</ContentWrapper>
+    </AuthWrapper>
 );
 
 export default MainLayout;

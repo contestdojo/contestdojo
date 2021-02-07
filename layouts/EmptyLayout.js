@@ -1,13 +1,5 @@
-import { Center, Spinner } from "@chakra-ui/react";
-import { Suspense } from "react";
-import NoSSR from "react-no-ssr";
+import { Center } from "@chakra-ui/react";
 
-const EmptyLayout = ({ children }) => (
-    <Center height="100vh">
-        <NoSSR>
-            <Suspense fallback={<Spinner />}>{children}</Suspense>
-        </NoSSR>
-    </Center>
-);
+const EmptyLayout = ({ children }) => <Center height="100vh">{children}</Center>;
 
 export default EmptyLayout;
