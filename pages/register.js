@@ -4,10 +4,11 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useAuth } from "reactfire";
+import { useAuth, useFirestore } from "reactfire";
 import * as yup from "yup";
-import FormField from "../components/FormField";
-import { delay } from "../helpers/utils";
+import FormField from "~/components/FormField";
+import { delay } from "~/helpers/utils";
+import EmptyLayout from "~/layouts/EmptyLayout";
 
 const schema = yup.object().shape({
     fname: yup.string().required().label("First Name"),
@@ -86,7 +87,7 @@ const RegistrationForm = ({ onSubmit, isLoading, error }) => {
                     type="password"
                     name="passwordConfirm"
                     label="Confirm Password"
-                    placeholder="Enter secure password..."
+                    placeholder="Re-enter password..."
                     error={errors.passwordConfirm}
                     isRequired
                 />
@@ -105,20 +106,30 @@ const RegisterPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    const firestore = useFirestore();
+
     const handleSubmit = async ({ fname, lname, email, password }) => {
         setLoading(true);
         await delay(300);
+
         try {
             const { user } = await auth.createUserWithEmailAndPassword(email, password);
             await user.updateProfile({ displayName: `${fname} ${lname}` });
+            await firestore.collection("users").doc(user.uid).set({
+                fname,
+                lname,
+                email,
+                type: "coach",
+            });
         } catch (err) {
             setError(err);
         }
+
         setLoading(false);
     };
 
     return (
-        <Stack spacing={6} width="100%" maxWidth={400}>
+        <Stack spacing={6} m={6} flexShrink={1} flexBasis={400}>
             <Heading textAlign="center">Coach Registration</Heading>
             <RegistrationForm onSubmit={handleSubmit} error={error} isLoading={loading} />
             <NextLink href="/login" passHref>
@@ -156,5 +167,7 @@ const Register = () => (
         <Wrapper />
     </Suspense>
 );
+
+Register.layout = EmptyLayout;
 
 export default Register;

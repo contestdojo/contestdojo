@@ -6,8 +6,9 @@ import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "reactfire";
 import * as yup from "yup";
-import FormField from "../components/FormField";
-import { delay } from "../helpers/utils";
+import FormField from "~/components/FormField";
+import { delay } from "~/helpers/utils";
+import EmptyLayout from "~/layouts/EmptyLayout";
 
 const schema = yup.object().shape({
     email: yup.string().email().required().label("Email Address"),
@@ -76,11 +77,11 @@ const LoginPage = () => {
     };
 
     return (
-        <Stack spacing={6} width="100%" maxWidth={400}>
+        <Stack spacing={6} m={6} flexShrink={1} flexBasis={400}>
             <Heading textAlign="center">Login</Heading>
             <LoginForm onSubmit={handleSubmit} error={error} isLoading={loading} />
             <NextLink href="/register" passHref>
-                <Link>New coach? Register here</Link>
+                <Link>New organization? Register here</Link>
             </NextLink>
         </Stack>
     );
@@ -114,5 +115,7 @@ const Login = () => (
         <Wrapper />
     </Suspense>
 );
+
+Login.layout = EmptyLayout;
 
 export default Login;

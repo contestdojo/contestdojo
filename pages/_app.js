@@ -1,10 +1,11 @@
 import { ChakraProvider } from "@chakra-ui/react";
+import { DefaultSeo } from "next-seo";
 import Router from "next/router";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { FirebaseAppProvider } from "reactfire";
-import EmptyLayout from "../layouts/EmptyLayout";
-import "../styles/main.scss";
+import MainLayout from "~/layouts/MainLayout";
+import "~/styles/main.scss";
 
 Router.events.on("routeChangeStart", NProgress.start);
 Router.events.on("routeChangeComplete", NProgress.done);
@@ -20,17 +21,20 @@ const firebaseConfig = {
 };
 
 const App = ({ Component, pageProps }) => {
-    const Layout = Component.layout ?? EmptyLayout;
+    const Layout = Component.layout ?? MainLayout;
     const layoutProps = Component.layoutProps ?? {};
 
     return (
-        <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
-            <ChakraProvider>
-                <Layout {...layoutProps}>
-                    <Component {...pageProps} />
-                </Layout>
-            </ChakraProvider>
-        </FirebaseAppProvider>
+        <>
+            <DefaultSeo title="NCMT" description="NCMT Dashboard" />
+            <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
+                <ChakraProvider>
+                    <Layout {...layoutProps}>
+                        <Component {...pageProps} />
+                    </Layout>
+                </ChakraProvider>
+            </FirebaseAppProvider>
+        </>
     );
 };
 

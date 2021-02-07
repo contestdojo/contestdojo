@@ -1,38 +1,20 @@
-import { Button, Spinner, VStack } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { AuthCheck, useAuth, useUser } from "reactfire";
+import { Button, VStack } from "@chakra-ui/react";
+import { useAuth } from "reactfire";
+import { useUserData } from "~/helpers/utils";
 
-const HomePage = () => {
-    const { data: user } = useUser();
+const Home = () => {
     const auth = useAuth();
+    const { data: user } = useUserData();
 
     return (
         <VStack>
-            <p>Signed in as: {user.displayName}</p>
+            <p>
+                Signed in as: {user.fname} {user.lname}
+            </p>
             <Button colorScheme="blue" onClick={() => auth.signOut()}>
                 Sign Out
             </Button>
         </VStack>
-    );
-};
-
-const Home = () => {
-    const auth = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                router.replace("/login");
-            }
-        });
-    }, []);
-
-    return (
-        <AuthCheck fallback={<Spinner />}>
-            <HomePage />
-        </AuthCheck>
     );
 };
 
