@@ -1,4 +1,15 @@
-import { Alert, AlertIcon, Button, FormControl, FormErrorMessage, FormLabel, Select, Stack } from "@chakra-ui/react";
+import {
+    Alert,
+    AlertIcon,
+    Button,
+    Checkbox,
+    FormControl,
+    FormErrorMessage,
+    FormHelperText,
+    FormLabel,
+    Select,
+    Stack,
+} from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { countries } from "countries-list";
 import { useForm } from "react-hook-form";
@@ -14,11 +25,17 @@ const schema = yup.object().shape({
     zip: yup.string().required().label("Postal Code"),
 });
 
-const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
+const confirmSchema = schema.concat(
+    yup.object().shape({
+        confirmOrg: yup.boolean().required().equals([true], "You must select this checkbox."),
+    })
+);
+
+const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, confirmOrg }) => {
     const { register, handleSubmit, errors } = useForm({
         defaultValues,
         mode: "onTouched",
-        resolver: yupResolver(schema),
+        resolver: yupResolver(confirmOrg ? confirmSchema : schema),
     });
 
     const countriesSorted = Object.entries(countries);
@@ -92,6 +109,20 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
                         isRequired
                     />
                 </Stack>
+
+                {confirmOrg && (
+                    <FormControl id="confirmOrg" isInvalid={errors.confirmOrg} isRequired>
+                        <FormLabel>
+                            I affirm that I am a legitimate representative of this organization, and that I am
+                            authorized to register for events on their behalf. By continuing, I give my consent for NCMT
+                            to contact the organization for verification purposes.
+                        </FormLabel>
+                        <Checkbox ref={register} name="confirmOrg">
+                            I affirm
+                        </Checkbox>
+                        <FormErrorMessage>{errors.confirmOrg?.message}</FormErrorMessage>
+                    </FormControl>
+                )}
 
                 <Button isLoading={isLoading} type="submit" colorScheme="blue">
                     {buttonText ?? "Submit"}

@@ -35,7 +35,7 @@ const NewOrganization = () => {
     return (
         <Stack spacing={6} m={6} flexShrink={1} flexBasis={600}>
             <Heading>New Organization</Heading>
-            <OrgForm onSubmit={handleSubmit} buttonText="Create Organization" {...formState} />
+            <OrgForm onSubmit={handleSubmit} buttonText="Create Organization" confirmOrg {...formState} />
         </Stack>
     );
 };
