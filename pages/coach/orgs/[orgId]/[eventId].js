@@ -12,56 +12,85 @@ import {
     Wrap,
     WrapItem,
 } from "@chakra-ui/react";
+import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useFirestore, useFirestoreCollectionData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
 import { useDialog } from "~/components/DialogProvider";
 import { delay, useEventData, useOrgData } from "~/helpers/utils";
 
-const StudentCard = ({ id, idx, fname, lname, email, ...props }) => {
+const BlankCard = () => {
     return (
-        <Draggable draggableId={id} index={idx}>
-            {provided => (
-                <Box
-                    m={2}
-                    p={4}
-                    borderWidth={1}
-                    borderRadius="md"
-                    backgroundColor="white"
-                    transition="width 0.2s"
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    {...props}
-                >
-                    <Heading as="h4" size="md">
-                        {fname} {lname}
-                    </Heading>
-                    <Text>{email}</Text>
-                </Box>
-            )}
-        </Draggable>
+        <Flex
+            m={2}
+            p={4}
+            borderWidth={1}
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            borderStyle="dashed"
+            borderRadius="md"
+        >
+            <Text as="h4" size="md" color="gray.500">
+                Drag students here
+            </Text>
+        </Flex>
+    );
+};
+const StudentCard = ({ id, fname, lname, email }) => {
+    const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
+    const style = transform
+        ? {
+              transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+          }
+        : undefined;
+
+    return (
+        <Box
+            m={2}
+            p={4}
+            borderWidth={1}
+            borderRadius="md"
+            backgroundColor="white"
+            ref={setNodeRef}
+            style={style}
+            {...listeners}
+            {...attributes}
+        >
+            <Heading as="h4" size="md">
+                {fname} {lname}
+            </Heading>
+            <Text>{email}</Text>
+        </Box>
     );
 };
 
 const TeamCard = ({ id, name, students }) => {
+    const { isOver, setNodeRef } = useDroppable({ id });
+    const props = {
+        backgroundColor: isOver ? "gray.100" : undefined,
+    };
     return (
-        <Stack spacing={0} flex={1} p={2} borderWidth={1} borderRadius="md" minHeight="xs">
+        <Stack
+            spacing={0}
+            flex={1}
+            p={2}
+            borderWidth={1}
+            borderRadius="md"
+            minHeight="xs"
+            transition="background-color 0.1s"
+            {...props}
+        >
             <Heading p={2} as="h4" size="md">
                 {name}
             </Heading>
-            <Droppable droppableId={id}>
-                {provided => (
-                    <Flex direction="column" flex={1} ref={provided.innerRef} {...provided.droppableProps}>
-                        {students.map((x, idx) => (
-                            <StudentCard key={x.id} idx={idx} {...x} />
-                        ))}
-                        {provided.placeholder}
-                    </Flex>
-                )}
-            </Droppable>
+            <Flex direction="column" flex={1} ref={setNodeRef}>
+                {students.map(x => (
+                    <StudentCard key={x.id} {...x} />
+                ))}
+                {students.length === 0 && <BlankCard />}
+            </Flex>
         </Stack>
     );
 };
@@ -126,28 +155,32 @@ const Students = ({ students, onAddStudent }) => {
         }
     };
 
+    // Unassigned droppable
+    const { isOver, setNodeRef } = useDroppable({ id: "unassigned" });
+    const props = {
+        backgroundColor: isOver ? "gray.100" : undefined,
+    };
+
     return (
         <>
             <Heading size="lg">Unassigned Students</Heading>
-            {students.length > 0 && (
-                <Droppable droppableId="unassigned" direction="horizontal">
-                    {provided => (
-                        <Wrap
-                            style={{ marginLeft: "-0.5rem", marginRight: "-0.5rem" }}
-                            spacing={0}
-                            ref={provided.innerRef}
-                            {...provided.droppableProps}
-                        >
-                            {students.map((x, idx) => (
-                                <WrapItem>
-                                    <StudentCard key={x.id} idx={idx} {...x} width={300} />
-                                </WrapItem>
-                            ))}
-                            {provided.placeholder}
-                        </Wrap>
-                    )}
-                </Droppable>
-            )}
+
+            <Wrap
+                spacing={0}
+                style={{ marginLeft: "-0.5rem", marginRight: "-0.5rem" }}
+                transition="background-color 0.1s"
+                borderRadius={4}
+                ref={setNodeRef}
+                {...props}
+            >
+                {students.map(x => (
+                    <WrapItem key={x.id}>
+                        <StudentCard {...x} width={300} />
+                    </WrapItem>
+                ))}
+                {students.length === 0 && <BlankCard />}
+            </Wrap>
+
             <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
                 Invite Student
             </Button>
@@ -213,17 +246,16 @@ const Event = () => {
         }
     };
 
-    const handleDragEnd = ({ source, destination, draggableId }) => {
-        if (!destination) return;
-        if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-
-        studentsRef.doc(draggableId).update({
-            team: destination.droppableId === "unassigned" ? null : teamsRef.doc(destination.droppableId),
+    const handleDragEnd = ({ active, over }) => {
+        console.log(active, over);
+        if (!over) return;
+        studentsRef.doc(active.id).update({
+            team: over.id === "unassigned" ? null : teamsRef.doc(over.id),
         });
     };
 
     return (
-        <DragDropContext onDragEnd={handleDragEnd}>
+        <DndContext onDragEnd={handleDragEnd}>
             <Stack spacing={6} flex={1}>
                 <HStack alignItems="flex-end" spacing={6}>
                     <Heading size="2xl">{event.name}</Heading>
@@ -234,7 +266,7 @@ const Event = () => {
                 <Divider />
                 <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />
             </Stack>
-        </DragDropContext>
+        </DndContext>
     );
 };
 
