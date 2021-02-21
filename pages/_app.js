@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import NoSSR from "react-no-ssr";
 import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
 import DialogProvider from "~/components/DialogProvider";
+import AdminLayout from "~/layouts/AdminLayout";
 import CoachLayout from "~/layouts/CoachLayout";
 import EmptyLayout from "~/layouts/EmptyLayout";
 import StudentLayout from "~/layouts/StudentLayout";
@@ -69,6 +70,8 @@ const App = ({ Component, pageProps }) => {
         ? CoachLayout
         : router.pathname.startsWith("/student")
         ? StudentLayout
+        : router.pathname.startsWith("/admin")
+        ? AdminLayout
         : EmptyLayout;
 
     const Layout = Component.layout ?? DefaultLayout;

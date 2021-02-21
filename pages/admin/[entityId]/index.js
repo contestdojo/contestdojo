@@ -1,15 +1,12 @@
 import { Box, Button, Divider, Heading, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import NextLink from "next/link";
-import { useRouter } from "next/router";
 import { useState } from "react";
-import { useFirestore, useFirestoreCollectionData, useFirestoreDocData } from "reactfire";
-import OrgForm from "~/components/OrgForm";
-import { delay } from "~/helpers/utils";
+import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import EntityForm from "~/components/EntityForm";
+import { delay, useEntityData } from "~/helpers/utils";
 
-const EventCard = ({ id, name, date: { seconds } }) => {
-    const router = useRouter();
-    const { orgId } = router.query;
+const EventCard = ({ id, name, owner, date: { seconds } }) => {
     const date = dayjs.unix(seconds);
     return (
         <Box p={6} maxWidth="sm" borderWidth={1} borderRadius="md">
@@ -19,41 +16,33 @@ const EventCard = ({ id, name, date: { seconds } }) => {
             <Box as="h5" color="gray.500">
                 {date.format("D/M/YYYY")}
             </Box>
-            <NextLink href={`/coach/orgs/${orgId}/${id}`} passHref>
+            <NextLink href={`/admin/${owner.id}/${id}`} passHref>
                 <Button as="a" mt={2} colorScheme="blue" size="sm">
-                    Register
+                    Manage
                 </Button>
             </NextLink>
         </Box>
     );
 };
 
-const Organization = () => {
+const Entity = () => {
     const firestore = useFirestore();
-    const router = useRouter();
 
     // Get org
-    const { orgId } = router.query;
-    const orgRef = firestore.collection("orgs").doc(orgId);
-    const { data: org } = useFirestoreDocData(orgRef, { idField: "id" });
+    const { ref: entityRef, data: entity } = useEntityData();
 
     // Get events
-    const eventsRef = firestore.collection("events");
+    const eventsRef = firestore.collection("events").where("owner", "==", entityRef);
     const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
 
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
-    const handleUpdate = async ({ name, address, city, state, country, zip }) => {
+    const handleUpdate = async ({ name }) => {
         setFormState({ isLoading: true, error: null });
         await delay(300);
         try {
-            await orgRef.update({
+            await entityRef.update({
                 name,
-                address,
-                city,
-                state,
-                country,
-                zip,
             });
             setFormState({ isLoading: false, error: null });
         } catch (err) {
@@ -63,25 +52,25 @@ const Organization = () => {
 
     return (
         <Stack spacing={6} m={6} flexShrink={1} flexBasis={600}>
-            <Heading size="2xl">{org.name}</Heading>
+            <Heading size="2xl">{entity.name}</Heading>
             <Divider />
 
-            <Heading size="lg">Event Registration</Heading>
+            <Heading size="lg">Events</Heading>
             {events.map(x => (
                 <EventCard key={x.id} {...x} />
             ))}
             <Divider />
 
-            <Heading size="lg">Organization Details</Heading>
-            <OrgForm
-                key={org.id}
+            <Heading size="lg">Entity Details</Heading>
+            <EntityForm
+                key={entity.id}
                 onSubmit={handleUpdate}
-                buttonText="Update Organization"
-                defaultValues={org}
+                buttonText="Update Entity"
+                defaultValues={entity}
                 {...formState}
             />
         </Stack>
     );
 };
 
-export default Organization;
+export default Entity;

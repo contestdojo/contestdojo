@@ -9,8 +9,6 @@ const Home = () => {
     const eventsQuery = firestore.collectionGroup("students").where("user", "==", userRef);
     const events = useFirestoreCollectionData(eventsQuery, { idField: "id" });
 
-    console.log(events);
-
     return (
         <VStack>
             <p>

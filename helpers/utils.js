@@ -43,3 +43,15 @@ export const useOrgData = () => {
     const ref = useOrgRef();
     return { ref, ...useFirestoreDocData(ref, { idField: "id" }) };
 };
+
+export const useEntityRef = () => {
+    const router = useRouter();
+    const firestore = useFirestore();
+    const { entityId } = router.query;
+    return firestore.collection("entities").doc(entityId);
+};
+
+export const useEntityData = () => {
+    const ref = useEntityRef();
+    return { ref, ...useFirestoreDocData(ref, { idField: "id" }) };
+};

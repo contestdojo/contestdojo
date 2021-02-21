@@ -11,8 +11,15 @@ const Navigation = () => {
 
     const firestore = useFirestore();
     const userRef = useUserRef();
-    const orgsRef = firestore.collection("orgs").where("admin", "==", userRef);
-    const { data: orgs } = useFirestoreCollectionData(orgsRef, { idField: "id" });
+
+    // Get entities
+    const entitiesRef = firestore.collection("entities").where("admins", "array-contains", userRef);
+    const { data: entities } = useFirestoreCollectionData(entitiesRef, { idField: "id" });
+    const entityRefs = entities.map(x => firestore.collection("entities").doc(x.id));
+
+    // Get events
+    const eventsRef = firestore.collection("events").where("owner", "in", entityRefs);
+    const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
 
     const activeStyle = {
         backgroundColor: "gray.100",
@@ -21,17 +28,17 @@ const Navigation = () => {
     return (
         <Stack flexBasis={300} boxShadow="0 0 10px rgba(0, 0, 0, 0.1)" spacing={0} divider={<Divider />}>
             <Box padding={6}>
-                <Heading textAlign="center">Coach</Heading>
+                <Heading textAlign="center">Admin</Heading>
             </Box>
 
             <Stack spacing={4} p={8} pb={12} flex={1}>
                 <Stack>
-                    <Heading size={3}>Organizations</Heading>
+                    <Heading size={3}>Organizing Entities</Heading>
                     <Stack style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
-                        {orgs.map(x => (
-                            <NextLink href={`/coach/${x.id}`} key={x.id}>
+                        {entities.map(x => (
+                            <NextLink href={`/admin/${x.id}`} key={x.id}>
                                 <Link
-                                    {...(x.id == query.orgId && activeStyle)}
+                                    {...(x.id == query.entityId && !query.eventId && activeStyle)}
                                     _hover={activeStyle}
                                     borderRadius={4}
                                     px={3}
@@ -44,11 +51,24 @@ const Navigation = () => {
                     </Stack>
                 </Stack>
 
-                <NextLink href={`/coach/new`} passHref>
-                    <Button as="a" colorScheme="blue">
-                        New Organization
-                    </Button>
-                </NextLink>
+                <Stack>
+                    <Heading size={3}>Events</Heading>
+                    <Stack style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
+                        {events.map(x => (
+                            <NextLink href={`/admin/${x.owner.id}/${x.id}`} key={x.id}>
+                                <Link
+                                    {...(x.id == query.eventId && activeStyle)}
+                                    _hover={activeStyle}
+                                    borderRadius={4}
+                                    px={3}
+                                    py={2}
+                                >
+                                    {x.name}
+                                </Link>
+                            </NextLink>
+                        ))}
+                    </Stack>
+                </Stack>
 
                 <Spacer />
 
@@ -67,10 +87,10 @@ const ContentWrapper = ({ children }) => (
     </Flex>
 );
 
-const CoachLayout = ({ children }) => (
-    <AuthWrapper type="coach">
+const AdminLayout = ({ children }) => (
+    <AuthWrapper type="admin">
         <ContentWrapper>{children}</ContentWrapper>
     </AuthWrapper>
 );
 
-export default CoachLayout;
+export default AdminLayout;

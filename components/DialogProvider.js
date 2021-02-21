@@ -38,8 +38,6 @@ export const DialogContainer = ({ title, description, isOpen, onClose }) => {
 const DialogProvider = ({ children }) => {
     const [dialogs, setDialogs] = useState([]);
 
-    console.log(dialogs);
-
     const createDialog = (title, description) => {
         const dialog = { title, description, isOpen: true };
         setDialogs([...dialogs, dialog]);

@@ -1,5 +1,6 @@
 import { Alert, AlertIcon, Button, Heading, Link, Spinner, Stack } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
+import firebase from "firebase";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { Suspense, useEffect, useState } from "react";
@@ -8,7 +9,6 @@ import { useAuth } from "reactfire";
 import * as yup from "yup";
 import FormField from "~/components/FormField";
 import { delay } from "~/helpers/utils";
-import EmptyLayout from "~/layouts/EmptyLayout";
 
 const schema = yup.object().shape({
     email: yup.string().email().required().label("Email Address"),
@@ -69,6 +69,7 @@ const LoginPage = () => {
         setLoading(true);
         await delay(300);
         try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
             await auth.signInWithEmailAndPassword(email, password);
         } catch (err) {
             setError(err);

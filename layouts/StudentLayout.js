@@ -1,18 +1,9 @@
 import { Box, Button, Divider, Flex, Heading, Spacer, VStack } from "@chakra-ui/react";
-import NextLink from "next/link";
-import { useRouter } from "next/router";
 import { useAuth } from "reactfire";
 import AuthWrapper from "~/components/AuthWrapper";
-import { useUserData } from "~/helpers/utils";
 
 const Navigation = () => {
     const auth = useAuth();
-    const router = useRouter();
-    const { data: userData } = useUserData();
-
-    if (userData.type !== "student") {
-        router.replace("/");
-    }
 
     return (
         <VStack flexBasis={300} boxShadow="0 0 10px rgba(0, 0, 0, 0.1)" spacing={0} divider={<Divider />}>

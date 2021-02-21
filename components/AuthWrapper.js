@@ -1,21 +1,28 @@
-import { Spinner } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { AuthCheck, useAuth } from "reactfire";
+import { AuthCheck } from "reactfire";
+import { useUserData } from "~/helpers/utils";
 
-const AuthWrapper = ({ children, type }) => {
-    const auth = useAuth();
+const RedirectLogin = () => {
+    const router = useRouter();
+    router.replace("/login");
+    return null;
+};
+
+const AuthChecker = ({ children, type }) => {
     const router = useRouter();
 
-    useEffect(() => {
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                router.replace("/login");
-            }
-        });
-    }, []);
+    const { data: userData } = useUserData();
+    if (type && userData.type !== type) {
+        router.replace("/");
+    }
 
-    return <AuthCheck fallback={<Spinner />}>{children}</AuthCheck>;
+    return children;
 };
+
+const AuthWrapper = ({ children, type }) => (
+    <AuthCheck fallback={<RedirectLogin />}>
+        <AuthChecker type={type}>{children}</AuthChecker>
+    </AuthCheck>
+);
 
 export default AuthWrapper;

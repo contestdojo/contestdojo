@@ -10,6 +10,8 @@ const HomePage = () => {
         router.replace("/coach");
     } else if (user.type == "student") {
         router.replace("/student");
+    } else if (user.type == "admin") {
+        router.replace("/admin");
     }
 
     return null;

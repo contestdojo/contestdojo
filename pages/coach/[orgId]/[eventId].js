@@ -247,7 +247,6 @@ const Event = () => {
     };
 
     const handleDragEnd = ({ active, over }) => {
-        console.log(active, over);
         if (!over) return;
         studentsRef.doc(active.id).update({
             team: over.id === "unassigned" ? null : teamsRef.doc(over.id),
