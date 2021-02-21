@@ -1,4 +1,5 @@
 import {
+    Box,
     Heading,
     Stack,
     Tab,
@@ -13,8 +14,10 @@ import {
     Thead,
     Tr,
 } from "@chakra-ui/react";
+import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import { useEventData } from "~/helpers/utils";
+import EventForm from "~/components/EventForm";
+import { delay, useEventData } from "~/helpers/utils";
 
 const toDict = (obj, x) => {
     obj[x.id] = x;
@@ -146,6 +149,23 @@ const Event = () => {
         studentsByOrg[orgKey].push(student);
     }
 
+    // Form
+    const [formState, setFormState] = useState({ isLoading: false, error: null });
+    const handleUpdate = async ({ name, date, maxStudents, maxTeams }) => {
+        setFormState({ isLoading: true, error: null });
+        await delay(300);
+        try {
+            await eventRef.update({
+                name,
+                maxStudents,
+                maxTeams,
+            });
+            setFormState({ isLoading: false, error: null });
+        } catch (err) {
+            setFormState({ isLoading: false, error: err });
+        }
+    };
+
     return (
         <Stack spacing={6} flex={1}>
             <Heading>{event.name}</Heading>
@@ -155,6 +175,7 @@ const Event = () => {
                     <Tab>Teams</Tab>
                     <Tab>Students</Tab>
                     <Tab>Tests</Tab>
+                    <Tab>Event Details</Tab>
                 </TabList>
 
                 <TabPanels>
@@ -166,6 +187,18 @@ const Event = () => {
                     </TabPanel>
                     <TabPanel>
                         <Students students={students} teamsById={teamsById} orgsById={orgsById} />
+                    </TabPanel>
+                    <TabPanel>Tests</TabPanel>
+                    <TabPanel>
+                        <Box maxWidth={600}>
+                            <EventForm
+                                key={event.id}
+                                onSubmit={handleUpdate}
+                                buttonText="Update Event"
+                                defaultValues={event}
+                                {...formState}
+                            />
+                        </Box>
                     </TabPanel>
                 </TabPanels>
             </Tabs>

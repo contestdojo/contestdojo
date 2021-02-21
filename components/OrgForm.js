@@ -5,7 +5,6 @@ import {
     Checkbox,
     FormControl,
     FormErrorMessage,
-    FormHelperText,
     FormLabel,
     Select,
     Stack,
