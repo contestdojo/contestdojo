@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import EntityForm from "~/components/EntityForm";
+import EntityForm from "~/forms/EntityForm";
 import { delay, useEntityData } from "~/helpers/utils";
 
 const EventCard = ({ id, name, owner, date: { seconds } }) => {

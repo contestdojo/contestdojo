@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import EventForm from "~/components/EventForm";
+import EventForm from "~/forms/EventForm";
 import { delay, useEventData } from "~/helpers/utils";
 
 const toDict = (obj, x) => {
@@ -99,7 +99,7 @@ const Students = ({ students, teamsById, orgsById }) => {
                         </Td>
                         <Td>{x.email}</Td>
                         <Td>{orgsById[x.org.id].name}</Td>
-                        <Td>{teamsById[x.team.id]?.name}</Td>
+                        <Td>{teamsById[x.team?.id]?.name}</Td>
                     </Tr>
                 ))}
             </Tbody>

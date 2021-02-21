@@ -24,10 +24,10 @@ const Navigation = () => {
                 <Heading textAlign="center">Coach</Heading>
             </Box>
 
-            <Stack spacing={4} p={8} pb={12} flex={1}>
-                <Stack>
+            <Stack spacing={6} p={8} pb={12} flex={1}>
+                <Stack spacing={3}>
                     <Heading size={3}>Organizations</Heading>
-                    <Stack style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
+                    <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
                         {orgs.map(x => (
                             <NextLink href={`/coach/${x.id}`} key={x.id}>
                                 <Link

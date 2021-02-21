@@ -4,7 +4,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData, useFirestoreDocData } from "reactfire";
-import OrgForm from "~/components/OrgForm";
+import OrgForm from "~/forms/OrgForm";
 import { delay, useOrgData } from "~/helpers/utils";
 
 const EventCard = ({ id, name, date: { seconds } }) => {

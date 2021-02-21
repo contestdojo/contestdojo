@@ -31,10 +31,10 @@ const Navigation = () => {
                 <Heading textAlign="center">Admin</Heading>
             </Box>
 
-            <Stack spacing={4} p={8} pb={12} flex={1}>
-                <Stack>
+            <Stack spacing={6} p={8} pb={12} flex={1}>
+                <Stack spacing={3}>
                     <Heading size={3}>Organizing Entities</Heading>
-                    <Stack style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
+                    <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
                         {entities.map(x => (
                             <NextLink href={`/admin/${x.id}`} key={x.id}>
                                 <Link
@@ -51,9 +51,9 @@ const Navigation = () => {
                     </Stack>
                 </Stack>
 
-                <Stack>
+                <Stack spacing={3}>
                     <Heading size={3}>Events</Heading>
-                    <Stack style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
+                    <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
                         {events.map(x => (
                             <NextLink href={`/admin/${x.owner.id}/${x.id}`} key={x.id}>
                                 <Link
