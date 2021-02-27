@@ -81,9 +81,12 @@ const LoginPage = () => {
         <Stack spacing={6} m={6} flexShrink={1} flexBasis={400}>
             <Heading textAlign="center">Login</Heading>
             <LoginForm onSubmit={handleSubmit} error={error} isLoading={loading} />
-            <NextLink href="/register" passHref>
-                <Link>New coach? Register here</Link>
-            </NextLink>
+            <p>
+                New coach?{" "}
+                <NextLink href="/register" passHref>
+                    <Link color="blue.500">Register here</Link>
+                </NextLink>
+            </p>
         </Stack>
     );
 };

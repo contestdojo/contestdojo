@@ -132,9 +132,12 @@ const RegisterPage = () => {
         <Stack spacing={6} m={6} flexShrink={1} flexBasis={400}>
             <Heading textAlign="center">Coach Registration</Heading>
             <RegistrationForm onSubmit={handleSubmit} error={error} isLoading={loading} />
-            <NextLink href="/login" passHref>
-                <Link>Not a coach, or already have an account? Login here</Link>
-            </NextLink>
+            <p>
+                Not a coach, or already have an account?{" "}
+                <NextLink href="/register" passHref>
+                    <Link color="blue.500">Login here</Link>
+                </NextLink>
+            </p>
         </Stack>
     );
 };
