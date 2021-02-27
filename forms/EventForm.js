@@ -6,8 +6,8 @@ import FormField from "~/components/FormField";
 
 const schema = yup.object().shape({
     name: yup.string().required().label("Event Name"),
-    maxStudents: yup.number().required().label("# Students per Team"),
-    maxTeams: yup.number().required().label("# Teams per Organization"),
+    // maxStudents: yup.number().required().label("# Students per Team"),
+    // maxTeams: yup.number().nullable().label("# Teams per Organization"),
 });
 
 const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
@@ -36,7 +36,7 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
                     isRequired
                 />
 
-                <Stack direction="row" spacing={4}>
+                {/* <Stack direction="row" spacing={4}>
                     <FormField
                         ref={register}
                         type="number"
@@ -53,9 +53,8 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
                         label="# Teams per Organization"
                         placeholder="3"
                         error={errors.maxTeams}
-                        isRequired
                     />
-                </Stack>
+                </Stack> */}
 
                 <Button isLoading={isLoading} type="submit" colorScheme="blue">
                     {buttonText ?? "Submit"}

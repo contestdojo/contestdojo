@@ -142,7 +142,7 @@ const Event = () => {
 
     const rootOrgsRef = firestore
         .collection("orgs")
-        .where(firebase.firestore.FieldPath.documentId(), "in", Object.keys(orgsById));
+        .where(firebase.firestore.FieldPath.documentId(), "in", [...Object.keys(orgsById), "0"]);
     const { data: rootOrgs } = useFirestoreCollectionData(rootOrgsRef, { idField: "id" });
     orgsById = rootOrgs.reduce(toDict, orgsById);
 

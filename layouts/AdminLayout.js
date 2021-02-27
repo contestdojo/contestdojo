@@ -18,7 +18,7 @@ const Navigation = () => {
     const entityRefs = entities.map(x => firestore.collection("entities").doc(x.id));
 
     // Get events
-    const eventsRef = firestore.collection("events").where("owner", "in", entityRefs);
+    const eventsRef = firestore.collection("events").where("owner", "in", [...entityRefs, "0"]);
     const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
 
     const activeStyle = {

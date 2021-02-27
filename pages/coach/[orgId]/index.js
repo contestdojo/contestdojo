@@ -17,7 +17,7 @@ const EventCard = ({ id, name, date: { seconds } }) => {
                 {name}
             </Box>
             <Box as="h5" color="gray.500">
-                {date.format("D/M/YYYY")}
+                {date.format("M/D/YYYY")}
             </Box>
             <NextLink href={`/coach/${orgId}/${id}`} passHref>
                 <Button as="a" mt={2} colorScheme="blue" size="sm">
