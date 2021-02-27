@@ -134,7 +134,7 @@ const RegisterPage = () => {
             <RegistrationForm onSubmit={handleSubmit} error={error} isLoading={loading} />
             <p>
                 Not a coach, or already have an account?{" "}
-                <NextLink href="/register" passHref>
+                <NextLink href="/login" passHref>
                     <Link color="blue.500">Login here</Link>
                 </NextLink>
             </p>
