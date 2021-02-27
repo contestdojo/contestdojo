@@ -45,7 +45,9 @@ const Event = () => {
                 <Heading size="2xl" flexShrink={0}>
                     {event.name}
                 </Heading>
-                <Heading size="lg">{org.name}</Heading>
+                <Heading size="lg" flex={1}>
+                    {org.name}
+                </Heading>
             </HStack>
             <Divider />
             {eventOrg.applyTeams && (
