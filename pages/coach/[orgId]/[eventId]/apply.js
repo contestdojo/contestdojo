@@ -1,9 +1,10 @@
 import { Alert, AlertIcon, AlertTitle, Box, Divider, Flex, Heading, HStack, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { useFirestoreDocData } from "reactfire";
+import { firestore, useFirestoreDocData } from "reactfire";
 import ApplyForm from "~/forms/ApplyForm";
 import { delay, useEventData, useOrgData } from "~/helpers/utils";
+import firebase from "firebase";
 
 const Event = () => {
     const { ref: orgRef, data: org } = useOrgData();
@@ -22,6 +23,10 @@ const Event = () => {
                 applyTeams,
                 expectedStudents,
                 confirmUS,
+                ...(!eventOrg.applyTeams && {
+                    startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                }),
+                updateTime: firebase.firestore.FieldValue.serverTimestamp(),
             });
             setFormState({ isLoading: false, error: null });
         } catch (err) {
