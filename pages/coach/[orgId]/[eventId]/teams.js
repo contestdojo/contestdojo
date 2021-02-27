@@ -38,6 +38,7 @@ const BlankCard = () => {
         </Flex>
     );
 };
+
 const StudentCard = ({ id, fname, lname, email }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
     const style = transform

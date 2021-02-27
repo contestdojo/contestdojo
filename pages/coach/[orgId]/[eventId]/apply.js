@@ -47,12 +47,18 @@ const Event = () => {
                     organizers and you will receive an email if you are approved.
                 </Alert>
             )}
-            <p>
-                Before you can add students and assign teams, you must first apply and be approved.
-                {event.maxTeams && <> You may apply for up to {event.maxTeams} teams.</>} You can update your
-                application at any time before the deadline on {ends.format("M/D/YYYY")}.
-            </p>
-            <p>If you are approved, you will be able to create teams, invite students, and assign students to teams.</p>
+            <Stack spacing={4}>
+                <p>{event.description}</p>
+                <p>
+                    Before you can add students and assign teams, you must first apply and be approved.
+                    {event.maxTeams && <> You may apply for up to {event.maxTeams} teams.</>} You can update your
+                    application at any time before the deadline on {ends.format("M/D/YYYY")}.
+                </p>
+                <p>
+                    If you are approved, you will be able to create teams, invite students, and assign students to
+                    teams.
+                </p>
+            </Stack>
             <Flex>
                 <Box flexBasis={400}>
                     <ApplyForm
