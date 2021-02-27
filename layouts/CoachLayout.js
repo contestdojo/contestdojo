@@ -24,7 +24,7 @@ const Navigation = () => {
                 <Heading textAlign="center">Coach</Heading>
             </Box>
 
-            <Stack spacing={6} p={8} pb={12} flex={1}>
+            <Stack spacing={6} p={8} flex={1}>
                 <Stack spacing={3}>
                     <Heading size={3}>Organizations</Heading>
                     <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>

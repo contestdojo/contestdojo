@@ -11,7 +11,7 @@ const Navigation = () => {
                 <Heading textAlign="center">Student</Heading>
             </Box>
 
-            <VStack spacing={6} pt={6} pb={12} flex={1}>
+            <VStack spacing={6} pt={6} flex={1}>
                 <Heading size={3}>YOU ARE A STUDENT</Heading>
 
                 <Spacer />

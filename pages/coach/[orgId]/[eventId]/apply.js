@@ -1,10 +1,10 @@
-import { Alert, AlertIcon, AlertTitle, Box, Divider, Flex, Heading, HStack, Stack } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Divider, Flex, Heading, HStack, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
+import firebase from "firebase";
 import { useState } from "react";
-import { firestore, useFirestoreDocData } from "reactfire";
+import { useFirestoreDocData } from "reactfire";
 import ApplyForm from "~/forms/ApplyForm";
 import { delay, useEventData, useOrgData } from "~/helpers/utils";
-import firebase from "firebase";
 
 const Event = () => {
     const { ref: orgRef, data: org } = useOrgData();
