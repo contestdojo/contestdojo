@@ -62,7 +62,7 @@ const Orgs = ({ orgs, handleChangeTeams }) => {
                                     aria-label="Add Team"
                                     icon={<IoRemove />}
                                     onClick={() => handleChangeTeams(x.id, x.maxTeams - 1)}
-                                    disabled={x.maxTeams == 0}
+                                    disabled={x.maxTeams <= 0}
                                 />
                                 <Box>{x.maxTeams ?? 0}</Box>
                                 <IconButton
