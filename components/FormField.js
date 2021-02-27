@@ -1,7 +1,7 @@
-import { FormControl, FormErrorMessage, FormLabel, Input } from "@chakra-ui/react";
+import { FormControl, FormErrorMessage, FormHelperText, FormLabel, Input } from "@chakra-ui/react";
 import { forwardRef } from "react";
 
-const FormField = forwardRef(({ type, name, label, placeholder, error, as, children, ...props }, ref) => {
+const FormField = forwardRef(({ type, name, label, placeholder, helperText, error, as, children, ...props }, ref) => {
     const Component = as ?? Input;
 
     return (
@@ -10,6 +10,7 @@ const FormField = forwardRef(({ type, name, label, placeholder, error, as, child
             <Component ref={ref} type={type ?? "text"} name={name} placeholder={placeholder}>
                 {children}
             </Component>
+            {helperText && <FormHelperText>{helperText}</FormHelperText>}
             <FormErrorMessage>{error?.message}</FormErrorMessage>
         </FormControl>
     );

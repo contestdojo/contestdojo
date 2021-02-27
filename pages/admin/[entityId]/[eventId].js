@@ -1,6 +1,8 @@
 import {
     Box,
     Heading,
+    HStack,
+    IconButton,
     Stack,
     Tab,
     Table,
@@ -14,17 +16,19 @@ import {
     Thead,
     Tr,
 } from "@chakra-ui/react";
+import firebase from "firebase";
 import { useState } from "react";
+import { IoAdd, IoRemove } from "react-icons/io5";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import EventForm from "~/forms/EventForm";
 import { delay, useEventData } from "~/helpers/utils";
 
 const toDict = (obj, x) => {
-    obj[x.id] = x;
+    obj[x.id] = { ...x, ...obj[x.id] };
     return obj;
 };
 
-const Orgs = ({ orgs, teamsByOrg, studentsByOrg }) => {
+const Orgs = ({ orgs, handleGiveTeams }) => {
     return (
         <Table>
             <Thead>
@@ -33,8 +37,9 @@ const Orgs = ({ orgs, teamsByOrg, studentsByOrg }) => {
                     <Th>Contact</Th>
                     <Th>Contact Email</Th>
                     <Th>Address</Th>
-                    <Th># Teams</Th>
-                    <Th># Students</Th>
+                    <Th># Teams Applied</Th>
+                    <Th>Expected # Students</Th>
+                    <Th># Teams Given</Th>
                 </Tr>
             </Thead>
             <Tbody>
@@ -46,10 +51,27 @@ const Orgs = ({ orgs, teamsByOrg, studentsByOrg }) => {
                         </Td>
                         <Td>{x.adminData?.email}</Td>
                         <Td>
-                            {x.address}, {x.city}, {x.state} {x.zip}
+                            {x.address}, {x.city}, {x.state}, {x.country} {x.zip}
                         </Td>
-                        <Td>{teamsByOrg[x.id]?.length ?? 0}</Td>
-                        <Td>{studentsByOrg[x.id]?.length ?? 0}</Td>
+                        <Td>{x.applyTeams}</Td>
+                        <Td>{x.expectedStudents}</Td>
+                        <Td>
+                            <HStack spacing={4}>
+                                <IconButton
+                                    size="sm"
+                                    aria-label="Add Team"
+                                    icon={<IoRemove />}
+                                    onClick={() => handleGiveTeams(x.id, -1)}
+                                />
+                                <Box>{x.maxTeams ?? 0}</Box>
+                                <IconButton
+                                    size="sm"
+                                    aria-label="Add Team"
+                                    icon={<IoAdd />}
+                                    onClick={() => handleGiveTeams(x.id, 1)}
+                                />
+                            </HStack>
+                        </Td>
                     </Tr>
                 ))}
             </Tbody>
@@ -113,9 +135,16 @@ const Event = () => {
     const { ref: eventRef, data: event } = useEventData();
 
     // Get orgs
-    const orgsRef = firestore.collection("orgs");
-    const { data: orgs } = useFirestoreCollectionData(orgsRef, { idField: "id" });
-    const orgsById = orgs.reduce(toDict, {});
+
+    const eventOrgsRef = eventRef.collection("orgs");
+    const { data: eventOrgs } = useFirestoreCollectionData(eventOrgsRef, { idField: "id" });
+    let orgsById = eventOrgs.reduce(toDict, {});
+
+    const rootOrgsRef = firestore
+        .collection("orgs")
+        .where(firebase.firestore.FieldPath.documentId(), "in", Object.keys(orgsById));
+    const { data: rootOrgs } = useFirestoreCollectionData(rootOrgsRef, { idField: "id" });
+    orgsById = rootOrgs.reduce(toDict, orgsById);
 
     // Get teams
     const teamsRef = eventRef.collection("teams");
@@ -166,6 +195,15 @@ const Event = () => {
         }
     };
 
+    // Give teams
+
+    const handleGiveTeams = async (id, inc) => {
+        await delay(300);
+        await eventOrgsRef.doc(id).update({
+            maxTeams: firebase.firestore.FieldValue.increment(inc),
+        });
+    };
+
     return (
         <Stack spacing={6} flex={1}>
             <Heading>{event.name}</Heading>
@@ -180,7 +218,12 @@ const Event = () => {
 
                 <TabPanels>
                     <TabPanel>
-                        <Orgs orgs={orgs} teamsByOrg={teamsByOrg} studentsByOrg={studentsByOrg} />
+                        <Orgs
+                            orgs={Object.values(orgsById)}
+                            teamsByOrg={teamsByOrg}
+                            studentsByOrg={studentsByOrg}
+                            handleGiveTeams={handleGiveTeams}
+                        />
                     </TabPanel>
                     <TabPanel>
                         <Teams teams={teams} orgsById={orgsById} studentsByTeam={studentsByTeam} />

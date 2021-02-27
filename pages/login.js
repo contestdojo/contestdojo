@@ -82,7 +82,7 @@ const LoginPage = () => {
             <Heading textAlign="center">Login</Heading>
             <LoginForm onSubmit={handleSubmit} error={error} isLoading={loading} />
             <NextLink href="/register" passHref>
-                <Link>New organization? Register here</Link>
+                <Link>New coach? Register here</Link>
             </NextLink>
         </Stack>
     );

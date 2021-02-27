@@ -79,7 +79,7 @@ const App = ({ Component, pageProps }) => {
 
     return (
         <>
-            <DefaultSeo title="NCMT" description="NCMT Dashboard" />
+            <DefaultSeo title="SMT" description="SMT Dashboard" />
             <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
                 <NoSSR>
                     <ChakraProvider>

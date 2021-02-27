@@ -113,7 +113,7 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, confir
                     <FormControl id="confirmOrg" isInvalid={errors.confirmOrg} isRequired>
                         <FormLabel>
                             I affirm that I am a legitimate representative of this organization, and that I am
-                            authorized to register for events on their behalf. By continuing, I give my consent for NCMT
+                            authorized to register for events on their behalf. By continuing, I give my consent for SMT
                             to contact the organization for verification purposes.
                         </FormLabel>
                         <Checkbox ref={register} name="confirmOrg">
