@@ -231,13 +231,16 @@ const Event = () => {
         const snap = await studentRef.get();
         if (snap.exists) throw new Error("This student is already associated with an organization.");
 
-        await studentRef.set({
-            fname,
-            lname,
-            email,
-            user: firestore.collection("users").doc(uid),
-            org: orgRef,
-        });
+        await studentRef.set(
+            {
+                fname,
+                lname,
+                email,
+                user: firestore.collection("users").doc(uid),
+                org: orgRef,
+            },
+            { merge: true }
+        );
 
         if (!existed) {
             openDialog(

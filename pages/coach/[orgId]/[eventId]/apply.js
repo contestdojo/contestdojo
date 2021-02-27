@@ -19,15 +19,18 @@ const Event = () => {
         setFormState({ isLoading: true, error: null });
         await delay(300);
         try {
-            await eventOrgRef.set({
-                applyTeams,
-                expectedStudents,
-                confirmUS,
-                ...(!eventOrg.applyTeams && {
-                    startTime: firebase.firestore.FieldValue.serverTimestamp(),
-                }),
-                updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-            });
+            await eventOrgRef.set(
+                {
+                    applyTeams,
+                    expectedStudents,
+                    confirmUS,
+                    ...(!eventOrg.applyTeams && {
+                        startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    }),
+                    updateTime: firebase.firestore.FieldValue.serverTimestamp(),
+                },
+                { merge: true }
+            );
             setFormState({ isLoading: false, error: null });
         } catch (err) {
             setFormState({ isLoading: false, error: err });

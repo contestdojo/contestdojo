@@ -28,7 +28,7 @@ const toDict = (obj, x) => {
     return obj;
 };
 
-const Orgs = ({ orgs, handleGiveTeams }) => {
+const Orgs = ({ orgs, handleChangeTeams }) => {
     return (
         <Table>
             <Thead>
@@ -61,14 +61,15 @@ const Orgs = ({ orgs, handleGiveTeams }) => {
                                     size="sm"
                                     aria-label="Add Team"
                                     icon={<IoRemove />}
-                                    onClick={() => handleGiveTeams(x.id, -1)}
+                                    onClick={() => handleChangeTeams(x.id, x.maxTeams - 1)}
+                                    disabled={x.maxTeams == 0}
                                 />
                                 <Box>{x.maxTeams ?? 0}</Box>
                                 <IconButton
                                     size="sm"
                                     aria-label="Add Team"
                                     icon={<IoAdd />}
-                                    onClick={() => handleGiveTeams(x.id, 1)}
+                                    onClick={() => handleChangeTeams(x.id, x.maxTeams + 1)}
                                 />
                             </HStack>
                         </Td>
@@ -197,10 +198,9 @@ const Event = () => {
 
     // Give teams
 
-    const handleGiveTeams = async (id, inc) => {
-        await delay(300);
+    const handleChangeTeams = async (id, val) => {
         await eventOrgsRef.doc(id).update({
-            maxTeams: firebase.firestore.FieldValue.increment(inc),
+            maxTeams: val,
         });
     };
 
@@ -222,7 +222,7 @@ const Event = () => {
                             orgs={Object.values(orgsById)}
                             teamsByOrg={teamsByOrg}
                             studentsByOrg={studentsByOrg}
-                            handleGiveTeams={handleGiveTeams}
+                            handleChangeTeams={handleChangeTeams}
                         />
                     </TabPanel>
                     <TabPanel>
