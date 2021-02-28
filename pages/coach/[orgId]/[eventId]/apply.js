@@ -54,19 +54,24 @@ const Event = () => {
                 <Alert status="success">
                     <AlertIcon />
                     You have applied for {eventOrg.applyTeams} teams. Your application will be reviewed by the contest
-                    organizers and you will receive an email if you are approved.
+                    organizers and you will receive an email once you are approved.
                 </Alert>
             )}
             <Stack spacing={4}>
-                <p>{event.description}</p>
                 <p>
-                    Before you can add students and assign teams, you must first apply and be approved.
-                    {event.maxTeams && <> You may apply for up to {event.maxTeams} teams.</>} You can update your
-                    application at any time before the deadline on {ends.format("M/D/YYYY")}.
+                    Stanford Math Tournament (SMT) 2021 will be taking place virtually on Saturday, April 17, 2021,
+                    tentatively from 8am – 5pm PT! SMT is an annual student-run math competition for high school
+                    students that aims to encourage interest in math by providing students with the opportunity to work
+                    on fun and challenging problems. For more information about our tournament please visit our website:
+                    <a href="http://sumo.stanford.edu/smt">http://sumo.stanford.edu/smt</a>.
                 </p>
                 <p>
-                    If you are approved, you will be able to create teams, invite students, and assign students to
-                    teams.
+                    Our tournament is open to any organization located in the U.S. and any high school student (age 14
+                    and older) currently located in the US. Due to capacity constraints, registration will be done on an
+                    application basis. You will simply apply for the number of teams (up to eight students each) you’d
+                    like and may update your application at any time before the registration deadline at 11:59pm PT on
+                    March 19. If you are accepted into the tournament, you will be able to create teams, invite
+                    students, and assign students to teams.
                 </p>
             </Stack>
             <Flex>
