@@ -52,7 +52,7 @@ const EntityContent = () => {
     };
 
     return (
-        <Stack spacing={6} m={6} flexBasis={600}>
+        <Stack spacing={6} flexBasis={600}>
             <Heading size="2xl">{entity.name}</Heading>
             <Divider />
 

@@ -20,7 +20,11 @@ const Navigation = () => {
     return (
         <Stack flexBasis={300} boxShadow="0 0 10px rgba(0, 0, 0, 0.1)" spacing={0} divider={<Divider />}>
             <Box padding={6}>
-                <Image src="/smt.png" width={684} height={216} />
+                <NextLink href="/coach">
+                    <a>
+                        <Image src="/smt.png" width={684} height={216} />
+                    </a>
+                </NextLink>
             </Box>
 
             <Stack spacing={6} p={8} flex={1}>

@@ -60,7 +60,7 @@ const OrganizationContent = () => {
     };
 
     return (
-        <Stack spacing={6} m={6} flexBasis={600}>
+        <Stack spacing={6} flexBasis={600}>
             <Heading size="2xl">{org.name}</Heading>
             <Divider />
 

@@ -1,9 +1,56 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function userRef() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function isGlobalAdmin() {
+      return get(userRef()).data.type == "admin";
+    }
+
     match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2021, 4, 20);
+      allow read, write: if false;
+    }
+
+    match /orgs/{orgId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if isGlobalAdmin() || userRef() == resource.data.admin;
+    }
+
+    match /users/{userId} {
+      // Make sure can't change type
+      allow read: if request.auth.uid == userId;
+      allow create: if request.auth.uid == userId && request.resource.data.type != "admin";
+      allow update: if request.auth.uid == userId && resource.data.type == request.resource.data.type
+    }
+
+    match /events/{eventId} {
+      allow read: if request.auth != null;
+      allow create: if false;
+      allow update, delete: if userRef() in get(resource.data.owner).data.admins;
+
+      function isEventAdmin() {
+        return userRef() in get(get(/databases/$(database)/documents/events/$(eventId)).data.owner).data.admins;
+      }
+
+      match /orgs/{orgId} {
+        allow read, write: if isEventAdmin() || userRef() == get(/databases/$(database)/documents/orgs/$(orgId)).data.admin;
+      }
+
+      match /teams/{teamId} {
+        allow read, write: if isEventAdmin() || userRef() == get(resource.data.org).data.admin;
+      }
+
+      match /students/{teamId} {
+        allow read, write: if isEventAdmin() || userRef() == get(resource.data.org).data.admin;
+      }
+    }
+
+    match /entities/{entityId} {
+      allow read: if request.auth != null;
+      allow create: if false;
+      allow update, delete: if userRef() in resource.data.admins;
     }
   }
 }

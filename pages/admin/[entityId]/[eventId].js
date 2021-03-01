@@ -62,15 +62,15 @@ const Orgs = ({ orgs, handleChangeTeams }) => {
                                     size="sm"
                                     aria-label="Add Team"
                                     icon={<IoRemove />}
-                                    onClick={() => handleChangeTeams(x.id, x.maxTeams - 1)}
-                                    disabled={x.maxTeams <= 0}
+                                    onClick={() => handleChangeTeams(x.id, (x.maxTeams ?? 0) - 1)}
+                                    disabled={(x.maxTeams ?? 0) <= 0}
                                 />
                                 <Box>{x.maxTeams ?? 0}</Box>
                                 <IconButton
                                     size="sm"
                                     aria-label="Add Team"
                                     icon={<IoAdd />}
-                                    onClick={() => handleChangeTeams(x.id, x.maxTeams + 1)}
+                                    onClick={() => handleChangeTeams(x.id, (x.maxTeams ?? 0) + 1)}
                                 />
                             </HStack>
                         </Td>

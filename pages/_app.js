@@ -5,7 +5,7 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { Suspense } from "react";
 import NoSSR from "react-no-ssr";
-import { FirebaseAppProvider, useFirebaseApp } from "reactfire";
+import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
 import ErrorBoundary from "~/components/ErrorBoundary";
 import DialogProvider from "~/contexts/DialogProvider";
 import AdminLayout from "~/layouts/AdminLayout";
@@ -27,30 +27,30 @@ const firebaseConfig = {
     appId: "1:97736862094:web:6a71d522dc08e59eb15cdf",
 };
 
-// const preloadSDKs = async firebaseApp => {
-//     if (process.env.NODE_ENV === "production") {
-//         return Promise.all([
-//             preloadAuth({ firebaseApp }),
-//             preloadFirestore({ firebaseApp }),
-//             preloadFunctions({ firebaseApp }),
-//         ]);
-//     } else if (process.env.NODE_ENV === "development") {
-//         return Promise.all([
-//             preloadAuth({
-//                 firebaseApp,
-//                 setup: auth => auth().useEmulator("http://localhost:9099/"),
-//             }),
-//             preloadFirestore({
-//                 firebaseApp,
-//                 setup: firestore => firestore().useEmulator("localhost", 8080),
-//             }),
-//             preloadFunctions({
-//                 firebaseApp,
-//                 setup: functions => functions().useEmulator("localhost", 5001),
-//             }),
-//         ]);
-//     }
-// };
+const preloadSDKs = async firebaseApp => {
+    if (process.env.NODE_ENV === "production") {
+        return Promise.all([
+            preloadAuth({ firebaseApp }),
+            preloadFirestore({ firebaseApp }),
+            preloadFunctions({ firebaseApp }),
+        ]);
+    } else if (process.env.NODE_ENV === "development") {
+        return Promise.all([
+            preloadAuth({
+                firebaseApp,
+                setup: auth => auth().useEmulator("http://localhost:9099/"),
+            }),
+            preloadFirestore({
+                firebaseApp,
+                setup: firestore => firestore().useEmulator("localhost", 8080),
+            }),
+            preloadFunctions({
+                firebaseApp,
+                setup: functions => functions().useEmulator("localhost", 5001),
+            }),
+        ]);
+    }
+};
 
 const PageSpinner = () => (
     <Center height="100vh">
@@ -60,14 +60,12 @@ const PageSpinner = () => (
 
 const ContentWrapper = ({ children }) => {
     const firebaseApp = useFirebaseApp();
-    // preloadSDKs(firebaseApp);
+    preloadSDKs(firebaseApp);
     return children;
 };
 
 const App = ({ Component, pageProps }) => {
     const router = useRouter();
-
-    console.log(router.pathname);
 
     const DefaultLayout = router.pathname.startsWith("/coach")
         ? CoachLayout
