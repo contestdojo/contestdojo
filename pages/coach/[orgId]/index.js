@@ -37,7 +37,9 @@ const OrganizationContent = () => {
 
     // Get events
     const eventsRef = firestore.collection("events");
-    const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
+    let { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
+
+    events = events.filter(x => !x.hide);
 
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
@@ -68,6 +70,7 @@ const OrganizationContent = () => {
             {events.map(x => (
                 <EventCard key={x.id} {...x} />
             ))}
+            {events.length == 0 && <p>No events to register for at this time.</p>}
             <Divider />
 
             <Heading size="lg">Organization Details</Heading>

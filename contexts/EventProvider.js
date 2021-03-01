@@ -14,7 +14,7 @@ const EventProvider = ({ children }) => {
     const eventRef = firestore.collection("events").doc(eventId);
     const { data: event } = useFirestoreDoc(eventRef);
 
-    if (!event.exists) {
+    if (!event.exists || event.data().hide) {
         return (
             <Alert status="error">
                 <AlertIcon />

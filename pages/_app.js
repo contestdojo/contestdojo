@@ -14,6 +14,8 @@ import EmptyLayout from "~/layouts/EmptyLayout";
 import StudentLayout from "~/layouts/StudentLayout";
 import "~/styles/main.scss";
 
+const useEmulatorsInDebug = false;
+
 Router.events.on("routeChangeStart", NProgress.start);
 Router.events.on("routeChangeComplete", NProgress.done);
 Router.events.on("routeChangeError", NProgress.done);
@@ -34,7 +36,7 @@ const preloadSDKs = async firebaseApp => {
             preloadFirestore({ firebaseApp }),
             preloadFunctions({ firebaseApp }),
         ]);
-    } else if (process.env.NODE_ENV === "development") {
+    } else if (process.env.NODE_ENV === "development" && useEmulatorsInDebug) {
         return Promise.all([
             preloadAuth({
                 firebaseApp,
