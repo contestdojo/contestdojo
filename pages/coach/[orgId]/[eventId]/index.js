@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
-import { useEventData } from "~/helpers/utils";
+import EventProvider, { useEvent } from "~/contexts/EventProvider";
 
-const Event = () => {
-    const { data: event } = useEventData();
+const EventContent = () => {
+    const { data: event } = useEvent();
 
     const router = useRouter();
     const { orgId, eventId } = router.query;
@@ -10,5 +10,11 @@ const Event = () => {
 
     return null;
 };
+
+const Event = () => (
+    <EventProvider>
+        <EventContent />
+    </EventProvider>
+);
 
 export default Event;

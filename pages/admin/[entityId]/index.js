@@ -3,8 +3,9 @@ import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import EntityProvider, { useEntity } from "~/contexts/EntityProvider";
 import EntityForm from "~/forms/EntityForm";
-import { delay, useEntityData } from "~/helpers/utils";
+import { delay } from "~/helpers/utils";
 
 const EventCard = ({ id, name, owner, date: { seconds } }) => {
     const date = dayjs.unix(seconds);
@@ -25,11 +26,11 @@ const EventCard = ({ id, name, owner, date: { seconds } }) => {
     );
 };
 
-const Entity = () => {
+const EntityContent = () => {
     const firestore = useFirestore();
 
     // Get org
-    const { ref: entityRef, data: entity } = useEntityData();
+    const { ref: entityRef, data: entity } = useEntity();
 
     // Get events
     const eventsRef = firestore.collection("events").where("owner", "==", entityRef);
@@ -51,7 +52,7 @@ const Entity = () => {
     };
 
     return (
-        <Stack spacing={6} m={6} flexShrink={1} flexBasis={600}>
+        <Stack spacing={6} m={6} flexBasis={600}>
             <Heading size="2xl">{entity.name}</Heading>
             <Divider />
 
@@ -72,5 +73,11 @@ const Entity = () => {
         </Stack>
     );
 };
+
+const Entity = () => (
+    <EntityProvider>
+        <EntityContent />
+    </EntityProvider>
+);
 
 export default Entity;

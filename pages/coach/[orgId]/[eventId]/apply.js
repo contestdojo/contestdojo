@@ -1,14 +1,15 @@
-import { Alert, AlertIcon, Box, Divider, Flex, Heading, HStack, Stack } from "@chakra-ui/react";
-import dayjs from "dayjs";
+import { Alert, AlertIcon, Box, Divider, Flex, Heading, HStack, Link, Stack } from "@chakra-ui/react";
 import firebase from "firebase";
 import { useState } from "react";
 import { useFirestoreDocData } from "reactfire";
+import EventProvider, { useEvent } from "~/contexts/EventProvider";
+import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
 import ApplyForm from "~/forms/ApplyForm";
-import { delay, useEventData, useOrgData } from "~/helpers/utils";
+import { delay } from "~/helpers/utils";
 
-const Event = () => {
-    const { ref: orgRef, data: org } = useOrgData();
-    const { ref: eventRef, data: event } = useEventData();
+const ApplyContent = () => {
+    const { ref: orgRef, data: org } = useOrg();
+    const { ref: eventRef, data: event } = useEvent();
 
     const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
     const { data: eventOrg } = useFirestoreDocData(eventOrgRef);
@@ -37,10 +38,8 @@ const Event = () => {
         }
     };
 
-    const ends = dayjs.unix(event.stages.apply.ends.seconds);
-
     return (
-        <Stack spacing={6} flexShrink={1} flexBasis={600}>
+        <Stack spacing={6} flexBasis={600}>
             <HStack alignItems="flex-end" spacing={6}>
                 <Heading size="2xl" flexShrink={0}>
                     {event.name}
@@ -62,8 +61,12 @@ const Event = () => {
                     Stanford Math Tournament (SMT) 2021 will be taking place virtually on Saturday, April 17, 2021,
                     tentatively from 8am – 5pm PT! SMT is an annual student-run math competition for high school
                     students that aims to encourage interest in math by providing students with the opportunity to work
-                    on fun and challenging problems. For more information about our tournament please visit our website:
-                    <a href="http://sumo.stanford.edu/smt">http://sumo.stanford.edu/smt</a>.
+                    on fun and challenging problems. For more information about our tournament please visit our website
+                    at{" "}
+                    <Link color="blue.500" href="http://sumo.stanford.edu/smt">
+                        http://sumo.stanford.edu/smt
+                    </Link>
+                    .
                 </p>
                 <p>
                     Our tournament is open to any organization located in the U.S. and any high school student (age 14
@@ -89,4 +92,12 @@ const Event = () => {
     );
 };
 
-export default Event;
+const Apply = () => (
+    <OrgProvider>
+        <EventProvider>
+            <ApplyContent />
+        </EventProvider>
+    </OrgProvider>
+);
+
+export default Apply;

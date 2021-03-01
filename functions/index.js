@@ -7,23 +7,9 @@ sendgrid.setApiKey(functions.config().sendgrid.key);
 admin.initializeApp();
 
 exports.updateOrgAdmin = functions.firestore.document("/orgs/{orgId}").onWrite(async (change, context) => {
-    const { admin: oldAdmin } = change.before.data();
     const { admin } = change.after.data();
-
-    if (admin.id != oldAdmin.id) {
-        const adminData = await admin.get();
-        await change.after.ref.update({ adminData: adminData.data() });
-    }
-});
-
-exports.updateOrgAdmin = functions.firestore.document("/orgs/{orgId}").onWrite(async (change, context) => {
-    const { admin: oldAdmin } = change.before.data();
-    const { admin } = change.after.data();
-
-    if (admin.id != oldAdmin.id) {
-        const adminData = await admin.get();
-        await change.after.ref.update({ adminData: adminData.data() });
-    }
+    const adminData = await admin.get();
+    await change.after.ref.update({ adminData: adminData.data() });
 });
 
 exports.createStudentAccount = functions.https.onCall(async ({ fname, lname, email }, context) => {

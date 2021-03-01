@@ -1,4 +1,5 @@
 import { Box, Button, Divider, Flex, Heading, Link, Spacer, Stack } from "@chakra-ui/react";
+import Image from "next/image";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useAuth, useFirestore, useFirestoreCollectionData } from "reactfire";
@@ -14,14 +15,12 @@ const Navigation = () => {
     const orgsRef = firestore.collection("orgs").where("admin", "==", userRef);
     const { data: orgs } = useFirestoreCollectionData(orgsRef, { idField: "id" });
 
-    const activeStyle = {
-        backgroundColor: "gray.100",
-    };
+    const activeStyle = { backgroundColor: "gray.100" };
 
     return (
         <Stack flexBasis={300} boxShadow="0 0 10px rgba(0, 0, 0, 0.1)" spacing={0} divider={<Divider />}>
             <Box padding={6}>
-                <Heading textAlign="center">Coach</Heading>
+                <Image src="/smt.png" width={684} height={216} />
             </Box>
 
             <Stack spacing={6} p={8} flex={1}>

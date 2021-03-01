@@ -19,39 +19,3 @@ export const useUserData = () => {
     const ref = useUserRef();
     return { ref, ...useFirestoreDocData(ref, { idField: "uid" }) };
 };
-
-export const useEventRef = () => {
-    const router = useRouter();
-    const firestore = useFirestore();
-    const { eventId } = router.query;
-    return firestore.collection("events").doc(eventId);
-};
-
-export const useEventData = () => {
-    const ref = useEventRef();
-    return { ref, ...useFirestoreDocData(ref, { idField: "id" }) };
-};
-
-export const useOrgRef = () => {
-    const router = useRouter();
-    const firestore = useFirestore();
-    const { orgId } = router.query;
-    return firestore.collection("orgs").doc(orgId);
-};
-
-export const useOrgData = () => {
-    const ref = useOrgRef();
-    return { ref, ...useFirestoreDocData(ref, { idField: "id" }) };
-};
-
-export const useEntityRef = () => {
-    const router = useRouter();
-    const firestore = useFirestore();
-    const { entityId } = router.query;
-    return firestore.collection("entities").doc(entityId);
-};
-
-export const useEntityData = () => {
-    const ref = useEntityRef();
-    return { ref, ...useFirestoreDocData(ref, { idField: "id" }) };
-};

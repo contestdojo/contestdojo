@@ -9,8 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { createContext, useContext, useRef, useState } from "react";
 
-const DialogContext = createContext();
-
+export const DialogContext = createContext();
 export const useDialog = () => useContext(DialogContext);
 
 export const DialogContainer = ({ title, description, isOpen, onClose }) => {

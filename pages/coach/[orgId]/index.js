@@ -4,8 +4,9 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
 import OrgForm from "~/forms/OrgForm";
-import { delay, useOrgData } from "~/helpers/utils";
+import { delay } from "~/helpers/utils";
 
 const EventCard = ({ id, name, date: { seconds } }) => {
     const router = useRouter();
@@ -28,11 +29,11 @@ const EventCard = ({ id, name, date: { seconds } }) => {
     );
 };
 
-const Organization = () => {
+const OrganizationContent = () => {
     const firestore = useFirestore();
 
     // Get org
-    const { ref: orgRef, data: org } = useOrgData();
+    const { ref: orgRef, data: org } = useOrg();
 
     // Get events
     const eventsRef = firestore.collection("events");
@@ -59,7 +60,7 @@ const Organization = () => {
     };
 
     return (
-        <Stack spacing={6} m={6} flexShrink={1} flexBasis={600}>
+        <Stack spacing={6} m={6} flexBasis={600}>
             <Heading size="2xl">{org.name}</Heading>
             <Divider />
 
@@ -80,5 +81,11 @@ const Organization = () => {
         </Stack>
     );
 };
+
+const Organization = () => (
+    <OrgProvider>
+        <OrganizationContent />
+    </OrgProvider>
+);
 
 export default Organization;

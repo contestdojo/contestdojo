@@ -5,8 +5,9 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { Suspense } from "react";
 import NoSSR from "react-no-ssr";
-import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
-import DialogProvider from "~/components/DialogProvider";
+import { FirebaseAppProvider, useFirebaseApp } from "reactfire";
+import ErrorBoundary from "~/components/ErrorBoundary";
+import DialogProvider from "~/contexts/DialogProvider";
 import AdminLayout from "~/layouts/AdminLayout";
 import CoachLayout from "~/layouts/CoachLayout";
 import EmptyLayout from "~/layouts/EmptyLayout";
@@ -66,6 +67,8 @@ const ContentWrapper = ({ children }) => {
 const App = ({ Component, pageProps }) => {
     const router = useRouter();
 
+    console.log(router.pathname);
+
     const DefaultLayout = router.pathname.startsWith("/coach")
         ? CoachLayout
         : router.pathname.startsWith("/student")
@@ -80,21 +83,25 @@ const App = ({ Component, pageProps }) => {
     return (
         <>
             <DefaultSeo title="SMT" description="SMT Dashboard" />
-            <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
-                <NoSSR>
-                    <ChakraProvider>
-                        <DialogProvider>
-                            <Suspense fallback={<PageSpinner />}>
-                                <ContentWrapper>
-                                    <Layout {...layoutProps}>
-                                        <Component {...pageProps} />
-                                    </Layout>
-                                </ContentWrapper>
-                            </Suspense>
-                        </DialogProvider>
-                    </ChakraProvider>
-                </NoSSR>
-            </FirebaseAppProvider>
+            <ErrorBoundary>
+                <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
+                    <NoSSR>
+                        <ChakraProvider>
+                            <DialogProvider>
+                                <Suspense fallback={<PageSpinner />}>
+                                    <ContentWrapper>
+                                        <Layout {...layoutProps}>
+                                            <ErrorBoundary>
+                                                <Component {...pageProps} />
+                                            </ErrorBoundary>
+                                        </Layout>
+                                    </ContentWrapper>
+                                </Suspense>
+                            </DialogProvider>
+                        </ChakraProvider>
+                    </NoSSR>
+                </FirebaseAppProvider>
+            </ErrorBoundary>
         </>
     );
 };

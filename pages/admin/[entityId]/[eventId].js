@@ -20,8 +20,9 @@ import firebase from "firebase";
 import { useState } from "react";
 import { IoAdd, IoRemove } from "react-icons/io5";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import EventForm from "~/forms/EventForm";
-import { delay, useEventData } from "~/helpers/utils";
+import { delay } from "~/helpers/utils";
 
 const toDict = (obj, x) => {
     obj[x.id] = { ...x, ...obj[x.id] };
@@ -130,10 +131,10 @@ const Students = ({ students, teamsById, orgsById }) => {
     );
 };
 
-const Event = () => {
+const EventContent = () => {
     // Data
     const firestore = useFirestore();
-    const { ref: eventRef, data: event } = useEventData();
+    const { ref: eventRef, data: event } = useEvent();
 
     // Get orgs
 
@@ -248,5 +249,11 @@ const Event = () => {
         </Stack>
     );
 };
+
+const Event = () => (
+    <EventProvider>
+        <EventContent />
+    </EventProvider>
+);
 
 export default Event;

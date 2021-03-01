@@ -17,8 +17,10 @@ import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
-import { useDialog } from "~/components/DialogProvider";
-import { delay, useEventData, useOrgData } from "~/helpers/utils";
+import { useDialog } from "~/contexts/DialogProvider";
+import EventProvider, { useEvent } from "~/contexts/EventProvider";
+import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
+import { delay } from "~/helpers/utils";
 
 const BlankCard = () => {
     return (
@@ -190,15 +192,15 @@ const Students = ({ students, onAddStudent }) => {
     );
 };
 
-const Event = () => {
+const TeamsContent = () => {
     // Functions
     const firestore = useFirestore();
     const functions = useFunctions();
     const createStudentAccount = functions.httpsCallable("createStudentAccount");
 
     // Data
-    const { ref: orgRef, data: org } = useOrgData();
-    const { ref: eventRef, data: event } = useEventData();
+    const { ref: orgRef, data: org } = useOrg();
+    const { ref: eventRef, data: event } = useEvent();
 
     // Get teams
     const teamsRef = eventRef.collection("teams");
@@ -231,16 +233,13 @@ const Event = () => {
         const snap = await studentRef.get();
         if (snap.exists) throw new Error("This student is already associated with an organization.");
 
-        await studentRef.set(
-            {
-                fname,
-                lname,
-                email,
-                user: firestore.collection("users").doc(uid),
-                org: orgRef,
-            },
-            { merge: true }
-        );
+        await studentRef.set({
+            fname,
+            lname,
+            email,
+            user: firestore.collection("users").doc(uid),
+            org: orgRef,
+        });
 
         if (!existed) {
             openDialog(
@@ -273,4 +272,12 @@ const Event = () => {
     );
 };
 
-export default Event;
+const TeamsPage = () => (
+    <OrgProvider>
+        <EventProvider>
+            <TeamsContent />
+        </EventProvider>
+    </OrgProvider>
+);
+
+export default TeamsPage;
