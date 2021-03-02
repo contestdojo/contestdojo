@@ -142,11 +142,9 @@ const EventContent = () => {
     const { data: eventOrgs } = useFirestoreCollectionData(eventOrgsRef, { idField: "id" });
     let orgsById = eventOrgs.reduce(toDict, {});
 
-    const rootOrgsRef = firestore
-        .collection("orgs")
-        .where(firebase.firestore.FieldPath.documentId(), "in", [...Object.keys(orgsById), "0"]);
+    const rootOrgsRef = firestore.collection("orgs");
     const { data: rootOrgs } = useFirestoreCollectionData(rootOrgsRef, { idField: "id" });
-    orgsById = rootOrgs.reduce(toDict, orgsById);
+    orgsById = rootOrgs.filter(x => orgsById.hasOwnProperty(x.id)).reduce(toDict, orgsById);
 
     // Get teams
     const teamsRef = eventRef.collection("teams");
