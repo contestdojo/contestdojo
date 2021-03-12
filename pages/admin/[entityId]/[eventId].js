@@ -12,11 +12,12 @@ import {
     Tabs,
     Tbody,
     Td,
+    Tfoot,
     Th,
     Thead,
+    Tooltip,
     Tr,
 } from "@chakra-ui/react";
-import firebase from "firebase";
 import { useState } from "react";
 import { IoAdd, IoRemove } from "react-icons/io5";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
@@ -37,7 +38,6 @@ const Orgs = ({ orgs, handleChangeTeams }) => {
                     <Th>Name</Th>
                     <Th>Contact</Th>
                     <Th>Contact Email</Th>
-                    <Th>Address</Th>
                     <Th># Teams Applied</Th>
                     <Th>Expected # Students</Th>
                     <Th># Teams Given</Th>
@@ -46,14 +46,15 @@ const Orgs = ({ orgs, handleChangeTeams }) => {
             <Tbody>
                 {orgs.map(x => (
                     <Tr>
-                        <Td>{x.name}</Td>
+                        <Td>
+                            <Tooltip label={`${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`}>
+                                {x.name}
+                            </Tooltip>
+                        </Td>
                         <Td>
                             {x.adminData?.fname} {x.adminData?.lname}
                         </Td>
                         <Td>{x.adminData?.email}</Td>
-                        <Td>
-                            {x.address}, {x.city}, {x.state}, {x.country} {x.zip}
-                        </Td>
                         <Td>{x.applyTeams}</Td>
                         <Td>{x.expectedStudents}</Td>
                         <Td>
@@ -77,6 +78,16 @@ const Orgs = ({ orgs, handleChangeTeams }) => {
                     </Tr>
                 ))}
             </Tbody>
+            <Tfoot>
+                <Tr>
+                    <Th>Total</Th>
+                    <Td />
+                    <Td />
+                    <Td>{orgs.map(x => x.applyTeams).reduce((a, b) => a + b, 0)}</Td>
+                    <Td>{orgs.map(x => x.expectedStudents).reduce((a, b) => a + b, 0)}</Td>
+                    <Td>{orgs.map(x => x.maxTeams ?? 0).reduce((a, b) => a + b, 0)}</Td>
+                </Tr>
+            </Tfoot>
         </Table>
     );
 };
