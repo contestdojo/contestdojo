@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Divider, Flex, Heading, HStack, Link, Stack } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Divider, Flex, Heading, HStack, Link, Stack } from "@chakra-ui/react";
 import firebase from "firebase";
 import { useState } from "react";
 import { useFirestoreDocData } from "reactfire";
@@ -32,6 +32,16 @@ const ApplyContent = () => {
                 },
                 { merge: true }
             );
+            setFormState({ isLoading: false, error: null });
+        } catch (err) {
+            setFormState({ isLoading: false, error: err });
+        }
+    };
+    const handleWithdraw = async () => {
+        setFormState({ isLoading: true, error: null });
+        await delay(300);
+        try {
+            await eventOrgRef.delete();
             setFormState({ isLoading: false, error: null });
         } catch (err) {
             setFormState({ isLoading: false, error: err });
@@ -78,7 +88,7 @@ const ApplyContent = () => {
                 </p>
             </Stack>
             <Flex>
-                <Box flexBasis={400}>
+                <Stack flexBasis={400} spacing={4}>
                     <ApplyForm
                         onSubmit={handleApply}
                         maxTeams={event.maxTeams}
@@ -86,7 +96,17 @@ const ApplyContent = () => {
                         defaultValues={eventOrg}
                         {...formState}
                     />
-                </Box>
+                    {eventOrg.applyTeams && (
+                        <Button
+                            colorScheme="red"
+                            type="button"
+                            isLoading={formState.isLoading}
+                            onClick={handleWithdraw}
+                        >
+                            Withdraw Application
+                        </Button>
+                    )}
+                </Stack>
             </Flex>
         </Stack>
     );
