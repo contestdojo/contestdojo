@@ -53,7 +53,7 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
                     ref={register}
                     name="expectedStudents"
                     label="Expected Number of Students"
-                    placeholder="18"
+                    placeholder="24"
                     error={errors.expectedStudents}
                     helperText="The number of students is not binding, but please provide your best estimate."
                     isRequired
