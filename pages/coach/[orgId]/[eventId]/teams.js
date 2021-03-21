@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
-import { useFirestore, useFirestoreCollectionData, useFunctions } from "reactfire";
+import { useFirestore, useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
 import { useDialog } from "~/contexts/DialogProvider";
@@ -98,7 +98,7 @@ const TeamCard = ({ id, name, students }) => {
     );
 };
 
-const Teams = ({ event, teams, onAddTeam, studentsByTeam }) => {
+const Teams = ({ event, eventOrg, teams, onAddTeam, studentsByTeam }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [formState, setFormState] = useState({ isLoading: false, error: null });
 
@@ -117,6 +117,7 @@ const Teams = ({ event, teams, onAddTeam, studentsByTeam }) => {
     return (
         <>
             <Heading size="lg">Teams</Heading>
+            <p>You may sign up for up to {eventOrg.maxTeams ?? 0} teams.</p>
             {teams.length > 0 && (
                 <Stack direction="row" spacing={4}>
                     {teams.map(x => (
@@ -124,7 +125,7 @@ const Teams = ({ event, teams, onAddTeam, studentsByTeam }) => {
                     ))}
                 </Stack>
             )}
-            {teams.length < event.maxTeams ? (
+            {teams.length < (eventOrg.maxTeams ?? 0) ? (
                 <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
                     Add Team
                 </Button>
@@ -210,6 +211,10 @@ const TeamsContent = () => {
     const studentsRef = eventRef.collection("students");
     const { data: students } = useFirestoreCollectionData(studentsRef.where("org", "==", orgRef), { idField: "id" });
 
+    // Get students
+    const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
+    const { data: eventOrg } = useFirestoreDocData(eventOrgRef);
+
     // Collapse into dict
     const studentsByTeam = {};
     for (const student of students) {
@@ -264,7 +269,13 @@ const TeamsContent = () => {
                     <Heading size="lg">{org.name}</Heading>
                 </HStack>
                 <Divider />
-                <Teams event={event} teams={teams} studentsByTeam={studentsByTeam} onAddTeam={handleAddTeam} />
+                <Teams
+                    event={event}
+                    eventOrg={eventOrg}
+                    teams={teams}
+                    studentsByTeam={studentsByTeam}
+                    onAddTeam={handleAddTeam}
+                />
                 <Divider />
                 <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />
             </Stack>
