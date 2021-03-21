@@ -2,6 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const generator = require("generate-password");
 const sendgrid = require("@sendgrid/mail");
+const admin = require("firebase-admin");
 
 sendgrid.setApiKey(functions.config().sendgrid.key);
 admin.initializeApp();
@@ -50,7 +51,7 @@ exports.createStudentAccount = functions.https.onCall(async ({ fname, lname, ema
 
         await sendgrid.send({
             to: email,
-            from: "ncmt@oliver.ni",
+            from: "noreply@stanfordmathtournament.com",
             templateId: "d-8c5c1f774b5c41138c5018d05396ecd0",
             dynamicTemplateData: {
                 fname,

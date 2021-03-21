@@ -33,7 +33,7 @@ const Navigation = () => {
                     <a>
                         <Image src="/smt.png" width={684} height={216} />
                     </a>
-                </NextLink>{" "}
+                </NextLink>
             </Box>
 
             <Stack spacing={6} p={8} flex={1}>

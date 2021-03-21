@@ -1,5 +1,6 @@
 import {
     Box,
+    Checkbox,
     Heading,
     HStack,
     IconButton,
@@ -30,7 +31,7 @@ const toDict = (obj, x) => {
     return obj;
 };
 
-const Orgs = ({ orgs, handleChangeTeams }) => {
+const Orgs = ({ orgs, onUpdate }) => {
     return (
         <Table>
             <Thead>
@@ -63,7 +64,7 @@ const Orgs = ({ orgs, handleChangeTeams }) => {
                                     size="sm"
                                     aria-label="Add Team"
                                     icon={<IoRemove />}
-                                    onClick={() => handleChangeTeams(x.id, (x.maxTeams ?? 0) - 1)}
+                                    onClick={() => onUpdate(x.id, { maxTeams: (x.maxTeams ?? 0) - 1 })}
                                     disabled={(x.maxTeams ?? 0) <= 0}
                                 />
                                 <Box>{x.maxTeams ?? 0}</Box>
@@ -71,7 +72,7 @@ const Orgs = ({ orgs, handleChangeTeams }) => {
                                     size="sm"
                                     aria-label="Add Team"
                                     icon={<IoAdd />}
-                                    onClick={() => handleChangeTeams(x.id, (x.maxTeams ?? 0) + 1)}
+                                    onClick={() => onUpdate(x.id, { maxTeams: (x.maxTeams ?? 0) + 1 })}
                                 />
                             </HStack>
                         </Td>
@@ -100,6 +101,7 @@ const Teams = ({ teams, orgsById, studentsByTeam }) => {
                     <Th>Name</Th>
                     <Th>Organization</Th>
                     <Th># Students</Th>
+                    <Th># Waivers Signed</Th>
                 </Tr>
             </Thead>
             <Tbody>
@@ -108,6 +110,7 @@ const Teams = ({ teams, orgsById, studentsByTeam }) => {
                         <Td>{x.name}</Td>
                         <Td>{orgsById[x.org.id].name}</Td>
                         <Td>{studentsByTeam[x.id]?.length ?? 0}</Td>
+                        <Td>{studentsByTeam[x.id]?.filter(x => x.waiverSigned)?.length ?? 0}</Td>
                     </Tr>
                 ))}
             </Tbody>
@@ -115,15 +118,17 @@ const Teams = ({ teams, orgsById, studentsByTeam }) => {
     );
 };
 
-const Students = ({ students, teamsById, orgsById }) => {
+const Students = ({ students, teamsById, orgsById, onUpdate }) => {
     return (
         <Table>
             <Thead>
                 <Tr>
                     <Th>Name</Th>
                     <Th>Email</Th>
+                    <Th>Parent Email</Th>
                     <Th>Organization</Th>
                     <Th>Team</Th>
+                    <Th>Waiver signed?</Th>
                 </Tr>
             </Thead>
             <Tbody>
@@ -133,8 +138,15 @@ const Students = ({ students, teamsById, orgsById }) => {
                             {x.fname} {x.lname}
                         </Td>
                         <Td>{x.email}</Td>
+                        <Td>{x.parentEmail}</Td>
                         <Td>{orgsById[x.org.id].name}</Td>
                         <Td>{teamsById[x.team?.id]?.name}</Td>
+                        <Td>
+                            <Checkbox
+                                isChecked={x.waiverSigned ?? false}
+                                onChange={e => onUpdate(x.id, { waiverSigned: e.target.checked })}
+                            />
+                        </Td>
                     </Tr>
                 ))}
             </Tbody>
@@ -206,12 +218,14 @@ const EventContent = () => {
         }
     };
 
-    // Give teams
+    // Update handlers
 
-    const handleChangeTeams = async (id, val) => {
-        await eventOrgsRef.doc(id).update({
-            maxTeams: val,
-        });
+    const handleOrgUpdate = async (id, update) => {
+        await eventOrgsRef.doc(id).update(update);
+    };
+
+    const handleStudentUpdate = async (id, update) => {
+        await studentsRef.doc(id).update(update);
     };
 
     return (
@@ -232,14 +246,19 @@ const EventContent = () => {
                             orgs={Object.values(orgsById)}
                             teamsByOrg={teamsByOrg}
                             studentsByOrg={studentsByOrg}
-                            handleChangeTeams={handleChangeTeams}
+                            onUpdate={handleOrgUpdate}
                         />
                     </TabPanel>
                     <TabPanel>
                         <Teams teams={teams} orgsById={orgsById} studentsByTeam={studentsByTeam} />
                     </TabPanel>
                     <TabPanel>
-                        <Students students={students} teamsById={teamsById} orgsById={orgsById} />
+                        <Students
+                            students={students}
+                            teamsById={teamsById}
+                            orgsById={orgsById}
+                            onUpdate={handleStudentUpdate}
+                        />
                     </TabPanel>
                     <TabPanel>Tests</TabPanel>
                     <TabPanel>

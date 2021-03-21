@@ -11,6 +11,10 @@ service cloud.firestore {
 
     match /{document=**} {
       allow read, write: if false;
+
+      match /students/{studentId} {
+        allow read: if request.auth != null;
+      }
     }
 
     match /orgs/{orgId} {
@@ -39,11 +43,15 @@ service cloud.firestore {
       }
 
       match /teams/{teamId} {
-        allow read, write: if isEventAdmin() || userRef() == get(resource.data.org).data.admin;
+        allow read: if request.auth != null;
+        allow create: if isEventAdmin() || userRef() == get(request.resource.data.org).data.admin;
+        allow update, delete: if isEventAdmin() || userRef() == get(resource.data.org).data.admin;
       }
 
-      match /students/{teamId} {
-        allow read, write: if isEventAdmin() || userRef() == get(resource.data.org).data.admin;
+      match /students/{studentId} {
+        allow read: if request.auth != null;
+        allow create: if isEventAdmin() || userRef() == get(request.resource.data.org).data.admin;
+        allow update, delete: if isEventAdmin() || userRef() == get(resource.data.org).data.admin || userRef() == resource.data.user;
       }
     }
 
