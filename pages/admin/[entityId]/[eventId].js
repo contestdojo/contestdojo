@@ -1,6 +1,7 @@
 import {
     Box,
     Button,
+    ButtonGroup,
     Checkbox,
     Heading,
     HStack,
@@ -34,7 +35,7 @@ const toDict = (obj, x) => {
     return obj;
 };
 
-const Orgs = ({ orgs, onUpdate }) => {
+const Orgs = ({ event, orgs, onUpdate }) => {
     const headers = [
         { label: "Name", key: "name" },
         { label: "Address", key: "name" },
@@ -43,6 +44,7 @@ const Orgs = ({ orgs, onUpdate }) => {
         { label: "# Teams Applied", key: "applyTeams" },
         { label: "Expected # Students", key: "expectedStudents" },
         { label: "# Teams Given", key: "maxTeams" },
+        { label: "Stage", key: "stage" },
     ];
     const rows = orgs.map(x => ({
         name: x.name,
@@ -52,6 +54,7 @@ const Orgs = ({ orgs, onUpdate }) => {
         applyTeams: x.applyTeams,
         expectedStudents: x.expectedStudents,
         maxTeams: x.maxTeams,
+        stage: x.stage ?? event.defaultStage,
     }));
 
     return (
@@ -70,42 +73,63 @@ const Orgs = ({ orgs, onUpdate }) => {
                         <Th># Teams Applied</Th>
                         <Th>Expected # Students</Th>
                         <Th># Teams Given</Th>
+                        <Th>Stage</Th>
                     </Tr>
                 </Thead>
                 <Tbody>
-                    {orgs.map(x => (
-                        <Tr>
-                            <Td>
-                                <Tooltip label={`${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`}>
-                                    {x.name}
-                                </Tooltip>
-                            </Td>
-                            <Td>
-                                {x.adminData?.fname} {x.adminData?.lname}
-                            </Td>
-                            <Td>{x.adminData?.email}</Td>
-                            <Td>{x.applyTeams}</Td>
-                            <Td>{x.expectedStudents}</Td>
-                            <Td>
-                                <HStack spacing={4}>
-                                    <IconButton
-                                        size="sm"
-                                        aria-label="Add Team"
-                                        icon={<IoRemove />}
-                                        onClick={() => onUpdate(x.id, { maxTeams: (x.maxTeams ?? 0) - 1 })}
-                                        disabled={(x.maxTeams ?? 0) <= 0}
-                                    />
-                                    <Box>{x.maxTeams ?? 0}</Box>
-                                    <IconButton
-                                        size="sm"
-                                        aria-label="Add Team"
-                                        icon={<IoAdd />}
-                                        onClick={() => onUpdate(x.id, { maxTeams: (x.maxTeams ?? 0) + 1 })}
-                                    />
-                                </HStack>
-                            </Td>
-                        </Tr>
-                    ))}
+                    {orgs.map(x => {
+                        const stage = x.stage ?? event.defaultStage;
+                        return (
+                            <Tr>
+                                <Td>
+                                    <Tooltip label={`${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`}>
+                                        {x.name}
+                                    </Tooltip>
+                                </Td>
+                                <Td>
+                                    {x.adminData?.fname} {x.adminData?.lname}
+                                </Td>
+                                <Td>{x.adminData?.email}</Td>
+                                <Td>{x.applyTeams}</Td>
+                                <Td>{x.expectedStudents}</Td>
+                                <Td>
+                                    <HStack spacing={4}>
+                                        <IconButton
+                                            size="sm"
+                                            aria-label="Add Team"
+                                            icon={<IoRemove />}
+                                            onClick={() => onUpdate(x.id, { maxTeams: (x.maxTeams ?? 0) - 1 })}
+                                            disabled={(x.maxTeams ?? 0) <= 0}
+                                        />
+                                        <Box>{x.maxTeams ?? 0}</Box>
+                                        <IconButton
+                                            size="sm"
+                                            aria-label="Add Team"
+                                            icon={<IoAdd />}
+                                            onClick={() => onUpdate(x.id, { maxTeams: (x.maxTeams ?? 0) + 1 })}
+                                        />
+                                    </HStack>
+                                </Td>
+                                <Td>
+                                    <ButtonGroup isAttached>
+                                        <Button
+                                            mr="-px"
+                                            {...(stage == "apply" ? { colorScheme: "blue" } : {})}
+                                            onClick={() => onUpdate(x.id, { stage: "apply" })}
+                                        >
+                                            Apply
+                                        </Button>
+                                        <Button
+                                            {...(stage == "teams" ? { colorScheme: "blue" } : {})}
+                                            onClick={() => onUpdate(x.id, { stage: "teams" })}
+                                        >
+                                            Teams
+                                        </Button>
+                                    </ButtonGroup>
+                                </Td>
+                            </Tr>
+                        );
+                    })}
                 </Tbody>
                 <Tfoot>
                     <Tr>
@@ -316,6 +340,7 @@ const EventContent = () => {
                 <TabPanels>
                     <TabPanel>
                         <Orgs
+                            event={event}
                             orgs={Object.values(orgsById)}
                             teamsByOrg={teamsByOrg}
                             studentsByOrg={studentsByOrg}

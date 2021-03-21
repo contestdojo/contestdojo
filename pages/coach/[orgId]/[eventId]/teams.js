@@ -13,6 +13,7 @@ import {
     WrapItem,
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
@@ -194,6 +195,8 @@ const Students = ({ students, onAddStudent }) => {
 };
 
 const TeamsContent = () => {
+    const router = useRouter();
+
     // Functions
     const firestore = useFirestore();
     const functions = useFunctions();
@@ -203,6 +206,14 @@ const TeamsContent = () => {
     const { ref: orgRef, data: org } = useOrg();
     const { ref: eventRef, data: event } = useEvent();
 
+    // Get students
+    const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
+    const { data: eventOrg } = useFirestoreDocData(eventOrgRef);
+
+    if ((eventOrg.stage ?? event.defaultStage) != "teams") {
+        router.replace(`/coach/${orgRef.id}/${eventRef.id}`);
+    }
+
     // Get teams
     const teamsRef = eventRef.collection("teams");
     const { data: teams } = useFirestoreCollectionData(teamsRef.where("org", "==", orgRef), { idField: "id" });
@@ -210,10 +221,6 @@ const TeamsContent = () => {
     // Get students
     const studentsRef = eventRef.collection("students");
     const { data: students } = useFirestoreCollectionData(studentsRef.where("org", "==", orgRef), { idField: "id" });
-
-    // Get students
-    const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
-    const { data: eventOrg } = useFirestoreDocData(eventOrgRef);
 
     // Collapse into dict
     const studentsByTeam = {};

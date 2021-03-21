@@ -1,5 +1,6 @@
 import { Alert, AlertIcon, Box, Button, Divider, Flex, Heading, HStack, Link, Stack } from "@chakra-ui/react";
 import firebase from "firebase";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { useFirestoreDocData } from "reactfire";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
@@ -8,11 +9,17 @@ import ApplyForm from "~/forms/ApplyForm";
 import { delay } from "~/helpers/utils";
 
 const ApplyContent = () => {
+    const router = useRouter();
+
     const { ref: orgRef, data: org } = useOrg();
     const { ref: eventRef, data: event } = useEvent();
 
     const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
     const { data: eventOrg } = useFirestoreDocData(eventOrgRef);
+
+    if ((eventOrg.stage ?? event.defaultStage) != "apply") {
+        router.replace(`/coach/${orgRef.id}/${eventRef.id}`);
+    }
 
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
