@@ -20,7 +20,6 @@ import {
     Thead,
     Tooltip,
     Tr,
-    VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { CSVLink } from "react-csv";
@@ -35,124 +34,123 @@ const toDict = (obj, x) => {
     return obj;
 };
 
+const sum = arr => arr.reduce((a, b) => a + b, 0);
+
+const TableView = ({ cols, rows, filename }) => (
+    <Stack spacing={4} alignItems="flex-start">
+        <Button colorScheme="blue">
+            <CSVLink data={rows} headers={cols} filename={filename}>
+                Download CSV
+            </CSVLink>
+        </Button>
+        <Table>
+            <Thead>
+                <Tr>{cols.map(col => !col.hide && <Th>{col.label}</Th>)}</Tr>
+            </Thead>
+            <Tbody>
+                {rows.map(row => (
+                    <Tr>{cols.map(col => !col.hide && <Td>{col.renderer?.(row) ?? row[col.key]}</Td>)}</Tr>
+                ))}
+            </Tbody>
+            <Tfoot>
+                <Tr>
+                    <Td>
+                        <b>Total</b>
+                    </Td>
+                    {cols.slice(1).map(
+                        col =>
+                            !col.hide && (
+                                <Td>
+                                    <b>{col.reducer?.(rows.map(row => row[col.key]))}</b>
+                                </Td>
+                            )
+                    )}
+                </Tr>
+            </Tfoot>
+        </Table>
+    </Stack>
+);
+
 const Orgs = ({ event, orgs, onUpdate }) => {
-    const headers = [
-        { label: "Name", key: "name" },
-        { label: "Address", key: "name" },
+    const cols = [
+        { label: "Name", key: "name", renderer: row => <Tooltip label={`${row.address}`}>{row.name}</Tooltip> },
+        { label: "Address", key: "address", hide: true },
         { label: "Contact", key: "admin" },
         { label: "Contact Email", key: "adminEmail" },
-        { label: "# Teams Applied", key: "applyTeams" },
-        { label: "Expected # Students", key: "expectedStudents" },
-        { label: "# Teams Given", key: "maxTeams" },
-        { label: "Stage", key: "stage" },
+        { label: "# Teams Applied", key: "applyTeams", reducer: sum },
+        { label: "Expected # Students", key: "expectedStudents", reducer: sum },
+        {
+            label: "# Teams Given",
+            key: "maxTeams",
+            renderer: row => (
+                <HStack spacing={4}>
+                    <IconButton
+                        size="sm"
+                        aria-label="Add Team"
+                        icon={<IoRemove />}
+                        onClick={() => onUpdate(row.id, { maxTeams: (row.maxTeams ?? 0) - 1 })}
+                        disabled={(row.maxTeams ?? 0) <= 0}
+                    />
+                    <Box>{row.maxTeams ?? 0}</Box>
+                    <IconButton
+                        size="sm"
+                        aria-label="Add Team"
+                        icon={<IoAdd />}
+                        onClick={() => onUpdate(row.id, { maxTeams: (row.maxTeams ?? 0) + 1 })}
+                    />
+                </HStack>
+            ),
+            reducer: sum,
+        },
+        {
+            label: "Stage",
+            key: "stage",
+            renderer: row => {
+                const stage = row.stage ?? event.defaultStage;
+                return (
+                    <ButtonGroup isAttached>
+                        <Button
+                            mr="-px"
+                            {...(stage == "apply" ? { colorScheme: "blue" } : {})}
+                            onClick={() => onUpdate(row.id, { stage: "apply" })}
+                        >
+                            Apply
+                        </Button>
+                        <Button
+                            {...(stage == "teams" ? { colorScheme: "blue" } : {})}
+                            onClick={() => onUpdate(row.id, { stage: "teams" })}
+                        >
+                            Teams
+                        </Button>
+                    </ButtonGroup>
+                );
+            },
+        },
     ];
+
     const rows = orgs.map(x => ({
+        id: x.id,
         name: x.name,
         address: `${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`,
         admin: `${x.adminData?.fname} ${x.adminData?.lname}`,
         adminEmail: x.adminData?.email,
         applyTeams: x.applyTeams,
         expectedStudents: x.expectedStudents,
-        maxTeams: x.maxTeams,
+        maxTeams: x.maxTeams ?? 0,
         stage: x.stage ?? event.defaultStage,
     }));
 
-    return (
-        <Stack spacing={4} alignItems="flex-start">
-            <Button colorScheme="blue">
-                <CSVLink data={rows} headers={headers} filename="organizations.csv">
-                    Download CSV
-                </CSVLink>
-            </Button>
-            <Table>
-                <Thead>
-                    <Tr>
-                        <Th>Name</Th>
-                        <Th>Contact</Th>
-                        <Th>Contact Email</Th>
-                        <Th># Teams Applied</Th>
-                        <Th>Expected # Students</Th>
-                        <Th># Teams Given</Th>
-                        <Th>Stage</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {orgs.map(x => {
-                        const stage = x.stage ?? event.defaultStage;
-                        return (
-                            <Tr>
-                                <Td>
-                                    <Tooltip label={`${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`}>
-                                        {x.name}
-                                    </Tooltip>
-                                </Td>
-                                <Td>
-                                    {x.adminData?.fname} {x.adminData?.lname}
-                                </Td>
-                                <Td>{x.adminData?.email}</Td>
-                                <Td>{x.applyTeams}</Td>
-                                <Td>{x.expectedStudents}</Td>
-                                <Td>
-                                    <HStack spacing={4}>
-                                        <IconButton
-                                            size="sm"
-                                            aria-label="Add Team"
-                                            icon={<IoRemove />}
-                                            onClick={() => onUpdate(x.id, { maxTeams: (x.maxTeams ?? 0) - 1 })}
-                                            disabled={(x.maxTeams ?? 0) <= 0}
-                                        />
-                                        <Box>{x.maxTeams ?? 0}</Box>
-                                        <IconButton
-                                            size="sm"
-                                            aria-label="Add Team"
-                                            icon={<IoAdd />}
-                                            onClick={() => onUpdate(x.id, { maxTeams: (x.maxTeams ?? 0) + 1 })}
-                                        />
-                                    </HStack>
-                                </Td>
-                                <Td>
-                                    <ButtonGroup isAttached>
-                                        <Button
-                                            mr="-px"
-                                            {...(stage == "apply" ? { colorScheme: "blue" } : {})}
-                                            onClick={() => onUpdate(x.id, { stage: "apply" })}
-                                        >
-                                            Apply
-                                        </Button>
-                                        <Button
-                                            {...(stage == "teams" ? { colorScheme: "blue" } : {})}
-                                            onClick={() => onUpdate(x.id, { stage: "teams" })}
-                                        >
-                                            Teams
-                                        </Button>
-                                    </ButtonGroup>
-                                </Td>
-                            </Tr>
-                        );
-                    })}
-                </Tbody>
-                <Tfoot>
-                    <Tr>
-                        <Th>Total</Th>
-                        <Td />
-                        <Td />
-                        <Td>{orgs.map(x => x.applyTeams).reduce((a, b) => a + b, 0)}</Td>
-                        <Td>{orgs.map(x => x.expectedStudents).reduce((a, b) => a + b, 0)}</Td>
-                        <Td>{orgs.map(x => x.maxTeams ?? 0).reduce((a, b) => a + b, 0)}</Td>
-                    </Tr>
-                </Tfoot>
-            </Table>
-        </Stack>
-    );
+    return <TableView cols={cols} rows={rows} filename="organizations.csv" />;
 };
 
 const Teams = ({ teams, orgsById, studentsByTeam }) => {
-    const headers = [
+    const cols = [
         { label: "Name", key: "name" },
         { label: "Organization", key: "org" },
-        { label: "# Students", key: "numStudents" },
-        { label: "# Waivers Signed", key: "numSigned" },
+        { label: "# Students", key: "numStudents", reducer: sum },
+        { label: "# Waivers Signed", key: "numSigned", reducer: sum },
     ];
+
     const rows = teams.map(x => ({
         name: x.name,
         org: orgsById[x.org.id].name,
@@ -160,47 +158,31 @@ const Teams = ({ teams, orgsById, studentsByTeam }) => {
         numSigned: studentsByTeam[x.id]?.filter(x => x.waiverSigned)?.length ?? 0,
     }));
 
-    return (
-        <Stack spacing={4} alignItems="flex-start">
-            <Button colorScheme="blue">
-                <CSVLink data={rows} headers={headers} filename="teams.csv">
-                    Download CSV
-                </CSVLink>
-            </Button>
-            <Table>
-                <Thead>
-                    <Tr>
-                        <Th>Name</Th>
-                        <Th>Organization</Th>
-                        <Th># Students</Th>
-                        <Th># Waivers Signed</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {teams.map(x => (
-                        <Tr>
-                            <Td>{x.name}</Td>
-                            <Td>{orgsById[x.org.id].name}</Td>
-                            <Td>{studentsByTeam[x.id]?.length ?? 0}</Td>
-                            <Td>{studentsByTeam[x.id]?.filter(x => x.waiverSigned)?.length ?? 0}</Td>
-                        </Tr>
-                    ))}
-                </Tbody>
-            </Table>
-        </Stack>
-    );
+    return <TableView cols={cols} rows={rows} filename="teams.csv" />;
 };
 
 const Students = ({ students, teamsById, orgsById, onUpdate }) => {
-    const headers = [
-        { label: "Name", key: "name" },
-        { label: "Email", key: "email" },
+    const cols = [
+        { label: "Name", key: "name", renderer: row => <Tooltip label={`${row.email}`}>{row.name}</Tooltip> },
+        { label: "Email", key: "email", hide: true },
         { label: "Parent Email", key: "parentEmail" },
         { label: "Organization", key: "org" },
         { label: "Team", key: "team" },
-        { label: "Waiver signed?", key: "waiverSigned" },
+        {
+            label: "Waiver signed?",
+            key: "waiverSigned",
+            renderer: row => (
+                <Checkbox
+                    isChecked={row.waiverSigned ?? false}
+                    onChange={e => onUpdate(row.id, { waiverSigned: e.target.checked })}
+                />
+            ),
+            reducer: sum,
+        },
     ];
+
     const rows = students.map(x => ({
+        id: x.id,
         name: `${x.fname} ${x.lname}`,
         email: x.email,
         parentEmail: x.parentEmail,
@@ -209,46 +191,7 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
         waiverSigned: !!x.waiverSigned,
     }));
 
-    return (
-        <Stack spacing={4} alignItems="flex-start">
-            <Button colorScheme="blue">
-                <CSVLink data={rows} headers={headers} filename="students.csv">
-                    Download CSV
-                </CSVLink>
-            </Button>
-            <Table>
-                <Thead>
-                    <Tr>
-                        <Th>Name</Th>
-                        <Th>Email</Th>
-                        <Th>Parent Email</Th>
-                        <Th>Organization</Th>
-                        <Th>Team</Th>
-                        <Th>Waiver signed?</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {students.map(x => (
-                        <Tr>
-                            <Td>
-                                {x.fname} {x.lname}
-                            </Td>
-                            <Td>{x.email}</Td>
-                            <Td>{x.parentEmail}</Td>
-                            <Td>{orgsById[x.org.id].name}</Td>
-                            <Td>{teamsById[x.team?.id]?.name}</Td>
-                            <Td>
-                                <Checkbox
-                                    isChecked={x.waiverSigned ?? false}
-                                    onChange={e => onUpdate(x.id, { waiverSigned: e.target.checked })}
-                                />
-                            </Td>
-                        </Tr>
-                    ))}
-                </Tbody>
-            </Table>
-        </Stack>
-    );
+    return <TableView cols={cols} rows={rows} filename="students.csv" />;
 };
 
 const EventContent = () => {
