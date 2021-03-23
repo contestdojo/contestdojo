@@ -6,6 +6,12 @@ import {
     Heading,
     HStack,
     IconButton,
+    Menu,
+    MenuButton,
+    MenuDivider,
+    MenuItemOption,
+    MenuList,
+    MenuOptionGroup,
     Stack,
     Tab,
     Table,
@@ -23,7 +29,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { CSVLink } from "react-csv";
-import { IoAdd, IoRemove } from "react-icons/io5";
+import { IoAdd, IoChevronDown, IoRemove } from "react-icons/io5";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import EventForm from "~/forms/EventForm";
@@ -36,45 +42,115 @@ const toDict = (obj, x) => {
 
 const sum = arr => arr.reduce((a, b) => a + b, 0);
 
-const TableView = ({ cols, rows, filename }) => (
-    <Stack spacing={4} alignItems="flex-start">
-        <Button colorScheme="blue">
-            <CSVLink data={rows} headers={cols} filename={filename}>
-                Download CSV
-            </CSVLink>
-        </Button>
-        <Table>
-            <Thead>
-                <Tr>{cols.map(col => !col.hide && <Th>{col.label}</Th>)}</Tr>
-            </Thead>
-            <Tbody>
-                {rows.map(row => (
-                    <Tr>{cols.map(col => !col.hide && <Td>{col.renderer?.(row) ?? row[col.key]}</Td>)}</Tr>
-                ))}
-            </Tbody>
-            <Tfoot>
-                <Tr>
-                    <Td>
-                        <b>Total</b>
-                    </Td>
-                    {cols.slice(1).map(
-                        col =>
-                            !col.hide && (
-                                <Td>
-                                    <b>{col.reducer?.(rows.map(row => row[col.key]))}</b>
-                                </Td>
-                            )
-                    )}
-                </Tr>
-            </Tfoot>
-        </Table>
-    </Stack>
-);
+const TableView = ({ cols, rows, filename, defaultSortKey }) => {
+    const [showCols, setShowCols] = useState(cols.filter(x => !x.hideByDefault).map(x => x.key));
+    const [sortBy, setSortBy] = useState(defaultSortKey ?? "");
+    const [sortOrder, setSortOrder] = useState("asc");
+
+    let displayRows = rows;
+    let displayCols = cols.filter(x => showCols.includes(x.key));
+
+    if (sortBy !== "") {
+        displayRows = [...rows].sort((a, b) => {
+            if (a[sortBy] == b[sortBy]) return 0;
+            const mult = sortOrder == "asc" ? 1 : -1;
+            return a[sortBy] > b[sortBy] ? mult : -mult;
+        });
+    }
+
+    console.log(showCols);
+
+    return (
+        <Stack spacing={4}>
+            <HStack justifyContent="flex-end">
+                <Box>
+                    <Menu closeOnSelect={false}>
+                        <MenuButton as={Button} rightIcon={<IoChevronDown />}>
+                            Fields
+                        </MenuButton>
+                        <MenuList>
+                            <MenuOptionGroup
+                                title="Shown Fields"
+                                type="checkbox"
+                                value={showCols}
+                                onChange={setShowCols}
+                            >
+                                {cols.map(col => (
+                                    <MenuItemOption key={col.key} value={col.key}>
+                                        {col.label}
+                                    </MenuItemOption>
+                                ))}
+                            </MenuOptionGroup>
+                        </MenuList>
+                    </Menu>
+                </Box>
+                <Box>
+                    <Menu closeOnSelect={false}>
+                        <MenuButton as={Button} rightIcon={<IoChevronDown />}>
+                            Sort By
+                        </MenuButton>
+                        <MenuList>
+                            <MenuOptionGroup title="Order" type="radio" value={sortOrder} onChange={setSortOrder}>
+                                <MenuItemOption value="asc">Ascending</MenuItemOption>
+                                <MenuItemOption value="dsc">Descending</MenuItemOption>
+                            </MenuOptionGroup>
+                            <MenuDivider />
+                            <MenuOptionGroup title="Fields" type="radio" value={sortBy} onChange={setSortBy}>
+                                {cols.map(col => (
+                                    <MenuItemOption key={col.key} value={col.key}>
+                                        {col.label}
+                                    </MenuItemOption>
+                                ))}
+                            </MenuOptionGroup>
+                        </MenuList>
+                    </Menu>
+                </Box>
+                <Tooltip label="CSV file will be unsorted and contain all fields regardless of selected values.">
+                    <Button colorScheme="blue">
+                        <CSVLink data={rows} headers={cols} filename={filename}>
+                            Download CSV
+                        </CSVLink>
+                    </Button>
+                </Tooltip>
+            </HStack>
+            <Table>
+                <Thead>
+                    <Tr>
+                        {displayCols.map(col => (
+                            <Th key={col.key}>{col.label}</Th>
+                        ))}
+                    </Tr>
+                </Thead>
+                <Tbody>
+                    {displayRows.map(row => (
+                        <Tr key={row.id}>
+                            {displayCols.map(col => (
+                                <Td key={col.key}>{col.renderer?.(row) ?? row[col.key]}</Td>
+                            ))}
+                        </Tr>
+                    ))}
+                </Tbody>
+                <Tfoot>
+                    <Tr>
+                        <Td>
+                            <b>Total</b>
+                        </Td>
+                        {displayCols.slice(1).map(col => (
+                            <Td key={col.key}>
+                                <b>{col.reducer?.(rows.map(row => row[col.key]))}</b>
+                            </Td>
+                        ))}
+                    </Tr>
+                </Tfoot>
+            </Table>
+        </Stack>
+    );
+};
 
 const Orgs = ({ event, orgs, onUpdate }) => {
     const cols = [
         { label: "Name", key: "name", renderer: row => <Tooltip label={`${row.address}`}>{row.name}</Tooltip> },
-        { label: "Address", key: "address", hide: true },
+        { label: "Address", key: "address", hideByDefault: true },
         { label: "Contact", key: "admin" },
         { label: "Contact Email", key: "adminEmail" },
         { label: "# Teams Applied", key: "applyTeams", reducer: sum },
@@ -140,7 +216,7 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         stage: x.stage ?? event.defaultStage,
     }));
 
-    return <TableView cols={cols} rows={rows} filename="organizations.csv" />;
+    return <TableView cols={cols} rows={rows} defaultSortKey="name" filename="organizations.csv" />;
 };
 
 const Teams = ({ teams, orgsById, studentsByTeam }) => {
@@ -152,19 +228,20 @@ const Teams = ({ teams, orgsById, studentsByTeam }) => {
     ];
 
     const rows = teams.map(x => ({
+        id: x.id,
         name: x.name,
         org: orgsById[x.org.id].name,
         numStudents: studentsByTeam[x.id]?.length ?? 0,
         numSigned: studentsByTeam[x.id]?.filter(x => x.waiverSigned)?.length ?? 0,
     }));
 
-    return <TableView cols={cols} rows={rows} filename="teams.csv" />;
+    return <TableView cols={cols} rows={rows} defaultSortKey="name" filename="teams.csv" />;
 };
 
 const Students = ({ students, teamsById, orgsById, onUpdate }) => {
     const cols = [
         { label: "Name", key: "name", renderer: row => <Tooltip label={`${row.email}`}>{row.name}</Tooltip> },
-        { label: "Email", key: "email", hide: true },
+        { label: "Email", key: "email", hideByDefault: true },
         { label: "Parent Email", key: "parentEmail" },
         { label: "Organization", key: "org" },
         { label: "Team", key: "team" },
@@ -191,7 +268,7 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
         waiverSigned: !!x.waiverSigned,
     }));
 
-    return <TableView cols={cols} rows={rows} filename="students.csv" />;
+    return <TableView cols={cols} rows={rows} defaultSortKey="name" filename="students.csv" />;
 };
 
 const EventContent = () => {
