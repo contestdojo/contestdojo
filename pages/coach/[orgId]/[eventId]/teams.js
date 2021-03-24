@@ -298,6 +298,11 @@ const TeamsContent = () => {
                         students to teams.
                     </p>
                     <p>
+                        The Tree division is for teams that will participate in all rounds of the competition: Power,
+                        Team, Guts, and Individual subject tests. The Sapling divisions is for teams that will
+                        participate in all rounds except Power: Team, Guts, and Individual.
+                    </p>
+                    <p>
                         To confirm your organization’s participation, please register at this EventBrite:{" "}
                         <Link color="blue.500" href="https://tinyurl.com/smt-tickets">
                             https://tinyurl.com/smt-tickets
