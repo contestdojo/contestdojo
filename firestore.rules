@@ -18,8 +18,9 @@ service cloud.firestore {
     }
 
     match /orgs/{orgId} {
+      allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow read, update, delete: if isGlobalAdmin() || userRef() == resource.data.admin;
+      allow update, delete: if isGlobalAdmin() || userRef() == resource.data.admin;
     }
 
     match /users/{userId} {
@@ -39,7 +40,8 @@ service cloud.firestore {
       }
 
       match /orgs/{orgId} {
-        allow read, write: if isEventAdmin() || userRef() == get(/databases/$(database)/documents/orgs/$(orgId)).data.admin;
+        allow read: if request.auth != null;
+        allow write: if isEventAdmin() || userRef() == get(/databases/$(database)/documents/orgs/$(orgId)).data.admin;
       }
 
       match /teams/{teamId} {

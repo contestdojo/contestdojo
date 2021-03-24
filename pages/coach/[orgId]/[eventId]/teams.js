@@ -5,6 +5,7 @@ import {
     Flex,
     Heading,
     HStack,
+    Link,
     Stack,
     Text,
     Tooltip,
@@ -292,21 +293,26 @@ const TeamsContent = () => {
                 <Divider />
                 <Stack spacing={4}>
                     <p>
-                        Your organization has registered for {eventOrg.maxTeams} teams in the Tree division and{" "}
+                        Your organization may register up to {eventOrg.maxTeams} teams in the Tree division and{" "}
                         {eventOrg.maxTeamsSapling} teams in the Sapling division. You may now create teams and add
                         students to teams.
                     </p>
                     <p>
-                        To confirm your organization’s participation, please register at this EventBrite:
-                        <a href="https://tinyurl.com/smt-tickets">https://tinyurl.com/smt-tickets</a>. The cost for
-                        participation at SMT is $10 per individual for both divisions. The payment deadline is Friday,
-                        April 9th. You have currently paid for 0 individuals. Please allow up to one week for payment to
-                        reflect on this dashboard.
+                        To confirm your organization’s participation, please register at this EventBrite:{" "}
+                        <Link color="blue.500" href="https://tinyurl.com/smt-tickets">
+                            https://tinyurl.com/smt-tickets
+                        </Link>
+                        . The cost for participation at SMT is $10 per individual for both divisions. The payment
+                        deadline is Friday, April 9th. You have currently paid for 0 individuals. Please allow up to one
+                        week for payment to reflect on this dashboard.
                     </p>
                     <p>
                         For more information about SMT 2021, please visit our website:{" "}
-                        <a href="http://sumo.stanford.edu/smt/">http://sumo.stanford.edu/smt/</a>. If you have any
-                        questions, feel free to email the SMT team at stanford.math.tournament@gmail.com.
+                        <Link color="blue.500" href="http://sumo.stanford.edu/smt/">
+                            http://sumo.stanford.edu/smt/
+                        </Link>
+                        . If you have any questions, feel free to email the SMT team at
+                        stanford.math.tournament@gmail.com.
                     </p>
                 </Stack>
                 <Teams

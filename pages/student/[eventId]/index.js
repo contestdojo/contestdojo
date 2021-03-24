@@ -12,6 +12,11 @@ const EventContent = () => {
     const studentRef = eventRef.collection("students").doc(user.uid);
     const { data: student } = useFirestoreDocData(studentRef);
 
+    console.log(student);
+
+    const { data: org } = useFirestoreDocData(student.org);
+    const { data: team } = useFirestoreDocData(student.team);
+
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
     const handleSubmit = async ({ parentEmail }) => {
@@ -32,11 +37,18 @@ const EventContent = () => {
             </HStack>
             <Divider />
             {student.parentEmail && (
-                <Alert status="success">
-                    <AlertIcon />A waiver form has been requested for {student.parentEmail}. It may take up to 2 days
-                    for the form to be sent.
+                <Alert status="info">
+                    <AlertIcon />A waiver form has been requested for {student.parentEmail}. It may take up to two days
+                    for the form to be sent. This page will be updated when the waiver is complete.
                 </Alert>
             )}
+            <p>
+                Your coach at <b>{org.name}</b> has assigned you to Team <b>{team.name}</b> in the{" "}
+                <b>{team.division == 0 ? "Tree" : "Sapling"} division</b>. We require waivers to be completed before you
+                are permitted to compete at SMT 2021. Please input your parent’s email address by Friday, April 9th. The
+                waiver will be sent directly to your parent’s email for them to complete. Please allow up to two days
+                for waivers to be sent.
+            </p>
             <ParentEmailForm
                 onSubmit={handleSubmit}
                 buttonText={student.parentEmail ? "Update Parent Email" : "Request Waiver"}
