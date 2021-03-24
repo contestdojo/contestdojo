@@ -152,11 +152,11 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         { label: "Name", key: "name", renderer: row => <Tooltip label={`${row.address}`}>{row.name}</Tooltip> },
         { label: "Address", key: "address", hideByDefault: true },
         { label: "Contact", key: "admin" },
-        { label: "Contact Email", key: "adminEmail" },
+        { label: "Contact Email", key: "adminEmail", hideByDefault: true },
         { label: "# Teams Applied", key: "applyTeams", reducer: sum },
         { label: "Expected # Students", key: "expectedStudents", reducer: sum },
         {
-            label: "# Teams Given",
+            label: "# Tree Teams",
             key: "maxTeams",
             renderer: row => (
                 <HStack spacing={4}>
@@ -173,6 +173,29 @@ const Orgs = ({ event, orgs, onUpdate }) => {
                         aria-label="Add Team"
                         icon={<IoAdd />}
                         onClick={() => onUpdate(row.id, { maxTeams: (row.maxTeams ?? 0) + 1 })}
+                    />
+                </HStack>
+            ),
+            reducer: sum,
+        },
+        {
+            label: "# Sampling Teams",
+            key: "maxTeamsSapling",
+            renderer: row => (
+                <HStack spacing={4}>
+                    <IconButton
+                        size="sm"
+                        aria-label="Add Team"
+                        icon={<IoRemove />}
+                        onClick={() => onUpdate(row.id, { maxTeamsSapling: (row.maxTeamsSapling ?? 0) - 1 })}
+                        disabled={(row.maxTeamsSapling ?? 0) <= 0}
+                    />
+                    <Box>{row.maxTeamsSapling ?? 0}</Box>
+                    <IconButton
+                        size="sm"
+                        aria-label="Add Team"
+                        icon={<IoAdd />}
+                        onClick={() => onUpdate(row.id, { maxTeamsSapling: (row.maxTeamsSapling ?? 0) + 1 })}
                     />
                 </HStack>
             ),
@@ -213,6 +236,7 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         applyTeams: x.applyTeams,
         expectedStudents: x.expectedStudents,
         maxTeams: x.maxTeams ?? 0,
+        maxTeamsSapling: x.maxTeamsSapling ?? 0,
         stage: x.stage ?? event.defaultStage,
     }));
 
@@ -320,7 +344,7 @@ const EventContent = () => {
 
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
-    const handleUpdate = async ({ name, date, maxStudents, maxTeams }) => {
+    const handleUpdate = async ({ name, date, maxStudents, maxTeams, maxTeamsSapling }) => {
         setFormState({ isLoading: true, error: null });
         await delay(300);
         try {
@@ -328,6 +352,7 @@ const EventContent = () => {
                 name,
                 maxStudents,
                 maxTeams,
+                maxTeamsSapling,
             });
             setFormState({ isLoading: false, error: null });
         } catch (err) {
@@ -346,7 +371,7 @@ const EventContent = () => {
     };
 
     return (
-        <Stack spacing={6} flex={1}>
+        <Stack spacing={6} flex={1} minWidth={0}>
             <Heading>{event.name}</Heading>
             <Tabs>
                 <TabList>

@@ -77,6 +77,7 @@ const TeamCard = ({ id, name, students }) => {
     };
     return (
         <Stack
+            maxWidth={600}
             spacing={0}
             flex={1}
             p={2}
@@ -99,7 +100,7 @@ const TeamCard = ({ id, name, students }) => {
     );
 };
 
-const Teams = ({ event, eventOrg, teams, onAddTeam, studentsByTeam }) => {
+const Teams = ({ title, maxTeams, teams, onAddTeam, studentsByTeam }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [formState, setFormState] = useState({ isLoading: false, error: null });
 
@@ -117,8 +118,8 @@ const Teams = ({ event, eventOrg, teams, onAddTeam, studentsByTeam }) => {
 
     return (
         <>
-            <Heading size="lg">Teams</Heading>
-            <p>You may sign up for up to {eventOrg.maxTeams ?? 0} teams.</p>
+            <Heading size="lg">{title ?? "Teams"}</Heading>
+            <p>You may sign up for up to {maxTeams ?? 0} teams.</p>
             {teams.length > 0 && (
                 <Stack direction="row" spacing={4}>
                     {teams.map(x => (
@@ -126,7 +127,7 @@ const Teams = ({ event, eventOrg, teams, onAddTeam, studentsByTeam }) => {
                     ))}
                 </Stack>
             )}
-            {teams.length < (eventOrg.maxTeams ?? 0) ? (
+            {teams.length < (maxTeams ?? 0) ? (
                 <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
                     Add Team
                 </Button>
@@ -169,7 +170,13 @@ const Students = ({ students, onAddStudent }) => {
     return (
         <>
             <Heading size="lg">Unassigned Students</Heading>
-
+            <p>
+                Once you add a student to your team, they will receive an email invitation to create an account on our
+                website. Upon creation of their account, students will be prompted to add their parent’s email address.
+                Required waivers will be sent directly to parents. Please add students to your teams and have them input
+                their parent information by Friday, April 9th. Students will not be permitted to compete if they do not
+                have a completed waiver by competition day.
+            </p>
             <Wrap
                 spacing={0}
                 style={{ marginLeft: "-0.5rem", marginRight: "-0.5rem" }}
@@ -218,6 +225,9 @@ const TeamsContent = () => {
     const teamsRef = eventRef.collection("teams");
     const { data: teams } = useFirestoreCollectionData(teamsRef.where("org", "==", orgRef), { idField: "id" });
 
+    const treeTeams = teams.filter(x => x.division == 0);
+    const saplingTeams = teams.filter(x => x.division == 1);
+
     // Get students
     const studentsRef = eventRef.collection("students");
     const { data: students } = useFirestoreCollectionData(studentsRef.where("org", "==", orgRef), { idField: "id" });
@@ -233,8 +243,12 @@ const TeamsContent = () => {
     // Dialog
     const [openDialog] = useDialog();
 
-    const handleAddTeam = async ({ name }) => {
-        await teamsRef.add({ name: name, org: orgRef });
+    const handleAddTreeTeam = async ({ name }) => {
+        await teamsRef.add({ name: name, org: orgRef, division: 0 });
+    };
+
+    const handleAddSaplingTeam = async ({ name }) => {
+        await teamsRef.add({ name: name, org: orgRef, division: 1 });
     };
 
     const handleAddStudent = async values => {
@@ -276,12 +290,41 @@ const TeamsContent = () => {
                     <Heading size="lg">{org.name}</Heading>
                 </HStack>
                 <Divider />
+                <Stack spacing={4}>
+                    <p>
+                        Your organization has registered for {eventOrg.maxTeams} teams in the Tree division and{" "}
+                        {eventOrg.maxTeamsSapling} teams in the Sapling division. You may now create teams and add
+                        students to teams.
+                    </p>
+                    <p>
+                        To confirm your organization’s participation, please register at this EventBrite:
+                        <a href="https://tinyurl.com/smt-tickets">https://tinyurl.com/smt-tickets</a>. The cost for
+                        participation at SMT is $10 per individual for both divisions. The payment deadline is Friday,
+                        April 9th. You have currently paid for 0 individuals. Please allow up to one week for payment to
+                        reflect on this dashboard.
+                    </p>
+                    <p>
+                        For more information about SMT 2021, please visit our website:{" "}
+                        <a href="http://sumo.stanford.edu/smt/">http://sumo.stanford.edu/smt/</a>. If you have any
+                        questions, feel free to email the SMT team at stanford.math.tournament@gmail.com.
+                    </p>
+                </Stack>
                 <Teams
+                    title="Tree Division"
                     event={event}
-                    eventOrg={eventOrg}
-                    teams={teams}
+                    teams={treeTeams}
+                    maxTeams={eventOrg.maxTeams}
                     studentsByTeam={studentsByTeam}
-                    onAddTeam={handleAddTeam}
+                    onAddTeam={handleAddTreeTeam}
+                />
+                <Divider />
+                <Teams
+                    title="Sapling Division"
+                    event={event}
+                    teams={saplingTeams}
+                    maxTeams={eventOrg.maxTeamsSapling}
+                    studentsByTeam={studentsByTeam}
+                    onAddTeam={handleAddSaplingTeam}
                 />
                 <Divider />
                 <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />
