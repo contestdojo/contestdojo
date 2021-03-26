@@ -8,6 +8,7 @@ const StyledEditablePreview = () => (
             borderRadius: "0.375rem",
             cursor: "pointer",
         }}
+        _after={{ content: "'\\200b'" }}
     />
 );
 

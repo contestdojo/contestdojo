@@ -258,6 +258,7 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         },
         { label: "Start Time", key: "startTime", hideByDefault: true, renderer: dayjsRenderer },
         { label: "Last Update Time", key: "updateTime", hideByDefault: true, renderer: dayjsRenderer },
+        { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
     ];
 
     const rows = orgs.map(x => ({
@@ -274,6 +275,7 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         stage: x.stage ?? event.defaultStage,
         startTime: dayjs.unix(x.startTime.seconds),
         updateTime: dayjs.unix(x.updateTime.seconds),
+        notes: x.notes ?? "",
     }));
 
     return <TableView cols={cols} rows={rows} defaultSortKey="name" filename="organizations.csv" />;
@@ -285,6 +287,7 @@ const Teams = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
         { label: "Organization", key: "org" },
         { label: "# Students", key: "numStudents", reducer: sum },
         { label: "# Waivers Signed", key: "numSigned", reducer: sum },
+        { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
     ];
 
     const rows = teams.map(x => ({
@@ -293,6 +296,7 @@ const Teams = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
         org: orgsById[x.org.id].name,
         numStudents: studentsByTeam[x.id]?.length ?? 0,
         numSigned: studentsByTeam[x.id]?.filter(x => x.waiverSigned)?.length ?? 0,
+        notes: x.notes ?? "",
     }));
 
     return <TableView cols={cols} rows={rows} defaultSortKey="name" filename="teams.csv" />;
@@ -313,6 +317,7 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
             ),
             reducer: sum,
         },
+        { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
     ];
 
     const rows = students.map(x => ({
@@ -323,6 +328,7 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
         org: orgsById[x.org.id].name,
         team: teamsById[x.team?.id]?.name ?? "",
         waiverSigned: !!x.waiverSigned,
+        notes: x.notes ?? "",
     }));
 
     return <TableView cols={cols} rows={rows} defaultSortKey="name" filename="students.csv" />;
