@@ -179,7 +179,7 @@ const Orgs = ({ event, orgs, onUpdate }) => {
             reducer: sum,
         },
         {
-            label: "# Sampling Teams",
+            label: "# Sapling Teams",
             key: "maxTeamsSapling",
             renderer: row => (
                 <HStack spacing={4}>
