@@ -162,17 +162,17 @@ const Orgs = ({ event, orgs, onUpdate }) => {
                 <HStack spacing={4}>
                     <IconButton
                         size="sm"
-                        aria-label="Add Team"
+                        aria-label="Remove Team"
                         icon={<IoRemove />}
-                        onClick={() => onUpdate(row.id, { maxTeams: (row.maxTeams ?? 0) - 1 })}
-                        disabled={(row.maxTeams ?? 0) <= 0}
+                        onClick={() => onUpdate(row.id, { maxTeams: row.maxTeams - 1 })}
+                        disabled={row.maxTeams <= 0}
                     />
-                    <Box>{row.maxTeams ?? 0}</Box>
+                    <Box>{row.maxTeams}</Box>
                     <IconButton
                         size="sm"
                         aria-label="Add Team"
                         icon={<IoAdd />}
-                        onClick={() => onUpdate(row.id, { maxTeams: (row.maxTeams ?? 0) + 1 })}
+                        onClick={() => onUpdate(row.id, { maxTeams: row.maxTeams + 1 })}
                     />
                 </HStack>
             ),
@@ -185,17 +185,40 @@ const Orgs = ({ event, orgs, onUpdate }) => {
                 <HStack spacing={4}>
                     <IconButton
                         size="sm"
-                        aria-label="Add Team"
+                        aria-label="Remove Team"
                         icon={<IoRemove />}
-                        onClick={() => onUpdate(row.id, { maxTeamsSapling: (row.maxTeamsSapling ?? 0) - 1 })}
-                        disabled={(row.maxTeamsSapling ?? 0) <= 0}
+                        onClick={() => onUpdate(row.id, { maxTeamsSapling: row.maxTeamsSapling - 1 })}
+                        disabled={row.maxTeamsSapling <= 0}
                     />
-                    <Box>{row.maxTeamsSapling ?? 0}</Box>
+                    <Box>{row.maxTeamsSapling}</Box>
                     <IconButton
                         size="sm"
                         aria-label="Add Team"
                         icon={<IoAdd />}
-                        onClick={() => onUpdate(row.id, { maxTeamsSapling: (row.maxTeamsSapling ?? 0) + 1 })}
+                        onClick={() => onUpdate(row.id, { maxTeamsSapling: row.maxTeamsSapling + 1 })}
+                    />
+                </HStack>
+            ),
+            reducer: sum,
+        },
+        {
+            label: "# Paid Students",
+            key: "paidStudents",
+            renderer: row => (
+                <HStack spacing={4}>
+                    <IconButton
+                        size="sm"
+                        aria-label="Remove Student"
+                        icon={<IoRemove />}
+                        onClick={() => onUpdate(row.id, { paidStudents: row.paidStudents - 1 })}
+                        disabled={row.paidStudents <= 0}
+                    />
+                    <Box>{row.paidStudents}</Box>
+                    <IconButton
+                        size="sm"
+                        aria-label="Add Student"
+                        icon={<IoAdd />}
+                        onClick={() => onUpdate(row.id, { paidStudents: row.paidStudents + 1 })}
                     />
                 </HStack>
             ),
@@ -237,6 +260,7 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         expectedStudents: x.expectedStudents,
         maxTeams: x.maxTeams ?? 0,
         maxTeamsSapling: x.maxTeamsSapling ?? 0,
+        paidStudents: x.paidStudents ?? 0,
         stage: x.stage ?? event.defaultStage,
     }));
 
@@ -286,9 +310,9 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
         id: x.id,
         name: `${x.fname} ${x.lname}`,
         email: x.email,
-        parentEmail: x.parentEmail,
+        parentEmail: x.parentEmail ?? "",
         org: orgsById[x.org.id].name,
-        team: teamsById[x.team?.id]?.name,
+        team: teamsById[x.team?.id]?.name ?? "",
         waiverSigned: !!x.waiverSigned,
     }));
 

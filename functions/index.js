@@ -2,7 +2,6 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const generator = require("generate-password");
 const sendgrid = require("@sendgrid/mail");
-const admin = require("firebase-admin");
 
 sendgrid.setApiKey(functions.config().sendgrid.key);
 admin.initializeApp();
