@@ -3,6 +3,8 @@ import {
     Button,
     ButtonGroup,
     Checkbox,
+    Editable,
+    EditableInput,
     Heading,
     HStack,
     IconButton,
@@ -27,10 +29,12 @@ import {
     Tooltip,
     Tr,
 } from "@chakra-ui/react";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { CSVLink } from "react-csv";
 import { IoAdd, IoChevronDown, IoRemove } from "react-icons/io5";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import StyledEditablePreview from "~/components/StyledEditablePreview";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import EventForm from "~/forms/EventForm";
 import { delay } from "~/helpers/utils";
@@ -41,6 +45,15 @@ const toDict = (obj, x) => {
 };
 
 const sum = arr => arr.reduce((a, b) => a + b, 0);
+
+const updateRenderer = (onUpdate, key, updateKey) => (val, { id }) => (
+    <Editable defaultValue={val} onSubmit={newVal => onUpdate(id, { [updateKey ?? key]: newVal })}>
+        <StyledEditablePreview />
+        <EditableInput />
+    </Editable>
+);
+
+const dayjsRenderer = val => val.format("M/DD/YYYY");
 
 const TableView = ({ cols, rows, filename, defaultSortKey }) => {
     const [showCols, setShowCols] = useState(cols.filter(x => !x.hideByDefault).map(x => x.key));
@@ -57,8 +70,6 @@ const TableView = ({ cols, rows, filename, defaultSortKey }) => {
             return a[sortBy] > b[sortBy] ? mult : -mult;
         });
     }
-
-    console.log(showCols);
 
     return (
         <Stack spacing={4}>
@@ -125,7 +136,7 @@ const TableView = ({ cols, rows, filename, defaultSortKey }) => {
                     {displayRows.map(row => (
                         <Tr key={row.id}>
                             {displayCols.map(col => (
-                                <Td key={col.key}>{col.renderer?.(row) ?? row[col.key]}</Td>
+                                <Td key={col.key}>{col.renderer?.(row[col.key], row) ?? row[col.key]}</Td>
                             ))}
                         </Tr>
                     ))}
@@ -149,30 +160,30 @@ const TableView = ({ cols, rows, filename, defaultSortKey }) => {
 
 const Orgs = ({ event, orgs, onUpdate }) => {
     const cols = [
-        { label: "Name", key: "name", renderer: row => <Tooltip label={`${row.address}`}>{row.name}</Tooltip> },
+        { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Address", key: "address", hideByDefault: true },
-        { label: "Contact", key: "admin" },
+        { label: "Contact", key: "admin", hideByDefault: true },
         { label: "Contact Email", key: "adminEmail", hideByDefault: true },
         { label: "# Teams Applied", key: "applyTeams", reducer: sum },
         { label: "Expected # Students", key: "expectedStudents", reducer: sum },
         {
             label: "# Tree Teams",
             key: "maxTeams",
-            renderer: row => (
-                <HStack spacing={4}>
+            renderer: (val, { id }) => (
+                <HStack spacing={2}>
                     <IconButton
-                        size="sm"
+                        size="xs"
                         aria-label="Remove Team"
                         icon={<IoRemove />}
-                        onClick={() => onUpdate(row.id, { maxTeams: row.maxTeams - 1 })}
-                        disabled={row.maxTeams <= 0}
+                        onClick={() => onUpdate(id, { maxTeams: val - 1 })}
+                        disabled={val <= 0}
                     />
-                    <Box>{row.maxTeams}</Box>
+                    <Box>{val}</Box>
                     <IconButton
-                        size="sm"
+                        size="xs"
                         aria-label="Add Team"
                         icon={<IoAdd />}
-                        onClick={() => onUpdate(row.id, { maxTeams: row.maxTeams + 1 })}
+                        onClick={() => onUpdate(id, { maxTeams: val + 1 })}
                     />
                 </HStack>
             ),
@@ -181,21 +192,21 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         {
             label: "# Sapling Teams",
             key: "maxTeamsSapling",
-            renderer: row => (
-                <HStack spacing={4}>
+            renderer: (val, { id }) => (
+                <HStack spacing={2}>
                     <IconButton
-                        size="sm"
+                        size="xs"
                         aria-label="Remove Team"
                         icon={<IoRemove />}
-                        onClick={() => onUpdate(row.id, { maxTeamsSapling: row.maxTeamsSapling - 1 })}
-                        disabled={row.maxTeamsSapling <= 0}
+                        onClick={() => onUpdate(id, { maxTeamsSapling: val - 1 })}
+                        disabled={val <= 0}
                     />
-                    <Box>{row.maxTeamsSapling}</Box>
+                    <Box>{val}</Box>
                     <IconButton
-                        size="sm"
+                        size="xs"
                         aria-label="Add Team"
                         icon={<IoAdd />}
-                        onClick={() => onUpdate(row.id, { maxTeamsSapling: row.maxTeamsSapling + 1 })}
+                        onClick={() => onUpdate(id, { maxTeamsSapling: val + 1 })}
                     />
                 </HStack>
             ),
@@ -204,21 +215,21 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         {
             label: "# Paid Students",
             key: "paidStudents",
-            renderer: row => (
-                <HStack spacing={4}>
+            renderer: (val, { id }) => (
+                <HStack spacing={2}>
                     <IconButton
-                        size="sm"
+                        size="xs"
                         aria-label="Remove Student"
                         icon={<IoRemove />}
-                        onClick={() => onUpdate(row.id, { paidStudents: row.paidStudents - 1 })}
-                        disabled={row.paidStudents <= 0}
+                        onClick={() => onUpdate(id, { paidStudents: val - 1 })}
+                        disabled={val <= 0}
                     />
-                    <Box>{row.paidStudents}</Box>
+                    <Box>{val}</Box>
                     <IconButton
-                        size="sm"
+                        size="xs"
                         aria-label="Add Student"
                         icon={<IoAdd />}
-                        onClick={() => onUpdate(row.id, { paidStudents: row.paidStudents + 1 })}
+                        onClick={() => onUpdate(id, { paidStudents: val + 1 })}
                     />
                 </HStack>
             ),
@@ -227,27 +238,26 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         {
             label: "Stage",
             key: "stage",
-            renderer: row => {
-                const stage = row.stage ?? event.defaultStage;
-                return (
-                    <ButtonGroup isAttached>
-                        <Button
-                            mr="-px"
-                            {...(stage == "apply" ? { colorScheme: "blue" } : {})}
-                            onClick={() => onUpdate(row.id, { stage: "apply" })}
-                        >
-                            Apply
-                        </Button>
-                        <Button
-                            {...(stage == "teams" ? { colorScheme: "blue" } : {})}
-                            onClick={() => onUpdate(row.id, { stage: "teams" })}
-                        >
-                            Teams
-                        </Button>
-                    </ButtonGroup>
-                );
-            },
+            renderer: (val, { id }) => (
+                <ButtonGroup isAttached>
+                    <Button
+                        mr="-px"
+                        {...(val == "apply" ? { colorScheme: "blue" } : {})}
+                        onClick={() => onUpdate(id, { stage: "apply" })}
+                    >
+                        Apply
+                    </Button>
+                    <Button
+                        {...(val == "teams" ? { colorScheme: "blue" } : {})}
+                        onClick={() => onUpdate(id, { stage: "teams" })}
+                    >
+                        Teams
+                    </Button>
+                </ButtonGroup>
+            ),
         },
+        { label: "Start Time", key: "startTime", hideByDefault: true, renderer: dayjsRenderer },
+        { label: "Last Update Time", key: "updateTime", hideByDefault: true, renderer: dayjsRenderer },
     ];
 
     const rows = orgs.map(x => ({
@@ -262,14 +272,16 @@ const Orgs = ({ event, orgs, onUpdate }) => {
         maxTeamsSapling: x.maxTeamsSapling ?? 0,
         paidStudents: x.paidStudents ?? 0,
         stage: x.stage ?? event.defaultStage,
+        startTime: dayjs.unix(x.startTime.seconds),
+        updateTime: dayjs.unix(x.updateTime.seconds),
     }));
 
     return <TableView cols={cols} rows={rows} defaultSortKey="name" filename="organizations.csv" />;
 };
 
-const Teams = ({ teams, orgsById, studentsByTeam }) => {
+const Teams = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
     const cols = [
-        { label: "Name", key: "name" },
+        { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Organization", key: "org" },
         { label: "# Students", key: "numStudents", reducer: sum },
         { label: "# Waivers Signed", key: "numSigned", reducer: sum },
@@ -288,19 +300,16 @@ const Teams = ({ teams, orgsById, studentsByTeam }) => {
 
 const Students = ({ students, teamsById, orgsById, onUpdate }) => {
     const cols = [
-        { label: "Name", key: "name", renderer: row => <Tooltip label={`${row.email}`}>{row.name}</Tooltip> },
+        { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Email", key: "email", hideByDefault: true },
-        { label: "Parent Email", key: "parentEmail" },
+        { label: "Parent Email", key: "parentEmail", renderer: updateRenderer(onUpdate, "parentEmail") },
         { label: "Organization", key: "org" },
         { label: "Team", key: "team" },
         {
             label: "Waiver signed?",
             key: "waiverSigned",
-            renderer: row => (
-                <Checkbox
-                    isChecked={row.waiverSigned ?? false}
-                    onChange={e => onUpdate(row.id, { waiverSigned: e.target.checked })}
-                />
+            renderer: (val, { id }) => (
+                <Checkbox isChecked={val} onChange={e => onUpdate(id, { waiverSigned: e.target.checked })} />
             ),
             reducer: sum,
         },
@@ -368,16 +377,11 @@ const EventContent = () => {
 
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
-    const handleUpdate = async ({ name, date, maxStudents, maxTeams, maxTeamsSapling }) => {
+    const handleUpdate = async ({ name }) => {
         setFormState({ isLoading: true, error: null });
         await delay(300);
         try {
-            await eventRef.update({
-                name,
-                maxStudents,
-                maxTeams,
-                maxTeamsSapling,
-            });
+            await eventRef.update({ name });
             setFormState({ isLoading: false, error: null });
         } catch (err) {
             setFormState({ isLoading: false, error: err });
@@ -388,6 +392,10 @@ const EventContent = () => {
 
     const handleOrgUpdate = async (id, update) => {
         await eventOrgsRef.doc(id).update(update);
+    };
+
+    const handleTeamUpdate = async (id, update) => {
+        await teamsRef.doc(id).update(update);
     };
 
     const handleStudentUpdate = async (id, update) => {
@@ -417,7 +425,12 @@ const EventContent = () => {
                         />
                     </TabPanel>
                     <TabPanel>
-                        <Teams teams={teams} orgsById={orgsById} studentsByTeam={studentsByTeam} />
+                        <Teams
+                            teams={teams}
+                            orgsById={orgsById}
+                            studentsByTeam={studentsByTeam}
+                            onUpdate={handleTeamUpdate}
+                        />
                     </TabPanel>
                     <TabPanel>
                         <Students

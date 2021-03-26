@@ -2,6 +2,8 @@ import {
     Box,
     Button,
     Divider,
+    Editable,
+    EditableInput,
     Flex,
     Heading,
     HStack,
@@ -19,6 +21,7 @@ import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
+import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { useDialog } from "~/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
@@ -71,7 +74,7 @@ const StudentCard = ({ id, fname, lname, email }) => {
     );
 };
 
-const TeamCard = ({ id, name, students }) => {
+const TeamCard = ({ id, name, students, onUpdate }) => {
     const { isOver, setNodeRef } = useDroppable({ id });
     const props = {
         backgroundColor: isOver ? "gray.100" : undefined,
@@ -88,8 +91,11 @@ const TeamCard = ({ id, name, students }) => {
             transition="background-color 0.1s"
             {...props}
         >
-            <Heading p={2} as="h4" size="md">
-                {name}
+            <Heading p={2} as="h4" size="md" position="relative">
+                <Editable defaultValue={name} onSubmit={name => onUpdate({ name })}>
+                    <StyledEditablePreview />
+                    <EditableInput />
+                </Editable>
             </Heading>
             <Flex direction="column" flex={1} ref={setNodeRef}>
                 {students.map(x => (
@@ -101,7 +107,7 @@ const TeamCard = ({ id, name, students }) => {
     );
 };
 
-const Teams = ({ title, maxTeams, teams, onAddTeam, studentsByTeam }) => {
+const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, studentsByTeam }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [formState, setFormState] = useState({ isLoading: false, error: null });
 
@@ -118,13 +124,18 @@ const Teams = ({ title, maxTeams, teams, onAddTeam, studentsByTeam }) => {
     };
 
     return (
-        <>
+        <Stack spacing={4}>
             <Heading size="lg">{title ?? "Teams"}</Heading>
             <p>You may sign up for up to {maxTeams ?? 0} teams.</p>
             {teams.length > 0 && (
                 <Stack direction="row" spacing={4}>
                     {teams.map(x => (
-                        <TeamCard key={x.id} {...x} students={studentsByTeam[x.id] ?? []} />
+                        <TeamCard
+                            key={x.id}
+                            onUpdate={update => onUpdateTeam(x.id, update)}
+                            {...x}
+                            students={studentsByTeam[x.id] ?? []}
+                        />
                     ))}
                 </Stack>
             )}
@@ -142,7 +153,7 @@ const Teams = ({ title, maxTeams, teams, onAddTeam, studentsByTeam }) => {
                 </Tooltip>
             )}
             <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddTeam} {...formState} />
-        </>
+        </Stack>
     );
 };
 
@@ -169,7 +180,7 @@ const Students = ({ students, onAddStudent }) => {
     };
 
     return (
-        <>
+        <Stack spacing={4}>
             <Heading size="lg">Unassigned Students</Heading>
             <p>
                 Once you add a student to your team, they will receive an email invitation to create an account on our
@@ -198,7 +209,7 @@ const Students = ({ students, onAddStudent }) => {
                 Invite Student
             </Button>
             <AddStudentModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddStudent} {...formState} />
-        </>
+        </Stack>
     );
 };
 
@@ -252,6 +263,10 @@ const TeamsContent = () => {
         await teamsRef.add({ name: name, org: orgRef, division: 1 });
     };
 
+    const handleUpdateTeam = async (id, update) => {
+        await teamsRef.doc(id).update(update);
+    };
+
     const handleAddStudent = async values => {
         const { data } = await createStudentAccount(values);
         const { existed, uid, fname, lname, email } = data;
@@ -282,6 +297,22 @@ const TeamsContent = () => {
             team: over.id === "unassigned" ? null : teamsRef.doc(over.id),
         });
     };
+
+    if (eventOrg.maxTeams + eventOrg.maxTeamsSapling == 0) {
+        return (
+            <Stack spacing={6} flex={1}>
+                <HStack alignItems="flex-end" spacing={6}>
+                    <Heading size="2xl">{event.name}</Heading>
+                    <Heading size="lg">{org.name}</Heading>
+                </HStack>
+                <Divider />
+                <p>
+                    Unfortunately, your application for the tournament was not accepted. If you have any questions, feel
+                    free to email the SMT team at stanford.math.tournament@gmail.com.
+                </p>
+            </Stack>
+        );
+    }
 
     return (
         <DndContext onDragEnd={handleDragEnd}>
@@ -320,24 +351,35 @@ const TeamsContent = () => {
                         stanford.math.tournament@gmail.com.
                     </p>
                 </Stack>
-                <Teams
-                    title="Tree Division"
-                    event={event}
-                    teams={treeTeams}
-                    maxTeams={eventOrg.maxTeams}
-                    studentsByTeam={studentsByTeam}
-                    onAddTeam={handleAddTreeTeam}
-                />
                 <Divider />
-                <Teams
-                    title="Sapling Division"
-                    event={event}
-                    teams={saplingTeams}
-                    maxTeams={eventOrg.maxTeamsSapling}
-                    studentsByTeam={studentsByTeam}
-                    onAddTeam={handleAddSaplingTeam}
-                />
-                <Divider />
+                {eventOrg.maxTeams > 0 && (
+                    <>
+                        <Teams
+                            title="Tree Division"
+                            event={event}
+                            teams={treeTeams}
+                            maxTeams={eventOrg.maxTeams}
+                            studentsByTeam={studentsByTeam}
+                            onAddTeam={handleAddTreeTeam}
+                            onUpdateTeam={handleUpdateTeam}
+                        />
+                        <Divider />
+                    </>
+                )}
+                {eventOrg.maxTeamsSapling > 0 && (
+                    <>
+                        <Teams
+                            title="Sapling Division"
+                            event={event}
+                            teams={saplingTeams}
+                            maxTeams={eventOrg.maxTeamsSapling}
+                            studentsByTeam={studentsByTeam}
+                            onAddTeam={handleAddSaplingTeam}
+                            onUpdateTeam={handleUpdateTeam}
+                        />
+                        <Divider />
+                    </>
+                )}
                 <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />
             </Stack>
         </DndContext>
