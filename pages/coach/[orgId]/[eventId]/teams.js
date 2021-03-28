@@ -8,6 +8,8 @@ import {
     Heading,
     HStack,
     Link,
+    ListItem,
+    OrderedList,
     Stack,
     Text,
     Tooltip,
@@ -188,6 +190,11 @@ const Students = ({ students, onAddStudent }) => {
                 Required waivers will be sent directly to parents. Please add students to your teams and have them input
                 their parent information by Friday, April 9th. Students will not be permitted to compete if they do not
                 have a completed waiver by competition day.
+            </p>
+            <p>
+                Students are required to be (i) high school students, (ii) aged 14 years or older, and (iii) currently
+                in the United States.{" "}
+                <b>By adding a student to my team, I certify that they satisfy these requirements.</b>
             </p>
             <Wrap
                 spacing={0}
