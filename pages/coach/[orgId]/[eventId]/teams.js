@@ -346,8 +346,12 @@ const TeamsContent = () => {
                             https://tinyurl.com/smt-tickets
                         </Link>
                         . The cost for participation at SMT is $10 per individual for both divisions. The payment
-                        deadline is Friday, April 9th. You have currently paid for {eventOrg.paidStudents ?? 0}{" "}
-                        individuals. Please allow up to one week for payment to reflect on this dashboard.
+                        deadline is Friday, April 9th.Coaches must pay for all individuals in their organization. Please
+                        purchase the tickets with the email that you used for registration. When you purchase tickets,
+                        you will be asked to list the attendees. It is okay if the attendees listed on your registration
+                        do not match the final list of students participating. You have currently paid for{" "}
+                        {eventOrg.paidStudents ?? 0} individuals. Please allow up to one week for payment to reflect on
+                        this dashboard.
                     </p>
                     <p>
                         For more information about SMT 2021, please visit our website:{" "}
