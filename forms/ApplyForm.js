@@ -30,7 +30,8 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
     // TODO: Number Input
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form>
+            {/* <form onSubmit={handleSubmit(onSubmit)}> */}
             <Stack spacing={4}>
                 {error && (
                     <Alert status="error">
@@ -67,8 +68,9 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
                     <FormErrorMessage>{errors.confirmUS?.message}</FormErrorMessage>
                 </FormControl>
 
-                <Button isLoading={isLoading} type="submit" colorScheme="blue">
-                    {buttonText ?? "Submit"}
+                <Button isLoading={isLoading} type="submit" colorScheme="blue" disabled>
+                    Registration is Closed
+                    {/* {buttonText ?? "Submit"} */}
                 </Button>
             </Stack>
         </form>
