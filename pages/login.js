@@ -1,24 +1,45 @@
-import { Alert, AlertIcon, Button, Heading, Link, Spinner, Stack } from "@chakra-ui/react";
+import {
+    Alert,
+    AlertIcon,
+    Button,
+    Heading,
+    Link,
+    Modal,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    ModalOverlay,
+    Spinner,
+    Stack,
+    useDisclosure,
+} from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import firebase from "firebase";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "reactfire";
 import * as yup from "yup";
 import FormField from "~/components/FormField";
+import { useDialog } from "~/contexts/DialogProvider";
 import { delay } from "~/helpers/utils";
 
-const schema = yup.object().shape({
+const loginSchema = yup.object().shape({
     email: yup.string().email().required().label("Email Address"),
     password: yup.string().required().label("Password"),
+});
+
+const resetPasswordSchema = yup.object().shape({
+    email: yup.string().required().email().label("Email"),
 });
 
 const LoginForm = ({ onSubmit, isLoading, error }) => {
     const { register, handleSubmit, errors } = useForm({
         mode: "onTouched",
-        resolver: yupResolver(schema),
+        resolver: yupResolver(loginSchema),
     });
 
     return (
@@ -59,8 +80,75 @@ const LoginForm = ({ onSubmit, isLoading, error }) => {
     );
 };
 
+const ResetPasswordModal = ({ isOpen, onClose }) => {
+    const { register, handleSubmit, errors } = useForm({
+        mode: "onTouched",
+        resolver: yupResolver(resetPasswordSchema),
+    });
+
+    const initialRef = useRef();
+    const [{ isLoading, error }, setFormState] = useState({ isLoading: false, error: null });
+    const [openDialog] = useDialog();
+
+    const auth = useAuth();
+
+    const handleResetPassword = async ({ email }) => {
+        setFormState({ isLoading: true, error: null });
+        await delay(300);
+        try {
+            await auth.sendPasswordResetEmail(email);
+            setFormState({ isLoading: false, error: null });
+            onClose();
+            openDialog("Sent", "A password reset email has been sent.");
+        } catch (err) {
+            setFormState({ isLoading: false, error: err });
+        }
+    };
+
+    return (
+        <Modal initialFocusRef={initialRef} isOpen={isOpen} onClose={onClose}>
+            <ModalOverlay />
+            <ModalContent>
+                <ModalHeader>Reset Password</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody pb={6}>
+                    <form id="reset-pwd-form" onSubmit={handleSubmit(handleResetPassword)}>
+                        {error && (
+                            <Alert status="error">
+                                <AlertIcon />
+                                {error.message}
+                            </Alert>
+                        )}
+
+                        <FormField
+                            ref={ref => {
+                                initialRef.current = ref;
+                                register(ref);
+                            }}
+                            name="email"
+                            label="Email Address"
+                            placeholder="blaise.pascal@gmail.com"
+                            error={errors.email}
+                            isRequired
+                        />
+                    </form>
+                </ModalBody>
+
+                <ModalFooter>
+                    <Button colorScheme="blue" mr={3} type="submit" form="reset-pwd-form" isLoading={isLoading}>
+                        Save
+                    </Button>
+                    <Button onClick={onClose}>Cancel</Button>
+                </ModalFooter>
+            </ModalContent>
+        </Modal>
+    );
+};
+
 const LoginPage = () => {
     const auth = useAuth();
+
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -81,12 +169,18 @@ const LoginPage = () => {
         <Stack spacing={6} m={6} flexShrink={1} flexBasis={400}>
             <Heading textAlign="center">Login</Heading>
             <LoginForm onSubmit={handleSubmit} error={error} isLoading={loading} />
-            <p>
-                New coach?{" "}
-                <NextLink href="/register" passHref>
-                    <Link color="blue.500">Register here</Link>
-                </NextLink>
-            </p>
+            <Stack spacing={4}>
+                <p>
+                    New coach?{" "}
+                    <NextLink href="/register" passHref>
+                        <Link color="blue.500">Register here</Link>
+                    </NextLink>
+                </p>
+                <Link color="red.500" onClick={onOpen}>
+                    Forgot Password
+                </Link>
+            </Stack>
+            <ResetPasswordModal isOpen={isOpen} onClose={onClose} />
         </Stack>
     );
 };

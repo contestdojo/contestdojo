@@ -310,6 +310,14 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
         { label: "Organization", key: "org" },
         { label: "Team", key: "team" },
         {
+            label: "Waiver sent?",
+            key: "waiverSent",
+            renderer: (val, { id }) => (
+                <Checkbox isChecked={val} onChange={e => onUpdate(id, { waiverSent: e.target.checked })} />
+            ),
+            reducer: sum,
+        },
+        {
             label: "Waiver signed?",
             key: "waiverSigned",
             renderer: (val, { id }) => (
@@ -328,6 +336,7 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
         org: orgsById[x.org.id].name,
         team: teamsById[x.team?.id]?.name ?? "",
         waiverSigned: !!x.waiverSigned,
+        waiverSent: !!x.waiverSent,
         notes: x.notes ?? "",
     }));
 
