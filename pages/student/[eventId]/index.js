@@ -12,10 +12,8 @@ const EventContent = () => {
     const studentRef = eventRef.collection("students").doc(user.uid);
     const { data: student } = useFirestoreDocData(studentRef);
 
-    console.log(student);
-
     const { data: org } = useFirestoreDocData(student.org);
-    const { data: team } = useFirestoreDocData(student.team);
+    const { data: team } = useFirestoreDocData(student.team ?? eventRef.collection("teams").doc("none"));
 
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
@@ -43,11 +41,17 @@ const EventContent = () => {
                 </Alert>
             )}
             <p>
-                Your coach at <b>{org.name}</b> has assigned you to Team <b>{team.name}</b> in the{" "}
-                <b>{team.division == 0 ? "Tree" : "Sapling"} division</b>. We require waivers to be completed before you
-                are permitted to compete at SMT 2021. Please input your parent’s email address by Friday, April 9th. The
-                waiver will be sent directly to your parent’s email for them to complete. Please allow up to two days
-                for waivers to be sent.
+                {student.team ? (
+                    <>
+                        Your coach at <b>{org.name}</b> has assigned you to Team <b>{team.name}</b> in the{" "}
+                        <b>{team.division == 0 ? "Tree" : "Sapling"} division</b>.{" "}
+                    </>
+                ) : (
+                    "Your coach has registered you for the Stanford Math Tournament, but you have yet to be assigned a team. "
+                )}
+                We require waivers to be completed before you are permitted to compete at SMT 2021. Please input your
+                parent’s email address by Friday, April 9th. The waiver will be sent directly to your parent’s email for
+                them to complete. Please allow up to two days for waivers to be sent.
             </p>
             <ParentEmailForm
                 onSubmit={handleSubmit}
