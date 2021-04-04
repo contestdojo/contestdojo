@@ -7,9 +7,9 @@ import {
     Flex,
     Heading,
     HStack,
+    Icon,
     Link,
-    ListItem,
-    OrderedList,
+    Select,
     Stack,
     Text,
     Tooltip,
@@ -20,6 +20,7 @@ import {
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { IoCheckmark } from "react-icons/io5";
 import { useFirestore, useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
@@ -48,7 +49,7 @@ const BlankCard = () => {
     );
 };
 
-const StudentCard = ({ id, fname, lname, email }) => {
+const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUpdate }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
     const style = transform
         ? {
@@ -57,7 +58,8 @@ const StudentCard = ({ id, fname, lname, email }) => {
         : undefined;
 
     return (
-        <Box
+        <Stack
+            spacing={2}
             m={2}
             p={4}
             borderWidth={1}
@@ -65,18 +67,40 @@ const StudentCard = ({ id, fname, lname, email }) => {
             backgroundColor="white"
             ref={setNodeRef}
             style={style}
-            {...listeners}
-            {...attributes}
         >
-            <Heading as="h4" size="md">
-                {fname} {lname}
-            </Heading>
-            <Text>{email}</Text>
-        </Box>
+            <Box {...listeners} {...attributes}>
+                <Heading as="h4" size="md">
+                    {fname} {lname}
+                </Heading>
+                <Text>{email}</Text>
+                <Text color={waiverSigned ? "gray.500" : "red.500"}>Waiver {!waiverSigned && "Not "} Signed</Text>
+            </Box>
+            <HStack spacing={4}>
+                <Select onChange={e => onUpdate({ test1: e.target.value })} value={test1} placeholder="Choose Test 1">
+                    <option value="general">General Test</option>
+                    <option value="geometry">Geometry Test</option>
+                    <option value="algebra">Algebra Test</option>
+                    <option value="combinatorics">Combinatorics Test</option>
+                    <option value="nt">Number Theory Test</option>
+                </Select>
+                {test1 !== "general" && (
+                    <Select
+                        onChange={e => onUpdate({ test2: e.target.value })}
+                        value={test2}
+                        placeholder="Choose Test 2"
+                    >
+                        {test1 !== "algebra" && <option value="algebra">Algebra Test</option>}
+                        {test1 !== "geometry" && <option value="geometry">Geometry Test</option>}
+                        {test1 !== "combinatorics" && <option value="combinatorics">Combinatorics Test</option>}
+                        {test1 !== "nt" && <option value="nt">Number Theory Test</option>}
+                    </Select>
+                )}
+            </HStack>
+        </Stack>
     );
 };
 
-const TeamCard = ({ id, name, students, onUpdate }) => {
+const TeamCard = ({ id, name, students, onUpdate, onUpdateStudent }) => {
     const { isOver, setNodeRef } = useDroppable({ id });
     const props = {
         backgroundColor: isOver ? "gray.100" : undefined,
@@ -101,7 +125,7 @@ const TeamCard = ({ id, name, students, onUpdate }) => {
             </Heading>
             <Flex direction="column" flex={1} ref={setNodeRef}>
                 {students.map(x => (
-                    <StudentCard key={x.id} {...x} />
+                    <StudentCard key={x.id} {...x} onUpdate={update => onUpdateStudent(x.id, update)} />
                 ))}
                 {students.length === 0 && <BlankCard />}
             </Flex>
@@ -109,7 +133,7 @@ const TeamCard = ({ id, name, students, onUpdate }) => {
     );
 };
 
-const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, studentsByTeam }) => {
+const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, onUpdateStudent, studentsByTeam }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [formState, setFormState] = useState({ isLoading: false, error: null });
 
@@ -135,6 +159,7 @@ const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, studentsByTeam
                         <TeamCard
                             key={x.id}
                             onUpdate={update => onUpdateTeam(x.id, update)}
+                            onUpdateStudent={onUpdateStudent}
                             {...x}
                             students={studentsByTeam[x.id] ?? []}
                         />
@@ -274,6 +299,10 @@ const TeamsContent = () => {
         await teamsRef.doc(id).update(update);
     };
 
+    const handleUpdateStudent = async (id, update) => {
+        await studentsRef.doc(id).update(update);
+    };
+
     const handleAddStudent = async values => {
         const { data } = await createStudentAccount(values);
         const { existed, uid, fname, lname, email } = data;
@@ -341,17 +370,19 @@ const TeamsContent = () => {
                         participate in all rounds except Power: Team, Guts, and Individual.
                     </p>
                     <p>
-                        To confirm your organization’s participation, please register at this EventBrite:{" "}
+                        To confirm your organization’s participation, please register at this Eventbrite:{" "}
                         <Link color="blue.500" href="https://tinyurl.com/smt-tickets">
                             https://tinyurl.com/smt-tickets
                         </Link>
                         . The cost for participation at SMT is $10 per individual for both divisions. The payment
-                        deadline is Friday, April 9th.Coaches must pay for all individuals in their organization. Please
-                        purchase the tickets with the email that you used for registration. When you purchase tickets,
-                        you will be asked to list the attendees. It is okay if the attendees listed on your registration
-                        do not match the final list of students participating. You have currently paid for{" "}
-                        {eventOrg.paidStudents ?? 0} individuals. Please allow up to one week for payment to reflect on
-                        this dashboard.
+                        deadline is Friday, April 9th. Coaches must pay for all individuals in their organization.
+                        Please purchase the tickets with the email that you used for registration. When you purchase
+                        tickets, you will be asked to list the attendees. It is okay if the attendees listed on your
+                        registration do not match the final list of students participating.
+                    </p>
+                    <p>
+                        You have currently paid for {eventOrg.paidStudents ?? 0} individuals. Please allow up to one
+                        week for payment to reflect on this dashboard.
                     </p>
                     <p>
                         For more information about SMT 2021, please visit our website:{" "}
@@ -373,6 +404,7 @@ const TeamsContent = () => {
                             studentsByTeam={studentsByTeam}
                             onAddTeam={handleAddTreeTeam}
                             onUpdateTeam={handleUpdateTeam}
+                            onUpdateStudent={handleUpdateStudent}
                         />
                         <Divider />
                     </>
@@ -387,6 +419,7 @@ const TeamsContent = () => {
                             studentsByTeam={studentsByTeam}
                             onAddTeam={handleAddSaplingTeam}
                             onUpdateTeam={handleUpdateTeam}
+                            onUpdateStudent={handleUpdateStudent}
                         />
                         <Divider />
                     </>

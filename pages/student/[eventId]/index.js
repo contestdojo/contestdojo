@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Divider, Heading, HStack, Stack } from "@chakra-ui/react";
+import { Alert, AlertIcon, Divider, Heading, HStack, Link, Select, Stack } from "@chakra-ui/react";
 import { useState } from "react";
 import { useFirestoreDocData, useUser } from "reactfire";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
@@ -28,37 +28,95 @@ const EventContent = () => {
         }
     };
 
+    const handleUpdateStudent = async update => {
+        await studentRef.update(update);
+    };
+
     return (
         <Stack spacing={6} flexBasis={600}>
             <HStack alignItems="flex-end" spacing={6}>
                 <Heading>{event.name}</Heading>
             </HStack>
-            <Divider />
-            {student.parentEmail && (
-                <Alert status="info">
-                    <AlertIcon />A waiver form has been requested for {student.parentEmail}. It may take up to two days
-                    for the form to be sent. This page will be updated when the waiver is complete.
-                </Alert>
-            )}
             <p>
                 {student.team ? (
                     <>
-                        Your coach at <b>{org.name}</b> has assigned you to Team <b>{team.name}</b> in the{" "}
-                        <b>{team.division == 0 ? "Tree" : "Sapling"} division</b>.{" "}
+                        Welcome to SMT! Your coach at {org.name} has assigned you to Team {team.name} in the{" "}
+                        {team.division == 0 ? "Tree" : "Sapling"} division.
                     </>
                 ) : (
-                    "Your coach has registered you for the Stanford Math Tournament, but you have yet to be assigned a team. "
+                    "Welcome to SMT! Your coach has registered you for the Stanford Math Tournament, but you have yet to be assigned a team."
                 )}
-                We require waivers to be completed before you are permitted to compete at SMT 2021. Please input your
-                parent’s email address by Friday, April 9th. The waiver will be sent directly to your parent’s email for
-                them to complete. Please allow up to two days for waivers to be sent.
             </p>
-            <ParentEmailForm
-                onSubmit={handleSubmit}
-                buttonText={student.parentEmail ? "Update Parent Email" : "Request Waiver"}
-                defaultValues={student}
-                {...formState}
-            />
+
+            <Divider />
+
+            <Heading size="lg">Test Selection</Heading>
+            <p>
+                During SMT, you will have the option of selecting between either the General Test, or any two Subject
+                Tests for the Individual Portion. Please select the test you would like to take below. For more
+                information about the format of the competition, please refer to our website at{" "}
+                <Link color="blue.500" href="http://sumo.stanford.edu/smt/">
+                    http://sumo.stanford.edu/smt/
+                </Link>
+                .
+            </p>
+            <HStack spacing={4}>
+                <Select
+                    onChange={e => handleUpdateStudent({ test1: e.target.value })}
+                    value={student.test1}
+                    placeholder="Choose Test 1"
+                >
+                    <option value="general">General Test</option>
+                    <option value="geometry">Geometry Test</option>
+                    <option value="algebra">Algebra Test</option>
+                    <option value="combinatorics">Combinatorics Test</option>
+                    <option value="nt">Number Theory Test</option>
+                </Select>
+                {student.test1 !== "general" && (
+                    <Select
+                        onChange={e => handleUpdateStudent({ test2: e.target.value })}
+                        value={student.test2}
+                        placeholder="Choose Test 2"
+                    >
+                        {student.test1 !== "algebra" && <option value="algebra">Algebra Test</option>}
+                        {student.test1 !== "geometry" && <option value="geometry">Geometry Test</option>}
+                        {student.test1 !== "combinatorics" && <option value="combinatorics">Combinatorics Test</option>}
+                        {student.test1 !== "nt" && <option value="nt">Number Theory Test</option>}
+                    </Select>
+                )}
+            </HStack>
+
+            <Divider />
+
+            <Heading size="lg">Waivers</Heading>
+            {student.waiverSigned ? (
+                <Alert status="success">
+                    <AlertIcon />
+                    Your waiver has been signed.
+                </Alert>
+            ) : (
+                <>
+                    {student.parentEmail ? (
+                        <Alert status="info">
+                            <AlertIcon />A waiver form has been requested for {student.parentEmail}. It may take up to
+                            two days for the form to be sent. This page will be updated when the waiver is complete.
+                        </Alert>
+                    ) : (
+                        <p>
+                            We require waivers to be completed before you are permitted to compete at SMT 2021. Please
+                            input your parent’s email address by Friday, April 9th. The waiver will be sent directly to
+                            your parent’s email for them to complete. Please allow up to two days for waivers to be
+                            sent.
+                        </p>
+                    )}
+                    <ParentEmailForm
+                        onSubmit={handleSubmit}
+                        buttonText={student.parentEmail ? "Update Parent Email" : "Request Waiver"}
+                        defaultValues={student}
+                        {...formState}
+                    />
+                </>
+            )}
         </Stack>
     );
 };
