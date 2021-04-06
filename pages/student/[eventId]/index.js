@@ -17,11 +17,11 @@ const EventContent = () => {
 
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
-    const handleSubmit = async ({ parentEmail }) => {
+    const handleSubmit = async ({ parentEmail, birthdate, gender }) => {
         setFormState({ isLoading: true, error: null });
         await delay(300);
         try {
-            await studentRef.set({ parentEmail }, { merge: true });
+            await studentRef.set({ parentEmail, birthdate, gender }, { merge: true });
             setFormState({ isLoading: false, error: null });
         } catch (err) {
             setFormState({ isLoading: false, error: err });
@@ -96,7 +96,7 @@ const EventContent = () => {
                 </Alert>
             ) : (
                 <>
-                    {student.parentEmail ? (
+                    {student.parentEmail && student.birthdate && student.gender ? (
                         <Alert status="info">
                             <AlertIcon />A waiver form has been requested for {student.parentEmail}. It may take up to
                             two days for the form to be sent. This page will be updated when the waiver is complete.
@@ -111,7 +111,7 @@ const EventContent = () => {
                     )}
                     <ParentEmailForm
                         onSubmit={handleSubmit}
-                        buttonText={student.parentEmail ? "Update Parent Email" : "Request Waiver"}
+                        buttonText={student.parentEmail ? "Update Personal Information" : "Request Waiver"}
                         defaultValues={student}
                         {...formState}
                     />

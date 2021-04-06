@@ -1,4 +1,14 @@
-import { Alert, AlertIcon, Button, Stack } from "@chakra-ui/react";
+import {
+    Alert,
+    AlertIcon,
+    Button,
+    FormControl,
+    FormErrorIcon,
+    FormErrorMessage,
+    FormLabel,
+    Select,
+    Stack,
+} from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -6,6 +16,12 @@ import FormField from "~/components/FormField";
 
 const schema = yup.object().shape({
     parentEmail: yup.string().email().required().label("Parent Email Address"),
+    birthdate: yup
+        .string()
+        .matches(/^\d{1,2}\/\d\d{1,2}\/\d{4}$/, "Must be a valid date")
+        .required()
+        .label("Birthdate"),
+    gender: yup.string().required().label("Gender"),
 });
 
 const ParentEmailForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
@@ -33,6 +49,25 @@ const ParentEmailForm = ({ onSubmit, isLoading, error, buttonText, defaultValues
                     error={errors.parentEmail}
                     isRequired
                 />
+
+                <FormField
+                    ref={register}
+                    name="birthdate"
+                    label="Birthdate"
+                    placeholder="MM/DD/YYYY"
+                    error={errors.birthdate}
+                    isRequired
+                />
+
+                <FormControl id="gender" isInvalid={errors.gender} isRequired>
+                    <FormLabel>Gender</FormLabel>
+                    <Select ref={register} name="gender" placeholder="Select option">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </Select>
+                    <FormErrorMessage>{errors.gender?.message}</FormErrorMessage>
+                </FormControl>
 
                 <Button isLoading={isLoading} type="submit" colorScheme="blue">
                     {buttonText ?? "Submit"}
