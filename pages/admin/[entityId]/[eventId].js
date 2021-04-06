@@ -307,6 +307,8 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
         { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Email", key: "email", hideByDefault: true },
         { label: "Parent Email", key: "parentEmail", renderer: updateRenderer(onUpdate, "parentEmail") },
+        { label: "Birthdate", key: "birthdate", renderer: updateRenderer(onUpdate, "birthdate") },
+        { label: "Gender", key: "gender", renderer: updateRenderer(onUpdate, "gender") },
         { label: "Organization", key: "org" },
         { label: "Team", key: "team" },
         {
