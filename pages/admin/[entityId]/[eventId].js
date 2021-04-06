@@ -160,6 +160,7 @@ const TableView = ({ cols, rows, filename, defaultSortKey }) => {
 
 const Orgs = ({ event, orgs, onUpdate }) => {
     const cols = [
+        { label: "ID", key: "id", hideByDefault: true },
         { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Address", key: "address", hideByDefault: true },
         { label: "Contact", key: "admin", hideByDefault: true },
@@ -283,8 +284,11 @@ const Orgs = ({ event, orgs, onUpdate }) => {
 
 const Teams = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
     const cols = [
+        { label: "ID", key: "id", hideByDefault: true },
+        { label: "Number", key: "number" },
         { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Organization", key: "org" },
+        { label: "Division", key: "division" },
         { label: "# Students", key: "numStudents", reducer: sum },
         { label: "# Waivers Signed", key: "numSigned", reducer: sum },
         { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
@@ -292,18 +296,21 @@ const Teams = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
 
     const rows = teams.map(x => ({
         id: x.id,
+        number: x.number ?? "",
         name: x.name,
-        org: orgsById[x.org.id].name,
+        org: orgsById[x.org.id]?.name,
+        division: x.division == 0 ? "Tree" : "Sapling",
         numStudents: studentsByTeam[x.id]?.length ?? 0,
         numSigned: studentsByTeam[x.id]?.filter(x => x.waiverSigned)?.length ?? 0,
         notes: x.notes ?? "",
     }));
 
-    return <TableView cols={cols} rows={rows} defaultSortKey="name" filename="teams.csv" />;
+    return <TableView cols={cols} rows={rows} defaultSortKey="number" filename="teams.csv" />;
 };
 
 const Students = ({ students, teamsById, orgsById, onUpdate }) => {
     const cols = [
+        { label: "ID", key: "id", hideByDefault: true },
         { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Email", key: "email", hideByDefault: true },
         { label: "Parent Email", key: "parentEmail", renderer: updateRenderer(onUpdate, "parentEmail") },
