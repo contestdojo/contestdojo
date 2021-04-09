@@ -342,6 +342,8 @@ const Students = ({ students, teamsById, orgsById, onUpdate }) => {
         name: `${x.fname} ${x.lname}`,
         email: x.email,
         parentEmail: x.parentEmail ?? "",
+        birthdate: x.birthdate ?? "",
+        gender: x.gender ?? "",
         org: orgsById[x.org.id].name,
         team: teamsById[x.team?.id]?.name ?? "",
         waiverSigned: !!x.waiverSigned,
