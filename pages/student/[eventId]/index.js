@@ -104,9 +104,9 @@ const EventContent = () => {
                     ) : (
                         <p>
                             We require waivers to be completed before you are permitted to compete at SMT 2021. Please
-                            input your parent’s email address by Friday, April 9th. The waiver will be sent directly to
-                            your parent’s email for them to complete. Please allow up to two days for waivers to be
-                            sent.
+                            input your information by Friday, April 9th. The deadline for waivers to be completed is
+                            tournament day, before any of your tests begin. The waiver will be sent directly to your
+                            parent’s email for them to complete. Please allow up to two days for waivers to be sent.
                         </p>
                     )}
                     <ParentEmailForm

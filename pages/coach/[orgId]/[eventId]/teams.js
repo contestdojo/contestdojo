@@ -213,8 +213,9 @@ const Students = ({ students, onAddStudent }) => {
                 Once you add a student to your team, they will receive an email invitation to create an account on our
                 website. Upon creation of their account, students will be prompted to add their parent’s email address.
                 Required waivers will be sent directly to parents. Please add students to your teams and have them input
-                their parent information by Friday, April 9th. Students will not be permitted to compete if they do not
-                have a completed waiver by competition day.
+                their information by Friday, April 9th. The deadline for waivers to be completed is tournament day,
+                before students take any tests. Students will not be permitted to compete if they do not have a
+                completed waiver by competition day.
             </p>
             <p>
                 Students are required to be (i) high school students, (ii) aged 14 years or older, and (iii) currently
