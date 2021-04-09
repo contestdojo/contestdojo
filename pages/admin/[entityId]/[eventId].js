@@ -285,7 +285,7 @@ const Orgs = ({ event, orgs, onUpdate }) => {
 const Teams = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
     const cols = [
         { label: "ID", key: "id", hideByDefault: true },
-        { label: "Number", key: "number" },
+        { label: "Number", key: "number", renderer: updateRenderer(onUpdate, "number") },
         { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Organization", key: "org" },
         { label: "Division", key: "division" },
