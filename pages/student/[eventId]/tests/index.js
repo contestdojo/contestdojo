@@ -46,7 +46,6 @@ const Tests = () => {
                 <HStack p={4} borderWidth={1} borderRadius="md" maxW="xl" key={x.id}>
                     <Box flex="1">
                         <Heading size="md">{x.name}</Heading>
-                        <Text>{x.problems.length} Problems</Text>
                         <Text color="gray.500">Duration: {x.duration / 60} minutes</Text>
                     </Box>
                     <Button colorScheme="blue" onClick={() => handleStartTest(x.id)} isLoading={isLoading === x.id}>

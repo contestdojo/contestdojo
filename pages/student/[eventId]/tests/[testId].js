@@ -61,19 +61,24 @@ const TestTimer = ({ endTime }) => {
 };
 
 const TestContent = () => {
-    const { ref: testRef, data: test } = useTest();
-    const { data: user } = useUser();
+    const {
+        ref: testRef,
+        data: test,
+        problemsData: { problems = [] },
+    } = useTest();
 
+    const { data: user } = useUser();
     const submissionsRef = testRef.collection("submissions").doc(user.uid);
     const { data: submissions } = useFirestoreDocData(submissionsRef);
 
-    if (!submissions.startTime)
+    if (!submissions.startTime) {
         return (
             <Alert status="error">
                 <AlertIcon />
                 Submission Not Found
             </Alert>
         );
+    }
 
     const handleUpdate = async update => {
         await submissionsRef.update(update);
@@ -83,7 +88,7 @@ const TestContent = () => {
         <Stack spacing={4}>
             <Heading size="lg">{test.name}</Heading>
             <TestTimer endTime={submissions.endTime} />
-            {test.problems.map((x, idx) => (
+            {problems.map((x, idx) => (
                 <Problem
                     key={idx}
                     idx={idx}

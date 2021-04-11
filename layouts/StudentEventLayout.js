@@ -5,8 +5,6 @@ import StudentLayout from "./StudentLayout";
 const StudentEventLayoutContent = ({ children, flexBasis }) => {
     const { data: event } = useEvent();
 
-    console.log(flexBasis);
-
     return (
         <Stack spacing={6} flexBasis={flexBasis ?? 600}>
             <Heading>{event.name}</Heading>

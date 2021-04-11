@@ -33,23 +33,27 @@ const Problem = ({ text, idx, onUpdate }) => {
     );
 };
 
-const Tests = () => {
-    const { ref: testRef, data: test } = useTest();
+const Test = () => {
+    const {
+        data: test,
+        problemsRef,
+        problemsData: { problems = [] },
+    } = useTest();
 
     const handleUpdate = (idx, val) => {
-        test.problems[idx] = val;
-        testRef.update({ problems: test.problems });
+        problems[idx] = val;
+        problemsRef.set({ problems }, { merge: true });
     };
 
     const handleAdd = () => {
-        test.problems.push("");
-        testRef.update({ problems: test.problems });
+        problems.push("");
+        problemsRef.set({ problems }, { merge: true });
     };
 
     return (
         <Stack spacing={4}>
             <Heading size="lg">{test.name}</Heading>
-            {test.problems.map((x, idx) => (
+            {problems.map((x, idx) => (
                 <Problem text={x} key={idx} idx={idx} onUpdate={val => handleUpdate(idx, val)} />
             ))}
             <Button colorScheme="blue" alignSelf="flex-start" onClick={handleAdd}>
@@ -59,10 +63,10 @@ const Tests = () => {
     );
 };
 
-const TestsTab = () => (
+const TestTab = () => (
     <TestProvider>
-        <Tests />
+        <Test />
     </TestProvider>
 );
 
-export default TestsTab;
+export default TestTab;

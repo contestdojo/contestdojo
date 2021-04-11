@@ -15,6 +15,9 @@ const TestProvider = ({ children }) => {
     const testRef = eventRef.collection("tests").doc(testId);
     const { data: test } = useFirestoreDoc(testRef);
 
+    const problemsRef = eventRef.collection("problems").doc(testId);
+    const { data: problems } = useFirestoreDoc(problemsRef);
+
     if (!test.exists) {
         return (
             <Alert status="error">
@@ -32,6 +35,8 @@ const TestProvider = ({ children }) => {
             value={{
                 ref: testRef,
                 data: test.data(),
+                problemsRef: problemsRef,
+                problemsData: problems.data() ?? {},
             }}
         >
             {children}

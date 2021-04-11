@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import { useFirestoreCollectionData } from "reactfire";
 import { useEvent } from "~/contexts/EventProvider";
-import { useFormState } from "../../../../../helpers/utils";
+import { toDict, useFormState } from "../../../../../helpers/utils";
 
 const ConfirmOpenTest = ({ test, onClose, onConfirm, error, isLoading }) => {
     const cancelRef = useRef();
@@ -54,8 +54,14 @@ const ConfirmOpenTest = ({ test, onClose, onConfirm, error, isLoading }) => {
 
 const TestsTab = () => {
     const { ref: eventRef } = useEvent();
+
     const testsRef = eventRef.collection("tests");
     const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
+    let testsById = tests.reduce(toDict, {});
+
+    const problemsRef = eventRef.collection("problems");
+    const { data: problems } = useFirestoreCollectionData(problemsRef, { idField: "id" });
+    testsById = problems.filter(x => testsById.hasOwnProperty(x.id)).reduce(toDict, testsById);
 
     const router = useRouter();
     const { entityId, eventId } = router.query;
@@ -76,11 +82,11 @@ const TestsTab = () => {
 
     return (
         <Stack spacing={4}>
-            {tests.map(x => (
+            {Object.values(testsById).map(x => (
                 <HStack p={4} borderWidth={1} borderRadius="md" key={x.id}>
                     <Box flex="1">
                         <Heading size="md">{x.name}</Heading>
-                        <Text>{x.problems.length} Problems</Text>
+                        <Text>{x.problems?.length ?? 0} Problems</Text>
                         <Text color="gray.500">Duration: {x.duration / 60} minutes</Text>
                     </Box>
                     <NextLink href={`/admin/${entityId}/${eventId}/tests/${x.id}`} passHref>

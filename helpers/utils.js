@@ -59,3 +59,8 @@ export const useTime = (refreshCycle = 100) => {
 
     return now;
 };
+
+export const toDict = (obj, x) => {
+    obj[x.id] = { ...x, ...obj[x.id] };
+    return obj;
+};
