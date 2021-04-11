@@ -1,12 +1,11 @@
-import { Alert, AlertIcon, Box, Button, Divider, Flex, Heading, HStack, Link, Stack } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Divider, Flex, Heading, HStack, Link, Stack } from "@chakra-ui/react";
 import firebase from "firebase";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import { useFirestoreDocData } from "reactfire";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
 import ApplyForm from "~/forms/ApplyForm";
-import { delay } from "~/helpers/utils";
+import { useFormState } from "../../../../helpers/utils";
 
 const ApplyContent = () => {
     const router = useRouter();
@@ -22,38 +21,26 @@ const ApplyContent = () => {
     }
 
     // Form
-    const [formState, setFormState] = useState({ isLoading: false, error: null });
-    const handleApply = async ({ applyTeams, expectedStudents, confirmUS }) => {
-        setFormState({ isLoading: true, error: null });
-        await delay(300);
-        try {
-            await eventOrgRef.set(
-                {
-                    applyTeams,
-                    expectedStudents,
-                    confirmUS,
-                    ...(!eventOrg.applyTeams && {
-                        startTime: firebase.firestore.FieldValue.serverTimestamp(),
-                    }),
-                    updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-                },
-                { merge: true }
-            );
-            setFormState({ isLoading: false, error: null });
-        } catch (err) {
-            setFormState({ isLoading: false, error: err });
-        }
-    };
-    const handleWithdraw = async () => {
-        setFormState({ isLoading: true, error: null });
-        await delay(300);
-        try {
-            await eventOrgRef.delete();
-            setFormState({ isLoading: false, error: null });
-        } catch (err) {
-            setFormState({ isLoading: false, error: err });
-        }
-    };
+    const [formState, wrapAction] = useFormState();
+
+    const handleApply = wrapAction(async ({ applyTeams, expectedStudents, confirmUS }) => {
+        await eventOrgRef.set(
+            {
+                applyTeams,
+                expectedStudents,
+                confirmUS,
+                ...(!eventOrg.applyTeams && {
+                    startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                }),
+                updateTime: firebase.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true }
+        );
+    });
+
+    const handleWithdraw = wrapAction(async () => {
+        await eventOrgRef.delete();
+    });
 
     return (
         <Stack spacing={6} flexBasis={600}>

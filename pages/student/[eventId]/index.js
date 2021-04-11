@@ -1,12 +1,11 @@
 import { Alert, AlertIcon, Divider, Heading, HStack, Link, Select, Stack } from "@chakra-ui/react";
-import { useState } from "react";
 import { useFirestoreDocData, useUser } from "reactfire";
-import EventProvider, { useEvent } from "~/contexts/EventProvider";
+import { useEvent } from "~/contexts/EventProvider";
 import ParentEmailForm from "~/forms/ParentEmailForm";
-import { delay } from "~/helpers/utils";
+import { useFormState } from "../../../helpers/utils";
 
-const EventContent = () => {
-    const { ref: eventRef, data: event } = useEvent();
+const Event = () => {
+    const { ref: eventRef } = useEvent();
     const { data: user } = useUser();
 
     const studentRef = eventRef.collection("students").doc(user.uid);
@@ -16,17 +15,10 @@ const EventContent = () => {
     const { data: team } = useFirestoreDocData(student.team ?? eventRef.collection("teams").doc("none"));
 
     // Form
-    const [formState, setFormState] = useState({ isLoading: false, error: null });
-    const handleSubmit = async ({ parentEmail, birthdate, gender }) => {
-        setFormState({ isLoading: true, error: null });
-        await delay(300);
-        try {
-            await studentRef.set({ parentEmail, birthdate, gender }, { merge: true });
-            setFormState({ isLoading: false, error: null });
-        } catch (err) {
-            setFormState({ isLoading: false, error: err });
-        }
-    };
+    const [formState, wrapAction] = useFormState();
+    const handleSubmit = wrapAction(async ({ parentEmail, birthdate, gender }) => {
+        await studentRef.set({ parentEmail, birthdate, gender }, { merge: true });
+    });
 
     const handleUpdateStudent = async update => {
         await studentRef.update(update);
@@ -34,18 +26,12 @@ const EventContent = () => {
 
     return (
         <Stack spacing={6} flexBasis={600}>
-            <HStack alignItems="flex-end" spacing={6}>
-                <Heading>{event.name}</Heading>
-            </HStack>
             <p>
-                {student.team ? (
-                    <>
-                        Welcome to SMT! Your coach at {org.name} has assigned you to Team {team.name} in the{" "}
-                        {team.division == 0 ? "Tree" : "Sapling"} division.
-                    </>
-                ) : (
-                    "Welcome to SMT! Your coach has registered you for the Stanford Math Tournament, but you have yet to be assigned a team."
-                )}
+                {student.team
+                    ? `Welcome to SMT! Your coach at ${org.name} has assigned you to Team ${team.name}
+                           in the ${team.division == 0 ? "Tree" : "Sapling"} division. `
+                    : "Welcome to SMT! Your coach has registered you for the Stanford Math Tournament, but you have yet to be assigned a team. "}
+                You will complete registration and take tests on this portal.
             </p>
 
             <Divider />
@@ -120,11 +106,5 @@ const EventContent = () => {
         </Stack>
     );
 };
-
-const Event = () => (
-    <EventProvider>
-        <EventContent />
-    </EventProvider>
-);
 
 export default Event;

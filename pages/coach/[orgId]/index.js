@@ -2,11 +2,10 @@ import { Box, Button, Divider, Heading, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
 import OrgForm from "~/forms/OrgForm";
-import { delay } from "~/helpers/utils";
+import { useFormState } from "../../../helpers/utils";
 
 const EventCard = ({ id, name, date: { seconds } }) => {
     const router = useRouter();
@@ -42,24 +41,17 @@ const OrganizationContent = () => {
     events = events.filter(x => !x.hide);
 
     // Form
-    const [formState, setFormState] = useState({ isLoading: false, error: null });
-    const handleUpdate = async ({ name, address, city, state, country, zip }) => {
-        setFormState({ isLoading: true, error: null });
-        await delay(300);
-        try {
-            await orgRef.update({
-                name,
-                address,
-                city,
-                state,
-                country,
-                zip,
-            });
-            setFormState({ isLoading: false, error: null });
-        } catch (err) {
-            setFormState({ isLoading: false, error: err });
-        }
-    };
+    const [formState, wrapAction] = useFormState();
+    const handleUpdate = wrapAction(async ({ name, address, city, state, country, zip }) => {
+        await orgRef.update({
+            name,
+            address,
+            city,
+            state,
+            country,
+            zip,
+        });
+    });
 
     return (
         <Stack spacing={6} flexBasis={600}>

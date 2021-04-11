@@ -7,7 +7,6 @@ import {
     Flex,
     Heading,
     HStack,
-    Icon,
     Link,
     Select,
     Stack,
@@ -19,8 +18,6 @@ import {
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { IoCheckmark } from "react-icons/io5";
 import { useFirestore, useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
@@ -28,7 +25,7 @@ import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { useDialog } from "~/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
-import { delay } from "~/helpers/utils";
+import { useFormState } from "../../../../helpers/utils";
 
 const BlankCard = () => {
     return (
@@ -135,19 +132,12 @@ const TeamCard = ({ id, name, students, onUpdate, onUpdateStudent }) => {
 
 const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, onUpdateStudent, studentsByTeam }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [formState, setFormState] = useState({ isLoading: false, error: null });
+    const [formState, wrapAction] = useFormState();
 
-    const handleAddTeam = async values => {
-        setFormState({ isLoading: true, error: null });
-        await delay(300);
-        try {
-            await onAddTeam(values);
-            setFormState({ isLoading: false, error: null });
-            onClose();
-        } catch (err) {
-            setFormState({ isLoading: false, error: err });
-        }
-    };
+    const handleAddTeam = wrapAction(async values => {
+        await onAddTeam(values);
+        onClose();
+    });
 
     return (
         <Stack spacing={4}>
@@ -186,19 +176,12 @@ const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, onUpdateStuden
 
 const Students = ({ students, onAddStudent }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [formState, setFormState] = useState({ isLoading: false, error: null });
+    const [formState, wrapAction] = useFormState();
 
-    const handleAddStudent = async values => {
-        setFormState({ isLoading: true, error: null });
-        await delay(300);
-        try {
-            await onAddStudent(values);
-            setFormState({ isLoading: false, error: null });
-            onClose();
-        } catch (err) {
-            setFormState({ isLoading: false, error: err });
-        }
-    };
+    const handleAddStudent = wrapAction(async values => {
+        await onAddStudent(values);
+        onClose();
+    });
 
     // Unassigned droppable
     const { isOver, setNodeRef } = useDroppable({ id: "unassigned" });

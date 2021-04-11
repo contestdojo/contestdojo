@@ -1,11 +1,10 @@
 import { Box, Button, Divider, Heading, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import NextLink from "next/link";
-import { useState } from "react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import EntityProvider, { useEntity } from "~/contexts/EntityProvider";
 import EntityForm from "~/forms/EntityForm";
-import { delay } from "~/helpers/utils";
+import { useFormState } from "../../../helpers/utils";
 
 const EventCard = ({ id, name, owner, date: { seconds } }) => {
     const date = dayjs.unix(seconds);
@@ -37,19 +36,10 @@ const EntityContent = () => {
     const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
 
     // Form
-    const [formState, setFormState] = useState({ isLoading: false, error: null });
-    const handleUpdate = async ({ name }) => {
-        setFormState({ isLoading: true, error: null });
-        await delay(300);
-        try {
-            await entityRef.update({
-                name,
-            });
-            setFormState({ isLoading: false, error: null });
-        } catch (err) {
-            setFormState({ isLoading: false, error: err });
-        }
-    };
+    const [formState, wrapAction] = useFormState();
+    const handleUpdate = wrapAction(async ({ name }) => {
+        await entityRef.update({ name });
+    });
 
     return (
         <Stack spacing={6} flexBasis={600}>

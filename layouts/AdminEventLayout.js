@@ -11,7 +11,7 @@ const tabs = [
     { name: "Event Details", route: "settings" },
 ];
 
-const AdminEventLayout = ({ children }) => {
+const AdminEventLayoutContent = ({ children }) => {
     const { data: event } = useEvent();
 
     const router = useRouter();
@@ -34,12 +34,12 @@ const AdminEventLayout = ({ children }) => {
     );
 };
 
-const AdminEventLayoutWrapper = ({ children }) => (
+const AdminEventLayout = ({ children }) => (
     <AdminLayout>
         <EventProvider>
-            <AdminEventLayout>{children}</AdminEventLayout>
+            <AdminEventLayoutContent>{children}</AdminEventLayoutContent>
         </EventProvider>
     </AdminLayout>
 );
 
-export default AdminEventLayoutWrapper;
+export default AdminEventLayout;

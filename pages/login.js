@@ -26,6 +26,7 @@ import * as yup from "yup";
 import FormField from "~/components/FormField";
 import { useDialog } from "~/contexts/DialogProvider";
 import { delay } from "~/helpers/utils";
+import { useFormState } from "../helpers/utils";
 
 const loginSchema = yup.object().shape({
     email: yup.string().email().required().label("Email Address"),
@@ -87,23 +88,16 @@ const ResetPasswordModal = ({ isOpen, onClose }) => {
     });
 
     const initialRef = useRef();
-    const [{ isLoading, error }, setFormState] = useState({ isLoading: false, error: null });
+    const [{ isLoading, error }, wrapAction] = useFormState();
     const [openDialog] = useDialog();
 
     const auth = useAuth();
 
-    const handleResetPassword = async ({ email }) => {
-        setFormState({ isLoading: true, error: null });
-        await delay(300);
-        try {
-            await auth.sendPasswordResetEmail(email);
-            setFormState({ isLoading: false, error: null });
-            onClose();
-            openDialog("Sent", "A password reset email has been sent.");
-        } catch (err) {
-            setFormState({ isLoading: false, error: err });
-        }
-    };
+    const handleResetPassword = wrapAction(async ({ email }) => {
+        await auth.sendPasswordResetEmail(email);
+        onClose();
+        openDialog("Sent", "A password reset email has been sent.");
+    });
 
     return (
         <Modal initialFocusRef={initialRef} isOpen={isOpen} onClose={onClose}>

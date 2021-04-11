@@ -13,6 +13,7 @@ import AdminEventLayout from "~/layouts/AdminEventLayout";
 import AdminLayout from "~/layouts/AdminLayout";
 import CoachLayout from "~/layouts/CoachLayout";
 import EmptyLayout from "~/layouts/EmptyLayout";
+import StudentEventLayout from "~/layouts/StudentEventLayout";
 import StudentLayout from "~/layouts/StudentLayout";
 import "~/styles/main.scss";
 
@@ -73,6 +74,8 @@ const App = ({ Component, pageProps }) => {
 
     const DefaultLayout = router.pathname.startsWith("/coach")
         ? CoachLayout
+        : router.pathname.startsWith("/student/[eventId]")
+        ? StudentEventLayout
         : router.pathname.startsWith("/student")
         ? StudentLayout
         : router.pathname.startsWith("/admin/[entityId]/[eventId]")
