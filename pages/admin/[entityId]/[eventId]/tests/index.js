@@ -14,7 +14,7 @@ const TestsTab = () => {
     const { entityId, eventId } = router.query;
 
     return (
-        <Stack>
+        <Stack spacing={4}>
             {tests.map(x => (
                 <HStack p={4} borderWidth={1} borderRadius="md" maxW="xl" key={x.id}>
                     <Box flex="1">
