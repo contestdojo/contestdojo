@@ -9,6 +9,7 @@ import NoSSR from "react-no-ssr";
 import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
 import ErrorBoundary from "~/components/ErrorBoundary";
 import DialogProvider from "~/contexts/DialogProvider";
+import AdminEventLayout from "~/layouts/AdminEventLayout";
 import AdminLayout from "~/layouts/AdminLayout";
 import CoachLayout from "~/layouts/CoachLayout";
 import EmptyLayout from "~/layouts/EmptyLayout";
@@ -74,6 +75,8 @@ const App = ({ Component, pageProps }) => {
         ? CoachLayout
         : router.pathname.startsWith("/student")
         ? StudentLayout
+        : router.pathname.startsWith("/admin/[entityId]/[eventId]")
+        ? AdminEventLayout
         : router.pathname.startsWith("/admin")
         ? AdminLayout
         : EmptyLayout;

@@ -39,21 +39,34 @@ service cloud.firestore {
         return userRef() in get(get(/databases/$(database)/documents/events/$(eventId)).data.owner).data.admins;
       }
 
+      function isOrgAdminOf(orgRef) {
+        return userRef() == get(orgRef).data.admin;
+      }
+
       match /orgs/{orgId} {
         allow read: if request.auth != null;
-        allow write: if isEventAdmin() || userRef() == get(/databases/$(database)/documents/orgs/$(orgId)).data.admin;
+        allow write: if isEventAdmin() || isOrgAdminOf(/databases/$(database)/documents/orgs/$(orgId));
       }
 
       match /teams/{teamId} {
         allow read: if request.auth != null;
-        allow create: if isEventAdmin() || userRef() == get(request.resource.data.org).data.admin;
-        allow update, delete: if isEventAdmin() || userRef() == get(resource.data.org).data.admin;
+        allow create: if isEventAdmin() || isOrgAdminOf(request.resource.data.org);
+        allow update, delete: if isEventAdmin() || isOrgAdminOf(resource.data.org);
       }
 
       match /students/{studentId} {
         allow read: if request.auth != null;
-        allow create: if isEventAdmin() || userRef() == get(request.resource.data.org).data.admin;
-        allow update, delete: if isEventAdmin() || userRef() == get(resource.data.org).data.admin || userRef() == resource.data.user;
+        allow create: if isEventAdmin() || isOrgAdminOf(request.resource.data.org);
+        allow update, delete: if isEventAdmin() || isOrgAdminOf(resource.data.org) || userRef() == resource.data.user;
+      }
+
+      match /tests/{testId} {
+        allow read: if request.auth != null;
+        allow write: if isEventAdmin();
+
+        match /submissions/{studentId} {
+          allow read, write: if isEventAdmin() || request.auth.uid == studentId;
+        }
       }
     }
 
