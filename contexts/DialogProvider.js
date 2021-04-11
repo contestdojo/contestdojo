@@ -16,7 +16,7 @@ export const DialogContainer = ({ title, description, isOpen, onClose }) => {
     const ref = useRef();
 
     return (
-        <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={ref}>
+        <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={ref} motionPreset="slideInBottom">
             <AlertDialogOverlay>
                 <AlertDialogContent>
                     <AlertDialogHeader fontSize="lg" fontWeight="bold">

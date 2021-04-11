@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import FormField from "~/components/FormField";
 
-const schema = yup.object().shape({
+const schema = yup.object({
     name: yup.string().required().label("Event Name"),
     // maxStudents: yup.number().required().label("# Students per Team"),
     // maxTeams: yup.number().nullable().label("# Teams per Organization"),

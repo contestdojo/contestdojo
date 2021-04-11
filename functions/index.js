@@ -69,7 +69,7 @@ exports.createStudentAccount = functions.https.onCall(async ({ fname, lname, ema
     if (userData.type !== "student") {
         throw new functions.https.HttpsError(
             "failed-precondition",
-            "This email address is associated with a coach account."
+            "This email address is already associated with a non-student account."
         );
     }
 
@@ -80,4 +80,45 @@ exports.createStudentAccount = functions.https.onCall(async ({ fname, lname, ema
         email: userData.email,
         uid: user.uid,
     };
+});
+
+exports.startTest = functions.https.onCall(async ({ eventId, testId }, context) => {
+    if (!context.auth)
+        throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
+
+    const uid = context.auth.uid;
+    const snapshot = await admin.firestore().collection("users").doc(uid).get();
+    const userData = snapshot.data();
+
+    // Make sure student account
+    if (userData.type !== "student") {
+        throw new functions.https.HttpsError("failed-precondition", "This account is not a student account.");
+    }
+
+    const testRef = admin.firestore().collection("events").doc(eventId).collection("tests").doc(testId);
+    const testSnapshot = await testRef.get();
+    const now = new Date();
+
+    const openTime = testSnapshot.data()?.openTime?.toDate();
+    const closeTime = testSnapshot.data()?.closeTime?.toDate();
+
+    if (!openTime || !closeTime || now < openTime || now > closeTime) {
+        throw new functions.https.HttpsError("failed-precondition", "This test is not open.");
+    }
+
+    const testData = testSnapshot.data();
+
+    const submissionRef = testRef.collection("submissions").doc(uid);
+    const submissionSnapshot = await submissionRef.get();
+
+    if (!submissionSnapshot.exists) {
+        submissionRef.set({
+            startTime: admin.firestore.Timestamp.fromDate(now),
+            endTime: admin.firestore.Timestamp.fromDate(
+                new Date(Math.min(testData.closeTime.seconds * 1000, now.getTime() + testData.duration * 1000))
+            ),
+        });
+    }
+
+    return { status: "success" };
 });

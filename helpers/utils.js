@@ -1,5 +1,9 @@
-import { useState } from "react";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import { useEffect, useState } from "react";
 import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
+
+dayjs.extend(duration);
 
 export const delay = time => {
     return new Promise(resolve => {
@@ -19,12 +23,12 @@ export const useUserData = () => {
     return { ref, ...useFirestoreDocData(ref, { idField: "uid" }) };
 };
 
-export const useFormState = () => {
+export const useFormState = ({ multiple } = {}) => {
     // Form
     const [formState, setFormState] = useState({ isLoading: false, error: null });
 
     const wrapAction = func => async (...args) => {
-        setFormState({ isLoading: true, error: null });
+        setFormState({ isLoading: multiple ? args[0] : true, error: null });
         await delay(300);
         try {
             await func(...args);
@@ -35,4 +39,23 @@ export const useFormState = () => {
     };
 
     return [formState, wrapAction];
+};
+
+export const useTime = (refreshCycle = 100) => {
+    const [now, setNow] = useState(dayjs());
+
+    useEffect(() => {
+        (async () => {
+            const resp = await fetch("https://worldtimeapi.org/api/timezone/Etc/UTC");
+            const json = await resp.json();
+            const serverTime = dayjs(json["datetime"]);
+            const offset = serverTime.valueOf() - dayjs().valueOf();
+            const intervalId = setInterval(() => {
+                setNow(dayjs().add(offset, "ms"));
+            }, refreshCycle);
+            return () => clearInterval(intervalId);
+        })();
+    }, [refreshCycle, setInterval, clearInterval, setNow]);
+
+    return now;
 };

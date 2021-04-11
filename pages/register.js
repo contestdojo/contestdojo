@@ -10,7 +10,7 @@ import FormField from "~/components/FormField";
 import { delay } from "~/helpers/utils";
 import EmptyLayout from "~/layouts/EmptyLayout";
 
-const schema = yup.object().shape({
+const schema = yup.object({
     fname: yup.string().required().label("First Name"),
     lname: yup.string().required().label("Last Name"),
     email: yup.string().email().required().label("Email Address"),

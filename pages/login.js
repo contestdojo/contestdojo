@@ -28,12 +28,12 @@ import { useDialog } from "~/contexts/DialogProvider";
 import { delay } from "~/helpers/utils";
 import { useFormState } from "../helpers/utils";
 
-const loginSchema = yup.object().shape({
+const loginSchema = yup.object({
     email: yup.string().email().required().label("Email Address"),
     password: yup.string().required().label("Password"),
 });
 
-const resetPasswordSchema = yup.object().shape({
+const resetPasswordSchema = yup.object({
     email: yup.string().required().email().label("Email"),
 });
 

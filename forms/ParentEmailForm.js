@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import FormField from "~/components/FormField";
 
-const schema = yup.object().shape({
+const schema = yup.object({
     parentEmail: yup.string().email().required().label("Parent Email Address"),
     birthdate: yup
         .string()

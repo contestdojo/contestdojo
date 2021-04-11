@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import FormField from "~/components/FormField";
 
-const schema = yup.object().shape({
+const schema = yup.object({
     name: yup.string().required().label("Team Name"),
 });
 

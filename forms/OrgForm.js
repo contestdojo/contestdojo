@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import FormField from "~/components/FormField";
 
-const schema = yup.object().shape({
+const schema = yup.object({
     name: yup.string().required().label("Organization Name"),
     address: yup.string().required().label("Street Address"),
     city: yup.string().required().label("City"),
@@ -25,7 +25,7 @@ const schema = yup.object().shape({
 });
 
 const confirmSchema = schema.concat(
-    yup.object().shape({
+    yup.object({
         confirmOrg: yup.boolean().required().equals([true], "You must select this checkbox."),
     })
 );
