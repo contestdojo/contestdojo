@@ -61,7 +61,7 @@ service cloud.firestore {
       }
 
       match /tests/{testId} {
-        allow read: if exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(request.auth.uid));
+        allow read: if isEventAdmin() || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(request.auth.uid));
         allow write: if isEventAdmin();
 
         match /submissions/{studentId} {
