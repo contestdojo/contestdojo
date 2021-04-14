@@ -97,7 +97,7 @@ const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUp
     );
 };
 
-const TeamCard = ({ id, name, students, onUpdate, onUpdateStudent }) => {
+const TeamCard = ({ id, name, number, students, onUpdate, onUpdateStudent }) => {
     const { isOver, setNodeRef } = useDroppable({ id });
     const props = {
         backgroundColor: isOver ? "gray.100" : undefined,
@@ -114,12 +114,15 @@ const TeamCard = ({ id, name, students, onUpdate, onUpdateStudent }) => {
             transition="background-color 0.1s"
             {...props}
         >
-            <Heading p={2} as="h4" size="md" position="relative">
-                <Editable defaultValue={name} onSubmit={name => onUpdate({ name })}>
-                    <StyledEditablePreview />
-                    <EditableInput />
-                </Editable>
-            </Heading>
+            <HStack p={2}>
+                {number && <Text color="gray.500">{number}</Text>}
+                <Heading as="h4" size="md" position="relative" flex="1">
+                    <Editable defaultValue={name} onSubmit={name => onUpdate({ name })}>
+                        <StyledEditablePreview />
+                        <EditableInput />
+                    </Editable>
+                </Heading>
+            </HStack>
             <Flex direction="column" flex={1} ref={setNodeRef}>
                 {students.map(x => (
                     <StudentCard key={x.id} {...x} onUpdate={update => onUpdateStudent(x.id, update)} />
