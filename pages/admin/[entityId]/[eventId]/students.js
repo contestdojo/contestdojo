@@ -11,7 +11,14 @@ const toDict = (obj, x) => {
 const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
     const cols = [
         { label: "ID", key: "id", hideByDefault: true },
-        { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
+        {
+            label: "Name",
+            key: "name",
+            renderer: updateRenderer(onUpdate, val => {
+                let splits = val.split(" ", 2);
+                return { fname: splits[0], lname: splits[1] };
+            }),
+        },
         { label: "Email", key: "email", hideByDefault: true },
         { label: "Parent Email", key: "parentEmail", renderer: updateRenderer(onUpdate, "parentEmail") },
         { label: "Birthdate", key: "birthdate", renderer: updateRenderer(onUpdate, "birthdate") },

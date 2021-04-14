@@ -30,12 +30,19 @@ export const sumReducer = arr => arr.reduce((a, b) => a + b, 0);
 
 export const dayjsRenderer = val => val.format("M/DD/YYYY");
 
-export const updateRenderer = (onUpdate, key, updateKey) => (val, { id }) => (
-    <Editable defaultValue={val} onSubmit={newVal => onUpdate(id, { [updateKey ?? key]: newVal })}>
-        <StyledEditablePreview />
-        <EditableInput />
-    </Editable>
-);
+export const updateRenderer = (onUpdate, updater) => (val, { id }) => {
+    if (typeof updater === "string") {
+        const key = updater;
+        updater = newVal => ({ [key]: newVal });
+    }
+
+    return (
+        <Editable defaultValue={val} onSubmit={newVal => onUpdate(id, updater(newVal))}>
+            <StyledEditablePreview />
+            <EditableInput />
+        </Editable>
+    );
+};
 
 export const addRemoveRenderer = (onUpdate, label) => (val, { id }, key) => (
     <HStack spacing={2}>
