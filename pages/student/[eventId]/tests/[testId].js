@@ -1,9 +1,10 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Heading, Input, Stack, Text } from "@chakra-ui/react";
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Button, Heading, Input, Stack, Text } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import firebase from "firebase";
 import { useEffect, useState } from "react";
 import MathJax from "react-mathjax-preview";
 import { useFirestoreDocData, useUser } from "reactfire";
+import { useEvent } from "~/contexts/EventProvider";
 import TestProvider, { useTest } from "~/contexts/TestProvider";
 import { useFormState, useTime } from "../../../../helpers/utils";
 
@@ -29,7 +30,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
             <MathJax math={text} config={{ menuSettings: { inTabOrder: false } }} />
 
             <Input
-                value={value}
+                value={value ?? ""}
                 onChange={e => {
                     setValue(e.target.value);
                     setEditing(true);
@@ -67,11 +68,24 @@ const TestContent = () => {
         problemsData: { problems = [] },
     } = useTest();
 
+    const { ref: eventRef } = useEvent();
     const { data: user } = useUser();
-    const submissionsRef = testRef.collection("submissions").doc(user.uid);
-    const { data: submissions } = useFirestoreDocData(submissionsRef);
 
-    if (!submissions.startTime) {
+    const studentRef = eventRef.collection("students").doc(user.uid);
+    const { data: student } = useFirestoreDocData(studentRef);
+
+    const submissionId = test.team ? student.team.id : user.uid;
+    const submissionRef = testRef.collection("submissions").doc(submissionId);
+    const { data: submission } = useFirestoreDocData(submissionRef);
+
+    let displayProblems = problems;
+
+    if (test.type == "guts") {
+        const set = submission.gutsSet ?? 0;
+        displayProblems = problems.slice(test.numPerSet * set, test.numPerSet * (set + 1));
+    }
+
+    if (!submission.startTime) {
         return (
             <Alert status="error">
                 <AlertIcon />
@@ -81,24 +95,50 @@ const TestContent = () => {
     }
 
     const handleUpdate = async update => {
-        await submissionsRef.update(update);
+        await submissionRef.update(update);
     };
+
+    if (displayProblems.length == 0) {
+        return (
+            <Stack spacing={4}>
+                <Heading size="lg">
+                    {test.name}
+                    {test.type == "guts" && ` (Set ${submission.gutsSet ?? 0 + 1})`}
+                </Heading>
+                <Text>You are done !!</Text>
+            </Stack>
+        );
+    }
 
     return (
         <Stack spacing={4}>
-            <Heading size="lg">{test.name}</Heading>
-            <TestTimer endTime={submissions.endTime} />
-            {problems.map((x, idx) => (
+            <Heading size="lg">
+                {test.name}
+                {test.type == "guts" && ` (Set ${submission.gutsSet ?? 0 + 1})`}
+            </Heading>
+            <TestTimer endTime={submission.endTime} />
+
+            {displayProblems.map((x, idx) => (
                 <Problem
                     key={idx}
-                    idx={idx}
+                    idx={idx + test.numPerSet * (submission.gutsSet ?? 0)}
                     text={x}
-                    submission={submissions?.[idx]}
+                    submission={submission?.[idx]}
                     onUpdate={val =>
                         handleUpdate({ [idx]: (val ?? "") === "" ? firebase.firestore.FieldValue.delete() : val })
                     }
                 />
             ))}
+
+            {test.type == "guts" && (
+                <Button
+                    colorScheme="blue"
+                    onClick={() => handleUpdate({ gutsSet: (submission.gutsSet ?? 0) + 1 })}
+                    alignSelf="flex-start"
+                >
+                    Next Set
+                </Button>
+            )}
         </Stack>
     );
 };

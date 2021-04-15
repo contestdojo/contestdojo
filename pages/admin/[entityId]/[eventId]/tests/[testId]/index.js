@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import MathJax from "react-mathjax-preview";
 import ResizingTextarea from "~/components/ResizingTextarea";
 import TestProvider, { useTest } from "~/contexts/TestProvider";
+import { useFormState } from "../../../../../../helpers/utils";
 
-const Problem = ({ text, idx, onUpdate }) => {
+const Problem = ({ text, idx, onUpdate, isLoading, error }) => {
     const [state, setState] = useState(text);
 
     useEffect(() => {
@@ -19,11 +20,15 @@ const Problem = ({ text, idx, onUpdate }) => {
                     <ResizingTextarea
                         value={state}
                         onChange={e => setState(e.target.value)}
-                        onBlur={() => onUpdate(state)}
                         fontFamily="mono"
                         minH="100%"
                     />
                 </Box>
+                {text !== state && (
+                    <Button onClick={() => onUpdate(state)} isLoading={isLoading} alignSelf="flex-start">
+                        Save &amp; Publish
+                    </Button>
+                )}
             </Stack>
             <Stack p={4} spacing={4} borderRadius="md" borderWidth={1} flex={1}>
                 <Heading size="md">Problem {idx + 1}</Heading>
@@ -40,23 +45,36 @@ const Test = () => {
         problemsData: { problems = [] },
     } = useTest();
 
-    const handleUpdate = (idx, val) => {
+    const [{ isLoading }, wrapAction] = useFormState({ multiple: true });
+
+    const handleUpdate = wrapAction((idx, val) => {
         problems[idx] = val;
         problemsRef.set({ problems }, { merge: true });
-    };
+    });
 
-    const handleAdd = () => {
+    const handleAdd = wrapAction(_arg => {
         problems.push("");
         problemsRef.set({ problems }, { merge: true });
-    };
+    });
 
     return (
         <Stack spacing={4}>
             <Heading size="lg">{test.name}</Heading>
             {problems.map((x, idx) => (
-                <Problem text={x} key={idx} idx={idx} onUpdate={val => handleUpdate(idx, val)} />
+                <Problem
+                    text={x}
+                    key={idx}
+                    idx={idx}
+                    onUpdate={val => handleUpdate(idx, val)}
+                    isLoading={isLoading === idx.toString()}
+                />
             ))}
-            <Button colorScheme="blue" alignSelf="flex-start" onClick={handleAdd}>
+            <Button
+                colorScheme="blue"
+                alignSelf="flex-start"
+                onClick={() => handleAdd("add")}
+                isLoading={isLoading === "add"}
+            >
                 Add Problem
             </Button>
         </Stack>

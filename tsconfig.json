@@ -18,6 +18,6 @@
             "~/*": ["./*"]
         }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/admin/[entityId]/[eventId]/tests/[testId].js"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/admin/[entityId]/[eventId]/tests/[testId]/[testId].js"],
     "exclude": ["node_modules"]
 }

@@ -95,20 +95,24 @@ exports.startTest = functions.https.onCall(async ({ eventId, testId }, context) 
         throw new functions.https.HttpsError("failed-precondition", "This account is not a student account.");
     }
 
-    const testRef = admin.firestore().collection("events").doc(eventId).collection("tests").doc(testId);
+    const eventRef = admin.firestore().collection("events").doc(eventId);
+    const testRef = eventRef.collection("tests").doc(testId);
     const testSnapshot = await testRef.get();
-    const now = new Date();
+    const testData = testSnapshot.data();
 
     const openTime = testSnapshot.data()?.openTime?.toDate();
     const closeTime = testSnapshot.data()?.closeTime?.toDate();
+    const now = new Date();
 
     if (!openTime || !closeTime || now < openTime || now > closeTime) {
         throw new functions.https.HttpsError("failed-precondition", "This test is not open.");
     }
 
-    const testData = testSnapshot.data();
+    const studentSnapshot = await eventRef.collection("students").doc(uid).get();
+    const studentData = studentSnapshot.data();
 
-    const submissionRef = testRef.collection("submissions").doc(uid);
+    const submissionId = testData.team ? studentData.team.id : uid;
+    const submissionRef = testRef.collection("submissions").doc(submissionId);
     const submissionSnapshot = await submissionRef.get();
 
     if (!submissionSnapshot.exists) {

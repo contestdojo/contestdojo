@@ -28,7 +28,7 @@ export const useFormState = ({ multiple } = {}) => {
     const [formState, setFormState] = useState({ isLoading: false, error: null });
 
     const wrapAction = func => async (...args) => {
-        setFormState({ isLoading: multiple ? args[0] : true, error: null });
+        setFormState({ isLoading: multiple ? args[0].toString() : true, error: null });
         await delay(300);
         try {
             await func(...args);

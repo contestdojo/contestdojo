@@ -17,7 +17,7 @@ import StudentEventLayout from "~/layouts/StudentEventLayout";
 import StudentLayout from "~/layouts/StudentLayout";
 import "~/styles/main.scss";
 
-const useEmulatorsInDebug = false;
+const useEmulatorsInDebug = true;
 
 Router.events.on("routeChangeStart", NProgress.start);
 Router.events.on("routeChangeComplete", NProgress.done);
@@ -41,14 +41,14 @@ const preloadSDKs = async firebaseApp => {
         ]);
     } else if (process.env.NODE_ENV === "development" && useEmulatorsInDebug) {
         return Promise.all([
-            preloadAuth({
-                firebaseApp,
-                setup: auth => auth().useEmulator("http://localhost:9099/"),
-            }),
-            preloadFirestore({
-                firebaseApp,
-                setup: firestore => firestore().useEmulator("localhost", 8080),
-            }),
+            // preloadAuth({
+            //     firebaseApp,
+            //     setup: auth => auth().useEmulator("http://localhost:9099/"),
+            // }),
+            // preloadFirestore({
+            //     firebaseApp,
+            //     setup: firestore => firestore().useEmulator("localhost", 8080),
+            // }),
             preloadFunctions({
                 firebaseApp,
                 setup: functions => functions().useEmulator("localhost", 5001),
