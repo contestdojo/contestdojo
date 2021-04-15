@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
 import OrgForm from "~/forms/OrgForm";
-import { useFormState } from "../../../helpers/utils";
+import { useFormState } from "~/helpers/utils";
 
 const EventCard = ({ id, name, date: { seconds } }) => {
     const router = useRouter();

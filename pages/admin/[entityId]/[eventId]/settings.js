@@ -1,7 +1,7 @@
 import { Box } from "@chakra-ui/layout";
 import { useEvent } from "~/contexts/EventProvider";
 import EventForm from "~/forms/EventForm";
-import { useFormState } from "../../../../helpers/utils";
+import { useFormState } from "~/helpers/utils";
 
 const EventDetails = () => {
     const { ref: eventRef, data: event } = useEvent();

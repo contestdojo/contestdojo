@@ -25,7 +25,7 @@ import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { useDialog } from "~/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
-import { useFormState } from "../../../../helpers/utils";
+import { useFormState } from "~/helpers/utils";
 
 const BlankCard = () => {
     return (

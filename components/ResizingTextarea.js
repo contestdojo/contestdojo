@@ -1,7 +1,7 @@
-import { Textarea, TextareaProps } from "@chakra-ui/react";
+import { Textarea } from "@chakra-ui/react";
 import TextareaAutosize from "react-textarea-autosize";
 
-const ResizingTextarea = (props: TextareaProps) => (
+const ResizingTextarea = props => (
     <Textarea
         minH="unset"
         overflow="hidden"

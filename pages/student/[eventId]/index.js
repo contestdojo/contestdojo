@@ -2,7 +2,7 @@ import { Alert, AlertIcon, Divider, Heading, HStack, Link, Select, Stack } from 
 import { useFirestoreDocData, useUser } from "reactfire";
 import { useEvent } from "~/contexts/EventProvider";
 import ParentEmailForm from "~/forms/ParentEmailForm";
-import { useFormState } from "../../../helpers/utils";
+import { useFormState } from "~/helpers/utils";
 
 const Event = () => {
     const { ref: eventRef } = useEvent();

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import MathJax from "react-mathjax-preview";
 import ResizingTextarea from "~/components/ResizingTextarea";
 import TestProvider, { useTest } from "~/contexts/TestProvider";
-import { useFormState } from "../../../../../../helpers/utils";
+import { useFormState } from "~/helpers/utils";
 
 const Problem = ({ text, idx, onUpdate, isLoading, error }) => {
     const [state, setState] = useState(text);

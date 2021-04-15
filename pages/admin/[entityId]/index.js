@@ -4,7 +4,7 @@ import NextLink from "next/link";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import EntityProvider, { useEntity } from "~/contexts/EntityProvider";
 import EntityForm from "~/forms/EntityForm";
-import { useFormState } from "../../../helpers/utils";
+import { useFormState } from "~/helpers/utils";
 
 const EventCard = ({ id, name, owner, date: { seconds } }) => {
     const date = dayjs.unix(seconds);

@@ -87,6 +87,10 @@ service cloud.firestore {
         //isEventAdmin() || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(request.auth.uid)) || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(get(studentRef(request.auth.uid)).data.team.id));
         allow write: if isEventAdmin();
       }
+
+      match /answers/{testId} {
+        allow read, write: if isEventAdmin();
+      }
     }
 
     match /entities/{entityId} {

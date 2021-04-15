@@ -5,7 +5,7 @@ import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useFirestoreCollectionData, useFirestoreDocData, useFunctions, useUser } from "reactfire";
 import { useEvent } from "~/contexts/EventProvider";
-import { useFormState, useTime } from "../../../../helpers/utils";
+import { useFormState, useTime } from "~/helpers/utils";
 
 const Tests = () => {
     const { data: user } = useUser();

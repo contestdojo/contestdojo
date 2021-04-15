@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import { useFirestoreCollectionData } from "reactfire";
 import { useEvent } from "~/contexts/EventProvider";
-import { toDict, useFormState } from "../../../../../helpers/utils";
+import { toDict, useFormState } from "~/helpers/utils";
 
 const ConfirmOpenTest = ({ test, onClose, onConfirm, error, isLoading }) => {
     const cancelRef = useRef();

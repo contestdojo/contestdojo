@@ -8,7 +8,7 @@ import AdminTableView, {
     updateRenderer,
 } from "~/components/AdminTableView";
 import { useEvent } from "~/contexts/EventProvider";
-import { toDict } from "../../../../helpers/utils";
+import { toDict } from "~/helpers/utils";
 
 const stageRenderer = (val, { id }) => (
     <ButtonGroup isAttached>

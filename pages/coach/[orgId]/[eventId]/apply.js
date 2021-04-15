@@ -5,7 +5,7 @@ import { useFirestoreDocData } from "reactfire";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
 import ApplyForm from "~/forms/ApplyForm";
-import { useFormState } from "../../../../helpers/utils";
+import { useFormState } from "~/helpers/utils";
 
 const ApplyContent = () => {
     const router = useRouter();
