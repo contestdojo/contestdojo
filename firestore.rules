@@ -80,16 +80,21 @@ service cloud.firestore {
           allow read, update: if isEventAdmin() || request.auth.uid == submissionId || get(studentRef(request.auth.uid)).data.team == teamRef(submissionId);
           allow create, delete: if isEventAdmin();
         }
-      }
 
-      match /problems/{testId} {
-        allow read: if true;
-        //isEventAdmin() || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(request.auth.uid)) || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(get(studentRef(request.auth.uid)).data.team.id));
-        allow write: if isEventAdmin();
-      }
+        match /graded/{submissionId} {
+          allow read: if isEventAdmin();
+          allow write: if false;
+        }
 
-      match /answers/{testId} {
-        allow read, write: if isEventAdmin();
+        match /private/problems {
+          allow read: if true;
+          // TODO isEventAdmin() || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(request.auth.uid)) || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(get(studentRef(request.auth.uid)).data.team.id));
+          allow write: if isEventAdmin();
+        }
+
+        match /private/answers {
+          allow read, write: if isEventAdmin();
+        }
       }
     }
 

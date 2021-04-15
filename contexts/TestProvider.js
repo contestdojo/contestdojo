@@ -15,7 +15,7 @@ const TestProvider = ({ children }) => {
     const testRef = eventRef.collection("tests").doc(testId);
     const { data: test } = useFirestoreDoc(testRef);
 
-    const problemsRef = eventRef.collection("problems").doc(testId);
+    const problemsRef = testRef.collection("private").doc("problems");
     const { data: problems } = useFirestoreDoc(problemsRef);
 
     if (!test.exists) {
@@ -34,7 +34,7 @@ const TestProvider = ({ children }) => {
         <TestContext.Provider
             value={{
                 ref: testRef,
-                data: test.data(),
+                data: { ...test.data(), id: test.id },
                 problemsRef: problemsRef,
                 problemsData: problems.data() ?? {},
             }}

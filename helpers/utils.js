@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useEffect, useState } from "react";
-import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
+import { useFirestore, useFirestoreDocData, useFunctions, useUser } from "reactfire";
 
 dayjs.extend(duration);
 
@@ -42,14 +42,15 @@ export const useFormState = ({ multiple } = {}) => {
 };
 
 export const useTime = (refreshCycle = 100) => {
+    const functions = useFunctions();
+    const date = functions.httpsCallable("date");
+
     const [now, setNow] = useState(dayjs());
 
     useEffect(() => {
         (async () => {
-            const resp = await fetch("https://worldtimeapi.org/api/timezone/Etc/UTC");
-            const json = await resp.json();
-            const serverTime = dayjs(json["datetime"]);
-            const offset = serverTime.valueOf() - dayjs().valueOf();
+            const { datetime } = await date();
+            const offset = dayjs(datetime).valueOf() - dayjs().valueOf();
             const intervalId = setInterval(() => {
                 setNow(dayjs().add(offset, "ms"));
             }, refreshCycle);

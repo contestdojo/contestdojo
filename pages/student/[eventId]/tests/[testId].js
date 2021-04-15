@@ -1,4 +1,5 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Button, Heading, Input, Stack, Text } from "@chakra-ui/react";
+import asciimath from "ascii-math";
 import dayjs from "dayjs";
 import firebase from "firebase";
 import { useEffect, useState } from "react";
@@ -6,15 +7,17 @@ import MathJax from "react-mathjax-preview";
 import { useFirestoreDocData, useUser } from "reactfire";
 import { useEvent } from "~/contexts/EventProvider";
 import TestProvider, { useTest } from "~/contexts/TestProvider";
-import { useFormState, useTime } from "../../../../helpers/utils";
+import { useFormState, useTime } from "~/helpers/utils";
 
 const Problem = ({ text, idx, submission, onUpdate }) => {
     const [editing, setEditing] = useState(false);
     const [value, setValue] = useState("");
     const [{ isLoading, error }, wrapAction] = useFormState();
 
+    const rendered = value && asciimath(value).toString();
+
     const handleUpdate = wrapAction(async () => {
-        await onUpdate(value);
+        await onUpdate(value ?? "", rendered ?? "");
         setEditing(false);
     });
 
@@ -39,7 +42,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
                 placeholder="0"
             />
 
-            {value && <MathJax math={"`" + value + "`"} />}
+            {rendered && <MathJax math={rendered} />}
 
             {isLoading && <Text color="yellow.500">Saving...</Text>}
             {!isLoading && !error && submission && <Text color="green.500">Saved: {submission}</Text>}
@@ -124,8 +127,11 @@ const TestContent = () => {
                     idx={idx + test.numPerSet * (submission.gutsSet ?? 0)}
                     text={x}
                     submission={submission?.[idx]}
-                    onUpdate={val =>
-                        handleUpdate({ [idx]: (val ?? "") === "" ? firebase.firestore.FieldValue.delete() : val })
+                    onUpdate={(val, rendered) =>
+                        handleUpdate({
+                            [idx]: val || firebase.firestore.FieldValue.delete(),
+                            [`${idx}r`]: rendered || firebase.firestore.FieldValue.delete(),
+                        })
                     }
                 />
             ))}

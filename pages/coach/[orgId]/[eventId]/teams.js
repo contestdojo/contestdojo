@@ -21,30 +21,12 @@ import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
+import BlankCard from "~/components/BlankCard";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { useDialog } from "~/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
 import { useFormState } from "~/helpers/utils";
-
-const BlankCard = () => {
-    return (
-        <Flex
-            m={2}
-            p={4}
-            borderWidth={1}
-            flex={1}
-            justifyContent="center"
-            alignItems="center"
-            borderStyle="dashed"
-            borderRadius="md"
-        >
-            <Text as="h4" size="md" color="gray.500">
-                Drag students here
-            </Text>
-        </Flex>
-    );
-};
 
 const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUpdate }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -127,7 +109,7 @@ const TeamCard = ({ id, name, number, students, onUpdate, onUpdateStudent }) => 
                 {students.map(x => (
                     <StudentCard key={x.id} {...x} onUpdate={update => onUpdateStudent(x.id, update)} />
                 ))}
-                {students.length === 0 && <BlankCard />}
+                {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
             </Flex>
         </Stack>
     );

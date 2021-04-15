@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { CSVLink } from "react-csv";
-import { IoAdd, IoChevronDown, IoRemove } from "react-icons/io5";
+import { HiChevronDown, HiMinus, HiPlus } from "react-icons/hi";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 
 export const sumReducer = arr => arr.reduce((a, b) => a + b, 0);
@@ -49,7 +49,7 @@ export const addRemoveRenderer = (onUpdate, label) => (val, { id }, key) => (
         <IconButton
             size="xs"
             aria-label={`Remove ${label}`}
-            icon={<IoRemove />}
+            icon={<HiMinus />}
             onClick={() => onUpdate(id, { [key]: val - 1 })}
             disabled={val <= 0}
         />
@@ -57,13 +57,13 @@ export const addRemoveRenderer = (onUpdate, label) => (val, { id }, key) => (
         <IconButton
             size="xs"
             aria-label={`Add ${label}`}
-            icon={<IoAdd />}
+            icon={<HiPlus />}
             onClick={() => onUpdate(id, { [key]: val + 1 })}
         />
     </HStack>
 );
 
-const AdminTableView = ({ cols, rows, filename, defaultSortKey }) => {
+const AdminTableView = ({ cols, rows, filename, defaultSortKey, tableProps = {} }) => {
     const [showCols, setShowCols] = useState(cols.filter(x => !x.hideByDefault).map(x => x.key));
     const [sortBy, setSortBy] = useState(defaultSortKey ?? "");
     const [sortOrder, setSortOrder] = useState("asc");
@@ -84,7 +84,7 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey }) => {
             <HStack justifyContent="flex-end">
                 <Box>
                     <Menu closeOnSelect={false}>
-                        <MenuButton as={Button} rightIcon={<IoChevronDown />}>
+                        <MenuButton as={Button} rightIcon={<HiChevronDown />}>
                             Fields
                         </MenuButton>
                         <MenuList>
@@ -105,7 +105,7 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey }) => {
                 </Box>
                 <Box>
                     <Menu closeOnSelect={false}>
-                        <MenuButton as={Button} rightIcon={<IoChevronDown />}>
+                        <MenuButton as={Button} rightIcon={<HiChevronDown />}>
                             Sort By
                         </MenuButton>
                         <MenuList>
@@ -132,7 +132,7 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey }) => {
                     </Button>
                 </Tooltip>
             </HStack>
-            <Table>
+            <Table {...tableProps}>
                 <Thead>
                     <Tr>
                         {displayCols.map(col => (

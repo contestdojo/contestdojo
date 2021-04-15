@@ -41,14 +41,14 @@ const preloadSDKs = async firebaseApp => {
         ]);
     } else if (process.env.NODE_ENV === "development" && useEmulatorsInDebug) {
         return Promise.all([
-            preloadAuth({
-                firebaseApp,
-                setup: auth => auth().useEmulator("http://localhost:9099/"),
-            }),
-            preloadFirestore({
-                firebaseApp,
-                setup: firestore => firestore().useEmulator("localhost", 8080),
-            }),
+            // preloadAuth({
+            //     firebaseApp,
+            //     setup: auth => auth().useEmulator("http://localhost:9099/"),
+            // }),
+            // preloadFirestore({
+            //     firebaseApp,
+            //     setup: firestore => firestore().useEmulator("localhost", 8080),
+            // }),
             preloadFunctions({
                 firebaseApp,
                 setup: functions => functions().useEmulator("localhost", 5001),

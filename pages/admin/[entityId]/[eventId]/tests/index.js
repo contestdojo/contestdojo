@@ -1,5 +1,5 @@
 import { Alert, AlertIcon } from "@chakra-ui/alert";
-import { Button } from "@chakra-ui/button";
+import { Button, IconButton } from "@chakra-ui/button";
 import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
 import {
     AlertDialog,
@@ -9,10 +9,12 @@ import {
     AlertDialogHeader,
     AlertDialogOverlay,
 } from "@chakra-ui/modal";
+import { Tooltip } from "@chakra-ui/tooltip";
 import firebase from "firebase";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
+import { HiClipboardCheck, HiPencilAlt, HiTable } from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
 import { useEvent } from "~/contexts/EventProvider";
 import { toDict, useFormState } from "~/helpers/utils";
@@ -52,16 +54,22 @@ const ConfirmOpenTest = ({ test, onClose, onConfirm, error, isLoading }) => {
     );
 };
 
+const TooltipLink = ({ label, href, children }) => (
+    <Tooltip label={label}>
+        <Box>
+            <NextLink href={href} passHref>
+                {children}
+            </NextLink>
+        </Box>
+    </Tooltip>
+);
+
 const TestsTab = () => {
     const { ref: eventRef } = useEvent();
 
     const testsRef = eventRef.collection("tests");
     const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
     let testsById = tests.reduce(toDict, {});
-
-    const problemsRef = eventRef.collection("problems");
-    const { data: problems } = useFirestoreCollectionData(problemsRef, { idField: "id" });
-    testsById = problems.filter(x => testsById.hasOwnProperty(x.id)).reduce(toDict, testsById);
 
     const router = useRouter();
     const { entityId, eventId } = router.query;
@@ -86,13 +94,22 @@ const TestsTab = () => {
                 <HStack p={4} borderWidth={1} borderRadius="md" key={x.id}>
                     <Box flex="1">
                         <Heading size="md">{x.name}</Heading>
-                        <Text>{x.problems?.length ?? 0} Problems</Text>
                         <Text color="gray.500">Duration: {x.duration / 60} minutes</Text>
                     </Box>
-                    <NextLink href={`/admin/${entityId}/${eventId}/tests/${x.id}`} passHref>
-                        <Button as="a">Edit Problems</Button>
-                    </NextLink>
-                    <Button colorScheme="blue" onClick={() => setOpenTest(x)}>
+
+                    <TooltipLink label="Edit Problems" href={`/admin/${entityId}/${eventId}/tests/${x.id}`}>
+                        <IconButton as="a" icon={<HiPencilAlt />} />
+                    </TooltipLink>
+
+                    <TooltipLink label="Grade Tests" href={`/admin/${entityId}/${eventId}/tests/${x.id}/grade`}>
+                        <IconButton as="a" icon={<HiClipboardCheck />} />
+                    </TooltipLink>
+
+                    <TooltipLink label="View Results" href={`/admin/${entityId}/${eventId}/tests/${x.id}/submissions`}>
+                        <IconButton as="a" icon={<HiTable />} />
+                    </TooltipLink>
+
+                    <Button colorScheme="blue" onClick={() => setOpenTest(x)} minW={150}>
                         {x.openTime ? "Reopen" : "Open"} Test
                     </Button>
                 </HStack>
