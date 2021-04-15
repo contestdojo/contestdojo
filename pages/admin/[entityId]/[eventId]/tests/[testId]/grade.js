@@ -6,11 +6,12 @@ import { HiCheck, HiX } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
 import { useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
 import BlankCard from "~/components/BlankCard";
+import Card from "~/components/Card";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 
 const Answer = ({ text, correct, onUpdate }) => {
     return (
-        <WrapItem as={Stack} direction="row" borderRadius="md" borderWidth={1} flex={1} maxW="md">
+        <WrapItem as={Card} flex={1} maxW="md">
             <Box p={4} flex="1">
                 <MathJax math={text} />
             </Box>
@@ -54,10 +55,10 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
 
     return (
         <Stack spacing={4} flex="1">
-            <Stack p={4} spacing={4} borderRadius="md" borderWidth={1} flex={1}>
+            <Card as={Stack} p={4} spacing={4} flex={1}>
                 <Heading size="md">Problem {idx + 1}</Heading>
                 <MathJax math={state} />
-            </Stack>
+            </Card>
             <Divider />
             <HStack>
                 <Heading size="md" flex="1">

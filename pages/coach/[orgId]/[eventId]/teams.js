@@ -22,10 +22,11 @@ import { useFirestore, useFirestoreCollectionData, useFirestoreDocData, useFunct
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
 import BlankCard from "~/components/BlankCard";
-import StyledEditablePreview from "~/components/StyledEditablePreview";
+import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
+import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { useFormState } from "~/helpers/utils";
 
 const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUpdate }) => {
@@ -37,16 +38,7 @@ const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUp
         : undefined;
 
     return (
-        <Stack
-            spacing={2}
-            m={2}
-            p={4}
-            borderWidth={1}
-            borderRadius="md"
-            backgroundColor="white"
-            ref={setNodeRef}
-            style={style}
-        >
+        <Card as={Stack} spacing={2} m={2} p={4} ref={setNodeRef} style={style}>
             <Box {...listeners} {...attributes}>
                 <Heading as="h4" size="md">
                     {fname} {lname}
@@ -75,7 +67,7 @@ const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUp
                     </Select>
                 )}
             </HStack>
-        </Stack>
+        </Card>
     );
 };
 
@@ -85,13 +77,12 @@ const TeamCard = ({ id, name, number, students, onUpdate, onUpdateStudent }) => 
         backgroundColor: isOver ? "gray.100" : undefined,
     };
     return (
-        <Stack
+        <Card
+            as={Stack}
             maxWidth={600}
             spacing={0}
             flex={1}
             p={2}
-            borderWidth={1}
-            borderRadius="md"
             minHeight="xs"
             transition="background-color 0.1s"
             {...props}
@@ -111,7 +102,7 @@ const TeamCard = ({ id, name, number, students, onUpdate, onUpdateStudent }) => 
                 ))}
                 {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
             </Flex>
-        </Stack>
+        </Card>
     );
 };
 
@@ -203,7 +194,7 @@ const Students = ({ students, onAddStudent }) => {
                         <StudentCard {...x} width={300} />
                     </WrapItem>
                 ))}
-                {students.length === 0 && <BlankCard />}
+                {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
             </Wrap>
 
             <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>

@@ -5,6 +5,7 @@ import firebase from "firebase";
 import { useEffect, useState } from "react";
 import MathJax from "react-mathjax-preview";
 import { useFirestoreDocData, useUser } from "reactfire";
+import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useFormState, useTime } from "~/helpers/utils";
@@ -28,7 +29,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
     }, [submission]);
 
     return (
-        <Stack p={4} spacing={4} borderRadius="md" borderWidth={1} flex={1}>
+        <Card as={Stack} p={4} spacing={4} flex={1}>
             <Heading size="md">Problem {idx + 1}</Heading>
             <MathJax math={text} config={{ menuSettings: { inTabOrder: false } }} />
 
@@ -47,7 +48,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
             {isLoading && <Text color="yellow.500">Saving...</Text>}
             {!isLoading && !error && submission && <Text color="green.500">Saved: {submission}</Text>}
             {error && <Text color="red.500">Error: {error.message}</Text>}
-        </Stack>
+        </Card>
     );
 };
 

@@ -2,6 +2,7 @@ import { Box, Button, Divider, Heading, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import Card from "~/components/Card";
 import EntityProvider, { useEntity } from "~/components/contexts/EntityProvider";
 import EntityForm from "~/components/forms/EntityForm";
 import { useFormState } from "~/helpers/utils";
@@ -9,7 +10,7 @@ import { useFormState } from "~/helpers/utils";
 const EventCard = ({ id, name, owner, date: { seconds } }) => {
     const date = dayjs.unix(seconds);
     return (
-        <Box p={6} maxWidth="sm" borderWidth={1} borderRadius="md">
+        <Card p={6} maxWidth="sm">
             <Box as="h4" fontWeight="semibold" isTruncated>
                 {name}
             </Box>
@@ -21,7 +22,7 @@ const EventCard = ({ id, name, owner, date: { seconds } }) => {
                     Manage
                 </Button>
             </NextLink>
-        </Box>
+        </Card>
     );
 };
 

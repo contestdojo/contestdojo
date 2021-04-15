@@ -1,5 +1,7 @@
-import { Alert, AlertIcon, Divider, Heading, HStack, Link, Select, Stack } from "@chakra-ui/react";
-import { useFirestoreDocData, useUser } from "reactfire";
+import { Alert, AlertIcon, Box, Divider, Heading, HStack, Icon, Link, Select, Stack, Text } from "@chakra-ui/react";
+import { HiUser } from "react-icons/hi";
+import { useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
+import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import ParentEmailForm from "~/components/forms/ParentEmailForm";
 import { useFormState } from "~/helpers/utils";
@@ -11,8 +13,12 @@ const Event = () => {
     const studentRef = eventRef.collection("students").doc(user.uid);
     const { data: student } = useFirestoreDocData(studentRef);
 
+    const teamRef = student.team ?? eventRef.collection("teams").doc("none"); // Hack for conditionals
+    const teamMembersRef = eventRef.collection("students").where("team", "==", teamRef);
+    const { data: teamMembers } = useFirestoreCollectionData(teamMembersRef);
+
     const { data: org } = useFirestoreDocData(student.org);
-    const { data: team } = useFirestoreDocData(student.team ?? eventRef.collection("teams").doc("none"));
+    const { data: team } = useFirestoreDocData(teamRef);
 
     // Form
     const [formState, wrapAction] = useFormState();
@@ -24,6 +30,8 @@ const Event = () => {
         await studentRef.update(update);
     };
 
+    console.log(teamMembers);
+
     return (
         <Stack spacing={6} flexBasis={600}>
             <p>
@@ -33,6 +41,25 @@ const Event = () => {
                     : "Welcome to SMT! Your coach has registered you for the Stanford Math Tournament, but you have yet to be assigned a team. "}
                 You will complete registration and take tests on this portal.
             </p>
+
+            {student.team && (
+                <Card p={4} as={Stack} spacing={4}>
+                    <HStack>
+                        {team.number && <Text color="gray.500">{team.number}</Text>}
+                        <Heading size="md" flex="1">
+                            {team.name}
+                        </Heading>
+                    </HStack>
+                    {teamMembers.map(x => (
+                        <HStack>
+                            <Icon as={HiUser} boxSize={6} />
+                            <Text>
+                                {x.fname} {x.lname}
+                            </Text>
+                        </HStack>
+                    ))}
+                </Card>
+            )}
 
             <Divider />
 

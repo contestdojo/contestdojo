@@ -4,6 +4,7 @@ import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
 import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useFirestoreCollectionData, useFirestoreDocData, useFunctions, useUser } from "reactfire";
+import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { useFormState, useTime } from "~/helpers/utils";
 
@@ -54,7 +55,7 @@ const Tests = () => {
             {tests.map(x => {
                 const open = x.openTime && x.openTime.toDate() < time.toDate() && time.toDate() < x.closeTime.toDate();
                 return (
-                    <HStack p={4} borderWidth={1} borderRadius="md" maxW="xl" key={x.id}>
+                    <Card as={HStack} p={4} maxW="xl" key={x.id}>
                         <Box flex="1">
                             <Heading size="md">{x.name}</Heading>
                             <Text color="gray.500">Duration: {x.duration / 60} minutes</Text>
@@ -67,7 +68,7 @@ const Tests = () => {
                         >
                             {open ? "Start" : "Not Open"}
                         </Button>
-                    </HStack>
+                    </Card>
                 );
             })}
         </Stack>

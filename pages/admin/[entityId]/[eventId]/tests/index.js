@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import { HiClipboardCheck, HiPencilAlt, HiTable } from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
+import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useFormState } from "~/helpers/utils";
 
@@ -91,7 +92,7 @@ const TestsTab = () => {
     return (
         <Stack spacing={4}>
             {Object.values(testsById).map(x => (
-                <HStack p={4} borderWidth={1} borderRadius="md" key={x.id}>
+                <Card as={HStack} p={4} key={x.id}>
                     <Box flex="1">
                         <Heading size="md">{x.name}</Heading>
                         <Text color="gray.500">Duration: {x.duration / 60} minutes</Text>
@@ -112,7 +113,7 @@ const TestsTab = () => {
                     <Button colorScheme="blue" onClick={() => setOpenTest(x)} minW={150}>
                         {x.openTime ? "Reopen" : "Open"} Test
                     </Button>
-                </HStack>
+                </Card>
             ))}
             <ConfirmOpenTest
                 test={openTest}

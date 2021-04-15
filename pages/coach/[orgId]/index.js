@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import Card from "~/components/Card";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import OrgForm from "~/components/forms/OrgForm";
 import { useFormState } from "~/helpers/utils";
@@ -12,7 +13,7 @@ const EventCard = ({ id, name, date: { seconds } }) => {
     const { orgId } = router.query;
     const date = dayjs.unix(seconds);
     return (
-        <Box p={6} maxWidth="sm" borderWidth={1} borderRadius="md">
+        <Card p={6} maxWidth="sm">
             <Box as="h4" fontWeight="semibold" isTruncated>
                 {name}
             </Box>
@@ -24,7 +25,7 @@ const EventCard = ({ id, name, date: { seconds } }) => {
                     Register
                 </Button>
             </NextLink>
-        </Box>
+        </Card>
     );
 };
 

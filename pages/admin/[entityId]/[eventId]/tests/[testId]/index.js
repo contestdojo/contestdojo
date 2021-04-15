@@ -1,8 +1,9 @@
 import { Box, Button, Heading, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import MathJax from "react-mathjax-preview";
-import ResizingTextarea from "~/components/ResizingTextarea";
+import Card from "~/components/Card";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
+import ResizingTextarea from "~/components/ResizingTextarea";
 import { useFormState } from "~/helpers/utils";
 
 const Problem = ({ text, idx, onUpdate, isLoading, error }) => {
@@ -14,7 +15,7 @@ const Problem = ({ text, idx, onUpdate, isLoading, error }) => {
 
     return (
         <Stack spacing={4} direction="row">
-            <Stack p={4} spacing={4} borderRadius="md" borderWidth={1} flex={1}>
+            <Card as={Stack} p={4} spacing={4} flex={1}>
                 <Heading size="md">Problem {idx + 1}</Heading>
                 <Box flex={1}>
                     <ResizingTextarea
@@ -29,11 +30,11 @@ const Problem = ({ text, idx, onUpdate, isLoading, error }) => {
                         Save &amp; Publish
                     </Button>
                 )}
-            </Stack>
-            <Stack p={4} spacing={4} borderRadius="md" borderWidth={1} flex={1}>
+            </Card>
+            <Card as={Stack} p={4} spacing={4} flex={1}>
                 <Heading size="md">Problem {idx + 1}</Heading>
                 <MathJax math={state} />
-            </Stack>
+            </Card>
         </Stack>
     );
 };
