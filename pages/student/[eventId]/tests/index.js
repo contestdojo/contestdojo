@@ -19,7 +19,11 @@ const Tests = () => {
     eligibleTests.push("guts");
     eligibleTests.push("testround");
 
-    const testsRef = eventRef.collection("tests").where(firebase.firestore.FieldPath.documentId(), "in", eligibleTests);
+    const testsRef = eventRef.collection("tests").where(
+        firebase.firestore.FieldPath.documentId(),
+        "in",
+        eligibleTests.filter(x => !!x)
+    );
     const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
 
     const router = useRouter();
