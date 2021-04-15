@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, Divider, Heading, HStack, Link, Select, Stack } from "@chakra-ui/react";
 import { useFirestoreDocData, useUser } from "reactfire";
-import { useEvent } from "~/contexts/EventProvider";
-import ParentEmailForm from "~/forms/ParentEmailForm";
+import { useEvent } from "~/components/contexts/EventProvider";
+import ParentEmailForm from "~/components/forms/ParentEmailForm";
 import { useFormState } from "~/helpers/utils";
 
 const Event = () => {

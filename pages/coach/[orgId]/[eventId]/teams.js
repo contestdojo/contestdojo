@@ -23,9 +23,9 @@ import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
 import BlankCard from "~/components/BlankCard";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
-import { useDialog } from "~/contexts/DialogProvider";
-import EventProvider, { useEvent } from "~/contexts/EventProvider";
-import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
+import { useDialog } from "~/components/contexts/DialogProvider";
+import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
+import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import { useFormState } from "~/helpers/utils";
 
 const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUpdate }) => {

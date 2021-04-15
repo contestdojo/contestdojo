@@ -2,8 +2,8 @@ import { Box, Button, Divider, Heading, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import EntityProvider, { useEntity } from "~/contexts/EntityProvider";
-import EntityForm from "~/forms/EntityForm";
+import EntityProvider, { useEntity } from "~/components/contexts/EntityProvider";
+import EntityForm from "~/components/forms/EntityForm";
 import { useFormState } from "~/helpers/utils";
 
 const EventCard = ({ id, name, owner, date: { seconds } }) => {

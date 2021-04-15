@@ -1,6 +1,6 @@
 import { Heading, Stack, Tab, TabList, Tabs } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import EventProvider, { useEvent } from "~/contexts/EventProvider";
+import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import AdminLayout from "./AdminLayout";
 
 const tabs = [

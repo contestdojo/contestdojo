@@ -5,8 +5,8 @@ import firebase from "firebase";
 import { useEffect, useState } from "react";
 import MathJax from "react-mathjax-preview";
 import { useFirestoreDocData, useUser } from "reactfire";
-import { useEvent } from "~/contexts/EventProvider";
-import TestProvider, { useTest } from "~/contexts/TestProvider";
+import { useEvent } from "~/components/contexts/EventProvider";
+import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useFormState, useTime } from "~/helpers/utils";
 
 const Problem = ({ text, idx, submission, onUpdate }) => {

@@ -1,7 +1,7 @@
 import { Heading, Stack } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useFirestore } from "reactfire";
-import OrgForm from "~/forms/OrgForm";
+import OrgForm from "~/components/forms/OrgForm";
 import { useFormState, useUserRef } from "~/helpers/utils";
 
 const NewOrganization = () => {

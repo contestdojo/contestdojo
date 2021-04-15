@@ -7,7 +7,7 @@ import AdminTableView, {
     sumReducer,
     updateRenderer,
 } from "~/components/AdminTableView";
-import { useEvent } from "~/contexts/EventProvider";
+import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict } from "~/helpers/utils";
 
 const stageRenderer = (val, { id }) => (

@@ -3,8 +3,8 @@ import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
-import OrgForm from "~/forms/OrgForm";
+import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
+import OrgForm from "~/components/forms/OrgForm";
 import { useFormState } from "~/helpers/utils";
 
 const EventCard = ({ id, name, date: { seconds } }) => {

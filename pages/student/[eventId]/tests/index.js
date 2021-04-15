@@ -4,7 +4,7 @@ import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
 import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useFirestoreCollectionData, useFirestoreDocData, useFunctions, useUser } from "reactfire";
-import { useEvent } from "~/contexts/EventProvider";
+import { useEvent } from "~/components/contexts/EventProvider";
 import { useFormState, useTime } from "~/helpers/utils";
 
 const Tests = () => {

@@ -16,7 +16,7 @@ import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import { HiClipboardCheck, HiPencilAlt, HiTable } from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
-import { useEvent } from "~/contexts/EventProvider";
+import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useFormState } from "~/helpers/utils";
 
 const ConfirmOpenTest = ({ test, onClose, onConfirm, error, isLoading }) => {

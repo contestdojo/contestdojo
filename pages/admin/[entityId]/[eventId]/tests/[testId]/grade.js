@@ -6,7 +6,7 @@ import { HiCheck, HiX } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
 import { useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
 import BlankCard from "~/components/BlankCard";
-import TestProvider, { useTest } from "~/contexts/TestProvider";
+import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 
 const Answer = ({ text, correct, onUpdate }) => {
     return (

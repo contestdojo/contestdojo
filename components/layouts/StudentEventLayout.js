@@ -1,5 +1,5 @@
 import { Divider, Heading, Stack } from "@chakra-ui/react";
-import EventProvider, { useEvent } from "~/contexts/EventProvider";
+import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import StudentLayout from "./StudentLayout";
 
 const StudentEventLayoutContent = ({ children, flexBasis }) => {

@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useFirestoreDocData } from "reactfire";
-import EventProvider, { useEvent } from "~/contexts/EventProvider";
-import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
+import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
+import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 
 const EventContent = () => {
     const { ref: orgRef, data: org } = useOrg();

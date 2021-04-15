@@ -2,9 +2,9 @@ import { Alert, AlertIcon, Button, Divider, Flex, Heading, HStack, Link, Stack }
 import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useFirestoreDocData } from "reactfire";
-import EventProvider, { useEvent } from "~/contexts/EventProvider";
-import OrgProvider, { useOrg } from "~/contexts/OrgProvider";
-import ApplyForm from "~/forms/ApplyForm";
+import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
+import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
+import ApplyForm from "~/components/forms/ApplyForm";
 import { useFormState } from "~/helpers/utils";
 
 const ApplyContent = () => {

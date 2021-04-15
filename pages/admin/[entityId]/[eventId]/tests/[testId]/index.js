@@ -2,7 +2,7 @@ import { Box, Button, Heading, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import MathJax from "react-mathjax-preview";
 import ResizingTextarea from "~/components/ResizingTextarea";
-import TestProvider, { useTest } from "~/contexts/TestProvider";
+import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useFormState } from "~/helpers/utils";
 
 const Problem = ({ text, idx, onUpdate, isLoading, error }) => {

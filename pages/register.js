@@ -8,7 +8,6 @@ import { useAuth, useFirestore } from "reactfire";
 import * as yup from "yup";
 import FormField from "~/components/FormField";
 import { delay } from "~/helpers/utils";
-import EmptyLayout from "~/layouts/EmptyLayout";
 
 const schema = yup.object({
     fname: yup.string().required().label("First Name"),

@@ -1,6 +1,6 @@
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import AdminTableView, { sumReducer, updateRenderer } from "~/components/AdminTableView";
-import { useEvent } from "~/contexts/EventProvider";
+import { useEvent } from "~/components/contexts/EventProvider";
 
 const toDict = (obj, x) => {
     obj[x.id] = { ...x, ...obj[x.id] };

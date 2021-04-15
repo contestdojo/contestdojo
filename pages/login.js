@@ -24,7 +24,7 @@ import { useForm } from "react-hook-form";
 import { useAuth } from "reactfire";
 import * as yup from "yup";
 import FormField from "~/components/FormField";
-import { useDialog } from "~/contexts/DialogProvider";
+import { useDialog } from "~/components/contexts/DialogProvider";
 import { delay, useFormState } from "~/helpers/utils";
 
 const loginSchema = yup.object({
