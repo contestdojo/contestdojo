@@ -11,6 +11,7 @@ import {
     MenuItemOption,
     MenuList,
     MenuOptionGroup,
+    Portal,
     Stack,
     Table,
     Tbody,
@@ -21,6 +22,7 @@ import {
     Tooltip,
     Tr,
 } from "@chakra-ui/react";
+import { Fragment } from "react";
 import { useState } from "react";
 import { CSVLink } from "react-csv";
 import { HiChevronDown, HiMinus, HiPlus } from "react-icons/hi";
@@ -63,10 +65,10 @@ export const addRemoveRenderer = (onUpdate, label) => (val, { id }, key) => (
     </HStack>
 );
 
-const AdminTableView = ({ cols, rows, filename, defaultSortKey, tableProps = {} }) => {
+const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder, tableProps = {} }) => {
     const [showCols, setShowCols] = useState(cols.filter(x => !x.hideByDefault).map(x => x.key));
     const [sortBy, setSortBy] = useState(defaultSortKey ?? "");
-    const [sortOrder, setSortOrder] = useState("asc");
+    const [sortOrder, setSortOrder] = useState(defaultSortOrder ?? "asc");
 
     let displayRows = rows;
     let displayCols = cols.filter(x => showCols.includes(x.key));
@@ -80,7 +82,7 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey, tableProps = {} 
     }
 
     return (
-        <Stack spacing={4}>
+        <Stack spacing={4} position="relative">
             <HStack justifyContent="flex-end">
                 <Box>
                     <Menu closeOnSelect={false}>
@@ -132,36 +134,43 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey, tableProps = {} 
                     </Button>
                 </Tooltip>
             </HStack>
-            <Table {...tableProps}>
-                <Thead>
-                    <Tr>
-                        {displayCols.map(col => (
-                            <Th key={col.key}>{col.label}</Th>
-                        ))}
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {displayRows.map(row => (
-                        <Tr key={row.id}>
+            <Box overflow="scroll">
+                <Table {...tableProps}>
+                    <Thead>
+                        <Tr>
                             {displayCols.map(col => (
-                                <Td key={col.key}>{col.renderer?.(row[col.key], row, col.key) ?? row[col.key]}</Td>
+                                <Th key={col.key}>{col.label}</Th>
                             ))}
                         </Tr>
-                    ))}
-                </Tbody>
-                <Tfoot>
-                    <Tr>
-                        <Td>
-                            <b>Total</b>
-                        </Td>
-                        {displayCols.slice(1).map(col => (
-                            <Td key={col.key}>
-                                <b>{col.reducer?.(rows.map(row => row[col.key]))}</b>
-                            </Td>
+                    </Thead>
+                    <Tbody>
+                        {displayRows.map(row => (
+                            <Tr key={row.id}>
+                                {displayCols.map(col => {
+                                    const El = col.skipCell ? Fragment : Td;
+                                    return (
+                                        <El key={col.key}>
+                                            {col.renderer?.(row[col.key], row, col.key) ?? row[col.key]}
+                                        </El>
+                                    );
+                                })}
+                            </Tr>
                         ))}
-                    </Tr>
-                </Tfoot>
-            </Table>
+                    </Tbody>
+                    <Tfoot>
+                        <Tr>
+                            <Td>
+                                <b>Total</b>
+                            </Td>
+                            {displayCols.slice(1).map(col => (
+                                <Td key={col.key}>
+                                    <b>{col.reducer?.(rows.map(row => row[col.key]))}</b>
+                                </Td>
+                            ))}
+                        </Tr>
+                    </Tfoot>
+                </Table>
+            </Box>
         </Stack>
     );
 };

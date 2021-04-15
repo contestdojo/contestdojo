@@ -8,13 +8,14 @@ import { Suspense } from "react";
 import NoSSR from "react-no-ssr";
 import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
 import ErrorBoundary from "~/components/ErrorBoundary";
-import DialogProvider from "~/contexts/DialogProvider";
-import AdminEventLayout from "~/layouts/AdminEventLayout";
-import AdminLayout from "~/layouts/AdminLayout";
-import CoachLayout from "~/layouts/CoachLayout";
-import EmptyLayout from "~/layouts/EmptyLayout";
-import StudentEventLayout from "~/layouts/StudentEventLayout";
-import StudentLayout from "~/layouts/StudentLayout";
+import DialogProvider from "~/components/contexts/DialogProvider";
+import theme from "~/helpers/theme";
+import AdminEventLayout from "~/components/layouts/AdminEventLayout";
+import AdminLayout from "~/components/layouts/AdminLayout";
+import CoachLayout from "~/components/layouts/CoachLayout";
+import EmptyLayout from "~/components/layouts/EmptyLayout";
+import StudentEventLayout from "~/components/layouts/StudentEventLayout";
+import StudentLayout from "~/components/layouts/StudentLayout";
 import "~/styles/main.scss";
 
 const useEmulatorsInDebug = false;
@@ -102,7 +103,7 @@ const App = ({ Component, pageProps }) => {
             <ErrorBoundary>
                 <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
                     <NoSSR>
-                        <ChakraProvider>
+                        <ChakraProvider theme={theme}>
                             <DialogProvider>
                                 <Suspense fallback={<PageSpinner />}>
                                     <ContentWrapper>
