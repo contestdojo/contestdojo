@@ -14,7 +14,7 @@ const Tests = () => {
     const studentRef = eventRef.collection("students").doc(user.uid);
     const { data: student } = useFirestoreDocData(studentRef);
 
-    const eligibleTests = student.test1 == "general" ? ["general"] : [student.test1, student.test2];
+    const eligibleTests = student.test1 == "general" ? ["general"] : [student.test1 ?? "", student.test2 ?? ""];
     eligibleTests.push("team");
     eligibleTests.push("guts");
     eligibleTests.push("testround");
