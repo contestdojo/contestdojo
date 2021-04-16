@@ -27,6 +27,7 @@ import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useFormState, useTime } from "~/helpers/utils";
 import { useRouter } from "next/router";
+import ButtonLink from "~/components/ButtonLink";
 
 const Problem = ({ text, idx, submission, onUpdate }) => {
     const [editing, setEditing] = useState(false);
@@ -148,11 +149,9 @@ const TestContent = () => {
                     <Heading>Time's up!</Heading>
                     <Text>Your answers were submitted.</Text>
                 </VStack>
-                <NextLink href={`/student/${eventId}/tests`} passHref>
-                    <Button as="a" size="sm" colorScheme="blue">
-                        Back to Tests
-                    </Button>
-                </NextLink>
+                <ButtonLink href={`/student/${eventId}/tests`} size="sm" colorScheme="blue">
+                    Back to Tests
+                </ButtonLink>
             </VStack>
         );
     }

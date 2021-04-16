@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import OrgForm from "~/components/forms/OrgForm";
@@ -20,11 +21,9 @@ const EventCard = ({ id, name, date: { seconds } }) => {
             <Box as="h5" color="gray.500">
                 {date.format("M/D/YYYY")}
             </Box>
-            <NextLink href={`/coach/${orgId}/${id}`} passHref>
-                <Button as="a" mt={2} colorScheme="blue" size="sm">
-                    Register
-                </Button>
-            </NextLink>
+            <ButtonLink href={`/coach/${orgId}/${id}`} mt={2} colorScheme="blue" size="sm">
+                Register
+            </ButtonLink>
         </Card>
     );
 };

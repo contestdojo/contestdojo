@@ -2,6 +2,7 @@ import { Box, Button, Divider, Heading, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import NextLink from "next/link";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import EntityProvider, { useEntity } from "~/components/contexts/EntityProvider";
 import EntityForm from "~/components/forms/EntityForm";
@@ -17,11 +18,9 @@ const EventCard = ({ id, name, owner, date: { seconds } }) => {
             <Box as="h5" color="gray.500">
                 {date.format("M/D/YYYY")}
             </Box>
-            <NextLink href={`/admin/${owner.id}/${id}`} passHref>
-                <Button as="a" mt={2} colorScheme="blue" size="sm">
-                    Manage
-                </Button>
-            </NextLink>
+            <ButtonLink href={`/admin/${owner.id}/${id}`} mt={2} colorScheme="blue" size="sm">
+                Manage
+            </ButtonLink>
         </Card>
     );
 };

@@ -1,3 +1,4 @@
+import NextLink from "next/link";
 import { Alert, AlertIcon } from "@chakra-ui/alert";
 import { Button } from "@chakra-ui/button";
 import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
@@ -7,10 +8,14 @@ import { useFirestoreCollectionData, useFirestoreDocData, useFunctions, useUser 
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { useFormState, useTime } from "~/helpers/utils";
+import ButtonLink from "~/components/ButtonLink";
 
 const Tests = () => {
     const { data: user } = useUser();
-    const { ref: eventRef } = useEvent();
+    const { ref: eventRef, data: event } = useEvent();
+    const time = useTime();
+    const router = useRouter();
+    const { eventId } = router.query;
 
     const studentRef = eventRef.collection("students").doc(user.uid);
     const { data: student } = useFirestoreDocData(studentRef);
@@ -25,10 +30,11 @@ const Tests = () => {
         "in",
         eligibleTests.filter(x => !!x)
     );
-    const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
 
-    const router = useRouter();
-    const { eventId } = router.query;
+    const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
+    const displayTests = tests.filter(
+        x => x.openTime && x.openTime.toDate() < time.toDate() && time.toDate() < x.closeTime.toDate()
+    );
 
     const functions = useFunctions();
     const startTest = functions.httpsCallable("startTest");
@@ -40,8 +46,6 @@ const Tests = () => {
         router.push(`/student/${eventId}/tests/${testId}`);
     });
 
-    const time = useTime();
-
     return (
         <Stack spacing={4} flexBasis={600}>
             {error && (
@@ -50,27 +54,42 @@ const Tests = () => {
                     {error.message}
                 </Alert>
             )}
-            <Text>The following tests are available for you to take:</Text>
 
-            {tests.map(x => {
-                const open = x.openTime && x.openTime.toDate() < time.toDate() && time.toDate() < x.closeTime.toDate();
-                return (
-                    <Card as={HStack} p={4} maxW="xl" key={x.id}>
-                        <Box flex="1">
-                            <Heading size="md">{x.name}</Heading>
-                            <Text color="gray.500">Duration: {x.duration / 60} minutes</Text>
-                        </Box>
-                        <Button
-                            colorScheme="blue"
-                            onClick={() => handleStartTest(x.id)}
-                            isLoading={isLoading === x.id}
-                            disabled={!open}
-                        >
-                            {open ? "Start" : "Not Open"}
-                        </Button>
-                    </Card>
-                );
-            })}
+            {student.waiverSigned ? (
+                <>
+                    <Text>
+                        {displayTests.length === 0
+                            ? "You do not have any available tests at the moment."
+                            : "The following tests are available for you to take:"}
+                    </Text>
+
+                    {displayTests.map(x => (
+                        <Card as={HStack} p={4} maxW="xl" key={x.id}>
+                            <Box flex="1">
+                                <Heading size="md">{x.name}</Heading>
+                                <Text color="gray.500">Duration: {x.duration / 60} minutes</Text>
+                            </Box>
+                            <Button
+                                colorScheme="blue"
+                                onClick={() => handleStartTest(x.id)}
+                                isLoading={isLoading === x.id}
+                                disabled={!open}
+                            >
+                                {open ? "Start" : "Not Open"}
+                            </Button>
+                        </Card>
+                    ))}
+                </>
+            ) : (
+                <Alert status="error">
+                    <AlertIcon />
+                    You must complete your waiver before taking tests.
+                </Alert>
+            )}
+
+            <ButtonLink href={`/student/${eventId}`} colorScheme="blue" alignSelf="flex-start">
+                Back to {event.name}
+            </ButtonLink>
         </Stack>
     );
 };

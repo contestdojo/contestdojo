@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useAuth, useFirestore, useFirestoreCollectionData } from "reactfire";
 import AuthWrapper from "~/components/AuthWrapper";
 import { useUserRef } from "~/helpers/utils";
+import ButtonLink from "../ButtonLink";
 
 const Navigation = () => {
     const auth = useAuth();
@@ -47,11 +48,9 @@ const Navigation = () => {
                     </Stack>
                 </Stack>
 
-                <NextLink href={`/coach/new`} passHref>
-                    <Button as="a" colorScheme="blue">
-                        New Organization
-                    </Button>
-                </NextLink>
+                <ButtonLink href={`/coach/new`} colorScheme="blue">
+                    New Organization
+                </ButtonLink>
 
                 <Spacer />
 

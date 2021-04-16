@@ -1,6 +1,21 @@
-import { Alert, AlertIcon, Box, Divider, Heading, HStack, Icon, Link, Select, Stack, Text } from "@chakra-ui/react";
-import { HiUser } from "react-icons/hi";
+import {
+    Alert,
+    AlertIcon,
+    Box,
+    Button,
+    Divider,
+    Heading,
+    HStack,
+    Icon,
+    Link,
+    Select,
+    Stack,
+    Text,
+} from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { HiChevronRight, HiUser } from "react-icons/hi";
 import { useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
+import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import ParentEmailForm from "~/components/forms/ParentEmailForm";
@@ -9,6 +24,7 @@ import { useFormState } from "~/helpers/utils";
 const Event = () => {
     const { ref: eventRef } = useEvent();
     const { data: user } = useUser();
+    const { eventId } = useRouter().query;
 
     const studentRef = eventRef.collection("students").doc(user.uid);
     const { data: student } = useFirestoreDocData(studentRef);
@@ -29,8 +45,6 @@ const Event = () => {
     const handleUpdateStudent = async update => {
         await studentRef.update(update);
     };
-
-    console.log(teamMembers);
 
     return (
         <Stack spacing={6} flexBasis={600}>
@@ -59,6 +73,12 @@ const Event = () => {
                         </HStack>
                     ))}
                 </Card>
+            )}
+
+            {student.waiverSigned && (
+                <ButtonLink href={`/student/${eventId}/tests`} colorScheme="blue" size="lg">
+                    Click here to take your tests
+                </ButtonLink>
             )}
 
             <Divider />
@@ -106,6 +126,10 @@ const Event = () => {
                 <Alert status="success">
                     <AlertIcon />
                     Your waiver has been signed.
+                </Alert>
+            ) : student.waiverSent ? (
+                <Alert status="info">
+                    <AlertIcon />A waiver form has been sent to {student.parentEmail}.
                 </Alert>
             ) : (
                 <>
