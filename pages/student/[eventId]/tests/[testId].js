@@ -172,6 +172,7 @@ const TestContent = () => {
                         handleUpdate({
                             [idx]: val || firebase.firestore.FieldValue.delete(),
                             [`${idx}r`]: rendered || firebase.firestore.FieldValue.delete(),
+                            [`${idx}t`]: firebase.firestore.FieldValue.serverTimestamp(),
                         })
                     }
                 />
