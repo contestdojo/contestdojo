@@ -1,13 +1,10 @@
-import NextLink from "next/link";
 import {
     Alert,
     AlertDescription,
     AlertIcon,
     AlertTitle,
-    Box,
     Button,
     Heading,
-    HStack,
     Icon,
     Input,
     Stack,
@@ -17,17 +14,17 @@ import {
 import asciimath from "ascii-math";
 import dayjs from "dayjs";
 import firebase from "firebase";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { HiBadgeCheck, HiCheck, HiCheckCircle } from "react-icons/hi";
+import { HiCheckCircle } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
 import { Sticky } from "react-sticky";
 import { useFirestoreDocData, useUser } from "reactfire";
+import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useFormState, useTime } from "~/helpers/utils";
-import { useRouter } from "next/router";
-import ButtonLink from "~/components/ButtonLink";
 
 const Problem = ({ text, idx, submission, onUpdate }) => {
     const [editing, setEditing] = useState(false);
@@ -168,7 +165,7 @@ const TestContent = () => {
             {displayProblems.map((x, idx) => (
                 <Problem
                     key={idx}
-                    idx={idx + test.numPerSet * (submission.gutsSet ?? 0)}
+                    idx={idx + (test.numPerSet ?? 0) * (submission.gutsSet ?? 0)}
                     text={x}
                     submission={submission?.[idx]}
                     onUpdate={(val, rendered) =>
