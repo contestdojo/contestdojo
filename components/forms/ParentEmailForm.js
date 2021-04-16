@@ -43,19 +43,19 @@ const ParentEmailForm = ({ onSubmit, isLoading, error, buttonText, defaultValues
 
                 <FormField
                     ref={register}
-                    name="parentEmail"
-                    label="Parent Email Address"
-                    placeholder="john.doe@gmail.com"
-                    error={errors.parentEmail}
+                    name="birthdate"
+                    label="Birthdate"
+                    placeholder="MM/DD/YYYY"
+                    error={errors.birthdate}
                     isRequired
                 />
 
                 <FormField
                     ref={register}
-                    name="birthdate"
-                    label="Birthdate"
-                    placeholder="MM/DD/YYYY"
-                    error={errors.birthdate}
+                    name="parentEmail"
+                    label="Parent Email Address"
+                    placeholder="john.doe@gmail.com"
+                    error={errors.parentEmail}
                     isRequired
                 />
 
