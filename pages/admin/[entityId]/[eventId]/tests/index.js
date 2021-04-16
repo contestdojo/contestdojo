@@ -1,3 +1,4 @@
+import AddTestForm from "~/components/forms/AddTestForm";
 import { Button, IconButton } from "@chakra-ui/button";
 import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
 import { Tooltip } from "@chakra-ui/tooltip";
@@ -11,7 +12,7 @@ import { useFirestoreCollectionData } from "reactfire";
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
-import { toDict, useTime } from "~/helpers/utils";
+import { toDict, useFormState, useTime } from "~/helpers/utils";
 
 const TooltipLink = ({ label, href, children }) => (
     <Tooltip label={label}>
@@ -69,10 +70,10 @@ const TestsTab = () => {
     const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
     let testsById = tests.reduce(toDict, {});
 
-    const [openTest, setOpenTest] = useState(null);
-    const [openDialog, closeDialog] = useDialog();
+    const [formState, wrapAction] = useFormState();
+    const [openDialog] = useDialog();
 
-    const handleConfirm = openTest => async () => {
+    const handleOpenTest = openTest => async () => {
         const now = new Date();
         await testsRef.doc(openTest.id).update({
             openTime: firebase.firestore.Timestamp.fromDate(now),
@@ -81,6 +82,15 @@ const TestsTab = () => {
             ),
         });
     };
+
+    const handleAddTest = wrapAction(async ({ name, type, duration, team }) => {
+        await testsRef.add({
+            name,
+            type,
+            duration,
+            team,
+        });
+    });
 
     return (
         <Stack spacing={4}>
@@ -95,11 +105,15 @@ const TestsTab = () => {
                             description: `This will open the test for all students for a window of ${
                                 x?.duration / 60 + 10
                             } minutes. Confirm?`,
-                            onConfirm: handleConfirm(x),
+                            onConfirm: handleOpenTest(x),
                         })
                     }
                 />
             ))}
+            <Card as={Stack} spacing={4} p={4} maxW="md">
+                <Heading size="md">Add Test</Heading>
+                <AddTestForm buttonText="Add Test" onSubmit={handleAddTest} {...formState} />
+            </Card>
         </Stack>
     );
 };

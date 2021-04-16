@@ -11,7 +11,7 @@ import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict } from "~/helpers/utils";
 
 const stageRenderer = onUpdate => (val, { id }) => (
-    <ButtonGroup isAttached>
+    <ButtonGroup isAttached size="sm">
         <Button
             mr="-px"
             {...(val == "apply" ? { colorScheme: "blue" } : {})}

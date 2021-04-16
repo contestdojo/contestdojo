@@ -11,7 +11,6 @@ import {
     MenuItemOption,
     MenuList,
     MenuOptionGroup,
-    Portal,
     Stack,
     Table,
     Tbody,
@@ -22,8 +21,7 @@ import {
     Tooltip,
     Tr,
 } from "@chakra-ui/react";
-import { Fragment } from "react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { CSVLink } from "react-csv";
 import { HiChevronDown, HiMinus, HiPlus } from "react-icons/hi";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
@@ -135,7 +133,7 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder
                 </Tooltip>
             </HStack>
             <Box overflow="scroll">
-                <Table {...tableProps}>
+                <Table size="sm" {...tableProps}>
                     <Thead>
                         <Tr>
                             {displayCols.map(col => (

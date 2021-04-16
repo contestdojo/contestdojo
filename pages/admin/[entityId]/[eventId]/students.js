@@ -58,15 +58,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
         notes: x.notes ?? "",
     }));
 
-    return (
-        <AdminTableView
-            cols={cols}
-            rows={rows}
-            defaultSortKey="name"
-            filename="students.csv"
-            tableProps={{ size: "sm" }}
-        />
-    );
+    return <AdminTableView cols={cols} rows={rows} defaultSortKey="name" filename="students.csv" />;
 };
 
 const TeamsTab = () => {

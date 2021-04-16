@@ -98,7 +98,7 @@ const Submissions = () => {
                 defaultSortKey="score"
                 defaultSortOrder="dsc"
                 filename={`${test.id}.csv`}
-                tableProps={{ variant: "lined", size: "sm" }}
+                tableProps={{ variant: "lined" }}
             />
         </Stack>
     );
