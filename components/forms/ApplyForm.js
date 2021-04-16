@@ -5,14 +5,14 @@ import * as yup from "yup";
 import FormField from "~/components/FormField";
 
 const buildSchema = maxTeams => {
-    let applyTeams = yup.number().typeError("You must specify a number").required().min(1).label("Number of Teams");
+    let applyTeams = yup.number().typeError("Invalid number").required().min(1).label("Number of Teams");
     if (maxTeams) applyTeams = applyTeams.max(maxTeams);
 
     return yup.object({
         applyTeams,
         expectedStudents: yup
             .number()
-            .typeError("You must specify a number")
+            .typeError("Invalid number")
             .required()
             .min(1)
             .label("Expected Number of Students"),

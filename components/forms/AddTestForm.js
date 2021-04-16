@@ -17,12 +17,16 @@ import FormField from "~/components/FormField";
 const schema = yup.object({
     name: yup.string().required().label("Name"),
     type: yup.string().required().oneOf(["standard", "guts"], "Invalid type").label("Type"),
-    duration: yup.number().typeError("You must specify a number").required().label("Duration"),
+    duration: yup.number().typeError("Invalid number").required().label("Duration"),
     team: yup.boolean().required(),
+    numPerSet: yup.number().when("type", {
+        is: "guts",
+        then: yup.number().typeError("Invalid number").required(),
+    }),
 });
 
 const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
-    const { register, handleSubmit, errors } = useForm({
+    const { register, handleSubmit, watch, errors } = useForm({
         defaultValues,
         mode: "onTouched",
         resolver: yupResolver(schema),
@@ -65,6 +69,18 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
                     </Select>
                     <FormErrorMessage>{errors.type?.message}</FormErrorMessage>
                 </FormControl>
+
+                {watch("type") === "guts" && (
+                    <FormField
+                        ref={register}
+                        type="number"
+                        name="numPerSet"
+                        label="# Problems Per Set"
+                        placeholder="4"
+                        error={errors.numPerSet}
+                        isRequired
+                    />
+                )}
 
                 <FormControl id="team" isInvalid={errors.team} isRequired>
                     <FormLabel>Team</FormLabel>

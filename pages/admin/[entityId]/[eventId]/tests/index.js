@@ -13,6 +13,7 @@ import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useFormState, useTime } from "~/helpers/utils";
+import { Tag } from "@chakra-ui/tag";
 
 const TooltipLink = ({ label, href, children }) => (
     <Tooltip label={label}>
@@ -24,7 +25,7 @@ const TooltipLink = ({ label, href, children }) => (
     </Tooltip>
 );
 
-const TestCard = ({ id, name, team, duration, openTime: rawOpenTime, closeTime: rawCloseTime, time, onOpen }) => {
+const TestCard = ({ id, type, name, team, duration, openTime: rawOpenTime, closeTime: rawCloseTime, time, onOpen }) => {
     const router = useRouter();
     const { entityId, eventId } = router.query;
 
@@ -35,10 +36,19 @@ const TestCard = ({ id, name, team, duration, openTime: rawOpenTime, closeTime: 
     return (
         <Card as={HStack} p={4} key={id}>
             <Box flex="1">
-                <Heading size="md">
-                    {name}
-                    {team && " (Team)"}
-                </Heading>
+                <HStack>
+                    <Heading size="md">{name}</Heading>
+                    {team && (
+                        <Tag size="sm" colorScheme="blue">
+                            Team
+                        </Tag>
+                    )}
+                    {type === "guts" && (
+                        <Tag size="sm" colorScheme="blue">
+                            Guts
+                        </Tag>
+                    )}
+                </HStack>
                 <Text color="gray.500">Duration: {duration / 60} minutes</Text>
                 {open && <Text color="red.500">Closes {closeTime.format("MM/DD/YYYY h:mm A")}</Text>}
             </Box>
@@ -83,12 +93,13 @@ const TestsTab = () => {
         });
     };
 
-    const handleAddTest = wrapAction(async ({ name, type, duration, team }) => {
+    const handleAddTest = wrapAction(async ({ name, type, duration, team, numPerSet }) => {
         await testsRef.add({
             name,
             type,
             duration,
             team,
+            ...(numPerSet ? { numPerSet } : {}),
         });
     });
 
