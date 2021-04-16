@@ -10,7 +10,7 @@ import AdminTableView, {
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict } from "~/helpers/utils";
 
-const stageRenderer = (val, { id }) => (
+const stageRenderer = onUpdate => (val, { id }) => (
     <ButtonGroup isAttached>
         <Button
             mr="-px"
@@ -47,7 +47,7 @@ const OrgsTable = ({ event, orgs, onUpdate }) => {
             renderer: addRemoveRenderer(onUpdate, "Student"),
             reducer: sumReducer,
         },
-        { label: "Stage", key: "stage", renderer: stageRenderer },
+        { label: "Stage", key: "stage", renderer: stageRenderer(onUpdate) },
         { label: "Start Time", key: "startTime", hideByDefault: true, renderer: dayjsRenderer },
         { label: "Last Update Time", key: "updateTime", hideByDefault: true, renderer: dayjsRenderer },
         { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },

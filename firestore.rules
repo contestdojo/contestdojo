@@ -9,6 +9,10 @@ service cloud.firestore {
       return get(userRef()).data.type == "admin";
     }
 
+    function orgRef(id) {
+      return /databases/$(database)/documents/orgs/$(id);
+    }
+
     match /{document=**} {
       allow read, write: if false;
 
@@ -47,7 +51,7 @@ service cloud.firestore {
         return /databases/$(database)/documents/events/$(eventId)/students/$(id);
       }
 
-      function orgRef(id) {
+      function eventOrgRef(id) {
         return /databases/$(database)/documents/events/$(eventId)/orgs/$(id);
       }
 
