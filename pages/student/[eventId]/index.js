@@ -59,9 +59,15 @@ const Event = () => {
             <p>
                 The entirety of our tournament will be run on the Discord Platform! To join our server, you will first
                 need to create an account at <a href="www.discord.com">www.discord.com</a> and then you can join the
-                server using this invite link: <a href="https://discord.gg/JdXnUAYdVy">https://discord.gg/JdXnUAYdVy</a>
-                . And remember to use our guide as your go-to place for information about SMT 2021:
-                <a href="https://tinyurl.com/smt2021guide">https://tinyurl.com/smt2021guide</a>.
+                server using this invite link:{" "}
+                <Link href="https://discord.gg/JdXnUAYdVy" color="blue.500">
+                    https://discord.gg/JdXnUAYdVy
+                </Link>
+                . And remember to use our guide as your go-to place for information about SMT 2021:{" "}
+                <Link href="https://tinyurl.com/smt2021guide" color="blue.500">
+                    https://tinyurl.com/smt2021guide
+                </Link>
+                .
             </p>
 
             {student.team && (
