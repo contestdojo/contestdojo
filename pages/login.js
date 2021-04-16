@@ -95,7 +95,11 @@ const ResetPasswordModal = ({ isOpen, onClose }) => {
     const handleResetPassword = wrapAction(async ({ email }) => {
         await auth.sendPasswordResetEmail(email);
         onClose();
-        openDialog("Sent", "A password reset email has been sent.");
+        openDialog({
+            type: "alert",
+            title: "Sent",
+            description: "A password reset email has been sent.",
+        });
     });
 
     return (

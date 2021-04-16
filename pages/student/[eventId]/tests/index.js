@@ -1,14 +1,50 @@
-import NextLink from "next/link";
 import { Alert, AlertIcon } from "@chakra-ui/alert";
 import { Button } from "@chakra-ui/button";
 import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
 import firebase from "firebase";
 import { useRouter } from "next/router";
-import { useFirestoreCollectionData, useFirestoreDocData, useFunctions, useUser } from "reactfire";
+import { useFirestoreCollectionData, useFirestoreDoc, useFirestoreDocData, useFunctions, useUser } from "reactfire";
+import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
+import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { useFormState, useTime } from "~/helpers/utils";
-import ButtonLink from "~/components/ButtonLink";
+
+const TestCard = ({ id, name, team, duration, onStart, isLoading, student }) => {
+    const [openDialog, closeDialog] = useDialog();
+    const { ref: eventRef } = useEvent();
+
+    const sid = team ? student.team.id : student.id;
+    const submissionRef = eventRef.collection("tests").doc(id).collection("submissions").doc(sid);
+    const { data: submission } = useFirestoreDoc(submissionRef);
+
+    const handleClick = () => {
+        if (submission.exists) {
+            onStart();
+        } else {
+            openDialog({
+                type: "confirm",
+                title: "Are you sure?",
+                description: team
+                    ? "By starting the test, your timer will begin for the entire team. Please communicate with your team members to ensure you are ready."
+                    : "By starting the test, your timer will begin. Please ensure you are ready.",
+                onConfirm: onStart,
+            });
+        }
+    };
+
+    return (
+        <Card as={HStack} p={4} maxW="xl" key={id}>
+            <Box flex="1">
+                <Heading size="md">{name}</Heading>
+                <Text color="gray.500">Duration: {duration / 60} minutes</Text>
+            </Box>
+            <Button colorScheme="blue" onClick={handleClick} isLoading={isLoading === id}>
+                {submission.exists ? "Resume" : "Start"}
+            </Button>
+        </Card>
+    );
+};
 
 const Tests = () => {
     const { data: user } = useUser();
@@ -18,12 +54,13 @@ const Tests = () => {
     const { eventId } = router.query;
 
     const studentRef = eventRef.collection("students").doc(user.uid);
-    const { data: student } = useFirestoreDocData(studentRef);
+    const { data: student } = useFirestoreDocData(studentRef, { idField: "id" });
 
     const eligibleTests = student.test1 == "general" ? ["general"] : [student.test1 ?? "", student.test2 ?? ""];
     eligibleTests.push("team");
     eligibleTests.push("guts");
-    eligibleTests.push("testround");
+    eligibleTests.push("indivdemo");
+    eligibleTests.push("teamdemo");
 
     const testsRef = eventRef.collection("tests").where(
         firebase.firestore.FieldPath.documentId(),
@@ -64,20 +101,12 @@ const Tests = () => {
                     </Text>
 
                     {displayTests.map(x => (
-                        <Card as={HStack} p={4} maxW="xl" key={x.id}>
-                            <Box flex="1">
-                                <Heading size="md">{x.name}</Heading>
-                                <Text color="gray.500">Duration: {x.duration / 60} minutes</Text>
-                            </Box>
-                            <Button
-                                colorScheme="blue"
-                                onClick={() => handleStartTest(x.id)}
-                                isLoading={isLoading === x.id}
-                                disabled={!open}
-                            >
-                                {open ? "Start" : "Not Open"}
-                            </Button>
-                        </Card>
+                        <TestCard
+                            {...x}
+                            onStart={() => handleStartTest(x.id)}
+                            isLoading={isLoading}
+                            student={student}
+                        />
                     ))}
                 </>
             ) : (

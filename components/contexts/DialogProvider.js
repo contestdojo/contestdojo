@@ -12,8 +12,13 @@ import { createContext, useContext, useRef, useState } from "react";
 export const DialogContext = createContext();
 export const useDialog = () => useContext(DialogContext);
 
-export const DialogContainer = ({ title, description, isOpen, onClose }) => {
+export const DialogContainer = ({ type, title, description, isOpen, onClose, onConfirm }) => {
     const ref = useRef();
+
+    const handleConfirm = () => {
+        onConfirm();
+        onClose();
+    };
 
     return (
         <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={ref} motionPreset="slideInBottom">
@@ -24,9 +29,20 @@ export const DialogContainer = ({ title, description, isOpen, onClose }) => {
                     </AlertDialogHeader>
                     <AlertDialogBody>{description}</AlertDialogBody>
                     <AlertDialogFooter>
-                        <Button colorScheme="blue" ref={ref} onClick={onClose}>
-                            OK
-                        </Button>
+                        {type === "alert" ? (
+                            <Button colorScheme="blue" ref={ref} onClick={onClose}>
+                                OK
+                            </Button>
+                        ) : type === "confirm" ? (
+                            <>
+                                <Button ref={ref} onClick={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button colorScheme="blue" onClick={handleConfirm} ml={3}>
+                                    Confirm
+                                </Button>
+                            </>
+                        ) : null}
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialogOverlay>
@@ -37,8 +53,8 @@ export const DialogContainer = ({ title, description, isOpen, onClose }) => {
 const DialogProvider = ({ children }) => {
     const [dialogs, setDialogs] = useState([]);
 
-    const createDialog = (title, description) => {
-        const dialog = { title, description, isOpen: true };
+    const createDialog = ({ title, description, type, onConfirm }) => {
+        const dialog = { title, description, type, onConfirm, isOpen: true };
         setDialogs([...dialogs, dialog]);
     };
 

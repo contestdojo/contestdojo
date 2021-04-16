@@ -280,10 +280,12 @@ const TeamsContent = () => {
         });
 
         if (!existed) {
-            openDialog(
-                "Student Invited",
-                "Created a new student account. An email has been sent to the student containing login details."
-            );
+            openDialog({
+                type: "alert",
+                title: "Student Invited",
+                description:
+                    "Created a new student account. An email has been sent to the student containing login details.",
+            });
         }
     };
 

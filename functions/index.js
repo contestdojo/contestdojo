@@ -105,6 +105,7 @@ exports.startTest = functions.https.onCall(
         const testRef = eventRef.collection("tests").doc(testId);
         const testSnapshot = await testRef.get();
         const testData = testSnapshot.data();
+        const uid = context.auth.uid;
 
         const openTime = testSnapshot.data()?.openTime?.toDate();
         const closeTime = testSnapshot.data()?.closeTime?.toDate();
