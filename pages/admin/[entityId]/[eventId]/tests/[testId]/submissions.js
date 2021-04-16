@@ -1,5 +1,5 @@
 import { Heading, Icon, Stack, Td } from "@chakra-ui/react";
-import { HiCheck, HiX } from "react-icons/hi";
+import { HiCheck, HiMinus, HiX } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
 import { useFirestoreCollectionData } from "reactfire";
 import AdminTableView, { sumReducer } from "~/components/AdminTableView";
@@ -9,11 +9,26 @@ import { toDict } from "~/helpers/utils";
 
 const mathmlRenderer = val => <MathJax math={val} />;
 
-const rightWrongRenderer = val => (
-    <Td background={val ? "green.100" : "red.100"}>
-        {val ? <Icon as={HiCheck} color="green" /> : <Icon as={HiX} color="red" />}
-    </Td>
-);
+const COLORS = {
+    correct: "green",
+    incorrect: "red",
+    ungraded: "orange",
+};
+
+const ICONS = {
+    correct: HiCheck,
+    incorrect: HiX,
+    ungraded: HiMinus,
+};
+
+const rightWrongRenderer = val => {
+    const status = val > 0 ? "correct" : val === 0 ? "incorrect" : "ungraded";
+    return (
+        <Td background={COLORS[status] + ".100"}>
+            <Icon as={ICONS[status]} color={COLORS[status]} />
+        </Td>
+    );
+};
 
 const Submissions = () => {
     const { ref: eventRef } = useEvent();
@@ -44,6 +59,7 @@ const Submissions = () => {
 
     const cols = [
         { label: test.team ? "Team ID" : " Student ID", key: "id", hideByDefault: true },
+        { label: test.team ? "Team Number" : " Student Number", key: "number" },
         { label: test.team ? "Team Name" : " Student Name", key: "name" },
         { label: "Score", key: "score" },
         ...problems.map((x, idx) => ({ label: `A${idx + 1}`, key: `${idx}`, hideByDefault: true })),
@@ -58,11 +74,12 @@ const Submissions = () => {
 
     const rows = submissions.map(s => {
         const answers = problems.map((x, idx) => [idx, s[idx] ?? ""]);
-        const correct = problems.map((x, idx) => [`c${idx}`, !!gradedById[s.id]?.[idx]]);
+        const correct = problems.map((x, idx) => [`c${idx}`, gradedById[s.id]?.[idx] ?? ""]);
         const total = sumReducer(correct.map(([idx, x]) => x));
 
         return {
             id: s.id,
+            number: (test.team ? teamsById[s.id] : studentsById[s.id])?.number,
             name: test.team ? teamsById[s.id]?.name : `${studentsById[s.id].fname} ${studentsById[s.id].lname}`,
             score: total,
             ...Object.fromEntries(answers),

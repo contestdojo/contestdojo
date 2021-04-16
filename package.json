@@ -34,6 +34,7 @@
         "react-latex": "^2.0.0",
         "react-mathjax-preview": "^2.2.3",
         "react-no-ssr": "^1.1.0",
+        "react-sticky": "^6.0.3",
         "react-table": "^7.6.3",
         "react-textarea-autosize": "^8.3.2",
         "react-virtualized-auto-sizer": "^1.0.5",

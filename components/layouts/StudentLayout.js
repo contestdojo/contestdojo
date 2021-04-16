@@ -6,6 +6,7 @@ import { useAuth, useFirestore, useFirestoreCollection, useFirestoreCollectionDa
 import AuthWrapper from "~/components/AuthWrapper";
 import { useUserRef } from "~/helpers/utils";
 import firebase from "firebase";
+import { StickyContainer } from "react-sticky";
 
 const Navigation = () => {
     const auth = useAuth();
@@ -66,7 +67,7 @@ const Navigation = () => {
 const ContentWrapper = ({ children }) => (
     <Flex height="100vh">
         <Navigation />
-        <Box flex={1} padding={12} overflow="scroll">
+        <Box as={StickyContainer} flex={1} padding={12} overflow="scroll">
             <Flex justifyContent="center">{children}</Flex>
         </Box>
     </Flex>

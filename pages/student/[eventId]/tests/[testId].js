@@ -1,14 +1,32 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Button, Heading, Input, Stack, Text } from "@chakra-ui/react";
+import NextLink from "next/link";
+import {
+    Alert,
+    AlertDescription,
+    AlertIcon,
+    AlertTitle,
+    Box,
+    Button,
+    Heading,
+    HStack,
+    Icon,
+    Input,
+    Stack,
+    Text,
+    VStack,
+} from "@chakra-ui/react";
 import asciimath from "ascii-math";
 import dayjs from "dayjs";
 import firebase from "firebase";
 import { useEffect, useState } from "react";
+import { HiBadgeCheck, HiCheck, HiCheckCircle } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
+import { Sticky } from "react-sticky";
 import { useFirestoreDocData, useUser } from "reactfire";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useFormState, useTime } from "~/helpers/utils";
+import { useRouter } from "next/router";
 
 const Problem = ({ text, idx, submission, onUpdate }) => {
     const [editing, setEditing] = useState(false);
@@ -52,16 +70,21 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
     );
 };
 
-const TestTimer = ({ endTime }) => {
-    const time = useTime();
-    const endT = dayjs(endTime.toDate());
-    const timeRemaining = dayjs.duration(endT.diff(time));
+const TestTimer = ({ time, endTime }) => {
+    const timeRemaining = dayjs.duration(endTime.diff(time));
+    const mins = timeRemaining.asMinutes();
+    const color = mins < 1 ? "red" : mins < 5 ? "orange" : "blue";
+
     return (
-        <Alert size="xl">
-            <AlertIcon />
-            <AlertTitle>Time Remaining</AlertTitle>
-            <AlertDescription>{timeRemaining.format("HH:mm:ss")}</AlertDescription>
-        </Alert>
+        <Sticky relative>
+            {({ style }) => (
+                <Alert size="xl" style={style} zIndex={1} colorScheme={color}>
+                    <AlertIcon />
+                    <AlertTitle>Time Remaining</AlertTitle>
+                    <AlertDescription>{timeRemaining.format("HH:mm:ss")}</AlertDescription>
+                </Alert>
+            )}
+        </Sticky>
     );
 };
 
@@ -72,8 +95,10 @@ const TestContent = () => {
         problemsData: { problems = [] },
     } = useTest();
 
+    const { eventId } = useRouter().query;
     const { ref: eventRef } = useEvent();
     const { data: user } = useUser();
+    const time = useTime();
 
     const studentRef = eventRef.collection("students").doc(user.uid);
     const { data: student } = useFirestoreDocData(studentRef);
@@ -81,6 +106,7 @@ const TestContent = () => {
     const submissionId = test.team ? student.team.id : user.uid;
     const submissionRef = testRef.collection("submissions").doc(submissionId);
     const { data: submission } = useFirestoreDocData(submissionRef);
+    const endTime = dayjs(submission.endTime.toDate());
 
     let displayProblems = problems;
 
@@ -114,13 +140,31 @@ const TestContent = () => {
         );
     }
 
+    if (time.isAfter(endTime)) {
+        return (
+            <VStack spacing={4}>
+                <VStack>
+                    <Icon as={HiCheckCircle} boxSize={128} />
+                    <Heading>Time's up!</Heading>
+                    <Text>Your answers were submitted.</Text>
+                </VStack>
+                <NextLink href={`/student/${eventId}/tests`} passHref>
+                    <Button as="a" size="sm" colorScheme="blue">
+                        Back to Tests
+                    </Button>
+                </NextLink>
+            </VStack>
+        );
+    }
+
     return (
         <Stack spacing={4}>
             <Heading size="lg">
                 {test.name}
                 {test.type == "guts" && ` (Set ${submission.gutsSet ?? 0 + 1})`}
             </Heading>
-            <TestTimer endTime={submission.endTime} />
+
+            <TestTimer time={time} endTime={endTime} />
 
             {displayProblems.map((x, idx) => (
                 <Problem

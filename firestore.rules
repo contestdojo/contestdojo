@@ -77,7 +77,11 @@ service cloud.firestore {
         allow write: if isEventAdmin();
 
         match /submissions/{submissionId} {
-          allow read, update: if isEventAdmin() || request.auth.uid == submissionId || get(studentRef(request.auth.uid)).data.team == teamRef(submissionId);
+          function ownsSubmission() {
+            return request.auth.uid == submissionId || get(studentRef(request.auth.uid)).data.team == teamRef(submissionId)
+          }
+          allow read: if isEventAdmin() || ownsSubmission();
+          allow update: if isEventAdmin() || (ownsSubmission() && request.time < resource.data.endTime && resource.data.endTime == request.resource.data.endTime);
           allow create, delete: if isEventAdmin();
         }
 

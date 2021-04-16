@@ -156,7 +156,7 @@ exports.gradeTests = functions.https.onCall(
             const graded = {};
 
             for (const [idx, problem] of answers) {
-                graded[idx] = !!problem[submission[`${idx}r`]];
+                graded[idx] = Number(!!problem[submission[`${idx}r`]]);
             }
 
             gradedSubmissionsRef.doc(s.id).set(graded, { merge: true });
