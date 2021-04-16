@@ -1,11 +1,12 @@
 import { Alert, AlertIcon, Button, Divider, Flex, Heading, HStack, Link, Stack } from "@chakra-ui/react";
+import dayjs from "dayjs";
 import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useFirestoreDocData } from "reactfire";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import ApplyForm from "~/components/forms/ApplyForm";
-import { useFormState } from "~/helpers/utils";
+import { useFormState, useTime } from "~/helpers/utils";
 
 const ApplyContent = () => {
     const router = useRouter();
@@ -15,6 +16,9 @@ const ApplyContent = () => {
 
     const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
     const { data: eventOrg } = useFirestoreDocData(eventOrgRef);
+    const time = useTime();
+
+    const open = !event.stages?.apply?.ends || time.isBefore(dayjs(event.stages.apply.ends.toDate()));
 
     if ((eventOrg.stage ?? event.defaultStage) != "apply") {
         router.replace(`/coach/${orgRef.id}/${eventRef.id}`);
@@ -88,6 +92,7 @@ const ApplyContent = () => {
                         maxTeams={event.maxTeams}
                         buttonText={eventOrg.applyTeams ? "Update Application" : "Apply"}
                         defaultValues={eventOrg}
+                        open={open}
                         {...formState}
                     />
                     {eventOrg.applyTeams && (

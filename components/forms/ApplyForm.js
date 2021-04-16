@@ -20,7 +20,7 @@ const buildSchema = maxTeams => {
     });
 };
 
-const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxTeams }) => {
+const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxTeams, open }) => {
     const { register, handleSubmit, errors } = useForm({
         defaultValues,
         mode: "onTouched",
@@ -29,9 +29,10 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
 
     // TODO: Number Input
 
+    if (!open) onSubmit = () => {};
+
     return (
-        <form>
-            {/* <form onSubmit={handleSubmit(onSubmit)}> */}
+        <form onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
                 {error && (
                     <Alert status="error">
@@ -47,6 +48,7 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
                     placeholder="3"
                     error={errors.applyTeams}
                     helperText="You may be approved for up to this many teams."
+                    disabled={!open}
                     isRequired
                 />
 
@@ -57,20 +59,20 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
                     placeholder="24"
                     error={errors.expectedStudents}
                     helperText="The number of students is not binding, but please provide your best estimate."
+                    disabled={!open}
                     isRequired
                 />
 
                 <FormControl id="confirmUS" isInvalid={errors.confirmUS} isRequired>
                     <FormLabel>This organization is located in the United States.</FormLabel>
-                    <Checkbox ref={register} name="confirmUS">
+                    <Checkbox ref={register} name="confirmUS" disabled={!open}>
                         I confirm
                     </Checkbox>
                     <FormErrorMessage>{errors.confirmUS?.message}</FormErrorMessage>
                 </FormControl>
 
-                <Button isLoading={isLoading} type="submit" colorScheme="blue" disabled>
-                    Registration is Closed
-                    {/* {buttonText ?? "Submit"} */}
+                <Button isLoading={isLoading} type="submit" colorScheme="blue" disabled={!open}>
+                    {!open ? "Registration Closed" : buttonText ?? "Submit"}
                 </Button>
             </Stack>
         </form>
