@@ -56,6 +56,14 @@ const Event = () => {
                 You will complete registration and take tests on this portal.
             </p>
 
+            <p>
+                The entirety of our tournament will be run on the Discord Platform! To join our server, you will first
+                need to create an account at <a href="www.discord.com">www.discord.com</a> and then you can join the
+                server using this invite link: <a href="https://discord.gg/JdXnUAYdVy">https://discord.gg/JdXnUAYdVy</a>
+                . And remember to use our guide as your go-to place for information about SMT 2021:
+                <a href="https://tinyurl.com/smt2021guide">https://tinyurl.com/smt2021guide</a>.
+            </p>
+
             {student.team && (
                 <Card p={4} as={Stack} spacing={4}>
                     <HStack>
