@@ -29,7 +29,7 @@ import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { useFormState } from "~/helpers/utils";
 
-const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUpdate }) => {
+const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUpdate, started }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
     const style = transform
         ? {
@@ -47,7 +47,12 @@ const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUp
                 <Text color={waiverSigned ? "gray.500" : "red.500"}>Waiver {!waiverSigned && "Not "} Signed</Text>
             </Box>
             <HStack spacing={4}>
-                <Select onChange={e => onUpdate({ test1: e.target.value })} value={test1} placeholder="Choose Test 1">
+                <Select
+                    onChange={e => onUpdate({ test1: e.target.value })}
+                    value={test1}
+                    placeholder="Choose Test 1"
+                    disabled={started}
+                >
                     <option value="general">General Test</option>
                     <option value="geometry">Geometry Test</option>
                     <option value="algebra">Algebra Test</option>
@@ -59,6 +64,7 @@ const StudentCard = ({ id, fname, lname, email, test1, test2, waiverSigned, onUp
                         onChange={e => onUpdate({ test2: e.target.value })}
                         value={test2}
                         placeholder="Choose Test 2"
+                        disabled={started}
                     >
                         {test1 !== "algebra" && <option value="algebra">Algebra Test</option>}
                         {test1 !== "geometry" && <option value="geometry">Geometry Test</option>}

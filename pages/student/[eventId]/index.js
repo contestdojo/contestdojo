@@ -100,6 +100,7 @@ const Event = () => {
                     onChange={e => handleUpdateStudent({ test1: e.target.value })}
                     value={student.test1}
                     placeholder="Choose Test 1"
+                    disabled={student.started}
                 >
                     <option value="general">General Test</option>
                     <option value="geometry">Geometry Test</option>
@@ -112,6 +113,7 @@ const Event = () => {
                         onChange={e => handleUpdateStudent({ test2: e.target.value })}
                         value={student.test2}
                         placeholder="Choose Test 2"
+                        disabled={student.started}
                     >
                         {student.test1 !== "algebra" && <option value="algebra">Algebra Test</option>}
                         {student.test1 !== "geometry" && <option value="geometry">Geometry Test</option>}
