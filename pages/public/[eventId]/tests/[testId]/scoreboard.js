@@ -38,16 +38,23 @@ const TestContent = () => {
         }))
         .sort((a, b) => b.score - a.score);
 
-    const endTime = dayjs(test.closeTime.toDate());
-    const time = useTime();
-    const timeRemaining = dayjs.duration(endTime.diff(time));
-    const mins = timeRemaining.asMinutes();
+    let timer;
+
+    if (test.closeTime) {
+        const endTime = dayjs(test.closeTime.toDate());
+        const time = useTime();
+        const timeRemaining = dayjs.duration(endTime.diff(time));
+        const mins = timeRemaining.asMinutes();
+        timer = mins < 0 ? "00:00:00" : timeRemaining.format("HH:mm:ss");
+    } else {
+        timer = "Starting Soon";
+    }
 
     return (
         <Stack spacing={8}>
             <VStack spacing={4}>
                 <Heading size="lg">{test.name}</Heading>
-                <Heading size="2xl">{mins < 0 ? "00:00:00" : timeRemaining.format("HH:mm:ss")}</Heading>
+                <Heading size="2xl">{timer}</Heading>
             </VStack>
             <Table>
                 <Thead>

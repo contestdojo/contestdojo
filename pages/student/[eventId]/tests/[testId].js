@@ -180,7 +180,7 @@ const TestContent = () => {
 
     return (
         <Stack direction="row" spacing={4}>
-            <Stack spacing={4} overflow="scroll" flex={1}>
+            <Stack spacing={4} flex={1}>
                 <Heading size="lg">
                     {test.name}
                     {test.type == "guts" && ` (Set ${(submission.gutsSet ?? 0) + 1})`}
