@@ -1,19 +1,6 @@
-import {
-    Alert,
-    AlertIcon,
-    Box,
-    Button,
-    Divider,
-    Heading,
-    HStack,
-    Icon,
-    Link,
-    Select,
-    Stack,
-    Text,
-} from "@chakra-ui/react";
+import { Alert, AlertIcon, Divider, Heading, HStack, Icon, Link, Select, Stack, Tag, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { HiChevronRight, HiUser } from "react-icons/hi";
+import { HiUser } from "react-icons/hi";
 import { useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
@@ -27,11 +14,11 @@ const Event = () => {
     const { eventId } = useRouter().query;
 
     const studentRef = eventRef.collection("students").doc(user.uid);
-    const { data: student } = useFirestoreDocData(studentRef);
+    const { data: student } = useFirestoreDocData(studentRef, { idField: "id" });
 
     const teamRef = student.team ?? eventRef.collection("teams").doc("none"); // Hack for conditionals
     const teamMembersRef = eventRef.collection("students").where("team", "==", teamRef);
-    const { data: teamMembers } = useFirestoreCollectionData(teamMembersRef);
+    const { data: teamMembers } = useFirestoreCollectionData(teamMembersRef, { idField: "id" });
 
     const { data: org } = useFirestoreDocData(student.org);
     const { data: team } = useFirestoreDocData(teamRef);
@@ -73,14 +60,15 @@ const Event = () => {
             {student.team && (
                 <Card p={4} as={Stack} spacing={4}>
                     <HStack>
-                        {team.number && <Text color="gray.500">{team.number}</Text>}
-                        <Heading size="md" flex="1">
-                            {team.name}
-                        </Heading>
+                        <Heading size="md">{team.name}</Heading>
+                        {team.number && <Tag size="sm">{team.number}</Tag>}
                     </HStack>
                     {teamMembers.map(x => (
                         <HStack>
                             <Icon as={HiUser} boxSize={6} />
+                            <Tag colorScheme={x.id === student.id ? "blue" : undefined} size="sm">
+                                {x.number}
+                            </Tag>
                             <Text>
                                 {x.fname} {x.lname}
                             </Text>

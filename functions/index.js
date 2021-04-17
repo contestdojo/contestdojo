@@ -115,7 +115,8 @@ exports.startTest = functions.https.onCall(
             throw new functions.https.HttpsError("failed-precondition", "This test is not open.");
         }
 
-        const studentSnapshot = await eventRef.collection("students").doc(uid).get();
+        const studentRef = eventRef.collection("students").doc(uid);
+        const studentSnapshot = await studentRef.get();
         const studentData = studentSnapshot.data();
 
         const submissionId = testData.team ? studentData.team.id : uid;
@@ -123,12 +124,16 @@ exports.startTest = functions.https.onCall(
         const submissionSnapshot = await submissionRef.get();
 
         if (!submissionSnapshot.exists) {
-            submissionRef.set({
+            await submissionRef.set({
                 startTime: admin.firestore.Timestamp.fromDate(now),
                 endTime: admin.firestore.Timestamp.fromDate(
                     new Date(Math.min(testData.closeTime.seconds * 1000, now.getTime() + testData.duration * 1000))
                 ),
             });
+        }
+
+        if (!testData.team) {
+            await studentRef.update({ started: true });
         }
 
         return { status: "success" };
@@ -155,11 +160,9 @@ exports.gradeTests = functions.https.onCall(
         for (const s of submissionsSnapshot.docs) {
             const submission = s.data();
             const graded = {};
-
             for (const [idx, problem] of answers) {
                 graded[idx] = Number(!!problem[submission[`${idx}r`]]);
             }
-
             gradedSubmissionsRef.doc(s.id).set(graded, { merge: true });
         }
 

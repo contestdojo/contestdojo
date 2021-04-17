@@ -1,4 +1,4 @@
-import { Heading, Link, Stack } from "@chakra-ui/react";
+import { Heading, HStack, Link, Stack, Tag, Text } from "@chakra-ui/react";
 import firebase from "firebase";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
@@ -27,19 +27,29 @@ const Sidebar = () => {
         <Stack spacing={3}>
             <Heading size={3}>Events</Heading>
             <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
-                {events.map(x => (
-                    <NextLink href={`/student/${x.id}`} key={x.id}>
-                        <Link
-                            {...(x.id == query.eventId && activeStyle)}
-                            _hover={activeStyle}
-                            borderRadius={4}
-                            px={3}
-                            py={2}
-                        >
-                            {x.name}
-                        </Link>
-                    </NextLink>
-                ))}
+                {events.map(x => {
+                    let number = students.find(s => s.ref.parent.parent.id === x.id)?.data()?.number;
+                    return (
+                        <NextLink href={`/student/${x.id}`} key={x.id}>
+                            <Link
+                                {...(x.id == query.eventId && activeStyle)}
+                                _hover={activeStyle}
+                                borderRadius={4}
+                                px={3}
+                                py={2}
+                            >
+                                <HStack>
+                                    <Text>{x.name}</Text>
+                                    {number && (
+                                        <Tag colorScheme="blue" size="sm">
+                                            {number}
+                                        </Tag>
+                                    )}
+                                </HStack>
+                            </Link>
+                        </NextLink>
+                    );
+                })}
             </Stack>
         </Stack>
     );

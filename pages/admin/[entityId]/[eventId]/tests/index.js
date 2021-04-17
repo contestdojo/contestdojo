@@ -50,7 +50,7 @@ const TestCard = ({
             type: "confirm",
             title: "Are you sure?",
             description: `This will open the test for all students for a window of ${
-                duration / 60 + 10
+                duration / 60 + (type === "guts" ? 0 : 5)
             } minutes. Confirm?`,
             onConfirm: onOpen,
         });
@@ -120,12 +120,11 @@ const TestsTab = () => {
     const [formState, wrapAction] = useFormState();
 
     const handleOpenTest = test => async () => {
-        const now = new Date();
+        const now = dayjs();
+        const closeTime = now.add(test.duration, "seconds").add(test.type === "guts" ? 0 : 5, "minutes");
         await testsRef.doc(test.id).update({
-            openTime: firebase.firestore.Timestamp.fromDate(now),
-            closeTime: firebase.firestore.Timestamp.fromDate(
-                new Date(now.getTime() + (test.duration + 10 * 60) * 1000)
-            ),
+            openTime: firebase.firestore.Timestamp.fromDate(now.toDate()),
+            closeTime: firebase.firestore.Timestamp.fromDate(closeTime.toDate()),
         });
     };
 
