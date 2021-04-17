@@ -11,7 +11,7 @@ import { useEvent } from "~/components/contexts/EventProvider";
 import { useFormState, useTime } from "~/helpers/utils";
 
 const TestCard = ({ id, name, team, duration, onStart, isLoading, student }) => {
-    const [openDialog, closeDialog] = useDialog();
+    const [openDialog] = useDialog();
     const { ref: eventRef } = useEvent();
 
     const sid = team ? student.team.id : student.id;

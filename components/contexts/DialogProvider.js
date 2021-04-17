@@ -53,23 +53,24 @@ export const DialogContainer = ({ type, title, description, isOpen, onClose, onC
 const DialogProvider = ({ children }) => {
     const [dialogs, setDialogs] = useState([]);
 
-    const createDialog = ({ title, description, type, onConfirm }) => {
+    const openDialog = ({ title, description, type, onConfirm }) => {
         const dialog = { title, description, type, onConfirm, isOpen: true };
         setDialogs([...dialogs, dialog]);
+        return dialog;
     };
 
-    const closeDialog = idx => {
-        dialogs[idx].isOpen = false;
+    const closeDialog = dialog => {
+        dialog.isOpen = false;
         setDialogs([...dialogs]);
     };
 
-    const contextValue = useRef([createDialog, closeDialog]);
+    const contextValue = useRef([openDialog, closeDialog]);
 
     return (
         <DialogContext.Provider value={contextValue.current}>
             {children}
             {dialogs.map((dialog, i) => {
-                return <DialogContainer key={i} {...dialog} onClose={() => closeDialog(i)} />;
+                return <DialogContainer key={i} {...dialog} onClose={() => closeDialog(dialog)} />;
             })}
         </DialogContext.Provider>
     );

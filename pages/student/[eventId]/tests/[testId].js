@@ -22,6 +22,7 @@ import { Sticky } from "react-sticky";
 import { useFirestoreDocData, useUser } from "reactfire";
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
+import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useFormState, useTime } from "~/helpers/utils";
@@ -126,17 +127,26 @@ const TestContent = () => {
         await submissionRef.update(update);
     };
 
-    if (displayProblems.length == 0) {
-        return (
-            <Stack spacing={4}>
-                <Heading size="lg">
-                    {test.name}
-                    {test.type == "guts" && ` (Set ${submission.gutsSet ?? 0 + 1})`}
-                </Heading>
-                <Text>You are done !!</Text>
-            </Stack>
+    // Guts
+
+    const [openDialog, closeDialog] = useDialog();
+    const [dialog, setDialog] = useState(null);
+    useEffect(() => {
+        if (dialog !== null) {
+            closeDialog(dialog);
+        }
+    }, [submission.gutsSet]);
+
+    const handleNextSet = () => {
+        setDialog(
+            openDialog({
+                type: "confirm",
+                title: "Are you sure?",
+                description: "Once you move onto the next set, you cannot return.",
+                onConfirm: () => handleUpdate({ gutsSet: (submission.gutsSet ?? 0) + 1 }),
+            })
         );
-    }
+    };
 
     if (time.isAfter(endTime)) {
         return (
@@ -145,6 +155,21 @@ const TestContent = () => {
                     <Icon as={HiCheckCircle} boxSize={128} />
                     <Heading>Time's up!</Heading>
                     <Text>Your answers were submitted.</Text>
+                </VStack>
+                <ButtonLink href={`/student/${eventId}/tests`} size="sm" colorScheme="blue">
+                    Back to Tests
+                </ButtonLink>
+            </VStack>
+        );
+    }
+
+    if (displayProblems.length == 0) {
+        return (
+            <VStack spacing={4}>
+                <VStack>
+                    <Icon as={HiCheckCircle} boxSize={128} />
+                    <Heading>You're done!</Heading>
+                    <Text>You have completed all sets.</Text>
                 </VStack>
                 <ButtonLink href={`/student/${eventId}/tests`} size="sm" colorScheme="blue">
                     Back to Tests
@@ -179,11 +204,7 @@ const TestContent = () => {
             ))}
 
             {test.type == "guts" && (
-                <Button
-                    colorScheme="blue"
-                    onClick={() => handleUpdate({ gutsSet: (submission.gutsSet ?? 0) + 1 })}
-                    alignSelf="flex-start"
-                >
+                <Button colorScheme="blue" onClick={handleNextSet} alignSelf="flex-start">
                     Next Set
                 </Button>
             )}
