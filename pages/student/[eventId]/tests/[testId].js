@@ -64,7 +64,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
                 placeholder="0"
             />
 
-            {rendered && <TeX math={rendered} block />}
+            {rendered && <TeX math={rendered} />}
 
             {isLoading && <Text color="yellow.500">Saving...</Text>}
             {!isLoading && !error && submission && <Text color="green.500">Saved: {submission}</Text>}
