@@ -2,11 +2,11 @@ import { Divider, Heading, Stack } from "@chakra-ui/react";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import StudentLayout from "./StudentLayout";
 
-const StudentEventLayoutContent = ({ children, flexBasis }) => {
+const StudentEventLayoutContent = ({ children, flexBasis, ...props }) => {
     const { data: event } = useEvent();
 
     return (
-        <Stack spacing={6} flexBasis={flexBasis ?? 600}>
+        <Stack spacing={6} flexBasis={flexBasis ?? 600} {...props}>
             <Heading>{event.name}</Heading>
             <Divider />
             {children}

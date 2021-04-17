@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import firebase from "firebase";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { HiClipboardCheck, HiPencilAlt, HiTable, HiTrash } from "react-icons/hi";
+import { HiClipboardCheck, HiPencilAlt, HiSpeakerphone, HiTable, HiTrash } from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
@@ -87,6 +87,10 @@ const TestCard = ({
 
             <TooltipLink label="Edit Problems" href={`/admin/${entityId}/${eventId}/tests/${id}`}>
                 <IconButton as="a" icon={<HiPencilAlt />} />
+            </TooltipLink>
+
+            <TooltipLink label="Edit Clarifications" href={`/admin/${entityId}/${eventId}/tests/${id}/clarifications`}>
+                <IconButton as="a" icon={<HiSpeakerphone />} />
             </TooltipLink>
 
             <TooltipLink label="Grade Tests" href={`/admin/${entityId}/${eventId}/tests/${id}/grade`}>

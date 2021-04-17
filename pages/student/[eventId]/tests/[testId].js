@@ -75,15 +75,11 @@ const TestTimer = ({ time, endTime }) => {
     const color = mins < 1 ? "red" : mins < 5 ? "orange" : "blue";
 
     return (
-        <Sticky relative>
-            {({ style }) => (
-                <Alert size="xl" style={style} zIndex={1} colorScheme={color}>
-                    <AlertIcon />
-                    <AlertTitle>Time Remaining</AlertTitle>
-                    <AlertDescription>{timeRemaining.format("HH:mm:ss")}</AlertDescription>
-                </Alert>
-            )}
-        </Sticky>
+        <Alert size="xl" colorScheme={color}>
+            <AlertIcon />
+            <AlertTitle>Time Remaining</AlertTitle>
+            <AlertDescription>{timeRemaining.format("HH:mm:ss")}</AlertDescription>
+        </Alert>
     );
 };
 
@@ -179,35 +175,48 @@ const TestContent = () => {
     }
 
     return (
-        <Stack spacing={4}>
-            <Heading size="lg">
-                {test.name}
-                {test.type == "guts" && ` (Set ${submission.gutsSet ?? 0 + 1})`}
-            </Heading>
+        <Stack direction="row" spacing={4}>
+            <Stack spacing={4} overflow="scroll">
+                <Heading size="lg">
+                    {test.name}
+                    {test.type == "guts" && ` (Set ${submission.gutsSet ?? 0 + 1})`}
+                </Heading>
 
-            <TestTimer time={time} endTime={endTime} />
+                {displayProblems.map(([x, idx]) => (
+                    <Problem
+                        key={idx}
+                        idx={idx}
+                        text={x}
+                        submission={submission?.[idx]}
+                        onUpdate={(val, rendered) =>
+                            handleUpdate({
+                                [idx]: val || firebase.firestore.FieldValue.delete(),
+                                [`${idx}r`]: rendered || firebase.firestore.FieldValue.delete(),
+                                [`${idx}t`]: firebase.firestore.FieldValue.serverTimestamp(),
+                            })
+                        }
+                    />
+                ))}
 
-            {displayProblems.map(([x, idx]) => (
-                <Problem
-                    key={idx}
-                    idx={idx}
-                    text={x}
-                    submission={submission?.[idx]}
-                    onUpdate={(val, rendered) =>
-                        handleUpdate({
-                            [idx]: val || firebase.firestore.FieldValue.delete(),
-                            [`${idx}r`]: rendered || firebase.firestore.FieldValue.delete(),
-                            [`${idx}t`]: firebase.firestore.FieldValue.serverTimestamp(),
-                        })
-                    }
-                />
-            ))}
-
-            {test.type == "guts" && (
-                <Button colorScheme="blue" onClick={handleNextSet} alignSelf="flex-start">
-                    Next Set
-                </Button>
-            )}
+                {test.type == "guts" && (
+                    <Button colorScheme="blue" onClick={handleNextSet} alignSelf="flex-start">
+                        Next Set
+                    </Button>
+                )}
+            </Stack>
+            <Stack flexBasis={300} flexShrink={0} spacing={4} style={{ marginTop: "-1rem" }}>
+                <Sticky relative>
+                    {({ style }) => (
+                        <Stack spacing={4} mt={4} {...style}>
+                            <TestTimer time={time} endTime={endTime} />
+                            <Card as={Stack} spacing={4} p={4}>
+                                <Heading size="md">Clarifications</Heading>
+                                <MathJax math={test.clarifications ?? "None at this time."} />
+                            </Card>
+                        </Stack>
+                    )}
+                </Sticky>
+            </Stack>
         </Stack>
     );
 };
@@ -218,6 +227,6 @@ const Test = () => (
     </TestProvider>
 );
 
-Test.layoutProps = { flexBasis: 800 };
+Test.layoutProps = { flex: 1 };
 
 export default Test;
