@@ -11,7 +11,7 @@ import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 
 const Answer = ({ text, correct, onUpdate }) => {
     return (
-        <WrapItem as={Card} flex={1} maxW="md">
+        <WrapItem as={Card} flex={1} maxW="md" flexBasis={200}>
             <Box p={4} flex="1">
                 <MathJax math={text} />
             </Box>
