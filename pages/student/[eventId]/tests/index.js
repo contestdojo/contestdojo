@@ -1,7 +1,7 @@
 import { Alert, AlertIcon } from "@chakra-ui/alert";
 import { Button } from "@chakra-ui/button";
 import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
-import firebase from "firebase";
+import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useFirestoreCollectionData, useFirestoreDoc, useFirestoreDocData, useFunctions, useUser } from "reactfire";
 import ButtonLink from "~/components/ButtonLink";
@@ -10,7 +10,7 @@ import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { useFormState, useTime } from "~/helpers/utils";
 
-const TestCard = ({ id, name, team, duration, onStart, isLoading, student }) => {
+const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time }) => {
     const [openDialog] = useDialog();
     const { ref: eventRef } = useEvent();
 
@@ -33,14 +33,20 @@ const TestCard = ({ id, name, team, duration, onStart, isLoading, student }) => 
         }
     };
 
+    let finished = false;
+    if (submission.exists) {
+        const endTime = dayjs(submission.data().endTime.toDate());
+        finished = time.isAfter(endTime);
+    }
+
     return (
-        <Card as={HStack} p={4} maxW="xl" key={id}>
+        <Card as={HStack} p={4} key={id}>
             <Box flex="1">
                 <Heading size="md">{name}</Heading>
                 <Text color="gray.500">Duration: {duration / 60} minutes</Text>
             </Box>
-            <Button colorScheme="blue" onClick={handleClick} isLoading={isLoading === id}>
-                {submission.exists ? "Resume" : "Start"}
+            <Button colorScheme="blue" onClick={handleClick} isLoading={isLoading === id} disabled={finished}>
+                {finished ? "Submitted" : submission.exists ? "Resume" : "Start"}
             </Button>
         </Card>
     );
@@ -56,23 +62,22 @@ const Tests = () => {
     const studentRef = eventRef.collection("students").doc(user.uid);
     const { data: student } = useFirestoreDocData(studentRef, { idField: "id" });
 
-    const eligibleTests = student.test1 == "general" ? ["general"] : [student.test1 ?? "", student.test2 ?? ""];
-    eligibleTests.push("team");
-    eligibleTests.push("guts");
-    eligibleTests.push("indivdemo");
-    eligibleTests.push("teamdemo");
+    const T_indivtests = ["general", "algebra", "combinatorics", "geometry", "nt"];
+    let eligibleTests = student.test1 == "general" ? ["general"] : [student.test1 ?? "", student.test2 ?? ""];
+    eligibleTests = T_indivtests.filter(x => eligibleTests.includes(x));
 
     const testsRef = eventRef.collection("tests");
-
-    /*.where(
-        firebase.firestore.FieldPath.documentId(),
-        "in",
-        eligibleTests.filter(x => !!x)
-    );*/
-
     const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
-    const displayTests = tests.filter(
+    // let displayTests = tests;
+
+    let displayTests = tests.filter(
         x => x.openTime && x.openTime.toDate() < time.toDate() && time.toDate() < x.closeTime.toDate()
+    );
+    displayTests = displayTests.filter(
+        x =>
+            !T_indivtests.includes(x.id) ||
+            (x.id === eligibleTests[0] && x.openSplit === 0) ||
+            (x.id === eligibleTests[1] && x.openSplit === 1)
     );
 
     const functions = useFunctions();
@@ -108,6 +113,7 @@ const Tests = () => {
                             onStart={() => handleStartTest(x.id)}
                             isLoading={isLoading}
                             student={student}
+                            time={time}
                         />
                     ))}
                 </>
