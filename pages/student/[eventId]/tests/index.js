@@ -62,11 +62,13 @@ const Tests = () => {
     eligibleTests.push("indivdemo");
     eligibleTests.push("teamdemo");
 
-    const testsRef = eventRef.collection("tests").where(
+    const testsRef = eventRef.collection("tests");
+
+    /*.where(
         firebase.firestore.FieldPath.documentId(),
         "in",
         eligibleTests.filter(x => !!x)
-    );
+    );*/
 
     const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
     const displayTests = tests.filter(
