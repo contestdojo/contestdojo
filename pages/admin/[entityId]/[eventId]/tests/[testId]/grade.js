@@ -13,10 +13,10 @@ import { useFormState } from "~/helpers/utils";
 
 const Answer = ({ text, correct, count, onUpdate }) => {
     return (
-        <WrapItem as={Card} flex={1} maxW="md" flexBasis={200}>
+        <WrapItem as={Card} flex={1} maxW="md" flexBasis={200} backgroundColor={correct === undefined && "orange.100"}>
             <HStack p={4} flex="1">
                 {text.startsWith("<math>") ? <MathJax math={text} /> : <TeX math={text} />}
-                <Text color="gray.300">&times;{count}</Text>
+                <Text color={correct === undefined ? "gray.500" : "gray.300"}>&times;{count}</Text>
             </HStack>
             <Stack spacing={0}>
                 <IconButton
