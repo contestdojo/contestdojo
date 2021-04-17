@@ -10,11 +10,12 @@ import BlankCard from "~/components/BlankCard";
 import Card from "~/components/Card";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 
-const Answer = ({ text, correct, onUpdate }) => {
+const Answer = ({ text, correct, count, onUpdate }) => {
     return (
         <WrapItem as={Card} flex={1} maxW="md" flexBasis={200}>
             <Box p={4} flex="1">
                 {text.startsWith("<math>") ? <MathJax math={text} /> : <TeX math={text} block />}
+                {count}
             </Box>
             <Stack spacing={0}>
                 <IconButton
@@ -44,6 +45,19 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
     const functions = useFunctions();
     const gradeTests = functions.httpsCallable("gradeTests");
 
+    const answersMap = {};
+    for (const ans of Object.keys(correct)) {
+        answersMap[ans] = answersMap[ans] ?? 0;
+    }
+    for (const ans of answers) {
+        if (ans === undefined) continue;
+        answersMap[ans] = (answersMap[ans] ?? 0) + 1;
+    }
+    const shownAnswers = Object.entries(answersMap).sort((a, b) => {
+        if (b[1] === a[1]) return b[0].localeCompare(a[0]);
+        return b[1] - a[1];
+    });
+
     useEffect(() => {
         setState(text);
     }, [text]);
@@ -58,7 +72,7 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
         <Stack spacing={4} flex="1">
             <Card as={Stack} p={4} spacing={4}>
                 <Heading size="md">Problem {idx + 1}</Heading>
-                <MathJax math={state} />
+                <MathJax math={state} msDelayDisplay={0} />
             </Card>
             <Divider />
             <HStack>
@@ -70,10 +84,16 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
                 </Button>
             </HStack>
             <Wrap>
-                {answers.map(x => (
-                    <Answer key={x} text={x} correct={correct[x]} onUpdate={status => onUpdate(x, status)} />
+                {shownAnswers.map(([x, count]) => (
+                    <Answer
+                        key={x}
+                        text={x}
+                        correct={correct[x]}
+                        count={count}
+                        onUpdate={status => onUpdate(x, status)}
+                    />
                 ))}
-                {answers.length === 0 && <BlankCard>Answers will appear here</BlankCard>}
+                {shownAnswers.length === 0 && <BlankCard>Answers will appear here</BlankCard>}
             </Wrap>
         </Stack>
     );
@@ -121,7 +141,7 @@ const Test = () => {
                 <Problem
                     text={problems[index]}
                     idx={index}
-                    answers={[...new Set(submissions.map(x => x[`${index}r`]).filter(x => x !== undefined))]}
+                    answers={submissions.map(x => x[`${index}r`])}
                     correct={answers[index] ?? {}}
                     onUpdate={handleUpdate}
                 />
