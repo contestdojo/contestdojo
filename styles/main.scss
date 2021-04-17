@@ -2,3 +2,7 @@ html,
 body {
     min-height: 100vh;
 }
+
+.katex * {
+    border-color: initial;
+}

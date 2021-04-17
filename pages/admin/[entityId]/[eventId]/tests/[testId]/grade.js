@@ -1,4 +1,5 @@
 import { Box, Button, Divider, Heading, HStack, IconButton, Stack, Wrap, WrapItem } from "@chakra-ui/react";
+import TeX from "@matejmazur/react-katex";
 import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -13,7 +14,7 @@ const Answer = ({ text, correct, onUpdate }) => {
     return (
         <WrapItem as={Card} flex={1} maxW="md" flexBasis={200}>
             <Box p={4} flex="1">
-                <MathJax math={text} />
+                {text.startsWith("<math>") ? <MathJax math={text} /> : <TeX math={text} block />}
             </Box>
             <Stack spacing={0}>
                 <IconButton
