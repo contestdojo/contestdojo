@@ -1,4 +1,5 @@
 import { Center, ChakraProvider, Spinner } from "@chakra-ui/react";
+import "katex/dist/katex.min.css";
 import { DefaultSeo } from "next-seo";
 import Head from "next/head";
 import Router, { useRouter } from "next/router";
@@ -7,15 +8,15 @@ import "nprogress/nprogress.css";
 import { Suspense } from "react";
 import NoSSR from "react-no-ssr";
 import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
-import ErrorBoundary from "~/components/ErrorBoundary";
 import DialogProvider from "~/components/contexts/DialogProvider";
-import theme from "~/helpers/theme";
+import ErrorBoundary from "~/components/ErrorBoundary";
 import AdminEventLayout from "~/components/layouts/AdminEventLayout";
 import AdminLayout from "~/components/layouts/AdminLayout";
 import CoachLayout from "~/components/layouts/CoachLayout";
 import EmptyLayout from "~/components/layouts/EmptyLayout";
 import StudentEventLayout from "~/components/layouts/StudentEventLayout";
 import StudentLayout from "~/components/layouts/StudentLayout";
+import theme from "~/helpers/theme";
 import "~/styles/main.scss";
 
 const useEmulatorsInDebug = false;

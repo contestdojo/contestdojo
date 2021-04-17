@@ -11,7 +11,7 @@ import {
     Text,
     VStack,
 } from "@chakra-ui/react";
-import asciimath from "ascii-math";
+import TeX from "@matejmazur/react-katex";
 import dayjs from "dayjs";
 import firebase from "firebase";
 import { useRouter } from "next/router";
@@ -25,14 +25,17 @@ import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
+import AsciiMathParser from "~/helpers/asciimath2tex";
 import { useFormState, useTime } from "~/helpers/utils";
+
+const parser = new AsciiMathParser();
 
 const Problem = ({ text, idx, submission, onUpdate }) => {
     const [editing, setEditing] = useState(false);
     const [value, setValue] = useState("");
     const [{ isLoading, error }, wrapAction] = useFormState();
 
-    const rendered = value && asciimath(value).toString();
+    const rendered = value && parser.parse(value);
 
     const handleUpdate = wrapAction(async () => {
         if (value === text) return;
@@ -61,7 +64,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
                 placeholder="0"
             />
 
-            {rendered && <MathJax math={rendered} />}
+            {rendered && <TeX math={rendered} block />}
 
             {isLoading && <Text color="yellow.500">Saving...</Text>}
             {!isLoading && !error && submission && <Text color="green.500">Saved: {submission}</Text>}
