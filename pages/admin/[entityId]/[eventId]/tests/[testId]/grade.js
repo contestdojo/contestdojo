@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Heading, HStack, IconButton, Stack, Text, Wrap, WrapItem } from "@chakra-ui/react";
+import { Button, Divider, Heading, HStack, IconButton, Stack, Text, Wrap, WrapItem } from "@chakra-ui/react";
 import TeX from "@matejmazur/react-katex";
 import firebase from "firebase";
 import { useRouter } from "next/router";
@@ -9,6 +9,7 @@ import { useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "r
 import BlankCard from "~/components/BlankCard";
 import Card from "~/components/Card";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
+import { useFormState } from "~/helpers/utils";
 
 const Answer = ({ text, correct, count, onUpdate }) => {
     return (
@@ -40,7 +41,8 @@ const Answer = ({ text, correct, count, onUpdate }) => {
 const Problem = ({ text, idx, answers, correct, onUpdate }) => {
     const { eventId, testId } = useRouter().query;
     const [state, setState] = useState(text);
-    const [isLoading, setIsLoading] = useState(false);
+    const [{ isLoading }, wrapAction] = useFormState();
+    const [gradeLoading, setGradeLoading] = useState(false);
 
     const functions = useFunctions();
     const gradeTests = functions.httpsCallable("gradeTests");
@@ -62,10 +64,21 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
         setState(text);
     }, [text]);
 
+    const handleMarkRest = wrapAction(async () => {
+        const upd = {};
+        for (const [ans] of shownAnswers) {
+            const val = correct[ans];
+            if (val !== undefined) continue;
+            upd[ans] = false;
+        }
+        if (Object.keys(upd).length === 0) return;
+        onUpdate(upd);
+    });
+
     const handleRegrade = async () => {
-        setIsLoading(true);
+        setGradeLoading(true);
         await gradeTests({ eventId, testId, problemIdx: idx });
-        setIsLoading(false);
+        setGradeLoading(false);
     };
 
     return (
@@ -79,7 +92,10 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
                 <Heading size="md" flex="1">
                     Answers
                 </Heading>
-                <Button onClick={handleRegrade} isLoading={isLoading}>
+                <Button onClick={handleMarkRest} isLoading={isLoading}>
+                    Mark Rest Incorrect
+                </Button>
+                <Button onClick={handleRegrade} isLoading={gradeLoading}>
                     Re-grade Tests
                 </Button>
             </HStack>
@@ -90,7 +106,7 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
                         text={x}
                         correct={correct[x]}
                         count={count}
-                        onUpdate={status => onUpdate(x, status)}
+                        onUpdate={status => onUpdate({ [x]: status })}
                     />
                 ))}
                 {shownAnswers.length === 0 && <BlankCard>Answers will appear here</BlankCard>}
@@ -124,12 +140,16 @@ const Test = () => {
 
     const [index, setIndex] = useState(0);
 
-    const handleUpdate = async (ans, status) => {
+    const handleUpdate = async toUpdate => {
         if (Object.keys(answers).length === 1) {
             await answersRef.set({}, { merge: true });
         }
-        const path = new firebase.firestore.FieldPath(index.toString(), ans);
-        await answersRef.update(path, status);
+        const args = [];
+        for (const [ans, status] of Object.entries(toUpdate)) {
+            const path = new firebase.firestore.FieldPath(index.toString(), ans);
+            args.push(path, status);
+        }
+        await answersRef.update(...args);
     };
 
     return (
