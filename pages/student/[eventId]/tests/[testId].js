@@ -35,6 +35,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
     const rendered = value && asciimath(value).toString();
 
     const handleUpdate = wrapAction(async () => {
+        if (value === text) return;
         await onUpdate(value ?? "", rendered ?? "");
         setEditing(false);
     });
@@ -176,7 +177,7 @@ const TestContent = () => {
 
     return (
         <Stack direction="row" spacing={4}>
-            <Stack spacing={4} overflow="scroll">
+            <Stack spacing={4} overflow="scroll" flex={1}>
                 <Heading size="lg">
                     {test.name}
                     {test.type == "guts" && ` (Set ${submission.gutsSet ?? 0 + 1})`}

@@ -149,22 +149,24 @@ exports.gradeTests = functions.https.onCall(
         const testRef = db.collection("events").doc(eventId).collection("tests").doc(testId);
         const gradedSubmissionsRef = testRef.collection("graded");
 
-        const answersSnapshot = await testRef.collection("private").doc("answers").get();
-        let answers = Object.entries(answersSnapshot.data());
+        await db.runTransaction(async t => {
+            const answersSnapshot = await t.get(testRef.collection("private").doc("answers"));
+            let answers = Object.entries(answersSnapshot.data());
 
-        if (problemIdx !== undefined) {
-            answers = answers.filter(([idx]) => idx === problemIdx.toString());
-        }
-
-        const submissionsSnapshot = await testRef.collection("submissions").get();
-        for (const s of submissionsSnapshot.docs) {
-            const submission = s.data();
-            const graded = {};
-            for (const [idx, problem] of answers) {
-                graded[idx] = Number(!!problem[submission[`${idx}r`]]);
+            if (problemIdx !== undefined) {
+                answers = answers.filter(([idx]) => idx === problemIdx.toString());
             }
-            gradedSubmissionsRef.doc(s.id).set(graded, { merge: true });
-        }
+
+            const submissionsSnapshot = await t.get(testRef.collection("submissions"));
+            for (const s of submissionsSnapshot.docs) {
+                const submission = s.data();
+                const graded = {};
+                for (const [idx, problem] of answers) {
+                    graded[idx] = Number(!!problem[submission[`${idx}r`]]);
+                }
+                t.set(gradedSubmissionsRef.doc(s.id), graded, { merge: true });
+            }
+        });
 
         return { status: "success" };
     })

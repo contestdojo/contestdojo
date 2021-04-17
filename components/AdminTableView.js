@@ -63,7 +63,7 @@ export const addRemoveRenderer = (onUpdate, label) => (val, { id }, key) => (
     </HStack>
 );
 
-const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder, tableProps = {} }) => {
+const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder, extraButtons, tableProps = {} }) => {
     const [showCols, setShowCols] = useState(cols.filter(x => !x.hideByDefault).map(x => x.key));
     const [sortBy, setSortBy] = useState(defaultSortKey ?? "");
     const [sortOrder, setSortOrder] = useState(defaultSortOrder ?? "asc");
@@ -82,6 +82,7 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder
     return (
         <Stack spacing={4} position="relative">
             <HStack justifyContent="flex-end">
+                {extraButtons}
                 <Box>
                     <Menu closeOnSelect={false}>
                         <MenuButton as={Button} rightIcon={<HiChevronDown />}>

@@ -1,11 +1,13 @@
-import { Heading, Icon, Stack, Td } from "@chakra-ui/react";
+import { Button, Heading, Icon, Stack, Td } from "@chakra-ui/react";
+import dayjs from "dayjs";
+import { useRouter } from "next/router";
 import { HiCheck, HiMinus, HiX } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
-import { useFirestoreCollectionData } from "reactfire";
+import { useFirestoreCollectionData, useFunctions } from "reactfire";
 import AdminTableView, { sumReducer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
-import { toDict } from "~/helpers/utils";
+import { toDict, useFormState } from "~/helpers/utils";
 
 const mathmlRenderer = val => <MathJax math={val} />;
 
@@ -32,6 +34,7 @@ const rightWrongRenderer = val => {
 
 const Submissions = () => {
     const { ref: eventRef } = useEvent();
+    const { eventId, testId } = useRouter().query;
     const {
         ref: testRef,
         data: test,
@@ -55,11 +58,20 @@ const Submissions = () => {
     const { data: teams } = useFirestoreCollectionData(teamsRef, { idField: "id" });
     const teamsById = teams.reduce(toDict, {});
 
+    // funcs
+    const functions = useFunctions();
+    const gradeTests = functions.httpsCallable("gradeTests");
+    const [{ isLoading }, wrapAction] = useFormState();
+
+    const handleClick = wrapAction(async () => {
+        await gradeTests({ eventId, testId });
+    });
+
     // Make table
 
     const cols = [
         { label: test.team ? "Team ID" : " Student ID", key: "id", hideByDefault: true },
-        { label: test.team ? "Team Number" : " Student Number", key: "number" },
+        { label: test.team ? "#" : " #", key: "number" },
         { label: test.team ? "Team Name" : " Student Name", key: "name" },
         { label: "Score", key: "score" },
         ...problems.map((x, idx) => ({ label: `A${idx + 1}`, key: `${idx}`, hideByDefault: true })),
@@ -70,11 +82,17 @@ const Submissions = () => {
             skipCell: true,
             reducer: sumReducer,
         })),
+        ...problems.map((x, idx) => ({ label: `T${idx + 1}`, key: `t${idx}`, hideByDefault: true })),
     ];
 
     const rows = submissions.map(s => {
-        const answers = problems.map((x, idx) => [idx, s[idx] ?? ""]);
-        const correct = problems.map((x, idx) => [`c${idx}`, gradedById[s.id]?.[idx] ?? ""]);
+        const startTime = dayjs(s.startTime.toDate());
+        const answers = problems.map((x, idx) => [idx, s[idx] ?? null]);
+        const correct = problems.map((x, idx) => [`c${idx}`, gradedById[s.id]?.[idx] ?? null]);
+        const times = problems.map((x, idx) => [
+            `t${idx}`,
+            s[`${idx}t`] && dayjs.duration(dayjs(s[`${idx}t`].toDate()).diff(startTime)).format("HH:mm:ss"),
+        ]);
         const total = sumReducer(correct.map(([idx, x]) => x));
 
         return {
@@ -84,6 +102,7 @@ const Submissions = () => {
             score: total,
             ...Object.fromEntries(answers),
             ...Object.fromEntries(correct),
+            ...Object.fromEntries(times),
         };
     });
 
@@ -97,6 +116,11 @@ const Submissions = () => {
                 defaultSortOrder="dsc"
                 filename={`${test.id}.csv`}
                 tableProps={{ variant: "lined" }}
+                extraButtons={
+                    <Button onClick={handleClick} isLoading={isLoading}>
+                        Re-grade All
+                    </Button>
+                }
             />
         </Stack>
     );
