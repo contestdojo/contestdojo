@@ -87,8 +87,6 @@ const Submissions = () => {
         };
     });
 
-    console.log(cols, rows);
-
     return (
         <Stack spacing={4}>
             <Heading size="lg">{test.name}</Heading>

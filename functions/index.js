@@ -166,3 +166,37 @@ exports.gradeTests = functions.https.onCall(
         return { status: "success" };
     })
 );
+
+exports.updateStudentNumbers = functions.https.onCall(
+    requireAuth("admin", async ({ eventId }, context) => {
+        const eventRef = db.collection("events").doc(eventId);
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        await db.runTransaction(async t => {
+            const teamsSnapshot = await t.get(eventRef.collection("teams"));
+            const teamsById = teamsSnapshot.docs.reduce((obj, x) => {
+                const data = x.data();
+                obj[x.id] = { ...data, ...obj[x.id] };
+                return obj;
+            }, {});
+
+            const studentsSnapshot = await t.get(eventRef.collection("students"));
+            const students = studentsSnapshot.docs;
+
+            for (const student of students) {
+                const team = teamsById[student.data().team.id];
+                const teamNumber = team?.number;
+                if (teamNumber === undefined || teamNumber === "") continue;
+
+                const idx = team._idx ?? 0;
+                t.update(student.ref, {
+                    number: teamNumber + alphabet[idx],
+                });
+                team._idx = idx + 1;
+            }
+        });
+
+        return { status: "success" };
+    })
+);

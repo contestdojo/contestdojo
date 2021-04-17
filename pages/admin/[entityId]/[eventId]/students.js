@@ -11,6 +11,7 @@ const toDict = (obj, x) => {
 const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
     const cols = [
         { label: "ID", key: "id", hideByDefault: true },
+        { label: "Number", key: "number" },
         {
             label: "Name",
             key: "name",
@@ -46,6 +47,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
 
     const rows = students.map(x => ({
         id: x.id,
+        number: x.number ?? "",
         name: `${x.fname} ${x.lname}`,
         email: x.email,
         parentEmail: x.parentEmail ?? "",
