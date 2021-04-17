@@ -59,6 +59,7 @@ const TestContent = () => {
             <VStack spacing={4}>
                 <Heading size="lg">{test.name}</Heading>
                 <Heading size="2xl">{timer}</Heading>
+                <Text>Scores are preliminary and may change as tests are graded.</Text>
             </VStack>
             <Table size="sm">
                 <Thead>
