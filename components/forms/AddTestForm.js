@@ -82,7 +82,7 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
                     />
                 )}
 
-                <FormControl id="team" isInvalid={errors.team} isRequired>
+                <FormControl id="team" isInvalid={errors.team}>
                     <FormLabel>Team</FormLabel>
                     <Checkbox ref={register} name="team">
                         This is a team round
