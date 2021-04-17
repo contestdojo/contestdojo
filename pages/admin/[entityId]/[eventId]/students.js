@@ -12,6 +12,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
     const cols = [
         { label: "ID", key: "id", hideByDefault: true },
         { label: "Number", key: "number" },
+        { label: "Division", key: "division" },
         {
             label: "Name",
             key: "name",
@@ -45,20 +46,26 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
         { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
     ];
 
-    const rows = students.map(x => ({
-        id: x.id,
-        number: x.number ?? "",
-        name: `${x.fname} ${x.lname}`,
-        email: x.email,
-        parentEmail: x.parentEmail ?? "",
-        birthdate: x.birthdate ?? "",
-        gender: x.gender ?? "",
-        org: orgsById[x.org.id].name,
-        team: teamsById[x.team?.id]?.name ?? "",
-        waiverSigned: !!x.waiverSigned,
-        waiverSent: !!x.waiverSent,
-        notes: x.notes ?? "",
-    }));
+    const rows = students.map(x => {
+        const team = teamsById[x.team?.id];
+        const org = orgsById[x.org.id];
+
+        return {
+            id: x.id,
+            number: x.number ?? "",
+            division: team?.division === 0 ? "Tree" : team?.division === 1 ? "Sapling" : "",
+            name: `${x.fname} ${x.lname}`,
+            email: x.email,
+            parentEmail: x.parentEmail ?? "",
+            birthdate: x.birthdate ?? "",
+            gender: x.gender ?? "",
+            org: org.name,
+            team: team?.name ?? "",
+            waiverSigned: !!x.waiverSigned,
+            waiverSent: !!x.waiverSent,
+            notes: x.notes ?? "",
+        };
+    });
 
     return <AdminTableView cols={cols} rows={rows} defaultSortKey="name" filename="students.csv" />;
 };

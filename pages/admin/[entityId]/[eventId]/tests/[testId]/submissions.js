@@ -24,6 +24,7 @@ const ICONS = {
 };
 
 const rightWrongRenderer = val => {
+    console.log(val);
     const status = val > 0 ? "correct" : val === 0 ? "incorrect" : "ungraded";
     return (
         <Td background={COLORS[status] + ".100"}>
@@ -70,9 +71,10 @@ const Submissions = () => {
     // Make table
 
     const cols = [
-        { label: test.team ? "Team ID" : " Student ID", key: "id", hideByDefault: true },
-        { label: test.team ? "#" : " #", key: "number" },
+        { label: test.team ? "ID" : " Student ID", key: "id", hideByDefault: true },
+        { label: "#", key: "number" },
         { label: test.team ? "Team Name" : " Student Name", key: "name" },
+        { label: "Division", key: "division" },
         { label: "Score", key: "score" },
         ...problems.map((x, idx) => ({ label: `A${idx + 1}`, key: `${idx}`, hideByDefault: true })),
         ...problems.map((x, idx) => ({
@@ -87,6 +89,7 @@ const Submissions = () => {
 
     const rows = submissions.map(s => {
         const startTime = dayjs(s.startTime.toDate());
+        const div = (test.team ? teamsById[s.id] : teamsById[studentsById[s.id].team.id])?.division;
         const answers = problems.map((x, idx) => [idx, s[idx] ?? null]);
         const correct = problems.map((x, idx) => [`c${idx}`, gradedById[s.id]?.[idx] ?? null]);
         const times = problems.map((x, idx) => [
@@ -99,6 +102,7 @@ const Submissions = () => {
             id: s.id,
             number: (test.team ? teamsById[s.id] : studentsById[s.id])?.number,
             name: test.team ? teamsById[s.id]?.name : `${studentsById[s.id].fname} ${studentsById[s.id].lname}`,
+            division: div === 0 ? "Tree" : div === 1 ? "Sapling" : "",
             score: total,
             ...Object.fromEntries(answers),
             ...Object.fromEntries(correct),
