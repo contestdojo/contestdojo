@@ -99,7 +99,7 @@ service cloud.firestore {
       }
 
       match /tests/{testId} {
-        allow read: if request.auth != null;
+        allow read: if request.auth != null || resource.data.type == "guts";
         allow write: if isEventAdmin();
 
         match /submissions/{submissionId} {
@@ -112,7 +112,7 @@ service cloud.firestore {
         }
 
         match /graded/{submissionId} {
-          allow read: if isEventAdmin();
+          allow read: if isEventAdmin() || get(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)).data.type == "guts";
           allow write: if false;
         }
 

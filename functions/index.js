@@ -172,6 +172,52 @@ exports.gradeTests = functions.https.onCall(
     })
 );
 
+exports.updateGradedInfo = functions.firestore
+    .document("/events/{eventId}/tests/{testId}/graded/{submissionId}")
+    .onCreate(async (snap, context) => {
+        const { eventId, testId, submissionId } = context.params;
+        const eventRef = db.collection("events").doc(eventId);
+
+        const testSnapshot = await eventRef.collection("tests").doc(testId).get();
+        const test = testSnapshot.data();
+
+        if (test.type !== "guts") return;
+
+        let name, number, orgId;
+
+        if (test.team) {
+            const teamSnapshot = await eventRef.collection("teams").doc(submissionId).get();
+            const team = teamSnapshot.data();
+            name = team.name;
+            number = team.number;
+            orgId = team.org.id;
+        } else {
+            const studentSnapshot = await eventRef.collection("students").doc(submissionId).get();
+            const student = studentSnapshot.data();
+            name = student.fname + " " + student.lname;
+            number = student.number;
+            orgId = student.org.id;
+        }
+
+        const orgSnapshot = await db.collection("orgs").doc(orgId).get();
+        const org = orgSnapshot.data();
+
+        await snap.ref.update({ name, number, orgName: org.name });
+    });
+
+exports.updateGutsSet = functions.firestore
+    .document("/events/{eventId}/tests/{testId}/submissions/{submissionId}")
+    .onWrite(async (change, context) => {
+        const { eventId, testId, submissionId } = context.params;
+
+        const { gutsSet: oldGutsSet } = change.before.data();
+        const { gutsSet } = change.after.data();
+        if (gutsSet === undefined || gutsSet === oldGutsSet) return;
+
+        const testRef = db.collection("events").doc(eventId).collection("tests").doc(testId);
+        await testRef.collection("graded").doc(submissionId).set({ gutsSet }, { merge: true });
+    });
+
 exports.updateStudentNumbers = functions.https.onCall(
     requireAuth("admin", async ({ eventId }, context) => {
         const eventRef = db.collection("events").doc(eventId);

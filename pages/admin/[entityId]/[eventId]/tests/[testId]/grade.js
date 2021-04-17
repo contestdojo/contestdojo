@@ -55,7 +55,7 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
 
     return (
         <Stack spacing={4} flex="1">
-            <Card as={Stack} p={4} spacing={4} flex={1}>
+            <Card as={Stack} p={4} spacing={4}>
                 <Heading size="md">Problem {idx + 1}</Heading>
                 <MathJax math={state} />
             </Card>

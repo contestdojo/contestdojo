@@ -180,7 +180,7 @@ const TestContent = () => {
             <Stack spacing={4} overflow="scroll" flex={1}>
                 <Heading size="lg">
                     {test.name}
-                    {test.type == "guts" && ` (Set ${submission.gutsSet ?? 0 + 1})`}
+                    {test.type == "guts" && ` (Set ${(submission.gutsSet ?? 0) + 1})`}
                 </Heading>
 
                 {displayProblems.map(([x, idx]) => (
