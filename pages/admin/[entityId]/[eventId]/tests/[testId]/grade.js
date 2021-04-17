@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Heading, HStack, IconButton, Stack, Wrap, WrapItem } from "@chakra-ui/react";
+import { Box, Button, Divider, Heading, HStack, IconButton, Stack, Text, Wrap, WrapItem } from "@chakra-ui/react";
 import TeX from "@matejmazur/react-katex";
 import firebase from "firebase";
 import { useRouter } from "next/router";
@@ -13,9 +13,10 @@ import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 const Answer = ({ text, correct, count, onUpdate }) => {
     return (
         <WrapItem as={Card} flex={1} maxW="md" flexBasis={200}>
-            <Box p={4} flex="1">
+            <HStack p={4} flex="1">
                 {text.startsWith("<math>") ? <MathJax math={text} /> : <TeX math={text} />}
-            </Box>
+                <Text color="gray.300">&times;{count}</Text>
+            </HStack>
             <Stack spacing={0}>
                 <IconButton
                     colorScheme={correct === true ? "green" : undefined}
