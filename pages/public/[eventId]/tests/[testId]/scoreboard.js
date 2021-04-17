@@ -26,6 +26,11 @@ const points = [8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12, 
 const TestContent = () => {
     const { ref: testRef, data: test } = useTest();
     const { data: graded } = useFirestoreCollectionData(testRef.collection("graded"), { idField: "id" });
+    const time = useTime();
+
+    if (test.type !== "guts") {
+        return "Nothing to see here";
+    }
 
     let displayGraded = graded
         .map(x => ({
@@ -42,7 +47,6 @@ const TestContent = () => {
 
     if (test.closeTime) {
         const endTime = dayjs(test.closeTime.toDate());
-        const time = useTime();
         const timeRemaining = dayjs.duration(endTime.diff(time));
         const mins = timeRemaining.asMinutes();
         timer = mins < 0 ? "00:00:00" : timeRemaining.format("HH:mm:ss");
@@ -56,7 +60,7 @@ const TestContent = () => {
                 <Heading size="lg">{test.name}</Heading>
                 <Heading size="2xl">{timer}</Heading>
             </VStack>
-            <Table>
+            <Table size="sm">
                 <Thead>
                     <Tr>
                         <Th>Rank</Th>
