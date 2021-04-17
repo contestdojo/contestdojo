@@ -107,11 +107,11 @@ const TestContent = () => {
     const { data: submission } = useFirestoreDocData(submissionRef);
     const endTime = dayjs(submission.endTime.toDate());
 
-    let displayProblems = problems;
+    let displayProblems = problems.map((x, idx) => [x, idx]);
 
     if (test.type == "guts") {
         const set = submission.gutsSet ?? 0;
-        displayProblems = problems.slice(test.numPerSet * set, test.numPerSet * (set + 1));
+        displayProblems = displayProblems.slice(test.numPerSet * set, test.numPerSet * (set + 1));
     }
 
     if (!submission.startTime) {
@@ -187,10 +187,10 @@ const TestContent = () => {
 
             <TestTimer time={time} endTime={endTime} />
 
-            {displayProblems.map((x, idx) => (
+            {displayProblems.map(([x, idx]) => (
                 <Problem
                     key={idx}
-                    idx={idx + (test.numPerSet ?? 0) * (submission.gutsSet ?? 0)}
+                    idx={idx}
                     text={x}
                     submission={submission?.[idx]}
                     onUpdate={(val, rendered) =>
