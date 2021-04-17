@@ -99,7 +99,12 @@ const Tests = () => {
                 </Alert>
             )}
 
-            {student.waiverSigned ? (
+            {student.test1 !== "general" && (!student.test1 || !student.test2) ? (
+                <Alert status="error">
+                    <AlertIcon />
+                    You must select individual tests before selecting a test.
+                </Alert>
+            ) : student.waiverSigned ? (
                 <>
                     <Text>
                         {displayTests.length === 0
