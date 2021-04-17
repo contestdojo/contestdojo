@@ -14,8 +14,7 @@ const Answer = ({ text, correct, count, onUpdate }) => {
     return (
         <WrapItem as={Card} flex={1} maxW="md" flexBasis={200}>
             <Box p={4} flex="1">
-                {text.startsWith("<math>") ? <MathJax math={text} /> : <TeX math={text} block />}
-                {count}
+                {text.startsWith("<math>") ? <MathJax math={text} /> : <TeX math={text} />}
             </Box>
             <Stack spacing={0}>
                 <IconButton
