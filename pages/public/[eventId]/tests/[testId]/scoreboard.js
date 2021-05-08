@@ -21,7 +21,7 @@ import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useTime } from "~/helpers/utils";
 
 // prettier-ignore
-const points = [8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 14, 14, 14, 14, 16, 16, 16, 16, 18, 18, 18, 18, 20, 20, 20, 20];
+const points = [5, 5, 5, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 12, 12, 12];
 
 const TestContent = () => {
     const { ref: testRef, data: test } = useTest();
@@ -77,7 +77,7 @@ const TestContent = () => {
                             <Td>{idx + 1}</Td>
                             <Td>
                                 <SimpleGrid columns={3} spacing={0} width="24px" spacing="3px">
-                                    {[...Array(9).keys()].map(idx => (
+                                    {[...Array(12).keys()].map(idx => (
                                         <Box
                                             key={idx}
                                             backgroundColor={idx < x.gutsSet ? "blue.500" : "gray.300"}
