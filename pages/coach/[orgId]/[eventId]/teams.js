@@ -9,6 +9,7 @@ import {
     HStack,
     Link,
     Select,
+    SimpleGrid,
     Stack,
     Text,
     Tooltip,
@@ -83,16 +84,7 @@ const TeamCard = ({ id, name, number, students, onUpdate, onUpdateStudent }) => 
         backgroundColor: isOver ? "gray.100" : undefined,
     };
     return (
-        <Card
-            as={Stack}
-            maxWidth={600}
-            spacing={0}
-            flex={1}
-            p={2}
-            minHeight="xs"
-            transition="background-color 0.1s"
-            {...props}
-        >
+        <Card as={Stack} spacing={0} flex={1} p={2} minHeight="xs" transition="background-color 0.1s" {...props}>
             <HStack p={2}>
                 {number && <Text color="gray.500">{number}</Text>}
                 <Heading as="h4" size="md" position="relative" flex="1">
@@ -126,7 +118,7 @@ const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, onUpdateStuden
             <Heading size="lg">{title ?? "Teams"}</Heading>
             <p>You may sign up for up to {maxTeams ?? 0} teams.</p>
             {teams.length > 0 && (
-                <Stack direction="row" spacing={4}>
+                <SimpleGrid columns={3} spacing={4}>
                     {teams.map(x => (
                         <TeamCard
                             key={x.id}
@@ -136,7 +128,7 @@ const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, onUpdateStuden
                             students={studentsByTeam[x.id] ?? []}
                         />
                     ))}
-                </Stack>
+                </SimpleGrid>
             )}
             {teams.length < (maxTeams ?? 0) ? (
                 <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
