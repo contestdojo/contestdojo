@@ -99,6 +99,29 @@ exports.createStudentAccount = functions.https.onCall(
     })
 );
 
+const TBs = {
+    algebra_tb: ["005H", "006D", "013C", "047C", "049F", "070B", "070E", "080C", "080G", "084E", "091D", "103G"],
+    geometry_tb: ["005H", "006A", "016E", "031A", "085C", "091B", "098F", "103E", "118G"],
+    combinatorics_tb: ["024E", "079B", "081D", "082E"],
+    nt_tb: [
+        "007G",
+        "031A",
+        "053F",
+        "070E",
+        "074D",
+        "074F",
+        "078F",
+        "080C",
+        "080D",
+        "080G",
+        "082D",
+        "082E",
+        "095H",
+        "128A",
+        "128B",
+    ],
+};
+
 exports.startTest = functions.https.onCall(
     requireAuth("student", async ({ eventId, testId }, context) => {
         const eventRef = db.collection("events").doc(eventId);
@@ -111,13 +134,22 @@ exports.startTest = functions.https.onCall(
         const closeTime = testSnapshot.data()?.closeTime?.toDate();
         const now = new Date();
 
-        if (!openTime || !closeTime || now < openTime || now > closeTime) {
-            throw new functions.https.HttpsError("failed-precondition", "This test is not open.");
-        }
-
         const studentRef = eventRef.collection("students").doc(uid);
         const studentSnapshot = await studentRef.get();
         const studentData = studentSnapshot.data();
+
+        if (Object.keys(TBs).includes(testId)) {
+            if (!TBs[testId].includes(studentData.number)) {
+                throw new functions.https.HttpsError(
+                    "failed-precondition",
+                    "You are not authorized to take this test."
+                );
+            }
+        }
+
+        if (!openTime || !closeTime || now < openTime || now > closeTime) {
+            throw new functions.https.HttpsError("failed-precondition", "This test is not open.");
+        }
 
         const submissionId = testData.team ? studentData.team.id : uid;
         const submissionRef = testRef.collection("submissions").doc(submissionId);
