@@ -35,10 +35,10 @@ const TestContent = () => {
     let displayGraded = graded
         .map(x => ({
             ...x,
-            gutsSet: Math.min(x.gutsSet, 8),
+            gutsSet: Math.min(x.gutsSet, 11),
             score: Object.entries(x)
                 .filter(e => Object.keys(points).includes(e[0]))
-                .filter(e => Number(e[0]) < test.numPerSet * Math.min(x.gutsSet, 8))
+                .filter(e => Number(e[0]) < test.numPerSet * Math.min(x.gutsSet, 11))
                 .reduce((acc, [idx, val]) => acc + points[idx] * val, 0),
         }))
         .sort((a, b) => b.score - a.score);

@@ -39,7 +39,7 @@ service cloud.firestore {
     }
 
     match /events/{eventId} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow create: if false;
       allow update, delete: if userRef() in get(resource.data.owner).data.admins;
 
@@ -121,6 +121,7 @@ service cloud.firestore {
             isEventAdmin()
             || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(request.auth.uid))
             || exists(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)/submissions/$(get(get(studentRef(request.auth.uid)).data.team).id))
+            || get(/databases/$(database)/documents/events/$(eventId)/tests/$(testId)).data.type == "guts"
           );
           allow write: if isEventAdmin();
         }
