@@ -10,7 +10,13 @@ const EventProvider = ({ children }) => {
     const router = useRouter();
     const firestore = useFirestore();
 
-    const { eventId } = router.query;
+    let { eventId } = router.query;
+    if (router.pathname.startsWith("/coach/[orgId]/smt21")) eventId = "smt21";
+    if (router.pathname.startsWith("/admin/[entityId]/smt21")) eventId = "smt21";
+    if (router.pathname.startsWith("/student/smt21")) eventId = "smt21";
+
+    console.log(eventId);
+
     const eventRef = firestore.collection("events").doc(eventId);
     const { data: event } = useFirestoreDoc(eventRef);
 

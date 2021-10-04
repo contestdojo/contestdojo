@@ -1,5 +1,6 @@
+import { Checkbox } from "@chakra-ui/react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import AdminTableView, { updateRenderer } from "~/components/AdminTableView";
+import AdminTableView, { sumReducer, updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
 
 const toDict = (obj, x) => {
@@ -11,6 +12,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
     const cols = [
         { label: "ID", key: "id", hideByDefault: true },
         { label: "Number", key: "number" },
+        { label: "Division", key: "division" },
         {
             label: "Name",
             key: "name",
@@ -20,8 +22,27 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
             }),
         },
         { label: "Email", key: "email", hideByDefault: true },
+        { label: "Parent Email", key: "parentEmail", renderer: updateRenderer(onUpdate, "parentEmail") },
+        { label: "Birthdate", key: "birthdate", renderer: updateRenderer(onUpdate, "birthdate") },
+        { label: "Gender", key: "gender", renderer: updateRenderer(onUpdate, "gender") },
         { label: "Organization", key: "org" },
         { label: "Team", key: "team" },
+        {
+            label: "Waiver sent?",
+            key: "waiverSent",
+            renderer: (val, { id }) => (
+                <Checkbox isChecked={val} onChange={e => onUpdate(id, { waiverSent: e.target.checked })} />
+            ),
+            reducer: sumReducer,
+        },
+        {
+            label: "Waiver signed?",
+            key: "waiverSigned",
+            renderer: (val, { id }) => (
+                <Checkbox isChecked={val} onChange={e => onUpdate(id, { waiverSigned: e.target.checked })} />
+            ),
+            reducer: sumReducer,
+        },
         { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
     ];
 
@@ -32,10 +53,16 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
         return {
             id: x.id,
             number: x.number ?? "",
+            division: team?.division === 0 ? "Tree" : team?.division === 1 ? "Sapling" : "",
             name: `${x.fname} ${x.lname}`,
             email: x.email,
+            parentEmail: x.parentEmail ?? "",
+            birthdate: x.birthdate ?? "",
+            gender: x.gender ?? "",
             org: org.name,
             team: team?.name ?? "",
+            waiverSigned: !!x.waiverSigned,
+            waiverSent: !!x.waiverSent,
             notes: x.notes ?? "",
         };
     });

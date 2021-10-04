@@ -13,7 +13,9 @@ const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
         { label: "Number", key: "number", renderer: updateRenderer(onUpdate, "number") },
         { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
         { label: "Organization", key: "org" },
+        { label: "Division", key: "division" },
         { label: "# Students", key: "numStudents", reducer: sumReducer },
+        { label: "# Waivers Signed", key: "numSigned", reducer: sumReducer },
         { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
     ];
 
@@ -22,7 +24,9 @@ const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
         number: x.number ?? "",
         name: x.name,
         org: orgsById[x.org.id]?.name,
+        division: x.division == 0 ? "Tree" : "Sapling",
         numStudents: studentsByTeam[x.id]?.length ?? 0,
+        numSigned: studentsByTeam[x.id]?.filter(x => x.waiverSigned)?.length ?? 0,
         notes: x.notes ?? "",
     }));
 
