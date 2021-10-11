@@ -8,7 +8,7 @@ const Navigation = ({ sidebar }) => {
     const auth = useAuth();
 
     return (
-        <Stack flexBasis={300} boxShadow="0 0 10px rgba(0, 0, 0, 0.1)" spacing={0} divider={<Divider />}>
+        <Stack flexBasis={300} shadow="md" spacing={0} divider={<Divider />}>
             <Box padding={6} mx="auto">
                 <NextLink href="/">
                     <a>
@@ -22,22 +22,21 @@ const Navigation = ({ sidebar }) => {
                 <Spacer />
                 <Button onClick={() => auth.signOut()}>Sign Out</Button>
             </Stack>
+
+            <Text py={2} align="center" color="gray.500" fontSize="sm">
+                &copy; 2021 Oliver Ni
+            </Text>
         </Stack>
     );
 };
 
 const MainLayout = ({ sidebar, children }) => (
-    <Stack height="100vh" spacing={0}>
-        <Flex flex={1}>
-            <Navigation sidebar={sidebar} />
-            <Box as={StickyContainer} flex={1} padding={12} overflow="scroll">
-                {children}
-            </Box>
-        </Flex>
-        <Box backgroundColor="gray.200">
-            <Text align="center">test</Text>
+    <Flex height="100vh">
+        <Navigation sidebar={sidebar} />
+        <Box as={StickyContainer} flex={1} padding={12} overflow="scroll">
+            {children}
         </Box>
-    </Stack>
+    </Flex>
 );
 
 export default MainLayout;
