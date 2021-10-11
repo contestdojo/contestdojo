@@ -42,15 +42,16 @@ const handler = withFirebaseAuth(async (req, res) => {
     }
 
     const { origin } = absoluteUrl(req);
+    const metadata = { orgId, eventId, numSeats: number };
 
     const session = await stripe.checkout.sessions.create({
         mode: "payment",
         payment_method_types: ["card"],
         payment_intent_data: {
-            metadata: { orgId, eventId },
+            metadata,
             transfer_data: { destination: entityData.stripeAccountId },
         },
-        metadata: { orgId, eventId },
+        metadata,
         line_items: [
             {
                 name: `Student Seat for ${eventData.name}`,

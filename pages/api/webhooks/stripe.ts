@@ -10,14 +10,12 @@ const processCheckoutSessionCompleted = async (
     res: NextApiResponse,
     session: Stripe.Checkout.Session
 ) => {
-    let { eventId, orgId } = session.metadata as any;
+    let { numSeats, eventId, orgId } = session.metadata as any;
+    if (typeof numSeats !== "number") return res.status(400).end("Missing num seats");
     if (typeof eventId !== "string") return res.status(400).end("Missing event id");
     if (typeof orgId !== "string") return res.status(400).end("Missing org id");
 
     // Get event
-
-    const numSeats = session.line_items?.data?.[0]?.quantity ?? 10;
-    if (!numSeats) return res.status(400).end("Missing num seats");
 
     const eventOrgRef = firestore.collection("events").doc(eventId).collection("orgs").doc(orgId);
     await eventOrgRef.set({ maxStudents: adminFirestore.FieldValue.increment(numSeats) }, { merge: true });

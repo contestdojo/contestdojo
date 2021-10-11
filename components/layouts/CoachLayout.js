@@ -1,8 +1,9 @@
-import { Heading, Link, Stack } from "@chakra-ui/react";
+import { Heading, Link, Spacer, Stack } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import AuthWrapper from "~/components/AuthWrapper";
+import ButtonLink from "~/components/ButtonLink";
 import { useUserRef } from "~/helpers/utils";
 import MainLayout from "./MainLayout";
 
@@ -34,6 +35,12 @@ const Sidebar = () => {
                     </NextLink>
                 ))}
             </Stack>
+
+            <ButtonLink href={`/coach/new`} colorScheme="blue">
+                New Organization
+            </ButtonLink>
+
+            <Spacer />
         </Stack>
     );
 };
