@@ -313,7 +313,7 @@ const TeamsContent = () => {
 
     const handleDeleteTeam = async id => {
         const batch = firestore.batch();
-        for (const student of studentsByTeam[id]) {
+        for (const student of studentsByTeam[id] ?? []) {
             batch.update(studentsRef.doc(student.id), { team: null });
         }
         batch.delete(teamsRef.doc(id));
