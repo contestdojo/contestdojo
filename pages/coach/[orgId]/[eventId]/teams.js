@@ -59,7 +59,7 @@ const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats })
 
     return (
         <Card as={Stack} spacing={0} flex={1} p={2} minHeight="xs" transition="background-color 0.1s" {...props}>
-            <HStack p={2}>
+            <HStack px={2}>
                 {number && <Text color="gray.500">{number}</Text>}
                 <Heading as="h4" size="md" position="relative" flex="1">
                     <Editable defaultValue={name} onSubmit={name => onUpdate({ name })}>
@@ -339,6 +339,7 @@ const TeamsContent = () => {
             fname,
             lname,
             email,
+            grade: values.grade,
             user: firestore.collection("users").doc(uid),
             org: orgRef,
         });

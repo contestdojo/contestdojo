@@ -21,6 +21,7 @@ const schema = yup.object({
     fname: yup.string().required().label("First Name"),
     lname: yup.string().required().label("Last Name"),
     email: yup.string().email().required().label("Email Address"),
+    grade: yup.number().typeError("Invalid number").required().label("Grade"),
 });
 
 const AddStudentModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
@@ -65,6 +66,15 @@ const AddStudentModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
                                 label="Last Name"
                                 placeholder="Pascal"
                                 error={errors.lname}
+                                isRequired
+                            />
+
+                            <FormField
+                                ref={register}
+                                name="grade"
+                                label="Grade"
+                                placeholder="10"
+                                error={errors.grade}
                                 isRequired
                             />
 

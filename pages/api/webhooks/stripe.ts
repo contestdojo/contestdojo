@@ -11,7 +11,7 @@ const processCheckoutSessionCompleted = async (
     session: Stripe.Checkout.Session
 ) => {
     let { numSeats, eventId, orgId } = session.metadata as any;
-    if (typeof numSeats !== "string") return res.status(400).end("Missing num seats");
+    if (typeof numSeats !== "string" && typeof numSeats !== "number") return res.status(400).end("Missing num seats");
     if (typeof eventId !== "string") return res.status(400).end("Missing event id");
     if (typeof orgId !== "string") return res.status(400).end("Missing org id");
 

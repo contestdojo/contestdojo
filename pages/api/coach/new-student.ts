@@ -58,6 +58,15 @@ const handler = withFirebaseAuth(async (req, res) => {
         return res.status(400).send("This email address is already associated with a non-student account.");
     }
 
+    if (existed) {
+        await sendgrid.send({
+            to: email,
+            from: "noreply@contestdojo.com",
+            templateId: "d-9dc72fe2480446ff82daf4cd947e5866",
+            dynamicTemplateData: { fname, lname, email },
+        });
+    }
+
     res.status(200).json({
         existed,
         fname: userData.fname,

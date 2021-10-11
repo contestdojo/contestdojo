@@ -18,7 +18,7 @@ import * as yup from "yup";
 import FormField from "~/components/FormField";
 
 const schema = yup.object({
-    number: yup.string().required().label("Number of Seats"),
+    number: yup.number().typeError("Invalid number").required().label("Number of Seats"),
 });
 
 const PurchaseSeatsModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
