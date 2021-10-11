@@ -44,27 +44,30 @@ const handler = withFirebaseAuth(async (req, res) => {
     const { origin } = absoluteUrl(req);
     const metadata = { orgId, eventId, numSeats: number };
 
-    const session = await stripe.checkout.sessions.create({
-        mode: "payment",
-        payment_method_types: ["card"],
-        payment_intent_data: {
-            metadata,
-            transfer_data: { destination: entityData.stripeAccountId },
-        },
-        metadata,
-        line_items: [
-            {
-                name: `Student Seat for ${eventData.name}`,
-                currency: "usd",
-                amount: eventData.costPerStudent * 100,
-                quantity: number,
+    const session = await stripe.checkout.sessions.create(
+        {
+            mode: "payment",
+            payment_method_types: ["card"],
+            payment_intent_data: {
+                metadata,
+                application_fee_amount: 0.03 * eventData.costPerStudent * 100,
             },
-        ],
-        success_url: `${origin}/coach/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/coach/${orgId}/${eventId}/teams`,
-        allow_promotion_codes: true,
-        ...customer,
-    });
+            metadata,
+            line_items: [
+                {
+                    name: `Student Seat for ${eventData.name}`,
+                    currency: "usd",
+                    amount: eventData.costPerStudent * 100,
+                    quantity: number,
+                },
+            ],
+            success_url: `${origin}/coach/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${origin}/coach/${orgId}/${eventId}/teams`,
+            allow_promotion_codes: true,
+            ...customer,
+        },
+        { stripeAccount: entityData.stripeAccountId }
+    );
 
     res.status(200).json({ id: session.id });
 }, "coach");
