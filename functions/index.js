@@ -1,3 +1,9 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+/* Copyright (c) 2021 Oliver Ni */
+
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const generator = require("generate-password");
