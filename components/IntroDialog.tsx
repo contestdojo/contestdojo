@@ -19,7 +19,13 @@ const IntroDialog = ({ isOpen, onClose }: IntroDialogProps) => {
     const ref = useRef(null);
 
     return (
-        <AlertDialog isOpen={isOpen} leastDestructiveRef={ref} onClose={onClose}>
+        <AlertDialog
+            isOpen={isOpen}
+            leastDestructiveRef={ref}
+            closeOnEsc={false}
+            closeOnOverlayClick={false}
+            onClose={onClose}
+        >
             <AlertDialogOverlay>
                 <AlertDialogContent>
                     <AlertDialogHeader fontSize="lg" fontWeight="bold">
@@ -39,7 +45,7 @@ const IntroDialog = ({ isOpen, onClose }: IntroDialogProps) => {
 
                     <AlertDialogFooter>
                         <Button colorScheme="blue" ref={ref} onClick={onClose}>
-                            OK
+                            Continue
                         </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>
