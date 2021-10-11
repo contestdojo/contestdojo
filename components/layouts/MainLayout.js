@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Flex, Spacer, Stack } from "@chakra-ui/react";
+import { Box, Button, Divider, Flex, Spacer, Stack, Text } from "@chakra-ui/react";
 import Image from "next/image";
 import NextLink from "next/link";
 import { StickyContainer } from "react-sticky";
@@ -12,7 +12,7 @@ const Navigation = ({ sidebar }) => {
             <Box padding={6} mx="auto">
                 <NextLink href="/">
                     <a>
-                        <Image src="/logo.png" width={100} height={100} />
+                        <Image src="/logo.svg" width={100} height={100} />
                     </a>
                 </NextLink>
             </Box>
@@ -27,12 +27,17 @@ const Navigation = ({ sidebar }) => {
 };
 
 const MainLayout = ({ sidebar, children }) => (
-    <Flex height="100vh">
-        <Navigation sidebar={sidebar} />
-        <Box as={StickyContainer} flex={1} padding={12} overflow="scroll">
-            {children}
+    <Stack height="100vh" spacing={0}>
+        <Flex flex={1}>
+            <Navigation sidebar={sidebar} />
+            <Box as={StickyContainer} flex={1} padding={12} overflow="scroll">
+                {children}
+            </Box>
+        </Flex>
+        <Box backgroundColor="gray.200">
+            <Text align="center">test</Text>
         </Box>
-    </Flex>
+    </Stack>
 );
 
 export default MainLayout;
