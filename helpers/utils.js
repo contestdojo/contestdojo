@@ -61,6 +61,27 @@ export const useTime = (refreshCycle = 100) => {
     return now;
 };
 
+export const useLocalStorage = (key, initialValue) => {
+    const [state, _setState] = useState(() => {
+        try {
+            const item = window.localStorage.getItem(key);
+            return item ? JSON.parse(item) : initialValue;
+        } catch (error) {
+            return initialValue;
+        }
+    });
+    const setState = value => {
+        try {
+            const valueToStore = value instanceof Function ? value(state) : value;
+            _setState(valueToStore);
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    return [state, setState];
+};
+
 export const toDict = (obj, x) => {
     obj[x.id] = { ...x, ...obj[x.id] };
     return obj;

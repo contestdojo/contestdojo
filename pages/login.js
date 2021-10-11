@@ -23,9 +23,11 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "reactfire";
 import * as yup from "yup";
-import FormField from "~/components/FormField";
 import { useDialog } from "~/components/contexts/DialogProvider";
+import FormField from "~/components/FormField";
+import IntroDialog from "~/components/IntroDialog";
 import { delay, useFormState } from "~/helpers/utils";
+import { useLocalStorage } from "../helpers/utils";
 
 const loginSchema = yup.object({
     email: yup.string().email().required().label("Email Address"),
@@ -146,9 +148,9 @@ const LoginPage = () => {
     const auth = useAuth();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showDialog, setShowDialog] = useLocalStorage("show-intro-dialog", true);
 
     const handleSubmit = async ({ email, password }) => {
         setLoading(true);
@@ -178,6 +180,7 @@ const LoginPage = () => {
                 </Link>
             </Stack>
             <ResetPasswordModal isOpen={isOpen} onClose={onClose} />
+            <IntroDialog isOpen={showDialog} onClose={() => setShowDialog(false)} />
         </Stack>
     );
 };
