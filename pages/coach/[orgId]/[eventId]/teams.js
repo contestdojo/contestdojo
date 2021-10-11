@@ -8,6 +8,11 @@ import {
     Flex,
     Heading,
     HStack,
+    IconButton,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuList,
     SimpleGrid,
     Stack,
     Text,
@@ -19,6 +24,7 @@ import {
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/router";
+import { HiDotsHorizontal, HiTrash } from "react-icons/hi";
 import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
@@ -33,29 +39,24 @@ import { useFormState } from "~/helpers/utils";
 
 const StudentCard = ({ id, fname, lname, email }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
-    const style = transform
-        ? {
-              transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-          }
-        : undefined;
+    const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
 
     return (
-        <Card as={Stack} spacing={2} m={2} p={4} ref={setNodeRef} style={style}>
+        <Card as={Stack} spacing={2} my={1} mx={2} p={2} ref={setNodeRef} style={style}>
             <Box {...listeners} {...attributes}>
-                <Heading as="h4" size="md">
+                <Heading as="h4" size="sm">
                     {fname} {lname}
                 </Heading>
-                <Text>{email}</Text>
+                <Text fontSize="sm">{email}</Text>
             </Box>
         </Card>
     );
 };
 
-const TeamCard = ({ id, name, number, students, onUpdate, needSeats }) => {
+const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats }) => {
     const { isOver, setNodeRef } = useDroppable({ id });
-    const props = {
-        backgroundColor: isOver ? "gray.100" : undefined,
-    };
+    const props = { backgroundColor: isOver ? "gray.100" : undefined };
+
     return (
         <Card as={Stack} spacing={0} flex={1} p={2} minHeight="xs" transition="background-color 0.1s" {...props}>
             <HStack p={2}>
@@ -66,7 +67,23 @@ const TeamCard = ({ id, name, number, students, onUpdate, needSeats }) => {
                         <EditableInput />
                     </Editable>
                 </Heading>
+
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<HiDotsHorizontal />}
+                        variant="ghost"
+                        rounded="full"
+                        mr={-2}
+                    ></MenuButton>
+                    <MenuList>
+                        <MenuItem icon={<HiTrash />} color="red.500" onClick={onDelete}>
+                            Delete
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
             </HStack>
+
             <Flex direction="column" flex={1} ref={setNodeRef}>
                 {students.map(x => (
                     <StudentCard key={x.id} {...x} />
@@ -128,6 +145,7 @@ const Teams = ({
     teams,
     onAddTeam,
     onUpdateTeam,
+    onDeleteTeam,
     studentsByTeam,
     costPerStudent,
     maxStudents,
@@ -146,23 +164,31 @@ const Teams = ({
         <Stack spacing={4}>
             <Heading size="lg">{title ?? "Teams"}</Heading>
             <p>
-                You may register up to <b>{maxTeams ?? 0}</b> teams for the competition.
+                Click the "Add Team" button to create a new team.
                 {costPerStudent > 0 && (
                     <>
                         {" "}
                         Before you can add students to teams, you must purchase seats. Each seat costs{" "}
-                        <b>${costPerStudent} USD</b>. You have currently paid for <b>{maxStudents}</b> seats, with{" "}
-                        <b>{seatsRemaining}</b> seats remaining. Seats are not associated with any particular student,
-                        and unassigned students do not use a seat.
+                        <b>${costPerStudent} USD</b>. Please purchase seats by November 9th. Seats bought after this
+                        date are subject to an additional late fee and cost <b>$15 USD</b>. You will not be able to
+                        purchase seats after November 18.
                     </>
                 )}
             </p>
+            {costPerStudent > 0 && (
+                <p>
+                    You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> seats
+                    remaining. Seats are not associated with any particular student, and unassigned students do not use
+                    a seat.
+                </p>
+            )}
             {teams.length > 0 && (
-                <SimpleGrid columns={3} spacing={4}>
+                <SimpleGrid columns={{ sm: 1, lg: 2, xl: 3 }} spacing={4}>
                     {teams.map(x => (
                         <TeamCard
                             key={x.id}
                             onUpdate={update => onUpdateTeam(x.id, update)}
+                            onDelete={() => onDeleteTeam(x.id)}
                             {...x}
                             students={studentsByTeam[x.id] ?? []}
                             needSeats={costPerStudent > 0 && seatsRemaining === 0}
@@ -171,7 +197,7 @@ const Teams = ({
                 </SimpleGrid>
             )}
             <ButtonGroup>
-                {teams.length < (maxTeams ?? 0) ? (
+                {teams.length < (maxTeams ?? 100) ? (
                     <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
                         Add Team
                     </Button>
@@ -285,6 +311,15 @@ const TeamsContent = () => {
         await teamsRef.doc(id).update(update);
     };
 
+    const handleDeleteTeam = async id => {
+        const batch = firestore.batch();
+        for (const student of studentsByTeam[id]) {
+            batch.update(studentsRef.doc(student.id), { team: null });
+        }
+        batch.delete(teamsRef.doc(id));
+        await batch.commit();
+    };
+
     const handleAddStudent = async values => {
         const authorization = await auth.currentUser.getIdToken();
         const resp = await fetch(`/api/coach/new-student`, {
@@ -349,6 +384,7 @@ const TeamsContent = () => {
                     studentsByTeam={studentsByTeam}
                     onAddTeam={handleAddTeam}
                     onUpdateTeam={handleUpdateTeam}
+                    onDeleteTeam={handleDeleteTeam}
                     costPerStudent={event.costPerStudent}
                     maxStudents={eventOrg.maxStudents ?? 0}
                     seatsRemaining={seatsRemaining}
