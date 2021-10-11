@@ -101,7 +101,7 @@ const App = ({ Component, pageProps }) => {
                 <link rel="mask-icon" href="/safari-pinned-tab.svg?v=1" color="#f40808" />
                 <link rel="shortcut icon" href="/favicon.ico?v=1" />
                 <meta name="msapplication-TileColor" content="#da532c" />
-                <meta name="theme-color" content="#ffffff" />
+                <meta name="theme-color" content="#f40808" />
             </Head>
             <ErrorBoundary>
                 <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
