@@ -66,7 +66,7 @@ const OrganizationContent = () => {
 
             <Heading size="lg">Organization Details</Heading>
             <OrgForm
-                key={org.id}
+                key={orgRef.id}
                 onSubmit={handleUpdate}
                 buttonText="Update Organization"
                 defaultValues={org}
