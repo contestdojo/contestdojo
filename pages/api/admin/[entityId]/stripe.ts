@@ -1,9 +1,10 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import absoluteUrl from "next-absolute-url";
-import { auth, firestore } from "~/helpers/firebase";
+import { firestore, withFirebaseAuth } from "~/helpers/firebase";
 import stripe from "~/helpers/stripe";
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+const handler = withFirebaseAuth(async (req, res, { uid }) => {
+    if (req.method !== "POST") return res.status(405).end();
+
     const { entityId } = req.query;
     if (typeof entityId !== "string") return res.status(400).end();
 
@@ -12,13 +13,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const entityData = entity.data();
 
     if (!entityData) return res.status(404).end();
-
-    try {
-        const { uid } = await auth.verifyIdToken(req.headers.authorization ?? "");
-        if (!entityData.admins.some((x: any) => x.id === uid)) return res.status(401).end();
-    } catch (e) {
-        return res.status(401).end();
-    }
+    if (!entityData.admins.some((x: any) => x.id === uid)) return res.status(401).end();
 
     let accountId = entityData.stripeAccountId as string;
 
@@ -41,6 +36,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     res.status(200).send(link);
-};
+}, "admin");
 
 export default handler;

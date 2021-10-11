@@ -1,6 +1,7 @@
 import {
     Box,
     Button,
+    ButtonGroup,
     Divider,
     Editable,
     EditableInput,
@@ -16,7 +17,9 @@ import {
     WrapItem,
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
-import { useFirestore, useFirestoreCollectionData, useFunctions } from "reactfire";
+import { loadStripe } from "@stripe/stripe-js";
+import { useRouter } from "next/router";
+import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
 import BlankCard from "~/components/BlankCard";
@@ -24,10 +27,13 @@ import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
+import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { useFormState } from "~/helpers/utils";
 
-const StudentCard = ({ id, fname, lname, email, waiverSigned }) => {
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
+
+const StudentCard = ({ id, fname, lname, email }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
     const style = transform
         ? {
@@ -42,13 +48,12 @@ const StudentCard = ({ id, fname, lname, email, waiverSigned }) => {
                     {fname} {lname}
                 </Heading>
                 <Text>{email}</Text>
-                <Text color={waiverSigned ? "gray.500" : "red.500"}>Waiver {!waiverSigned && "Not "} Signed</Text>
             </Box>
         </Card>
     );
 };
 
-const TeamCard = ({ id, name, number, students, onUpdate }) => {
+const TeamCard = ({ id, name, number, students, onUpdate, needSeats }) => {
     const { isOver, setNodeRef } = useDroppable({ id });
     const props = {
         backgroundColor: isOver ? "gray.100" : undefined,
@@ -68,13 +73,66 @@ const TeamCard = ({ id, name, number, students, onUpdate }) => {
                 {students.map(x => (
                     <StudentCard key={x.id} {...x} />
                 ))}
-                {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
+                {students.length === 0 &&
+                    (needSeats ? (
+                        <BlankCard>More seats required</BlankCard>
+                    ) : (
+                        <BlankCard>Drag students here</BlankCard>
+                    ))}
             </Flex>
         </Card>
     );
 };
 
-const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, studentsByTeam }) => {
+const PurchaseSeats = () => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [formState, wrapAction] = useFormState();
+    const { orgId, eventId } = useRouter().query;
+    const { data: user } = useUser();
+    const auth = useAuth();
+
+    const handlePurchaseSeats = wrapAction(async values => {
+        const number = Number(values.number);
+        const authorization = await auth.currentUser.getIdToken();
+        const resp = await fetch(`/api/coach/${orgId}/${eventId}/purchase-seats`, {
+            method: "POST",
+            headers: { authorization, "content-type": "application/json" },
+            body: JSON.stringify({ email: user.email, number }),
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        const data = await resp.json();
+
+        const stripe = await stripePromise;
+        const result = await stripe.redirectToCheckout({
+            sessionId: data.id,
+        });
+
+        if (result.error) throw new Error(result.error.message);
+
+        onClose();
+    });
+
+    return (
+        <>
+            <Button colorScheme="blue" onClick={onOpen}>
+                Purchase Seats
+            </Button>
+            <PurchaseSeatsModal isOpen={isOpen} onClose={onClose} onSubmit={handlePurchaseSeats} {...formState} />
+        </>
+    );
+};
+
+const Teams = ({
+    title,
+    maxTeams,
+    teams,
+    onAddTeam,
+    onUpdateTeam,
+    studentsByTeam,
+    costPerStudent,
+    maxStudents,
+    seatsRemaining,
+}) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [formState, wrapAction] = useFormState();
 
@@ -86,7 +144,18 @@ const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, studentsByTeam
     return (
         <Stack spacing={4}>
             <Heading size="lg">{title ?? "Teams"}</Heading>
-            <p>You may sign up for up to {maxTeams ?? 0} teams.</p>
+            <p>
+                You may register up to <b>{maxTeams ?? 0}</b> teams for the competition.
+                {costPerStudent > 0 && (
+                    <>
+                        {" "}
+                        Before you can add students to teams, you must purchase seats. Each seat costs{" "}
+                        <b>${costPerStudent} USD</b>. You have currently paid for <b>{maxStudents}</b> seats, with{" "}
+                        <b>{seatsRemaining}</b> seats remaining. Seats are not associated with any particular student,
+                        and unassigned students do not use a seat.
+                    </>
+                )}
+            </p>
             {teams.length > 0 && (
                 <SimpleGrid columns={3} spacing={4}>
                     {teams.map(x => (
@@ -95,23 +164,27 @@ const Teams = ({ title, maxTeams, teams, onAddTeam, onUpdateTeam, studentsByTeam
                             onUpdate={update => onUpdateTeam(x.id, update)}
                             {...x}
                             students={studentsByTeam[x.id] ?? []}
+                            needSeats={costPerStudent > 0 && seatsRemaining === 0}
                         />
                     ))}
                 </SimpleGrid>
             )}
-            {teams.length < (maxTeams ?? 0) ? (
-                <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
-                    Add Team
-                </Button>
-            ) : (
-                <Tooltip label="You cannot add more teams.">
-                    <Box alignSelf="flex-start">
-                        <Button colorScheme="blue" disabled>
-                            Add Team
-                        </Button>
-                    </Box>
-                </Tooltip>
-            )}
+            <ButtonGroup>
+                {teams.length < (maxTeams ?? 0) ? (
+                    <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
+                        Add Team
+                    </Button>
+                ) : (
+                    <Tooltip label="You may not add more teams.">
+                        <Box>
+                            <Button colorScheme="blue" disabled>
+                                Add Team
+                            </Button>
+                        </Box>
+                    </Tooltip>
+                )}
+                {costPerStudent && <PurchaseSeats />}
+            </ButtonGroup>
             <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddTeam} {...formState} />
         </Stack>
     );
@@ -167,8 +240,7 @@ const Students = ({ students, onAddStudent }) => {
 const TeamsContent = () => {
     // Functions
     const firestore = useFirestore();
-    const functions = useFunctions();
-    const createStudentAccount = functions.httpsCallable("createStudentAccount");
+    const auth = useAuth();
 
     // Data
     const { ref: orgRef, data: org } = useOrg();
@@ -176,6 +248,7 @@ const TeamsContent = () => {
 
     // Get students
     const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
+    const { data: eventOrg } = useFirestoreDocData(eventOrgRef);
 
     // Get teams
     const teamsRef = eventRef.collection("teams");
@@ -193,6 +266,9 @@ const TeamsContent = () => {
         studentsByTeam[key].push(student);
     }
 
+    // Calculate seats remaining
+    const seatsRemaining = (eventOrg.maxStudents ?? 0) - students.length + (studentsByTeam[null]?.length ?? 0);
+
     // Dialog
     const [openDialog] = useDialog();
 
@@ -206,8 +282,15 @@ const TeamsContent = () => {
     };
 
     const handleAddStudent = async values => {
-        const { data } = await createStudentAccount(values);
-        const { existed, uid, fname, lname, email } = data;
+        const authorization = await auth.currentUser.getIdToken();
+        const resp = await fetch(`/api/coach/new-student`, {
+            method: "POST",
+            headers: { authorization, "content-type": "application/json" },
+            body: JSON.stringify(values),
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+
+        const { existed, uid, fname, lname, email } = await resp.json();
 
         const studentRef = studentsRef.doc(uid);
         const snap = await studentRef.get();
@@ -233,6 +316,7 @@ const TeamsContent = () => {
 
     const handleDragEnd = ({ active, over }) => {
         if (!over) return;
+        if (event.costPerStudent && seatsRemaining === 0) return;
         if (
             over.id !== "unassigned" &&
             event.studentsPerTeam &&
@@ -261,6 +345,9 @@ const TeamsContent = () => {
                     studentsByTeam={studentsByTeam}
                     onAddTeam={handleAddTeam}
                     onUpdateTeam={handleUpdateTeam}
+                    costPerStudent={event.costPerStudent}
+                    maxStudents={eventOrg.maxStudents ?? 0}
+                    seatsRemaining={seatsRemaining}
                 />
                 <Divider />
                 <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />

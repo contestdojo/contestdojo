@@ -74,7 +74,7 @@ const EntityContent = ({ account }) => {
             <Divider />
 
             <Heading size="lg">Payments</Heading>
-            {account ? (
+            {account && account.business_profile ? (
                 <Card as={HStack} spacing={4} p="4">
                     {account.charges_enabled ? (
                         <Icon as={HiCheckCircle} color="green.500" w={10} h={10} />
