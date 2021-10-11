@@ -130,7 +130,6 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
     if (entityData.stripeAccountId) {
         const account = await stripe.accounts.retrieve(entityData.stripeAccountId);
-        console.log(account);
         return { props: { account } };
     }
 

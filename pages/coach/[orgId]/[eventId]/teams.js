@@ -31,8 +31,6 @@ import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { useFormState } from "~/helpers/utils";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY);
-
 const StudentCard = ({ id, fname, lname, email }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
     const style = transform
@@ -84,7 +82,7 @@ const TeamCard = ({ id, name, number, students, onUpdate, needSeats }) => {
     );
 };
 
-const PurchaseSeats = () => {
+const PurchaseSeats = ({ stripeAccount }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [formState, wrapAction] = useFormState();
     const { orgId, eventId } = useRouter().query;
@@ -101,6 +99,8 @@ const PurchaseSeats = () => {
         });
         if (!resp.ok) throw new Error(await resp.text());
         const data = await resp.json();
+
+        const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY, { stripeAccount });
 
         const stripe = await stripePromise;
         const result = await stripe.redirectToCheckout({
@@ -132,6 +132,7 @@ const Teams = ({
     costPerStudent,
     maxStudents,
     seatsRemaining,
+    stripeAccount,
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [formState, wrapAction] = useFormState();
@@ -183,7 +184,7 @@ const Teams = ({
                         </Box>
                     </Tooltip>
                 )}
-                {costPerStudent && <PurchaseSeats />}
+                {costPerStudent && <PurchaseSeats stripeAccount={stripeAccount} />}
             </ButtonGroup>
             <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddTeam} {...formState} />
         </Stack>
@@ -245,6 +246,9 @@ const TeamsContent = () => {
     // Data
     const { ref: orgRef, data: org } = useOrg();
     const { ref: eventRef, data: event } = useEvent();
+
+    // Get entity
+    const { data: entity } = useFirestoreDocData(event.owner);
 
     // Get students
     const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
@@ -348,6 +352,7 @@ const TeamsContent = () => {
                     costPerStudent={event.costPerStudent}
                     maxStudents={eventOrg.maxStudents ?? 0}
                     seatsRemaining={seatsRemaining}
+                    stripeAccount={entity.stripeAccountId}
                 />
                 <Divider />
                 <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />

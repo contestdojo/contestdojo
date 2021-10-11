@@ -1,7 +1,7 @@
 import sendgrid from "@sendgrid/mail";
 import absoluteUrl from "next-absolute-url";
 import { firestore, withFirebaseAuth } from "~/helpers/firebase";
-import stripe from "~/helpers/stripe";
+import { getStripe } from "~/helpers/stripe";
 
 sendgrid.setApiKey(process.env.SENDGRID_KEY as string);
 
@@ -33,6 +33,8 @@ const handler = withFirebaseAuth(async (req, res) => {
 
     // Do payment
 
+    const stripe = getStripe(entityData.stripeAccountId);
+
     const customers = await stripe.customers.list({ email, limit: 1 });
     const customer: any = {};
     if (customers["data"].length === 0) {
@@ -48,10 +50,7 @@ const handler = withFirebaseAuth(async (req, res) => {
         {
             mode: "payment",
             payment_method_types: ["card"],
-            payment_intent_data: {
-                metadata,
-                application_fee_amount: 0.03 * eventData.costPerStudent * 100,
-            },
+            payment_intent_data: { metadata },
             metadata,
             line_items: [
                 {

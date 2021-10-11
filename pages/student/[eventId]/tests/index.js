@@ -99,35 +99,21 @@ const Tests = () => {
                 </Alert>
             )}
 
-            {student.test1 !== "general" && (!student.test1 || !student.test2) ? (
-                <Alert status="error">
-                    <AlertIcon />
-                    You must select individual tests before selecting a test.
-                </Alert>
-            ) : student.waiverSigned ? (
-                <>
-                    <Text>
-                        {displayTests.length === 0
-                            ? "You do not have any available tests at the moment."
-                            : "The following tests are available for you to take:"}
-                    </Text>
+            <Text>
+                {displayTests.length === 0
+                    ? "You do not have any available tests at the moment."
+                    : "The following tests are available for you to take:"}
+            </Text>
 
-                    {displayTests.map(x => (
-                        <TestCard
-                            {...x}
-                            onStart={() => handleStartTest(x.id)}
-                            isLoading={isLoading}
-                            student={student}
-                            time={time}
-                        />
-                    ))}
-                </>
-            ) : (
-                <Alert status="error">
-                    <AlertIcon />
-                    You must complete your waiver before taking tests.
-                </Alert>
-            )}
+            {displayTests.map(x => (
+                <TestCard
+                    {...x}
+                    onStart={() => handleStartTest(x.id)}
+                    isLoading={isLoading}
+                    student={student}
+                    time={time}
+                />
+            ))}
 
             <ButtonLink href={`/student/${eventId}`} colorScheme="blue" alignSelf="flex-start">
                 Back to {event.name}
