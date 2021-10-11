@@ -231,6 +231,4 @@ const Test = () => (
     </TestProvider>
 );
 
-Test.layoutProps = { flex: 1 };
-
 export default Test;

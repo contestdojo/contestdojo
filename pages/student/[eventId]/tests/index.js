@@ -91,7 +91,7 @@ const Tests = () => {
     });
 
     return (
-        <Stack spacing={4} flexBasis={600}>
+        <Stack spacing={4} maxW={600} mx="auto">
             {error && (
                 <Alert status="error">
                     <AlertIcon />

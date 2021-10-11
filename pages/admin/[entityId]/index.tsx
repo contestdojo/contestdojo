@@ -61,7 +61,7 @@ const EntityContent = ({ account }) => {
     };
 
     return (
-        <Stack spacing={6} flexBasis={600}>
+        <Stack spacing={6} maxW={600} mx="auto">
             <Heading size="2xl">{entity.name}</Heading>
 
             <Divider />

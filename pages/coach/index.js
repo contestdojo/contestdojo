@@ -2,7 +2,7 @@ import { Divider, Heading, Stack } from "@chakra-ui/react";
 
 const Home = () => {
     return (
-        <Stack spacing={6} flexBasis={600}>
+        <Stack spacing={6} maxW={600} mx="auto">
             <Heading size="2xl">Coach Portal</Heading>
             <Divider />
             <Stack spacing={4}>

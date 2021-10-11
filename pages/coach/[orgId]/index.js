@@ -1,6 +1,5 @@
-import { Box, Button, Divider, Heading, Stack } from "@chakra-ui/react";
+import { Box, Divider, Heading, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
-import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import ButtonLink from "~/components/ButtonLink";
@@ -54,7 +53,7 @@ const OrganizationContent = () => {
     });
 
     return (
-        <Stack spacing={6} flexBasis={600}>
+        <Stack spacing={6} maxW={600} mx="auto">
             <Heading size="2xl">{org.name}</Heading>
             <Divider />
 

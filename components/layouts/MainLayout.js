@@ -29,9 +29,9 @@ const Navigation = ({ sidebar }) => {
 const MainLayout = ({ sidebar, children }) => (
     <Flex height="100vh">
         <Navigation sidebar={sidebar} />
-        <Flex as={StickyContainer} flex={1} padding={12} overflow="scroll" justifyContent="center">
+        <Box as={StickyContainer} flex={1} padding={12} overflow="scroll">
             {children}
-        </Flex>
+        </Box>
     </Flex>
 );
 

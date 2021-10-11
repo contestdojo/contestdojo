@@ -27,7 +27,7 @@ const CheckoutSuccess = ({ session }: CheckoutSuccessProps) => {
     const { data: org } = useFirestoreDocData<any>(orgRef);
 
     return (
-        <Stack spacing={6} flexBasis={600}>
+        <Stack spacing={6} maxW={600} mx="auto">
             <Heading>Purchase Success!</Heading>
             <Divider />
             <Stack spacing={4}>
