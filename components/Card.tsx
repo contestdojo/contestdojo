@@ -1,7 +1,9 @@
-import { Box } from "@chakra-ui/layout";
+import { Box, BoxProps } from "@chakra-ui/layout";
 import { forwardRef } from "@chakra-ui/system";
 
-const Card = forwardRef(({ children, ...props }, ref) => (
+type CardProps = BoxProps;
+
+const Card = forwardRef(({ children, ...props }: BoxProps, ref) => (
     <Box borderWidth={1} borderRadius="md" backgroundColor="white" ref={ref} {...props}>
         {children}
     </Box>

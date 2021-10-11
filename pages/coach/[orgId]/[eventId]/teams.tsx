@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {
     Box,
     Button,
@@ -24,6 +26,7 @@ import {
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/router";
+import { CSSProperties } from "react";
 import { HiDotsHorizontal, HiTrash } from "react-icons/hi";
 import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
@@ -39,16 +42,16 @@ import { toDict, useFormState } from "~/helpers/utils";
 
 const StudentCard = ({ id, fname, lname, email }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
-    const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+    const style: CSSProperties = transform
+        ? { cursor: "grabbing", transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
+        : { cursor: "grab" };
 
     return (
-        <Card as={Stack} spacing={2} my={1} mx={2} p={2} ref={setNodeRef} style={style}>
-            <Box {...listeners} {...attributes}>
-                <Heading as="h4" size="sm">
-                    {fname} {lname}
-                </Heading>
-                <Text fontSize="sm">{email}</Text>
-            </Box>
+        <Card as={Stack} spacing={0} my={1} mx={2} p={2} ref={setNodeRef} style={style} {...listeners} {...attributes}>
+            <Heading as="h4" size="sm">
+                {fname} {lname}
+            </Heading>
+            <Text fontSize="sm">{email}</Text>
         </Card>
     );
 };
