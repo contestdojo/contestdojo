@@ -26,7 +26,6 @@ import {
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/router";
-import { CSSProperties } from "react";
 import { HiDotsHorizontal, HiTrash } from "react-icons/hi";
 import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 import AddStudentModal from "~/components/AddStudentModal";
@@ -42,12 +41,12 @@ import { toDict, useFormState } from "~/helpers/utils";
 
 const StudentCard = ({ id, fname, lname, email }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
-    const style: CSSProperties = transform
-        ? { cursor: "grabbing", transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
+    const props = transform
+        ? { cursor: "grabbing", shadow: "xl", transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
         : { cursor: "grab" };
 
     return (
-        <Card as={Stack} spacing={0} my={1} mx={2} p={2} ref={setNodeRef} style={style} {...listeners} {...attributes}>
+        <Card as={Stack} spacing={0} my={1} mx={2} p={2} ref={setNodeRef} {...props} {...listeners} {...attributes}>
             <Heading as="h4" size="sm">
                 {fname} {lname}
             </Heading>
