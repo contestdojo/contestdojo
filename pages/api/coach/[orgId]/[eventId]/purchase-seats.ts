@@ -1,7 +1,7 @@
 import sendgrid from "@sendgrid/mail";
 import absoluteUrl from "next-absolute-url";
 import { firestore, withFirebaseAuth } from "~/helpers/firebase";
-import { getStripe } from "~/helpers/stripe";
+import stripe from "~/helpers/stripe";
 
 sendgrid.setApiKey(process.env.SENDGRID_KEY as string);
 
@@ -33,9 +33,7 @@ const handler = withFirebaseAuth(async (req, res) => {
 
     // Do payment
 
-    const stripe = getStripe(entityData.stripeAccountId);
-
-    const customers = await stripe.customers.list({ email, limit: 1 });
+    const customers = await stripe.customers.list({ email, limit: 1 }, { stripeAccount: entityData.stripeAccountId });
     const customer: any = {};
     if (customers["data"].length === 0) {
         customer["customer_email"] = email;
@@ -60,7 +58,7 @@ const handler = withFirebaseAuth(async (req, res) => {
                     quantity: number,
                 },
             ],
-            success_url: `${origin}/coach/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${origin}/coach/${orgId}/${eventId}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/coach/${orgId}/${eventId}/teams`,
             allow_promotion_codes: true,
             ...customer,
