@@ -9,10 +9,10 @@ const Navigation = ({ sidebar }) => {
 
     return (
         <Stack flexBasis={300} boxShadow="0 0 10px rgba(0, 0, 0, 0.1)" spacing={0} divider={<Divider />}>
-            <Box padding={6}>
-                <NextLink href="/coach">
+            <Box padding={6} mx="auto">
+                <NextLink href="/">
                     <a>
-                        <Image src="/smt.png" width={684} height={216} />
+                        <Image src="/logo.png" width={100} height={100} />
                     </a>
                 </NextLink>
             </Box>

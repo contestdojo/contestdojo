@@ -43,7 +43,7 @@ const handler = withFirebaseAuth(async (req, res) => {
 
         await sendgrid.send({
             to: email,
-            from: "noreply@stanfordmathtournament.com",
+            from: "noreply@contestdojo.com",
             templateId: "d-8c5c1f774b5c41138c5018d05396ecd0",
             dynamicTemplateData: { fname, lname, email, password },
         });
