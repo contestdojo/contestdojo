@@ -35,7 +35,7 @@ import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
-import { useFormState } from "~/helpers/utils";
+import { toDict, useFormState } from "~/helpers/utils";
 
 const StudentCard = ({ id, fname, lname, email }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -289,6 +289,9 @@ const TeamsContent = () => {
     const { data: students } = useFirestoreCollectionData(studentsRef.where("org", "==", orgRef), { idField: "id" });
 
     // Collapse into dict
+    const studentsById = students.reduce(toDict, {});
+
+    // Collapse into dict
     const studentsByTeam = {};
     for (const student of students) {
         const key = student.team?.id ?? null;
@@ -356,7 +359,7 @@ const TeamsContent = () => {
 
     const handleDragEnd = ({ active, over }) => {
         if (!over) return;
-        if (event.costPerStudent && seatsRemaining === 0) return;
+        if (studentsById[active.id].team === null && event.costPerStudent && seatsRemaining === 0) return;
         if (
             over.id !== "unassigned" &&
             event.studentsPerTeam &&
