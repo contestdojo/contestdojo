@@ -297,7 +297,7 @@ const TeamsContent = () => {
   }
 
   // Calculate seats remaining
-  const seatsRemaining = (eventOrg.maxStudents ?? 0) - students.length + (studentsByTeam[null]?.length ?? 0);
+  const seatsRemaining = (eventOrg?.maxStudents ?? 0) - students.length + (studentsByTeam[null]?.length ?? 0);
 
   // Dialog
   const [openDialog] = useDialog();
@@ -386,7 +386,7 @@ const TeamsContent = () => {
           onUpdateTeam={handleUpdateTeam}
           onDeleteTeam={handleDeleteTeam}
           costPerStudent={event.costPerStudent}
-          maxStudents={eventOrg.maxStudents ?? 0}
+          maxStudents={eventOrg?.maxStudents ?? 0}
           seatsRemaining={seatsRemaining}
           stripeAccount={entity.stripeAccountId}
         />
