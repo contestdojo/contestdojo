@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { EditablePreview } from "@chakra-ui/editable";
+import { EditablePreview } from "@chakra-ui/react";
 
 const StyledEditablePreview = () => (
     <EditablePreview

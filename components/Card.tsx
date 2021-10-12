@@ -4,8 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, BoxProps } from "@chakra-ui/layout";
-import { forwardRef } from "@chakra-ui/system";
+import { Box, BoxProps, forwardRef } from "@chakra-ui/react";
 
 type CardProps = BoxProps;
 

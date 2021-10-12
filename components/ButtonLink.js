@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Button } from "@chakra-ui/button";
+import { Button } from "@chakra-ui/react";
 import NextLink from "next/link";
 
 const ButtonLink = ({ href, children, ...props }) => (

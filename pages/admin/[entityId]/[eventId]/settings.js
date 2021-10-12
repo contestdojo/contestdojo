@@ -4,9 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Button } from "@chakra-ui/button";
-import { Heading, HStack, Stack, Text } from "@chakra-ui/layout";
-import { Switch } from "@chakra-ui/switch";
+import { Button, Heading, HStack, Stack, Switch, Text } from "@chakra-ui/react";
 import { useFunctions } from "reactfire";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";

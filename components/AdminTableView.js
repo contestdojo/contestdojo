@@ -36,38 +36,43 @@ export const sumReducer = arr => arr.reduce((a, b) => a + b, 0);
 
 export const dayjsRenderer = val => val.format("M/DD/YYYY");
 
-export const updateRenderer = (onUpdate, updater) => (val, { id }) => {
-    if (typeof updater === "string") {
-        const key = updater;
-        updater = newVal => ({ [key]: newVal });
-    }
+export const updateRenderer =
+    (onUpdate, updater) =>
+    (val, { id }) => {
+        if (typeof updater === "string") {
+            const key = updater;
+            updater = newVal => ({ [key]: newVal });
+        }
 
-    return (
-        <Editable defaultValue={val} onSubmit={newVal => onUpdate(id, updater(newVal))}>
-            <StyledEditablePreview />
-            <EditableInput />
-        </Editable>
-    );
-};
+        return (
+            <Editable defaultValue={val} onSubmit={newVal => onUpdate(id, updater(newVal))}>
+                <StyledEditablePreview />
+                <EditableInput />
+            </Editable>
+        );
+    };
 
-export const addRemoveRenderer = (onUpdate, label) => (val, { id }, key) => (
-    <HStack spacing={2}>
-        <IconButton
-            size="xs"
-            aria-label={`Remove ${label}`}
-            icon={<HiMinus />}
-            onClick={() => onUpdate(id, { [key]: val - 1 })}
-            disabled={val <= 0}
-        />
-        <Box>{val}</Box>
-        <IconButton
-            size="xs"
-            aria-label={`Add ${label}`}
-            icon={<HiPlus />}
-            onClick={() => onUpdate(id, { [key]: val + 1 })}
-        />
-    </HStack>
-);
+export const addRemoveRenderer =
+    (onUpdate, label) =>
+    (val, { id }, key) =>
+        (
+            <HStack spacing={2}>
+                <IconButton
+                    size="xs"
+                    aria-label={`Remove ${label}`}
+                    icon={<HiMinus />}
+                    onClick={() => onUpdate(id, { [key]: val - 1 })}
+                    disabled={val <= 0}
+                />
+                <Box>{val}</Box>
+                <IconButton
+                    size="xs"
+                    aria-label={`Add ${label}`}
+                    icon={<HiPlus />}
+                    onClick={() => onUpdate(id, { [key]: val + 1 })}
+                />
+            </HStack>
+        );
 
 const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder, extraButtons, tableProps = {} }) => {
     const [showCols, setShowCols] = useState(cols.filter(x => !x.hideByDefault).map(x => x.key));

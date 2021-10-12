@@ -4,10 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Button, IconButton } from "@chakra-ui/button";
-import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
-import { Tag } from "@chakra-ui/tag";
-import { Tooltip } from "@chakra-ui/tooltip";
+import { Box, Button, Heading, HStack, IconButton, Stack, Tag, Text, Tooltip } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import firebase from "firebase";
 import NextLink from "next/link";

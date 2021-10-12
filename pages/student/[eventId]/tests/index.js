@@ -4,9 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Alert, AlertIcon } from "@chakra-ui/alert";
-import { Button } from "@chakra-ui/button";
-import { Box, Heading, HStack, Stack, Text } from "@chakra-ui/layout";
+import { Alert, AlertIcon, Box, Button, Heading, HStack, Stack, Text } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useFirestoreCollectionData, useFirestoreDoc, useFirestoreDocData, useFunctions, useUser } from "reactfire";

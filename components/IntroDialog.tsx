@@ -4,8 +4,6 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Button } from "@chakra-ui/button";
-import { Stack, Text } from "@chakra-ui/layout";
 import {
     AlertDialog,
     AlertDialogBody,
@@ -13,7 +11,10 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogOverlay,
-} from "@chakra-ui/modal";
+    Button,
+    Stack,
+    Text,
+} from "@chakra-ui/react";
 import { useRef } from "react";
 
 type IntroDialogProps = {
