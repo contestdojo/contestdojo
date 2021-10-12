@@ -17,6 +17,7 @@ const OrgsTable = ({ event, orgs, onUpdate }) => {
     { label: "Address", key: "address", hideByDefault: true },
     { label: "Contact", key: "admin" },
     { label: "Contact Email", key: "adminEmail" },
+    { label: "# Seats Purchased", key: "maxStudents" },
     { label: "Notes", key: "notes", renderer: updateRenderer(onUpdate, "notes") },
   ];
 
@@ -26,6 +27,7 @@ const OrgsTable = ({ event, orgs, onUpdate }) => {
     address: `${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`,
     admin: `${x.adminData?.fname} ${x.adminData?.lname}`,
     adminEmail: x.adminData?.email,
+    maxStudents: x.maxStudents ?? 0,
     notes: x.notes ?? "",
   }));
 
