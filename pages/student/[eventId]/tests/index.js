@@ -111,7 +111,14 @@ const Tests = () => {
       </Text>
 
       {displayTests.map((x) => (
-        <TestCard {...x} onStart={() => handleStartTest(x.id)} isLoading={isLoading} student={student} time={time} />
+        <TestCard
+          key={x.id}
+          {...x}
+          onStart={() => handleStartTest(x.id)}
+          isLoading={isLoading}
+          student={student}
+          time={time}
+        />
       ))}
 
       <ButtonLink href={`/student/${eventId}`} colorScheme="blue" alignSelf="flex-start">

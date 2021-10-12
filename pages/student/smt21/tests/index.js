@@ -114,6 +114,7 @@ const Tests = () => {
 
           {displayTests.map((x) => (
             <TestCard
+              key={x.id}
               {...x}
               onStart={() => handleStartTest(x.id)}
               isLoading={isLoading}

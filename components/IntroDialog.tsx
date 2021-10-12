@@ -45,8 +45,8 @@ const IntroDialog = ({ isOpen, onClose }: IntroDialogProps) => {
               the Berkeley Math Tournament.
             </Text>
             <Text>
-              If you've used ContestDojo in the past for another tournament, such as SMT 2021, please sign in with your
-              existing account.
+              If you&apos;ve used ContestDojo in the past for another tournament, such as SMT 2021, please sign in with
+              your existing account.
             </Text>
           </AlertDialogBody>
 

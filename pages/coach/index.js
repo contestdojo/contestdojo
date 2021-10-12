@@ -18,10 +18,10 @@ const Home = () => {
         </p>
         <p>
           If this is your first time here, you can start by creating an organization using the button on the left
-          sidebar. An organization could be an accredited school's math team, but it could also be a math group not
+          sidebar. An organization could be an accredited school&apos;s math team, but it could also be a math group not
           associated with any school.
         </p>
-        <p>Once you create an organization, you'll be able to register students for events.</p>
+        <p>Once you create an organization, you&apos;ll be able to register students for events.</p>
       </Stack>
     </Stack>
   );

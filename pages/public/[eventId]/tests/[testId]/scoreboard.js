@@ -83,7 +83,7 @@ const TestContent = () => {
             <Tr key={x.id}>
               <Td>{idx + 1}</Td>
               <Td>
-                <SimpleGrid columns={3} spacing={0} width="24px" spacing="3px">
+                <SimpleGrid columns={3} width="24px" spacing="3px">
                   {[...Array(9).keys()].map((idx) => (
                     <Box
                       key={idx}

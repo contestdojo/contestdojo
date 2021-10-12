@@ -63,7 +63,7 @@ const Event = () => {
             {team.number && <Tag size="sm">{team.number}</Tag>}
           </HStack>
           {teamMembers.map((x) => (
-            <HStack>
+            <HStack key={x.id}>
               <Icon as={HiUser} boxSize={6} />
               {x.number && (
                 <Tag colorScheme={x.id === student.id ? "blue" : undefined} size="sm">

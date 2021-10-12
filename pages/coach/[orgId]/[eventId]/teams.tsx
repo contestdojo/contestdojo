@@ -163,7 +163,7 @@ const Teams = ({
     <Stack spacing={4}>
       <Heading size="lg">{title ?? "Teams"}</Heading>
       <p>
-        Click the "Add Team" button to create a new team.
+        Click the &ldquo;Add Team&rdquo; button to create a new team.
         {costPerStudent > 0 && (
           <>
             {" "}

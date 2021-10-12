@@ -18,7 +18,7 @@ const Navigation = ({ sidebar }) => {
       <Box padding={6} mx="auto">
         <NextLink href="/">
           <a>
-            <Image src="/logo.svg" width={100} height={100} />
+            <Image src="/logo.svg" width={100} height={100} alt="ContestDojo" />
           </a>
         </NextLink>
       </Box>

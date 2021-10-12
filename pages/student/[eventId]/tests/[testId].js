@@ -121,15 +121,6 @@ const TestContent = () => {
     displayProblems = displayProblems.slice(test.numPerSet * set, test.numPerSet * (set + 1));
   }
 
-  if (!submission.startTime) {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        Submission Not Found
-      </Alert>
-    );
-  }
-
   const handleUpdate = async (update) => {
     await submissionRef.update(update);
   };
@@ -143,6 +134,15 @@ const TestContent = () => {
       closeDialog(dialog);
     }
   }, [submission.gutsSet]);
+
+  if (!submission.startTime) {
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Submission Not Found
+      </Alert>
+    );
+  }
 
   const handleNextSet = () => {
     setDialog(
@@ -160,7 +160,7 @@ const TestContent = () => {
       <VStack spacing={4}>
         <VStack>
           <Icon as={HiCheckCircle} boxSize={128} />
-          <Heading>Time's up!</Heading>
+          <Heading>Time&apos;s up!</Heading>
           <Text>Your answers were submitted.</Text>
         </VStack>
         <ButtonLink href={`/student/${eventId}/tests`} size="sm" colorScheme="blue">
@@ -175,7 +175,7 @@ const TestContent = () => {
       <VStack spacing={4}>
         <VStack>
           <Icon as={HiCheckCircle} boxSize={128} />
-          <Heading>You're done!</Heading>
+          <Heading>You&apos;re done!</Heading>
           <Text>You have completed all sets.</Text>
         </VStack>
         <ButtonLink href={`/student/${eventId}/tests`} size="sm" colorScheme="blue">

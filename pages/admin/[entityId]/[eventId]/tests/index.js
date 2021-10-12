@@ -149,7 +149,7 @@ const TestsTab = () => {
   return (
     <Stack spacing={4}>
       {Object.values(testsById).map((x) => (
-        <TestCard {...x} time={time} onOpen={handleOpenTest(x)} onDelete={handleDeleteTest(x)} />
+        <TestCard key={x.id} {...x} time={time} onOpen={handleOpenTest(x)} onDelete={handleDeleteTest(x)} />
       ))}
       <Card as={Stack} spacing={4} p={4} maxW="md">
         <Heading size="md">Add Test</Heading>
