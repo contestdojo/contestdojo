@@ -5,6 +5,7 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box } from "@chakra-ui/react";
+import React from "react";
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
