@@ -13,41 +13,41 @@ export const EventContext = createContext();
 export const useEvent = () => useContext(EventContext);
 
 const EventProvider = ({ children }) => {
-    const router = useRouter();
-    const firestore = useFirestore();
+  const router = useRouter();
+  const firestore = useFirestore();
 
-    let { eventId } = router.query;
-    if (router.pathname.startsWith("/coach/[orgId]/smt21")) eventId = "smt21";
-    if (router.pathname.startsWith("/admin/[entityId]/smt21")) eventId = "smt21";
-    if (router.pathname.startsWith("/student/smt21")) eventId = "smt21";
+  let { eventId } = router.query;
+  if (router.pathname.startsWith("/coach/[orgId]/smt21")) eventId = "smt21";
+  if (router.pathname.startsWith("/admin/[entityId]/smt21")) eventId = "smt21";
+  if (router.pathname.startsWith("/student/smt21")) eventId = "smt21";
 
-    console.log(eventId);
+  console.log(eventId);
 
-    const eventRef = firestore.collection("events").doc(eventId);
-    const { data: event } = useFirestoreDoc(eventRef);
+  const eventRef = firestore.collection("events").doc(eventId);
+  const { data: event } = useFirestoreDoc(eventRef);
 
-    if (!event.exists) {
-        return (
-            <Alert status="error">
-                <AlertIcon />
-                <Box>
-                    <AlertTitle>Event Not Found</AlertTitle>
-                    <AlertDescription>The event you are trying to access was not found.</AlertDescription>
-                </Box>
-            </Alert>
-        );
-    }
-
+  if (!event.exists) {
     return (
-        <EventContext.Provider
-            value={{
-                ref: eventRef,
-                data: event.data(),
-            }}
-        >
-            {children}
-        </EventContext.Provider>
+      <Alert status="error">
+        <AlertIcon />
+        <Box>
+          <AlertTitle>Event Not Found</AlertTitle>
+          <AlertDescription>The event you are trying to access was not found.</AlertDescription>
+        </Box>
+      </Alert>
     );
+  }
+
+  return (
+    <EventContext.Provider
+      value={{
+        ref: eventRef,
+        data: event.data(),
+      }}
+    >
+      {children}
+    </EventContext.Provider>
+  );
 };
 
 export default EventProvider;

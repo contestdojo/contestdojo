@@ -1,5 +1,5 @@
 module.exports = {
-    experimental: {
-        reactRoot: "concurrent",
-    },
+  experimental: {
+    reactRoot: "concurrent",
+  },
 };

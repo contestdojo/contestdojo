@@ -8,46 +8,47 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle, Box } from "@chakra-ui/
 import { useRouter } from "next/router";
 import { createContext, useContext } from "react";
 import { useFirestoreDoc } from "reactfire";
+
 import { useEvent } from "./EventProvider";
 
 export const TestContext = createContext();
 export const useTest = () => useContext(TestContext);
 
 const TestProvider = ({ children }) => {
-    const router = useRouter();
-    const { ref: eventRef } = useEvent();
+  const router = useRouter();
+  const { ref: eventRef } = useEvent();
 
-    const { testId } = router.query;
-    const testRef = eventRef.collection("tests").doc(testId);
-    const { data: test } = useFirestoreDoc(testRef);
+  const { testId } = router.query;
+  const testRef = eventRef.collection("tests").doc(testId);
+  const { data: test } = useFirestoreDoc(testRef);
 
-    const problemsRef = testRef.collection("private").doc("problems");
-    const { data: problems } = useFirestoreDoc(problemsRef);
+  const problemsRef = testRef.collection("private").doc("problems");
+  const { data: problems } = useFirestoreDoc(problemsRef);
 
-    if (!test.exists) {
-        return (
-            <Alert status="error">
-                <AlertIcon />
-                <Box>
-                    <AlertTitle>Test Not Found</AlertTitle>
-                    <AlertDescription>The test you are trying to access was not found.</AlertDescription>
-                </Box>
-            </Alert>
-        );
-    }
-
+  if (!test.exists) {
     return (
-        <TestContext.Provider
-            value={{
-                ref: testRef,
-                data: { ...test.data(), id: test.id },
-                problemsRef: problemsRef,
-                problemsData: problems.data() ?? {},
-            }}
-        >
-            {children}
-        </TestContext.Provider>
+      <Alert status="error">
+        <AlertIcon />
+        <Box>
+          <AlertTitle>Test Not Found</AlertTitle>
+          <AlertDescription>The test you are trying to access was not found.</AlertDescription>
+        </Box>
+      </Alert>
     );
+  }
+
+  return (
+    <TestContext.Provider
+      value={{
+        ref: testRef,
+        data: { ...test.data(), id: test.id },
+        problemsRef: problemsRef,
+        problemsData: problems.data() ?? {},
+      }}
+    >
+      {children}
+    </TestContext.Provider>
+  );
 };
 
 export default TestProvider;

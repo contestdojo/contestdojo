@@ -13,35 +13,35 @@ export const OrgContext = createContext();
 export const useOrg = () => useContext(OrgContext);
 
 const OrgProvider = ({ children }) => {
-    const router = useRouter();
-    const firestore = useFirestore();
+  const router = useRouter();
+  const firestore = useFirestore();
 
-    const { orgId } = router.query;
-    const orgRef = firestore.collection("orgs").doc(orgId);
-    const { data: org } = useFirestoreDoc(orgRef);
+  const { orgId } = router.query;
+  const orgRef = firestore.collection("orgs").doc(orgId);
+  const { data: org } = useFirestoreDoc(orgRef);
 
-    if (!org.exists) {
-        return (
-            <Alert status="error">
-                <AlertIcon />
-                <Box>
-                    <AlertTitle>Organization Not Found</AlertTitle>
-                    <AlertDescription>The organization you are trying to access was not found.</AlertDescription>
-                </Box>
-            </Alert>
-        );
-    }
-
+  if (!org.exists) {
     return (
-        <OrgContext.Provider
-            value={{
-                ref: orgRef,
-                data: org.data(),
-            }}
-        >
-            {children}
-        </OrgContext.Provider>
+      <Alert status="error">
+        <AlertIcon />
+        <Box>
+          <AlertTitle>Organization Not Found</AlertTitle>
+          <AlertDescription>The organization you are trying to access was not found.</AlertDescription>
+        </Box>
+      </Alert>
     );
+  }
+
+  return (
+    <OrgContext.Provider
+      value={{
+        ref: orgRef,
+        data: org.data(),
+      }}
+    >
+      {children}
+    </OrgContext.Provider>
+  );
 };
 
 export default OrgProvider;

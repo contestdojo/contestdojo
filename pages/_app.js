@@ -14,6 +14,7 @@ import "nprogress/nprogress.css";
 import { Suspense } from "react";
 import NoSSR from "react-no-ssr";
 import { FirebaseAppProvider, preloadAuth, preloadFirestore, preloadFunctions, useFirebaseApp } from "reactfire";
+
 import DialogProvider from "~/components/contexts/DialogProvider";
 import ErrorBoundary from "~/components/ErrorBoundary";
 import AdminEventLayout from "~/components/layouts/AdminEventLayout";
@@ -32,104 +33,103 @@ Router.events.on("routeChangeComplete", NProgress.done);
 Router.events.on("routeChangeError", NProgress.done);
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAOOHi3dy5rYfJWiXJBEF4h_qJChyxIQLU",
-    authDomain: "ncmt-67ea1.firebaseapp.com",
-    projectId: "ncmt-67ea1",
-    storageBucket: "ncmt-67ea1.appspot.com",
-    messagingSenderId: "97736862094",
-    appId: "1:97736862094:web:6a71d522dc08e59eb15cdf",
+  apiKey: "AIzaSyAOOHi3dy5rYfJWiXJBEF4h_qJChyxIQLU",
+  authDomain: "ncmt-67ea1.firebaseapp.com",
+  projectId: "ncmt-67ea1",
+  storageBucket: "ncmt-67ea1.appspot.com",
+  messagingSenderId: "97736862094",
+  appId: "1:97736862094:web:6a71d522dc08e59eb15cdf",
 };
 
-const preloadSDKs = async firebaseApp => {
-    if (process.env.NODE_ENV === "production") {
-        return Promise.all([
-            preloadAuth({ firebaseApp }),
-            preloadFirestore({ firebaseApp }),
-            preloadFunctions({ firebaseApp }),
-        ]);
-    } else if (process.env.NODE_ENV === "development" && useEmulatorsInDebug) {
-        return Promise.all([
-            // preloadAuth({
-            //     firebaseApp,
-            //     setup: auth => auth().useEmulator("http://localhost:9099/"),
-            // }),
-            // preloadFirestore({
-            //     firebaseApp,
-            //     setup: firestore => firestore().useEmulator("localhost", 8080),
-            // }),
-            preloadFunctions({
-                firebaseApp,
-                setup: functions => functions().useEmulator("localhost", 5001),
-            }),
-        ]);
-    }
+const preloadSDKs = async (firebaseApp) => {
+  if (process.env.NODE_ENV === "production") {
+    return Promise.all([
+      preloadAuth({ firebaseApp }),
+      preloadFirestore({ firebaseApp }),
+      preloadFunctions({ firebaseApp }),
+    ]);
+  } else if (process.env.NODE_ENV === "development" && useEmulatorsInDebug) {
+    return Promise.all([
+      // preloadAuth({
+      //     firebaseApp,
+      //     setup: auth => auth().useEmulator("http://localhost:9099/"),
+      // }),
+      // preloadFirestore({
+      //     firebaseApp,
+      //     setup: firestore => firestore().useEmulator("localhost", 8080),
+      // }),
+      preloadFunctions({
+        firebaseApp,
+        setup: (functions) => functions().useEmulator("localhost", 5001),
+      }),
+    ]);
+  }
 };
 
 const PageSpinner = () => (
-    <Center height="100vh">
-        <Spinner />
-    </Center>
+  <Center height="100vh">
+    <Spinner />
+  </Center>
 );
 
 const ContentWrapper = ({ children }) => {
-    const firebaseApp = useFirebaseApp();
-    preloadSDKs(firebaseApp);
-    return children;
+  const firebaseApp = useFirebaseApp();
+  preloadSDKs(firebaseApp);
+  return children;
 };
 
 const App = ({ Component, pageProps }) => {
-    const router = useRouter();
+  const router = useRouter();
 
-    const DefaultLayout = router.pathname.startsWith("/coach")
-        ? CoachLayout
-        : router.pathname.startsWith("/student/[eventId]") || router.pathname.startsWith("/student/smt21")
-        ? StudentEventLayout
-        : router.pathname.startsWith("/student")
-        ? StudentLayout
-        : router.pathname.startsWith("/admin/[entityId]/[eventId]") ||
-          router.pathname.startsWith("/admin/[entityId]/smt21")
-        ? AdminEventLayout
-        : router.pathname.startsWith("/admin")
-        ? AdminLayout
-        : EmptyLayout;
+  const DefaultLayout = router.pathname.startsWith("/coach")
+    ? CoachLayout
+    : router.pathname.startsWith("/student/[eventId]") || router.pathname.startsWith("/student/smt21")
+    ? StudentEventLayout
+    : router.pathname.startsWith("/student")
+    ? StudentLayout
+    : router.pathname.startsWith("/admin/[entityId]/[eventId]") || router.pathname.startsWith("/admin/[entityId]/smt21")
+    ? AdminEventLayout
+    : router.pathname.startsWith("/admin")
+    ? AdminLayout
+    : EmptyLayout;
 
-    const Layout = Component.layout ?? DefaultLayout;
-    const layoutProps = Component.layoutProps ?? {};
+  const Layout = Component.layout ?? DefaultLayout;
+  const layoutProps = Component.layoutProps ?? {};
 
-    return (
-        <>
-            <DefaultSeo title="ContestDojo" description="Online math competition platform." />
-            <Head>
-                <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=1" />
-                <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=1" />
-                <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=1" />
-                <link rel="manifest" href="/site.webmanifest?v=1" />
-                <link rel="mask-icon" href="/safari-pinned-tab.svg?v=1" color="#f40808" />
-                <link rel="shortcut icon" href="/favicon.ico?v=1" />
-                <meta name="msapplication-TileColor" content="#da532c" />
-                <meta name="theme-color" content="#f40808" />
-            </Head>
-            <ErrorBoundary>
-                <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
-                    <NoSSR>
-                        <ChakraProvider theme={theme}>
-                            <DialogProvider>
-                                <Suspense fallback={<PageSpinner />}>
-                                    <ContentWrapper>
-                                        <Layout {...layoutProps}>
-                                            <ErrorBoundary>
-                                                <Component {...pageProps} />
-                                            </ErrorBoundary>
-                                        </Layout>
-                                    </ContentWrapper>
-                                </Suspense>
-                            </DialogProvider>
-                        </ChakraProvider>
-                    </NoSSR>
-                </FirebaseAppProvider>
-            </ErrorBoundary>
-        </>
-    );
+  return (
+    <>
+      <DefaultSeo title="ContestDojo" description="Online math competition platform." />
+      <Head>
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=1" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=1" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=1" />
+        <link rel="manifest" href="/site.webmanifest?v=1" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg?v=1" color="#f40808" />
+        <link rel="shortcut icon" href="/favicon.ico?v=1" />
+        <meta name="msapplication-TileColor" content="#da532c" />
+        <meta name="theme-color" content="#f40808" />
+      </Head>
+      <ErrorBoundary>
+        <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
+          <NoSSR>
+            <ChakraProvider theme={theme}>
+              <DialogProvider>
+                <Suspense fallback={<PageSpinner />}>
+                  <ContentWrapper>
+                    <Layout {...layoutProps}>
+                      <ErrorBoundary>
+                        <Component {...pageProps} />
+                      </ErrorBoundary>
+                    </Layout>
+                  </ContentWrapper>
+                </Suspense>
+              </DialogProvider>
+            </ChakraProvider>
+          </NoSSR>
+        </FirebaseAppProvider>
+      </ErrorBoundary>
+    </>
+  );
 };
 
 export default App;

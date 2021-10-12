@@ -9,9 +9,9 @@ import { Box, BoxProps, forwardRef } from "@chakra-ui/react";
 type CardProps = BoxProps;
 
 const Card = forwardRef(({ children, ...props }: BoxProps, ref) => (
-    <Box borderWidth={1} borderRadius="md" backgroundColor="white" ref={ref} {...props}>
-        {children}
-    </Box>
+  <Box borderWidth={1} borderRadius="md" backgroundColor="white" ref={ref} {...props}>
+    {children}
+  </Box>
 ));
 
 export default Card;
