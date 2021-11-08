@@ -6,7 +6,7 @@
 
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 
-import AdminTableView, { addRemoveRenderer, updateRenderer } from "~/components/AdminTableView";
+import AdminTableView, { addRemoveRenderer, sumReducer, updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict } from "~/helpers/utils";
 
@@ -17,7 +17,12 @@ const OrgsTable = ({ orgs, onUpdate }) => {
     { label: "Address", key: "address", hideByDefault: true },
     { label: "Contact", key: "admin" },
     { label: "Contact Email", key: "adminEmail" },
-    { label: "# Seats Purchased", key: "maxStudents", renderer: addRemoveRenderer(onUpdate, "maxStudents") },
+    {
+      label: "# Seats Purchased",
+      key: "maxStudents",
+      renderer: addRemoveRenderer(onUpdate, "maxStudents"),
+      reducer: sumReducer,
+    },
     { label: "Notes", key: "notes", renderer: updateRenderer(onUpdate, "notes") },
   ];
 
