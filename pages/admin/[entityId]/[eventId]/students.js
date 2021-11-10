@@ -5,9 +5,9 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-
 import AdminTableView, { updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
+
 
 const toDict = (obj, x) => {
   obj[x.id] = { ...x, ...obj[x.id] };
@@ -64,7 +64,7 @@ const TeamsTab = () => {
 
   const rootOrgsRef = firestore.collection("orgs");
   const { data: rootOrgs } = useFirestoreCollectionData(rootOrgsRef, { idField: "id" });
-  orgsById = rootOrgs.filter((x) => orgsById.hasOwnProperty(x.id)).reduce(toDict, orgsById);
+  orgsById = rootOrgs.reduce(toDict, orgsById);
 
   // Get teams
   const teamsRef = eventRef.collection("teams");
