@@ -167,10 +167,10 @@ const Teams = ({
         {costPerStudent > 0 && (
           <>
             {" "}
-            Before you can add students to teams, you must purchase seats. Each seat costs <b>${costPerStudent} USD</b>.
-            Please purchase seats by November 9th. Seats bought after this date are subject to an additional late fee
-            and cost <b>$15 USD</b>. You can purchase all your seats at once, or split them into multiple purchases. You
-            will not be able to purchase seats after November 18.
+            Before you can add students to teams, you must purchase seats. Each seat currently costs{" "}
+            <b>${costPerStudent} USD</b>. You can purchase all your seats at once, or split them into multiple
+            purchases. You will not be able to purchase seats after November 18. (Seats purchased before November 9 cost
+            $10 USD; after November 9, they are subject to an additional late fee and cost $15 USD.)
           </>
         )}
       </p>
