@@ -16,6 +16,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   IconButton,
   Menu,
   MenuButton,
@@ -32,7 +33,7 @@ import {
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/router";
-import { HiDotsHorizontal, HiTrash } from "react-icons/hi";
+import { HiClipboardCheck, HiDotsHorizontal, HiExclamation, HiTrash } from "react-icons/hi";
 import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 
 import AddStudentModal from "~/components/AddStudentModal";
@@ -46,18 +47,44 @@ import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
 
-const StudentCard = ({ id, fname, lname, email }) => {
+const StudentCard = ({ id, fname, lname, email, waiver }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
   const props = transform
     ? { cursor: "grabbing", shadow: "xl", transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
     : { cursor: "grab" };
 
   return (
-    <Card as={Stack} spacing={0} my={1} mx={2} p={2} ref={setNodeRef} {...props} {...listeners} {...attributes}>
+    <Card
+      as={Stack}
+      spacing={0}
+      my={1}
+      mx={2}
+      p={2}
+      position="relative"
+      ref={setNodeRef}
+      {...props}
+      {...listeners}
+      {...attributes}
+    >
       <Heading as="h4" size="sm">
         {fname} {lname}
       </Heading>
       <Text fontSize="sm">{email}</Text>
+      <Box position="absolute" top={2} right={2} lineHeight={1}>
+        {waiver ? (
+          <Tooltip label="Waiver Signed">
+            <span>
+              <Icon as={HiClipboardCheck} color="green.500" />
+            </span>
+          </Tooltip>
+        ) : (
+          <Tooltip label="Waiver Missing">
+            <span>
+              <Icon as={HiExclamation} color="red.500" />
+            </span>
+          </Tooltip>
+        )}
+      </Box>
     </Card>
   );
 };
