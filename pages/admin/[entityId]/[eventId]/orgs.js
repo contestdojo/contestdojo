@@ -5,10 +5,10 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
+
 import AdminTableView, { addRemoveRenderer, sumReducer, updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict } from "~/helpers/utils";
-
 
 const OrgsTable = ({ orgs, onUpdate }) => {
   const cols = [

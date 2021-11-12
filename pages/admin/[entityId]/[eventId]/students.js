@@ -38,7 +38,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
       renderer: (val, row) =>
         val ? (
           <a href={val} download={`${row.name}.pdf`}>
-            <IconButton variant="ghost" rounded="full" icon={<HiDownload />} />
+            <IconButton variant="ghost" my={-2} rounded="full" icon={<HiDownload />} />
           </a>
         ) : null,
       reducer: countReducer,

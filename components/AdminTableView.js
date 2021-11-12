@@ -65,7 +65,9 @@ export const addRemoveRenderer =
           onClick={() => onUpdate(id, { [key]: val - 1 })}
           disabled={val <= 0}
         />
-        <Box>{val}</Box>
+        <Box minW={5} textAlign="center">
+          {val}
+        </Box>
         <IconButton
           size="xs"
           aria-label={`Add ${label}`}
