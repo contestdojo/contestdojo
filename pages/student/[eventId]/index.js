@@ -57,11 +57,12 @@ const Event = () => {
 
   const handleSubmit = wrapAction(async ({ parentEmail }) => {
     const authorization = await auth.currentUser.getIdToken();
-    await fetch("/api/student/request_waiver", {
+    const resp = await fetch("/api/student/request_waiver", {
       method: "POST",
       headers: { authorization, "Content-Type": "application/json" },
       body: JSON.stringify({ studentId: student.id, eventId, parentEmail }),
     });
+    if (!resp.ok) throw new Error(await resp.text());
     onOpen();
   });
 

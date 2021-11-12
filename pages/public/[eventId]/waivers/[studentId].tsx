@@ -133,6 +133,7 @@ const WaiverContent = () => {
       },
       body: JSON.stringify({ waiver, values }),
     });
+    if (!resp.ok) throw new Error(await resp.text());
     const blob = await resp.blob();
     const base64 = await new Promise((resolve) => {
       const reader = new FileReader();
