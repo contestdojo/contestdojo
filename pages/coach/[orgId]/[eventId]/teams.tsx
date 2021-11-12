@@ -267,7 +267,7 @@ const Students = ({ students, onAddStudent }) => {
       </p>
       <Wrap
         spacing={0}
-        style={{ marginLeft: "-0.5rem", marginRight: "-0.5rem" }}
+        style={students.length === 0 ? {} : { marginLeft: "-0.5rem", marginRight: "-0.5rem" }}
         transition="background-color 0.1s"
         borderRadius={4}
         ref={setNodeRef}
