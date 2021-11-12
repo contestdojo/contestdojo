@@ -50,8 +50,15 @@ const MissingID = () => (
   </Alert>
 );
 
-const SignatureModal = ({ isOpen, onClose }) => {
+const SignatureModal = ({ id, isOpen, onClose, setValue }) => {
   const ref = useRef(null);
+
+  const handleSave = () => {
+    if (ref.current.isEmpty()) setValue(undefined);
+    else setValue(ref.current.toDataURL());
+
+    onClose();
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -69,7 +76,7 @@ const SignatureModal = ({ isOpen, onClose }) => {
           <Button mr={3} onClick={() => ref.current.clear()}>
             Clear
           </Button>
-          <Button colorScheme="blue" onClick={onClose}>
+          <Button colorScheme="blue" onClick={handleSave}>
             Save
           </Button>
         </ModalFooter>
@@ -79,16 +86,21 @@ const SignatureModal = ({ isOpen, onClose }) => {
 };
 
 const Signature = ({ node, id }) => {
+  const [value, setValue] = useWaiverState(id);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   if (!id) return <MissingID />;
 
   return (
     <>
-      <BlankCard mb={4} m={0} h={120} w={300} cursor="pointer" onClick={onOpen}>
-        Click to Sign
-      </BlankCard>
-      <SignatureModal isOpen={isOpen} onClose={onClose} />
+      {value ? (
+        <Card mb={4} h={120} w={300} backgroundImage={value} backgroundSize="cover" cursor="pointer" onClick={onOpen} />
+      ) : (
+        <BlankCard mb={4} m={0} h={120} w={300} cursor="pointer" onClick={onOpen}>
+          Click to Sign
+        </BlankCard>
+      )}
+      <SignatureModal id={id} isOpen={isOpen} onClose={onClose} setValue={setValue} />
     </>
   );
 };

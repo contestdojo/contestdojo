@@ -13,9 +13,9 @@ import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import WaiverEditor from "~/components/WaiverEditor";
 
-const waiver = `## RSO Waiver Form
+const waiver = `# RSO Waiver Form
 
-Waiver of Liability, Assumption of Risk, and Indemnity Agreement
+## Waiver of Liability, Assumption of Risk, and Indemnity Agreement
 
 **Waiver:** In consideration of :field{#participant_name placeholder="Legal Name of Participant"} being permitted to participate in any way in the **2021 Berkeley Math Tournament**, hereinafter called "The Activity," I, for myself, my heirs, personal representatives or assigns, **do hereby release, waive, discharge, and covenant not to sue**
 
@@ -24,13 +24,13 @@ Waiver of Liability, Assumption of Risk, and Indemnity Agreement
 
 from liability **from any and all claims, including negligence,** that result in personal injury, accidents or illnesses (including death), and property loss arising from, but not limited to, participation in The Activity.
 
-### Signature of Parent/Guardian of Minor
+## Signature of Parent/Guardian of Minor
 
 ::signature{#parent_sig}
 
 ::field{#date placeholder="Date"}
 
-### Signature of Participant
+## Signature of Participant
 
 ::signature{#participant_sig}
 
@@ -46,13 +46,13 @@ from liability **from any and all claims, including negligence,** that result in
 
 **Acknowledgment of Understanding:** I have read this waiver of liability, assumption of risk, and indemnity agreement, fully understand its terms, and understand that I am giving up substantial rights, including my right to sue. I acknowledge that I am signing the agreement freely and voluntarily, and intend by my signature to be a complete and unconditional release of all liability to the greatest extent allowed by law.
 
-### Signature of Parent/Guardian of Minor
+## Signature of Parent/Guardian of Minor
 
 ::signature{#parent_sig}
 
 :field{#participant_age placeholder="Participant Age (if minor)"} :field{#date placeholder="Date" width=100}
 
-### Signature of Participant
+## Signature of Participant
 
 ::signature{#participant_sig}
 
