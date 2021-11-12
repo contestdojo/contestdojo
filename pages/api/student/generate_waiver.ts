@@ -8,6 +8,7 @@
 
 import pdf from "html-pdf";
 import { NextApiRequest, NextApiResponse } from "next";
+import path from "path";
 import rehypeFilter from "react-markdown/lib/rehype-filter";
 import rehypeStringify from "rehype-stringify";
 import remarkDirective from "remark-directive";
