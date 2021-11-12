@@ -65,6 +65,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       bottom: "0.5in",
       left: "0.5in",
     },
+    phantomPath: path.resolve(process.cwd(), "node_modules/phantomjs-prebuilt/bin/phantomjs"),
   });
 
   const buffer = await promisify(render.toBuffer.bind(render))();
