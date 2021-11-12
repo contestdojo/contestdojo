@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Alert, AlertIcon, Button, Heading, Link, Spinner, Stack } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, Center, Heading, Link, Spinner, Stack } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
@@ -165,9 +165,11 @@ const Wrapper = () => {
 };
 
 const Register = () => (
-  <Suspense fallback={<Spinner />}>
-    <Wrapper />
-  </Suspense>
+  <Center minH="100vh">
+    <Suspense fallback={<Spinner />}>
+      <Wrapper />
+    </Suspense>
+  </Center>
 );
 
 export default Register;

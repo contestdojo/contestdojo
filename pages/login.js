@@ -8,6 +8,7 @@ import {
   Alert,
   AlertIcon,
   Button,
+  Center,
   Heading,
   Link,
   Modal,
@@ -215,9 +216,11 @@ const Wrapper = () => {
 };
 
 const Login = () => (
-  <Suspense fallback={<Spinner />}>
-    <Wrapper />
-  </Suspense>
+  <Center minH="100vh">
+    <Suspense fallback={<Spinner />}>
+      <Wrapper />
+    </Suspense>
+  </Center>
 );
 
 export default Login;
