@@ -35,7 +35,7 @@ import {
   UnorderedList,
   useDisclosure,
 } from "@chakra-ui/react";
-import { Component, useRef } from "react";
+import { Component, useEffect, useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 import { useWaiverState } from "./WaiverProvider";
@@ -54,7 +54,7 @@ const SignatureModal = ({ id, isOpen, onClose, setValue }) => {
   const ref = useRef(null);
 
   const handleSave = () => {
-    if (ref.current.isEmpty()) setValue(undefined);
+    if (ref.current.isEmpty()) setValue(null);
     else setValue(ref.current.toDataURL());
 
     onClose();
@@ -89,6 +89,10 @@ const Signature = ({ node, id }) => {
   const [value, setValue] = useWaiverState(id);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  useEffect(() => {
+    if (value === undefined) setValue(null);
+  }, []);
+
   if (!id) return <MissingID />;
 
   return (
@@ -107,9 +111,13 @@ const Signature = ({ node, id }) => {
 
 const Field = ({ node, id, placeholder, width = 300, readonly = false, initialValue }) => {
   const [value, setValue] = useWaiverState(id);
+  useEffect(() => {
+    if (value === undefined) setValue(null);
+  }, []);
   if (!id) return <MissingID />;
   return (
     <Input
+      name={id}
       mb={4}
       placeholder={placeholder}
       size="sm"
@@ -117,15 +125,20 @@ const Field = ({ node, id, placeholder, width = 300, readonly = false, initialVa
       isReadOnly={readonly}
       value={value ?? initialValue}
       onChange={(e) => setValue(e.target.value)}
+      isRequired
     />
   );
 };
 
-const FieldInline = ({ node, id, placeholder = "Text Input", width = 200, readonly = false, initialValue }) => {
+const FieldInline = ({ node, id, placeholder, width = 200, readonly = false, initialValue }) => {
   const [value, setValue] = useWaiverState(id);
+  useEffect(() => {
+    if (value === undefined) setValue(null);
+  }, []);
   if (!id) return <MissingID />;
   return (
     <Input
+      name={id}
       placeholder={placeholder}
       size="xs"
       display="inline"
@@ -133,6 +146,7 @@ const FieldInline = ({ node, id, placeholder = "Text Input", width = 200, readon
       isReadOnly={readonly}
       value={value ?? initialValue}
       onChange={(e) => setValue(e.target.value)}
+      isRequired
     />
   );
 };

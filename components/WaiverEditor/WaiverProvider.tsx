@@ -20,6 +20,8 @@ const WaiverProvider = ({ children, vars }) => {
   const [values, setValues] = useState({});
   const updateValue = (key, value) => setValues((v) => ({ ...v, [key]: value }));
 
+  console.log(values);
+
   return <WaiverContext.Provider value={{ values, updateValue }}>{children}</WaiverContext.Provider>;
 };
 

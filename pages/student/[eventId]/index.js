@@ -4,16 +4,38 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Heading, HStack, Icon, Stack, Tag, Text } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertIcon,
+  Button,
+  Divider,
+  Heading,
+  HStack,
+  Icon,
+  Stack,
+  Tag,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { HiUser } from "react-icons/hi";
-import { useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
+import { useAuth, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
+import WaiverRequestForm from "~/components/forms/WaiverRequestForm";
+import { useFormState } from "~/helpers/utils";
 
 const Event = () => {
+  const auth = useAuth();
+
   const { ref: eventRef, data: event } = useEvent();
   const { data: user } = useUser();
   const { eventId } = useRouter().query;
@@ -27,6 +49,21 @@ const Event = () => {
 
   const { data: org } = useFirestoreDocData(student.org);
   const { data: team } = useFirestoreDocData(teamRef);
+
+  // Waivers
+
+  const [formState, wrapAction] = useFormState();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleSubmit = wrapAction(async ({ parentEmail }) => {
+    const authorization = await auth.currentUser.getIdToken();
+    await fetch("/api/student/request_waiver", {
+      method: "POST",
+      headers: { authorization, "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId: student.id, eventId, parentEmail }),
+    });
+    onOpen();
+  });
 
   return (
     <Stack spacing={6} flexBasis={600}>
@@ -62,6 +99,49 @@ const Event = () => {
       <ButtonLink href={`/student/${eventId}/tests`} colorScheme="blue" size="lg">
         Click here to take your tests
       </ButtonLink>
+
+      <Divider />
+
+      <Heading size="lg">Waivers</Heading>
+
+      {student.waiver ? (
+        <>
+          <Alert status="success">
+            <AlertIcon />
+            Your waiver has been signed.
+          </Alert>
+          <a href={student.waiver} download="waiver.pdf">
+            <Button colorScheme="blue">Download Signed Waiver</Button>
+          </a>
+        </>
+      ) : (
+        <>
+          <Text>
+            This tournament requires waivers to be completed before you may compete. Your parent or guardian must
+            complete this waiver. The waiver will be sent directly to your parent&quot;s email for them to complete.
+            Please enter their email address below:
+          </Text>
+          <WaiverRequestForm onSubmit={handleSubmit} {...formState} />
+          <AlertDialog isOpen={isOpen} onClose={onClose}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  Waiver Request Sent
+                </AlertDialogHeader>
+                <AlertDialogBody>
+                  A waiver signature request has been sent to your parent/guardian. Please have them check their email
+                  to continue the process.
+                </AlertDialogBody>
+                <AlertDialogFooter>
+                  <Button colorScheme="blue" onClick={onClose}>
+                    OK
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </>
+      )}
     </Stack>
   );
 };

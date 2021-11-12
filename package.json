@@ -26,8 +26,9 @@
     "framer-motion": "^4.1.17",
     "generate-password": "^1.6.1",
     "hastscript": "^7.0.2",
+    "html-pdf": "^3.0.1",
     "katex": "^0.13.18",
-    "next": "^11.1.2",
+    "next": "^12.0.3",
     "next-absolute-url": "^1.2.2",
     "next-seo": "^4.28.1",
     "nprogress": "^0.2.0",
@@ -45,6 +46,7 @@
     "react-sticky": "^6.0.3",
     "react-textarea-autosize": "^8.3.3",
     "reactfire": "^3.0.0-rc.0",
+    "rehype": "^12.0.0",
     "remark": "^14.0.1",
     "remark-directive": "^2.0.1",
     "remark-gfm": "^3.0.1",
@@ -53,6 +55,7 @@
     "yup": "^0.32.10"
   },
   "devDependencies": {
+    "@types/html-pdf": "^2.2.1",
     "@types/react": "^17.0.27",
     "@types/react-signature-canvas": "^1.0.2",
     "eslint": "^7.32.0",

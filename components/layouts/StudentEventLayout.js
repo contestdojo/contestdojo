@@ -14,7 +14,7 @@ const StudentEventLayoutContent = ({ children, ...props }) => {
   const { data: event } = useEvent();
 
   return (
-    <Stack spacing={6} maxW={600} mx="auto" {...props}>
+    <Stack flex={1} spacing={6} maxW={600} mx="auto" {...props}>
       <Heading>{event.name}</Heading>
       <Divider />
       {children}

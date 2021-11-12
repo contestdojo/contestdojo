@@ -6,25 +6,20 @@
 
 // @ts-nocheck
 
+import { forwardRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkDirective from "remark-directive";
 import remarkGfm from "remark-gfm";
 
 import { components } from "./components";
 import processDirectives from "./processDirectives";
-import WaiverProvider from "./WaiverProvider";
 
-const WaiverEditor = ({ children, vars }) => {
+const WaiverEditor = forwardRef(({ children }, ref) => {
   return (
-    <WaiverProvider>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkDirective, [processDirectives, { vars }]]}
-        components={components}
-      >
-        {children}
-      </ReactMarkdown>
-    </WaiverProvider>
+    <ReactMarkdown remarkPlugins={[remarkGfm, remarkDirective, processDirectives]} components={components}>
+      {children}
+    </ReactMarkdown>
   );
-};
+});
 
 export default WaiverEditor;
