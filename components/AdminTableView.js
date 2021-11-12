@@ -34,7 +34,7 @@ import { HiChevronDown, HiMinus, HiPlus } from "react-icons/hi";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 
 export const sumReducer = (arr) => arr.reduce((a, b) => a + b, 0);
-
+export const countReducer = (arr) => arr.filter(Boolean).length;
 export const dayjsRenderer = (val) => val.format("M/DD/YYYY");
 
 export const updateRenderer =
@@ -85,9 +85,11 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder
 
   if (sortBy !== "") {
     displayRows = [...rows].sort((a, b) => {
-      if (a[sortBy] == b[sortBy]) return 0;
-      const mult = sortOrder == "asc" ? 1 : -1;
-      return a[sortBy] > b[sortBy] ? mult : -mult;
+      const av = a[sortBy] ?? "";
+      const bv = b[sortBy] ?? "";
+      if (av === bv) return 0;
+      const mult = sortOrder === "asc" ? 1 : -1;
+      return av > bv ? mult : -mult;
     });
   }
 

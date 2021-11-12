@@ -4,10 +4,12 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
+import { IconButton } from "@chakra-ui/react";
+import { HiDownload } from "react-icons/hi";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import AdminTableView, { updateRenderer } from "~/components/AdminTableView";
-import { useEvent } from "~/components/contexts/EventProvider";
 
+import AdminTableView, { countReducer, updateRenderer } from "~/components/AdminTableView";
+import { useEvent } from "~/components/contexts/EventProvider";
 
 const toDict = (obj, x) => {
   obj[x.id] = { ...x, ...obj[x.id] };
@@ -30,6 +32,17 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
     { label: "Grade", key: "grade" },
     { label: "Organization", key: "org" },
     { label: "Team", key: "team" },
+    {
+      label: "Waiver",
+      key: "waiver",
+      renderer: (val, row) =>
+        val ? (
+          <a href={val} download={`${row.name}.pdf`}>
+            <IconButton variant="ghost" rounded="full" icon={<HiDownload />} />
+          </a>
+        ) : null,
+      reducer: countReducer,
+    },
     { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
   ];
 
@@ -45,6 +58,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
       grade: x.grade,
       org: org.name,
       team: team?.name ?? "",
+      waiver: x.waiver,
       notes: x.notes ?? "",
     };
   });
