@@ -43,6 +43,7 @@ import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
+import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
@@ -178,6 +179,7 @@ const Teams = ({
   seatsRemaining,
   stripeAccount,
 }) => {
+  const { data: event } = useEvent();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
 
@@ -188,6 +190,14 @@ const Teams = ({
 
   return (
     <Stack spacing={4}>
+      {event.description && (
+        <>
+          <Box mb={-4}>
+            <Markdown>{event.description}</Markdown>
+          </Box>
+          <Divider />
+        </>
+      )}
       <Heading size="lg">{title ?? "Teams"}</Heading>
       <p>
         Click the &ldquo;Add Team&rdquo; button to create a new team.
@@ -195,9 +205,7 @@ const Teams = ({
           <>
             {" "}
             Before you can add students to teams, you must purchase seats. Each seat currently costs{" "}
-            <b>${costPerStudent} USD</b>. You can purchase all your seats at once, or split them into multiple
-            purchases. You will not be able to purchase seats after November 18. (Seats purchased before November 9 cost
-            $10 USD; after November 9, they are subject to an additional late fee and cost $15 USD.)
+            <b>${costPerStudent} USD</b>. {event.costDescription ?? ""}
           </>
         )}
       </p>

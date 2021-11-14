@@ -9,14 +9,8 @@
 import {
   Alert,
   AlertIcon,
-  Box,
   Button,
-  Code,
-  Divider,
-  Heading,
   Input,
-  Link,
-  ListItem,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -24,15 +18,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  OrderedList,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  UnorderedList,
   useDisclosure,
 } from "@chakra-ui/react";
 import { Component, useEffect, useRef } from "react";
@@ -42,6 +27,7 @@ import { useWaiverState } from "./WaiverProvider";
 
 import BlankCard from "~/components/BlankCard";
 import Card from "~/components/Card";
+import { components as defaultComponents } from "~/components/Markdown";
 
 const MissingID = () => (
   <Alert status="error" mb={4} maxW={500}>
@@ -152,26 +138,7 @@ const FieldInline = ({ node, id, placeholder, width = 200, readonly = false, ini
 };
 
 export const components: { [key: string]: Component } = {
-  a: ({ node, ...props }) => <Link color="blue.500" {...props} />,
-  blockquote: ({ node, ...props }) => <Box pl={3} borderLeftWidth={4} {...props} />,
-  code: ({ node, ...props }) => <Code {...props} />,
-  h1: ({ node, ...props }) => <Heading mb={4} as="h1" size="lg" {...props} />,
-  h2: ({ node, ...props }) => <Heading mb={4} as="h2" size="md" {...props} />,
-  h3: ({ node, ...props }) => <Heading mb={4} as="h3" size="sm" {...props} />,
-  h4: ({ node, ...props }) => <Heading mb={4} as="h4" size="xs" {...props} />,
-  h5: ({ node, ...props }) => <Heading mb={4} as="h5" size="xs" {...props} />,
-  h6: ({ node, ...props }) => <Heading mb={4} as="h6" size="xs" {...props} />,
-  hr: ({ node, ...props }) => <Divider mb={4} {...props} />,
-  li: ListItem,
-  ol: ({ node, ...props }) => <OrderedList mb={4} {...props} />,
-  p: ({ node, ...props }) => <Text mb={4} {...props} />,
-  ul: ({ node, ...props }) => <UnorderedList mb={4} {...props} />,
-  table: ({ node, ...props }) => <Table mb={4} {...props} />,
-  tbody: Tbody,
-  td: Td,
-  th: Th,
-  thead: Thead,
-  tr: Tr,
+  ...defaultComponents,
   "cd-signature": Signature,
   "cd-field": Field,
   "cd-field-inline": FieldInline,

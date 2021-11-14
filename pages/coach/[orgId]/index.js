@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, Divider, Heading, Stack } from "@chakra-ui/react";
+import { Box, Divider, Heading, HStack, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
@@ -20,12 +20,14 @@ const EventCard = ({ id, name, date: { seconds } }) => {
   const { orgId } = router.query;
   const date = dayjs.unix(seconds);
   return (
-    <Card p={6} maxWidth="sm">
-      <Box as="h4" fontWeight="semibold" isTruncated>
-        {name}
-      </Box>
-      <Box as="h5" color="gray.500">
-        {date.format("M/D/YYYY")}
+    <Card as={HStack} p={4} maxWidth="sm">
+      <Box flex={1}>
+        <Box as="h4" fontWeight="semibold" isTruncated>
+          {name}
+        </Box>
+        <Box as="h5" color="gray.500">
+          {date.format("MMMM D, YYYY")}
+        </Box>
       </Box>
       <ButtonLink href={`/coach/${orgId}/${id}`} mt={2} colorScheme="blue" size="sm">
         Register

@@ -5,18 +5,20 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { Textarea } from "@chakra-ui/react";
+import { forwardRef } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
-const ResizingTextarea = (props) => (
+const ResizingTextarea = forwardRef((props, ref) => (
   <Textarea
+    ref={ref}
     minH="unset"
     overflow="hidden"
     transition="none"
     resize="none"
-    minRows={1}
+    minRows={3}
     as={TextareaAutosize}
     {...props}
   />
-);
+));
 
 export default ResizingTextarea;

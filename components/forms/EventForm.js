@@ -10,11 +10,16 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
 import FormField from "~/components/FormField";
+import ResizingTextarea from "~/components/ResizingTextarea";
 
 const schema = yup.object({
   name: yup.string().required().label("Event Name"),
-  // maxStudents: yup.number().required().label("# Students per Team"),
-  // maxTeams: yup.number().nullable().label("# Teams per Organization"),
+  studentsPerTeam: yup.number().required().label("# Students per Team"),
+  description: yup.string().label("Description"),
+  costPerStudent: yup.lazy((value) =>
+    value === "" ? yup.string().label("Cost per Student") : yup.number().label("Cost per Student")
+  ),
+  costDescription: yup.string().label("Description"),
 });
 
 const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
@@ -43,25 +48,42 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
           isRequired
         />
 
-        {/* <Stack direction="row" spacing={4}>
-                    <FormField
-                        ref={register}
-                        type="number"
-                        name="maxStudents"
-                        label="# Students per Team"
-                        placeholder="8"
-                        error={errors.maxStudents}
-                        isRequired
-                    />
-                    <FormField
-                        ref={register}
-                        type="number"
-                        name="maxTeams"
-                        label="# Teams per Organization"
-                        placeholder="3"
-                        error={errors.maxTeams}
-                    />
-                </Stack> */}
+        <FormField
+          ref={register}
+          type="number"
+          name="studentsPerTeam"
+          label="# Students per Team"
+          placeholder="8"
+          error={errors.studentsPerTeam}
+          isRequired
+        />
+
+        <FormField
+          ref={register}
+          as={ResizingTextarea}
+          name="description"
+          label="Description (markdown)"
+          placeholder="Description"
+          error={errors.description}
+        />
+
+        <FormField
+          ref={register}
+          type="number"
+          name="costPerStudent"
+          label="Cost per Student"
+          placeholder="8"
+          error={errors.costPerStudent}
+        />
+
+        <FormField
+          ref={register}
+          as={ResizingTextarea}
+          name="costDescription"
+          label="Cost Description (markdown)"
+          placeholder="Cost Description"
+          error={errors.costDescription}
+        />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
           {buttonText ?? "Submit"}

@@ -101,46 +101,48 @@ const Event = () => {
         Click here to take your tests
       </ButtonLink>
 
-      <Divider />
-
-      <Heading size="lg">Waivers</Heading>
-
-      {student.waiver ? (
+      {event.id === "IUyNeUTjRuyc7lDqSZlc" && (
         <>
-          <Alert status="success">
-            <AlertIcon />
-            Your waiver has been signed.
-          </Alert>
-          <a href={student.waiver} download="waiver.pdf">
-            <Button colorScheme="blue">Download Signed Waiver</Button>
-          </a>
-        </>
-      ) : (
-        <>
-          <Text>
-            This tournament requires waivers to be completed before you may compete. Your parent or guardian must
-            complete this waiver. The waiver will be sent directly to your parent&apos;s email for them to complete.
-            Please enter their email address below:
-          </Text>
-          <WaiverRequestForm onSubmit={handleSubmit} {...formState} />
-          <AlertDialog isOpen={isOpen} onClose={onClose}>
-            <AlertDialogOverlay>
-              <AlertDialogContent>
-                <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                  Waiver Request Sent
-                </AlertDialogHeader>
-                <AlertDialogBody>
-                  A waiver signature request has been sent to your parent/guardian. Please have them check their email
-                  to continue the process.
-                </AlertDialogBody>
-                <AlertDialogFooter>
-                  <Button colorScheme="blue" onClick={onClose}>
-                    OK
-                  </Button>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialogOverlay>
-          </AlertDialog>
+          <Divider />
+          <Heading size="lg">Waivers</Heading>
+          {student.waiver ? (
+            <>
+              <Alert status="success">
+                <AlertIcon />
+                Your waiver has been signed.
+              </Alert>
+              <a href={student.waiver} download="waiver.pdf">
+                <Button colorScheme="blue">Download Signed Waiver</Button>
+              </a>
+            </>
+          ) : (
+            <>
+              <Text>
+                This tournament requires waivers to be completed before you may compete. Your parent or guardian must
+                complete this waiver. The waiver will be sent directly to your parent&apos;s email for them to complete.
+                Please enter their email address below:
+              </Text>
+              <WaiverRequestForm onSubmit={handleSubmit} {...formState} />
+              <AlertDialog isOpen={isOpen} onClose={onClose}>
+                <AlertDialogOverlay>
+                  <AlertDialogContent>
+                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                      Waiver Request Sent
+                    </AlertDialogHeader>
+                    <AlertDialogBody>
+                      A waiver signature request has been sent to your parent/guardian. Please have them check their
+                      email to continue the process.
+                    </AlertDialogBody>
+                    <AlertDialogFooter>
+                      <Button colorScheme="blue" onClick={onClose}>
+                        OK
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialogOverlay>
+              </AlertDialog>
+            </>
+          )}
         </>
       )}
     </Stack>
