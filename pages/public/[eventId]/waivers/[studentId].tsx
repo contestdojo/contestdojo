@@ -9,6 +9,7 @@
 import {
   Alert,
   AlertIcon,
+  Box,
   Button,
   Modal,
   ModalBody,
@@ -86,18 +87,23 @@ const WaiverConfirmModal = ({ pdf, onCancel, onConfirm }) => {
       <ModalContent height="80%">
         <ModalHeader>Confirm Waiver Submission</ModalHeader>
         <ModalCloseButton />
-        <ModalBody height="100%">
-          <iframe width="100%" height="100%" src={`${pdf}#toolbar=0`} />
-        </ModalBody>
-
-        <ModalFooter>
-          {error && (
-            <Alert status="error" mr={3}>
+        <ModalBody display="flex" flexDir="column">
+          {error ? (
+            <Alert status="error" mb={3}>
               <AlertIcon />
               {error.message}
             </Alert>
+          ) : (
+            <Alert status="warning" mb={3}>
+              <AlertIcon />
+              Please make a final confirmation to complete your waiver submission.
+            </Alert>
           )}
 
+          <Box flex={1} as="iframe" width="100%" src={`${pdf}#toolbar=0`} />
+        </ModalBody>
+
+        <ModalFooter>
           <Button onClick={onCancel} mr={3}>
             Cancel
           </Button>
@@ -144,7 +150,13 @@ const WaiverContent = () => {
   });
 
   const handleConfirm = async () => {
-    await studentRef.update({ waiver: submittedPDF });
+    const resp = await fetch("/api/student/submit_waiver", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventId: eventRef.id, studentId, waiver: submittedPDF }),
+    });
+    if (!resp.ok) throw new Error(await resp.text());
+    setSubmittedPDF(undefined);
   };
 
   if (student.waiver) {
@@ -176,17 +188,17 @@ const WaiverContent = () => {
           }}
         >
           <WaiverEditor>{waiver}</WaiverEditor>
+          {isLoading && (
+            <Alert status="warning" mb={4}>
+              <AlertIcon />
+              You waiver is being generated. Please do not close this tab.
+            </Alert>
+          )}
           <Button type="submit" colorScheme="blue" isDisabled={!completed} isLoading={isLoading}>
             Submit
           </Button>
         </form>
-        {submittedPDF && (
-          <WaiverConfirmModal
-            pdf={submittedPDF}
-            onCancel={() => setSubmittedPDF(undefined)}
-            onConfirm={handleConfirm}
-          />
-        )}
+        <WaiverConfirmModal pdf={submittedPDF} onCancel={() => setSubmittedPDF(undefined)} onConfirm={handleConfirm} />
       </Card>
     </Stack>
   );

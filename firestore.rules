@@ -85,17 +85,6 @@ service cloud.firestore {
         allow update, delete: if (
           isEventAdmin()
           || (
-            resource.data.email == request.resource.data.email &&
-            resource.data.fname == request.resource.data.fname &&
-            resource.data.lname == request.resource.data.lname &&
-            resource.data.grade == request.resource.data.grade &&
-            resource.data.team == request.resource.data.team &&
-            resource.data.user == request.resource.data.user &&
-            resource.data.test1 == request.resource.data.test1 &&
-            resource.data.test2 == request.resource.data.test2 &&
-            resource.data.org == request.resource.data.org
-          )
-          || (
             (isOrgAdminOf(resource.data.org) || userRef() == resource.data.user)
             && notFrozenOr(resource.data.team == request.resource.data.team)
             && (
