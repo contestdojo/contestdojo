@@ -28,7 +28,7 @@ import {
   Tooltip,
   useDisclosure,
   Wrap,
-  WrapItem,
+  WrapItem
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
@@ -47,6 +47,7 @@ import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
+
 
 const StudentCard = ({ id, fname, lname, email, waiver }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -158,7 +159,7 @@ const PurchaseSeats = ({ stripeAccount }) => {
 
   return (
     <>
-      <Button colorScheme="blue" onClick={onOpen}>
+      <Button colorScheme="blue" onClick={onOpen} isDisabled>
         Purchase Seats
       </Button>
       <PurchaseSeatsModal isOpen={isOpen} onClose={onClose} onSubmit={handlePurchaseSeats} {...formState} />
