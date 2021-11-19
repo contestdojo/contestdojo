@@ -239,3 +239,7 @@ const Test = () => (
 );
 
 export default Test;
+
+Test.layoutProps = {
+  maxW: 2000,
+};

@@ -10,11 +10,11 @@ import StudentLayout from "./StudentLayout";
 
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 
-const StudentEventLayoutContent = ({ children, ...props }) => {
+const StudentEventLayoutContent = ({ children, maxW = 600, ...props }) => {
   const { data: event } = useEvent();
 
   return (
-    <Stack flex={1} spacing={6} maxW={600} mx="auto" {...props}>
+    <Stack flex={1} spacing={6} maxW={maxW} mx="auto" {...props}>
       <Heading>{event.name}</Heading>
       <Divider />
       {children}
