@@ -21,8 +21,8 @@ const EventDetails = () => {
     await eventRef.update({ frozen: e.target.checked });
   };
 
-  const handleSubmit = wrapAction(async ({ name, studentsPerTeam, description, costPerStudent, costDescription }) => {
-    await eventRef.update({ name, studentsPerTeam, description, costPerStudent, costDescription });
+  const handleSubmit = wrapAction(async (values) => {
+    await eventRef.update(Object.fromEntries(Object.entries(values).filter(([, b]) => b !== "")));
   });
 
   // Roster
@@ -32,7 +32,7 @@ const EventDetails = () => {
 
   return (
     <>
-      <Card as={Stack} spacing={4} p={4} maxWidth="2xl">
+      <Card as={Stack} spacing={4} p={4} maxWidth="xl">
         <Heading size="md">Roster</Heading>
         <HStack>
           <Switch isChecked={event.frozen} onChange={handleCheck} />
@@ -42,7 +42,7 @@ const EventDetails = () => {
           Assign/reassign Numbers
         </Button>
       </Card>
-      <Card as={Stack} spacing={4} p={4} maxWidth="2xl">
+      <Card as={Stack} spacing={4} p={4}>
         <Heading size="md">Event Details</Heading>
         <EventForm
           key={event.id}

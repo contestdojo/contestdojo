@@ -21,7 +21,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { HiUser } from "react-icons/hi";
@@ -32,7 +32,6 @@ import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import WaiverRequestForm from "~/components/forms/WaiverRequestForm";
 import { useFormState } from "~/helpers/utils";
-
 
 const Event = () => {
   const auth = useAuth();
@@ -102,7 +101,7 @@ const Event = () => {
         Click here to take your tests
       </ButtonLink>
 
-      {eventId === "IUyNeUTjRuyc7lDqSZlc" && (
+      {event.waiver && (
         <>
           <Divider />
           <Heading size="lg">Waivers</Heading>

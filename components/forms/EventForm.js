@@ -20,6 +20,7 @@ const schema = yup.object({
     value === "" ? yup.string().label("Cost per Student") : yup.number().label("Cost per Student")
   ),
   costDescription: yup.string().label("Description"),
+  waiver: yup.string().label("Waiver"),
 });
 
 const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
@@ -45,6 +46,7 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
           label="Event Name"
           placeholder="Math High School"
           error={errors.name}
+          maxW="md"
           isRequired
         />
 
@@ -55,6 +57,7 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
           label="# Students per Team"
           placeholder="8"
           error={errors.studentsPerTeam}
+          maxW="md"
           isRequired
         />
 
@@ -74,6 +77,7 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
           label="Cost per Student"
           placeholder="8"
           error={errors.costPerStudent}
+          maxW="md"
         />
 
         <FormField
@@ -83,6 +87,15 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
           label="Cost Description (markdown)"
           placeholder="Cost Description"
           error={errors.costDescription}
+        />
+
+        <FormField
+          ref={register}
+          as={ResizingTextarea}
+          name="waiver"
+          label="Waiver (markdown)"
+          placeholder="Waiver"
+          error={errors.waiver}
         />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
