@@ -86,7 +86,7 @@ const AddAnswerModal = ({ isOpen, onClose, onUpdate }) => {
   const ref = useRef();
 
   const [value, setValue] = useState("");
-  const [correct, setCorrect] = useState(false);
+  const [correct, setCorrect] = useState(true);
   const rendered = value && parser.parse(value);
 
   const handleSubmit = wrapAction(async () => {
