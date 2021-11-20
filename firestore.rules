@@ -87,14 +87,6 @@ service cloud.firestore {
           || (
             (isOrgAdminOf(resource.data.org) || userRef() == resource.data.user)
             && notFrozenOr(resource.data.team == request.resource.data.team)
-            && (
-              !("started" in resource.data)
-              || !resource.data.started
-              || (
-                resource.data.test1 == request.resource.data.test1
-                && resource.data.test2 == request.resource.data.test2
-              )
-            )
           )
         );
       }
