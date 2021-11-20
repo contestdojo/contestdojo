@@ -139,12 +139,12 @@ const Test = () => {
   const { data: submissions } = useFirestoreCollectionData(submissionsRef);
 
   const answersRef = testRef.collection("private").doc("answers");
-  const { data: answers = [] } = useFirestoreDocData(answersRef);
+  const { data: answers = {} } = useFirestoreDocData(answersRef);
 
   const [index, setIndex] = useState(0);
 
   const handleUpdate = async (toUpdate) => {
-    if (Object.keys(answers).length === 1) {
+    if (Object.keys(answers).length === 0) {
       await answersRef.set({}, { merge: true });
     }
     const args = [];
