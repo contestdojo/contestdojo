@@ -89,7 +89,7 @@ const Submissions = () => {
       key: `c${idx}`,
       renderer: rightWrongRenderer,
       skipCell: true,
-      reducer: sumReducer,
+      reducer: (arr) => sumReducer(arr.map(Boolean)),
     })),
     ...problems.map((x, idx) => ({ label: `T${idx + 1}`, key: `t${idx}`, hideByDefault: true })),
   ];
