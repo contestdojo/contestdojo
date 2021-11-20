@@ -34,13 +34,14 @@ export const useFormState = ({ multiple } = {}) => {
   const [formState, setFormState] = useState({ isLoading: false, error: null });
 
   const wrapAction =
-    (func) =>
+    (func, onSuccess) =>
     async (...args) => {
       setFormState({ isLoading: multiple ? args[0].toString() : true, error: null });
       await delay(300);
       try {
         await func(...args);
         setFormState({ isLoading: false, error: null });
+        if (onSuccess) await onSuccess();
       } catch (err) {
         setFormState({ isLoading: false, error: err });
       }

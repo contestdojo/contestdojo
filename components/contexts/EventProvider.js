@@ -21,8 +21,6 @@ const EventProvider = ({ children }) => {
   if (router.pathname.startsWith("/admin/[entityId]/smt21")) eventId = "smt21";
   if (router.pathname.startsWith("/student/smt21")) eventId = "smt21";
 
-  console.log(eventId);
-
   const eventRef = firestore.collection("events").doc(eventId);
   const { data: event } = useFirestoreDoc(eventRef);
 
@@ -42,7 +40,7 @@ const EventProvider = ({ children }) => {
     <EventContext.Provider
       value={{
         ref: eventRef,
-        data: event.data(),
+        data: { ...event.data(), id: eventId },
       }}
     >
       {children}
