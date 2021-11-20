@@ -7,7 +7,7 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useEffect, useState } from "react";
-import { useAuth, useFirestore, useFirestoreDocData, useFunctions, useUser } from "reactfire";
+import { useAuth, useFirestore, useFirestoreDocData, useUser } from "reactfire";
 
 dayjs.extend(duration);
 
@@ -51,15 +51,14 @@ export const useFormState = ({ multiple } = {}) => {
 };
 
 export const useTime = (refreshCycle = 100) => {
-  const functions = useFunctions();
-  const date = functions.httpsCallable("date");
-
   const [now, setNow] = useState(dayjs());
 
   useEffect(() => {
     (async () => {
-      const { datetime } = await date();
-      const offset = dayjs(datetime).valueOf() - dayjs().valueOf();
+      const resp = await fetch("/api/date");
+      if (!resp.ok) alert("internal error");
+      const datetime = await resp.text();
+      const offset = datetime - Date.now();
       const intervalId = setInterval(() => {
         setNow(dayjs().add(offset, "ms"));
       }, refreshCycle);
