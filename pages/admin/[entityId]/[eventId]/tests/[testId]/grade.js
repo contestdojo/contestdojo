@@ -14,27 +14,38 @@ import { useFormState } from "~/helpers/utils";
 
 const Answer = ({ text, correct, count, onUpdate }) => {
   return (
-    <WrapItem as={Card} flex={1} maxW="md" flexBasis={300} backgroundColor={correct === undefined && "orange.100"}>
+    <WrapItem
+      as={Card}
+      flex={1}
+      maxW="md"
+      flexBasis={300}
+      minH="16"
+      borderColor={correct === true ? "green.500" : correct === false ? "red.500" : undefined}
+      backgroundColor={correct === true ? "green.50" : correct === false ? "red.50" : undefined}
+      overflow="hidden"
+    >
       <HStack p={3} flex="1">
         <TeX math={text} />
         <Text color={correct === undefined ? "gray.500" : "gray.300"}>&times;{count}</Text>
       </HStack>
-      <Stack spacing={0}>
+      <Stack spacing={0} height="100%">
         <IconButton
+          flex={1}
           size="sm"
+          variant="ghost"
           colorScheme={correct === true ? "green" : undefined}
           icon={<HiCheck />}
           onClick={() => onUpdate(true)}
-          borderLeftRadius={0}
-          borderBottomRightRadius={0}
+          borderRadius={0}
         />
         <IconButton
+          flex={1}
           size="sm"
+          variant="ghost"
           colorScheme={correct === false ? "red" : undefined}
           icon={<HiX />}
           onClick={() => onUpdate(false)}
-          borderLeftRadius={0}
-          borderTopRightRadius={0}
+          borderRadius={0}
         />
       </Stack>
     </WrapItem>
