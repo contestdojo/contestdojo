@@ -1,8 +1,34 @@
-import { Button, Divider, Heading, HStack, IconButton, Stack, Text, Wrap, WrapItem } from "@chakra-ui/react";
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+/* Copyright (c) 2021 Oliver Ni */
+
+import {
+  Button,
+  Checkbox,
+  Divider,
+  Heading,
+  HStack,
+  IconButton,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  Text,
+  useDisclosure,
+  Wrap,
+  WrapItem,
+} from "@chakra-ui/react";
 import TeX from "@matejmazur/react-katex";
 import firebase from "firebase";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HiCheck, HiX } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
 import { useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
@@ -10,7 +36,10 @@ import { useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "r
 import BlankCard from "~/components/BlankCard";
 import Card from "~/components/Card";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
+import AsciiMathParser from "~/helpers/asciimath2tex";
 import { useFormState } from "~/helpers/utils";
+
+const parser = new AsciiMathParser();
 
 const Answer = ({ text, correct, count, onUpdate }) => {
   return (
@@ -52,7 +81,65 @@ const Answer = ({ text, correct, count, onUpdate }) => {
   );
 };
 
+const AddAnswerModal = ({ isOpen, onClose, onUpdate }) => {
+  const [{ isLoading, error }, wrapAction] = useFormState();
+  const ref = useRef();
+
+  const [value, setValue] = useState("");
+  const [correct, setCorrect] = useState(false);
+  const rendered = value && parser.parse(value);
+
+  const handleSubmit = wrapAction(async () => {
+    await onUpdate({ [rendered]: correct });
+    onClose();
+  });
+
+  return (
+    <Modal isOpen={isOpen} initialFocusRef={ref} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add Answer</ModalHeader>
+        <ModalCloseButton />
+
+        <ModalBody>
+          <form
+            id="add-answer"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+          >
+            <Stack spacing={4}>
+              <Input
+                value={value ?? ""}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="Enter math..."
+                isRequired
+              />
+              {rendered && <TeX math={rendered} />}
+              <Checkbox isChecked={correct} onChange={(e) => setCorrect(e.target.checked)}>
+                Correct
+              </Checkbox>
+            </Stack>
+          </form>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button type="submit" form="add-answer" colorScheme="blue" isLoading={isLoading} mr={3}>
+            Save
+          </Button>
+          <Button ref={ref} onClick={onClose}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
 const Problem = ({ text, idx, answers, correct, onUpdate }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const { eventId, testId } = useRouter().query;
   const [state, setState] = useState(text);
   const [{ isLoading }, wrapAction] = useFormState();
@@ -106,6 +193,9 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
         <Heading size="md" flex="1">
           Answers
         </Heading>
+        <Button onClick={onOpen} isLoading={isLoading}>
+          Add Answer
+        </Button>
         <Button onClick={handleMarkRest} isLoading={isLoading}>
           Mark Rest Incorrect
         </Button>
@@ -125,6 +215,7 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
         ))}
         {shownAnswers.length === 0 && <BlankCard>Answers will appear here</BlankCard>}
       </Wrap>
+      <AddAnswerModal isOpen={isOpen} onClose={onClose} onUpdate={onUpdate} />
     </Stack>
   );
 };
