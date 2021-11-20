@@ -133,25 +133,30 @@ exports.startTest = functions.https.onCall(
     const submissionSnapshot = await submissionRef.get();
 
     if (!submissionSnapshot.exists) {
+      if (studentData.nextSelectedStart && now < studentData.nextSelectedStart.toDate()) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "You already have another selected event in progress."
+        );
+      }
+
+      const endTime = admin.firestore.Timestamp.fromDate(
+        new Date(Math.min(testData.closeTime.seconds * 1000, now.getTime() + testData.duration * 1000))
+      );
+
       await submissionRef.set({
         startTime: admin.firestore.Timestamp.fromDate(now),
-        endTime: admin.firestore.Timestamp.fromDate(
-          new Date(Math.min(testData.closeTime.seconds * 1000, now.getTime() + testData.duration * 1000))
-        ),
+        endTime: endTime,
       });
-    }
 
-    if (eventData.testSelection && Object.keys(eventData.testSelection).includes(testId)) {
-      await studentRef.update({ startedSelected: true });
+      if (eventData.testSelection && Object.keys(eventData.testSelection).includes(testId)) {
+        await studentRef.update({ startedSelected: true, nextSelectedStart: endTime });
+      }
     }
 
     return { status: "success" };
   })
 );
-
-exports.date = functions.https.onCall(() => {
-  return { datetime: new Date().toISOString() };
-});
 
 exports.gradeTests = functions.https.onCall(
   requireAuth("admin", async ({ eventId, testId, problemIdx }, context) => {

@@ -6,6 +6,8 @@
 
 import { Alert, AlertIcon, Box, Button, Checkbox, Divider, Heading, HStack, Stack, Text } from "@chakra-ui/react";
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+import minMax from "dayjs/plugin/minMax";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
@@ -23,13 +25,20 @@ import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useFormState, useTime } from "~/helpers/utils";
 
-const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time }) => {
+dayjs.extend(minMax);
+dayjs.extend(duration);
+
+const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time, closeTime }) => {
   const [openDialog] = useDialog();
   const { ref: eventRef } = useEvent();
 
   const sid = team ? student.team.id : student.id;
   const submissionRef = eventRef.collection("tests").doc(id).collection("submissions").doc(sid);
   const { data: submission } = useFirestoreDoc(submissionRef);
+
+  const endTime = dayjs.min(dayjs.unix(closeTime.seconds), time.add(duration, "seconds"));
+  const dur = dayjs.duration(endTime.diff(time));
+  const mins = dur.asMinutes().toFixed(0);
 
   const handleClick = () => {
     if (submission.exists) {
@@ -39,8 +48,8 @@ const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time 
         type: "confirm",
         title: "Are you sure?",
         description: team
-          ? "By starting the test, your timer will begin for the entire team. Please communicate with your team members to ensure you are ready."
-          : "By starting the test, your timer will begin. Please ensure you are ready.",
+          ? `By starting the test, your timer will begin for the entire team. You will have ${mins} minutes to complete the test. Please communicate with your team members to ensure you are ready.`
+          : `By starting the test, your timer will begin. You will have ${mins} minutes to complete the test. Please ensure you are ready.`,
         onConfirm: onStart,
       });
     }
