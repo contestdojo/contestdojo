@@ -116,8 +116,8 @@ exports.startTest = functions.https.onCall(
     const testData = testSnapshot.data();
     const uid = context.auth.uid;
 
-    const openTime = testSnapshot.data()?.openTime?.toDate();
-    const closeTime = testSnapshot.data()?.closeTime?.toDate();
+    const openTime = testData?.openTime?.toDate();
+    const closeTime = testData?.closeTime?.toDate();
     const now = new Date();
 
     const studentRef = eventRef.collection("students").doc(uid);
@@ -150,7 +150,7 @@ exports.startTest = functions.https.onCall(
       });
 
       if (eventData.testSelection && Object.keys(eventData.testSelection).includes(testId)) {
-        await studentRef.update({ startedSelected: true, nextSelectedStart: endTime });
+        await studentRef.update({ startedSelected: true, nextSelectedStart: testData.closeTime });
       }
     }
 
