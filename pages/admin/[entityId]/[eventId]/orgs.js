@@ -4,13 +4,16 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
+import { Button } from "@chakra-ui/react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 
 import AdminTableView, { addRemoveRenderer, sumReducer, updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
-import { toDict } from "~/helpers/utils";
+import { toDict, useImpersonate } from "~/helpers/utils";
 
 const OrgsTable = ({ orgs, onUpdate }) => {
+  const impersonate = useImpersonate();
+
   const cols = [
     { label: "ID", key: "id", hideByDefault: true },
     { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
@@ -24,6 +27,17 @@ const OrgsTable = ({ orgs, onUpdate }) => {
       reducer: sumReducer,
     },
     { label: "Notes", key: "notes", renderer: updateRenderer(onUpdate, "notes") },
+    {
+      label: "Impersonate",
+      key: "impersonate",
+      renderer: (_, row) => (
+        <Button variant="outline" size="xs" onClick={() => impersonate(row.adminId)}>
+          Impersonate
+        </Button>
+      ),
+      hideInCsv: true,
+      hideByDefault: true,
+    },
   ];
 
   const rows = orgs.map((x) => ({
@@ -32,6 +46,7 @@ const OrgsTable = ({ orgs, onUpdate }) => {
     address: `${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`,
     admin: `${x.adminData?.fname} ${x.adminData?.lname}`,
     adminEmail: x.adminData?.email,
+    adminId: x.admin.id,
     maxStudents: x.maxStudents ?? 0,
     notes: x.notes ?? "",
   }));

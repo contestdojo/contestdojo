@@ -138,7 +138,7 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder
         </Box>
         <Tooltip label="CSV file will be unsorted and contain all fields regardless of selected values.">
           <Button colorScheme="blue">
-            <CSVLink data={rows} headers={cols} filename={filename}>
+            <CSVLink data={rows} headers={cols.filter((x) => !x.hideInCsv)} filename={filename}>
               Download CSV
             </CSVLink>
           </Button>

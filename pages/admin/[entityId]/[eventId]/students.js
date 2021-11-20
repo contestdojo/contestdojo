@@ -4,12 +4,13 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { IconButton } from "@chakra-ui/react";
+import { Button, IconButton } from "@chakra-ui/react";
 import { HiDownload } from "react-icons/hi";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 
 import AdminTableView, { countReducer, updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
+import { useImpersonate } from "~/helpers/utils";
 
 const toDict = (obj, x) => {
   obj[x.id] = { ...x, ...obj[x.id] };
@@ -17,6 +18,8 @@ const toDict = (obj, x) => {
 };
 
 const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
+  const impersonate = useImpersonate();
+
   const cols = [
     { label: "ID", key: "id", hideByDefault: true },
     { label: "Number", key: "number" },
@@ -42,8 +45,20 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
           </a>
         ) : null,
       reducer: countReducer,
+      hideInCsv: true,
     },
     { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
+    {
+      label: "Impersonate",
+      key: "impersonate",
+      renderer: (_, row) => (
+        <Button variant="outline" size="xs" onClick={() => impersonate(row.id)}>
+          Impersonate
+        </Button>
+      ),
+      hideInCsv: true,
+      hideByDefault: true,
+    },
   ];
 
   const rows = students.map((x) => {
