@@ -111,6 +111,7 @@ const AddAnswerModal = ({ isOpen, onClose, onUpdate }) => {
           >
             <Stack spacing={4}>
               <Input
+                ref={ref}
                 value={value ?? ""}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="Enter math..."
@@ -128,9 +129,7 @@ const AddAnswerModal = ({ isOpen, onClose, onUpdate }) => {
           <Button type="submit" form="add-answer" colorScheme="blue" isLoading={isLoading} mr={3}>
             Save
           </Button>
-          <Button ref={ref} onClick={onClose}>
-            Cancel
-          </Button>
+          <Button onClick={onClose}>Cancel</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
