@@ -123,6 +123,8 @@ const TestsTab = () => {
   let testsById = tests.reduce(toDict, {});
   const [formState, wrapAction] = useFormState();
 
+  tests.sort((a, b) => a.name.localeCompare(b.name));
+
   const handleOpenTest = (test) => async () => {
     const now = dayjs();
     const closeTime = now.add(test.duration, "seconds").add(test.type === "guts" ? 0 : 5, "minutes");
@@ -148,7 +150,7 @@ const TestsTab = () => {
 
   return (
     <Stack spacing={4}>
-      {Object.values(testsById).map((x) => (
+      {tests.map((x) => (
         <TestCard key={x.id} {...x} time={time} onOpen={handleOpenTest(x)} onDelete={handleDeleteTest(x)} />
       ))}
       <Card as={Stack} spacing={4} p={4} maxW="md">
