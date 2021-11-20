@@ -153,7 +153,7 @@ const WaiverContent = () => {
           {isLoading && (
             <Alert status="warning" mb={4}>
               <AlertIcon />
-              You waiver is being generated. Please do not close this tab.
+              Your waiver is being generated. Please do not close this tab.
             </Alert>
           )}
           <Button type="submit" colorScheme="blue" isDisabled={!completed} isLoading={isLoading}>
