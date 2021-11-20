@@ -181,6 +181,23 @@ const Tests = () => {
     router.push(`/student/${event.id}/tests/${testId}`);
   });
 
+  // Waiver
+
+  if (event.waiver && !student.waiver) {
+    return (
+      <>
+        <Alert status="error">
+          <AlertIcon />
+          You must complete your waiver prior to taking tests.
+        </Alert>
+
+        <ButtonLink href={`/student/${event.id}`} colorScheme="blue" alignSelf="flex-start">
+          Back to {event.name}
+        </ButtonLink>
+      </>
+    );
+  }
+
   return (
     <Stack spacing={4} maxW={600} mx="auto">
       {error && (

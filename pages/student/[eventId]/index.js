@@ -97,7 +97,12 @@ const Event = () => {
         </Card>
       )}
 
-      <ButtonLink href={`/student/${eventId}/tests`} colorScheme="blue" size="lg">
+      <ButtonLink
+        href={event.waiver && !student.waiver ? "#" : `/student/${eventId}/tests`}
+        colorScheme="blue"
+        size="lg"
+        isDisabled={event.waiver && !student.waiver}
+      >
         Click here to take your tests
       </ButtonLink>
 
