@@ -158,7 +158,12 @@ const Tests = () => {
   const testsById = tests.reduce(toDict, {});
 
   let displayTests = tests.filter(
-    (x) => x.openTime && !x.hide && x.openTime.toDate() < time.toDate() && time.toDate() < x.closeTime.toDate()
+    (x) =>
+      x.openTime &&
+      !x.hide &&
+      x.openTime.toDate() < time.toDate() &&
+      time.toDate() < x.closeTime.toDate() &&
+      (!x.authorizedIds || x.authorizedIds.includes(student.id))
   );
 
   // Test Selection
