@@ -22,19 +22,20 @@ const COLORS = {
   correct: "green",
   incorrect: "red",
   ungraded: "orange",
+  blank: "gray",
 };
 
 const ICONS = {
   correct: HiCheck,
   incorrect: HiX,
   ungraded: HiMinus,
+  blank: HiMinus,
 };
 
 const rightWrongRenderer = (val) => {
-  console.log(val);
-  const status = val > 0 ? "correct" : val === 0 ? "incorrect" : "ungraded";
+  const status = val > 0 ? "correct" : val === 0 ? "incorrect" : val === null ? "ungraded" : "blank";
   return (
-    <Td background={COLORS[status] + ".100"}>
+    <Td background={status === "blank" ? undefined : COLORS[status] + ".100"}>
       <Icon as={ICONS[status]} color={COLORS[status]} />
     </Td>
   );
@@ -94,15 +95,14 @@ const Submissions = () => {
   ];
 
   const rows = submissions.map((s) => {
-    console.log(s);
     const startTime = dayjs(s.startTime.toDate());
     const answers = problems.map((x, idx) => [idx, s[idx] ?? null]);
-    const correct = problems.map((x, idx) => [`c${idx}`, gradedById[s.id]?.[idx] ?? null]);
+    const correct = problems.map((x, idx) => [`c${idx}`, s[idx] ? gradedById[s.id]?.[idx] ?? null : undefined]);
     const times = problems.map((x, idx) => [
       `t${idx}`,
       s[`${idx}t`] && dayjs.duration(dayjs(s[`${idx}t`].toDate()).diff(startTime)).format("HH:mm:ss"),
     ]);
-    const total = sumReducer(correct.map(([idx, x]) => x));
+    const total = sumReducer(correct.map(([idx, x]) => Boolean(x)));
 
     return {
       id: s.id,
