@@ -10,14 +10,7 @@ import duration from "dayjs/plugin/duration";
 import minMax from "dayjs/plugin/minMax";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import {
-  useAuth,
-  useFirestoreCollectionData,
-  useFirestoreDoc,
-  useFirestoreDocData,
-  useFunctions,
-  useUser,
-} from "reactfire";
+import { useAuth, useFirestoreCollectionData, useFirestoreDoc, useFirestoreDocData, useUser } from "reactfire";
 
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
@@ -185,13 +178,16 @@ const Tests = () => {
 
   // Start Test
 
-  const functions = useFunctions();
-  const startTest = functions.httpsCallable("startTest");
-
   const [{ isLoading, error }, wrapAction] = useFormState({ multiple: true });
 
   const handleStartTest = wrapAction(async (testId) => {
-    await startTest({ eventId: event.id, testId });
+    console.log(testId);
+    const authorization = await auth.currentUser.getIdToken();
+    const resp = await fetch(`/api/student/${event.id}/tests/${testId}/start`, {
+      method: "POST",
+      headers: { authorization },
+    });
+    if (!resp.ok) throw new Error(await resp.text());
     router.push(`/student/${event.id}/tests/${testId}`);
   });
 
