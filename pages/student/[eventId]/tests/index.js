@@ -65,7 +65,7 @@ const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time 
   );
 };
 
-const TestSelection = ({ testsById, testSelection, currentSelection, testSelectionMax, onUpdate }) => {
+const TestSelection = ({ testsById, testSelection, currentSelection, testSelectionMax, disabled, onUpdate }) => {
   const [formState, wrapAction] = useFormState();
   const [edited, setEdited] = useState(false);
   const [selection, setSelection] = useState({});
@@ -111,7 +111,7 @@ const TestSelection = ({ testsById, testSelection, currentSelection, testSelecti
             colorScheme="blue"
             isChecked={!!selection[id]}
             onChange={handleChange(id)}
-            isDisabled={!selection[id] && totalWeight + weight > testSelectionMax}
+            isDisabled={disabled || (!selection[id] && totalWeight + weight > testSelectionMax)}
           >
             {testsById[id].name}
             {weight !== 1 && <> ({weight} slots)</>}
@@ -196,6 +196,7 @@ const Tests = () => {
           currentSelection={student.testSelection}
           testSelectionMax={event.testSelectionMax ?? 0}
           testsById={testsById}
+          disabled={!!student.startedSelected}
           onUpdate={handleTestSelectionUpdate}
         />
       )}
