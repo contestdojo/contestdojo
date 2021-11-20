@@ -14,13 +14,14 @@ import { useFormState } from "~/helpers/utils";
 
 const Answer = ({ text, correct, count, onUpdate }) => {
   return (
-    <WrapItem as={Card} flex={1} maxW="md" flexBasis={200} backgroundColor={correct === undefined && "orange.100"}>
-      <HStack p={4} flex="1">
-        {text.startsWith("<math>") ? <MathJax math={text} /> : <TeX math={text} />}
+    <WrapItem as={Card} flex={1} maxW="md" flexBasis={300} backgroundColor={correct === undefined && "orange.100"}>
+      <HStack p={3} flex="1">
+        <TeX math={text} />
         <Text color={correct === undefined ? "gray.500" : "gray.300"}>&times;{count}</Text>
       </HStack>
       <Stack spacing={0}>
         <IconButton
+          size="sm"
           colorScheme={correct === true ? "green" : undefined}
           icon={<HiCheck />}
           onClick={() => onUpdate(true)}
@@ -28,6 +29,7 @@ const Answer = ({ text, correct, count, onUpdate }) => {
           borderBottomRightRadius={0}
         />
         <IconButton
+          size="sm"
           colorScheme={correct === false ? "red" : undefined}
           icon={<HiX />}
           onClick={() => onUpdate(false)}
@@ -86,7 +88,7 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
     <Stack spacing={4} flex="1">
       <Card as={Stack} p={4} spacing={4}>
         <Heading size="md">Problem {idx + 1}</Heading>
-        <MathJax math={state} msDelayDisplay={0} />
+        <MathJax key={state} math={state} msDelayDisplay={200} />
       </Card>
       <Divider />
       <HStack>
@@ -137,7 +139,7 @@ const Test = () => {
   const { data: submissions } = useFirestoreCollectionData(submissionsRef);
 
   const answersRef = testRef.collection("private").doc("answers");
-  const { data: answers } = useFirestoreDocData(answersRef);
+  const { data: answers = [] } = useFirestoreDocData(answersRef);
 
   const [index, setIndex] = useState(0);
 
@@ -159,13 +161,15 @@ const Test = () => {
       <Stack direction="row" spacing={4} flex="1">
         <Navigation selected={index} total={problems.length} onSelect={setIndex} />
         <Divider orientation="vertical" />
-        <Problem
-          text={problems[index]}
-          idx={index}
-          answers={submissions.map((x) => x[`${index}r`])}
-          correct={answers[index] ?? {}}
-          onUpdate={handleUpdate}
-        />
+        {problems.length > 0 && (
+          <Problem
+            text={problems[index]}
+            idx={index}
+            answers={submissions.map((x) => x[`${index}r`])}
+            correct={answers[index] ?? {}}
+            onUpdate={handleUpdate}
+          />
+        )}
       </Stack>
     </Stack>
   );
