@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { HiCheck, HiMinus, HiX } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
-import { useFirestoreCollectionData, useFunctions } from "reactfire";
+import { useAuth, useFirestoreCollectionData } from "reactfire";
 
 import AdminTableView, { sumReducer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
@@ -42,7 +42,7 @@ const rightWrongRenderer = (val) => {
 };
 
 const Submissions = () => {
-  const { ref: eventRef } = useEvent();
+  const { ref: eventRef, data: event } = useEvent();
   const { eventId, testId } = useRouter().query;
   const {
     ref: testRef,
@@ -68,12 +68,15 @@ const Submissions = () => {
   const teamsById = teams.reduce(toDict, {});
 
   // funcs
-  const functions = useFunctions();
-  const gradeTests = functions.httpsCallable("gradeTests");
+  const auth = useAuth();
   const [{ isLoading }, wrapAction] = useFormState();
 
   const handleClick = wrapAction(async () => {
-    await gradeTests({ eventId, testId });
+    const authorization = await auth.currentUser.getIdToken();
+    await fetch(`/api/admin/${event.owner.id}/${eventId}/tests/${testId}/grade`, {
+      method: "POST",
+      headers: { authorization },
+    });
   });
 
   // Make table

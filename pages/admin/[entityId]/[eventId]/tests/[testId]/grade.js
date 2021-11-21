@@ -31,10 +31,11 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { HiCheck, HiX } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
-import { useFirestoreCollectionData, useFirestoreDocData, useFunctions } from "reactfire";
+import { useAuth, useFirestoreCollectionData, useFirestoreDocData } from "reactfire";
 
 import BlankCard from "~/components/BlankCard";
 import Card from "~/components/Card";
+import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import AsciiMathParser from "~/helpers/asciimath2tex";
 import { useFormState } from "~/helpers/utils";
@@ -138,14 +139,14 @@ const AddAnswerModal = ({ isOpen, onClose, onUpdate }) => {
 
 const Problem = ({ text, idx, answers, correct, onUpdate }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data: event } = useEvent();
 
   const { eventId, testId } = useRouter().query;
   const [state, setState] = useState(text);
   const [{ isLoading }, wrapAction] = useFormState();
   const [gradeLoading, setGradeLoading] = useState(false);
 
-  const functions = useFunctions();
-  const gradeTests = functions.httpsCallable("gradeTests");
+  const auth = useAuth();
 
   const answersMap = {};
   for (const ans of Object.keys(correct)) {
@@ -177,7 +178,12 @@ const Problem = ({ text, idx, answers, correct, onUpdate }) => {
 
   const handleRegrade = async () => {
     setGradeLoading(true);
-    await gradeTests({ eventId, testId, problemIdx: idx });
+    const authorization = await auth.currentUser.getIdToken();
+    await fetch(`/api/admin/${event.owner.id}/${eventId}/tests/${testId}/grade`, {
+      method: "POST",
+      headers: { authorization, "Content-Type": "application/json" },
+      body: JSON.stringify({ problemIdx: idx }),
+    });
     setGradeLoading(false);
   };
 

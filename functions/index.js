@@ -163,28 +163,29 @@ exports.gradeTests = functions.https.onCall(
     const testRef = db.collection("events").doc(eventId).collection("tests").doc(testId);
     const gradedSubmissionsRef = testRef.collection("graded");
 
-    await db.runTransaction(async (t) => {
-      const answersSnapshot = await t.get(testRef.collection("private").doc("answers"));
-      let answers = Object.entries(answersSnapshot.data());
+    const answersSnapshot = await testRef.collection("private").doc("answers").get();
+    const submissionsSnapshot = await testRef.collection("submissions").get();
+    let answers = Object.entries(answersSnapshot.data());
+    if (problemIdx !== undefined) answers = answers.filter(([idx]) => idx === problemIdx.toString());
 
-      if (problemIdx !== undefined) {
-        answers = answers.filter(([idx]) => idx === problemIdx.toString());
-      }
+    // Write batches
 
-      const submissionsSnapshot = await t.get(testRef.collection("submissions"));
-      for (const s of submissionsSnapshot.docs) {
-        const submission = s.data();
-        const graded = {};
-        for (const [idx, problem] of answers) {
-          if (problem.hasOwnProperty(submission[`${idx}r`])) {
-            graded[idx] = Number(problem[submission[`${idx}r`]]);
-          } else {
-            graded[idx] = null;
-          }
+    const batches = [db.batch()];
+    let count = 0;
+
+    for (const s of submissionsSnapshot.docs) {
+      const submission = s.data();
+      const graded = {};
+      for (const [idx, problem] of answers) {
+        if (problem.hasOwnProperty(submission[`${idx}r`])) {
+          graded[idx] = Number(problem[submission[`${idx}r`]]);
+        } else {
+          graded[idx] = null;
         }
-        t.set(gradedSubmissionsRef.doc(s.id), graded, { merge: true });
       }
-    });
+      batches[batches.length - 1].set(gradedSubmissionsRef.doc(s.id), graded, { merge: true });
+      count++;
+    }
 
     return { status: "success" };
   })
