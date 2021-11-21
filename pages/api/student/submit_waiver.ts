@@ -16,12 +16,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (typeof studentId !== "string") return res.status(400).end();
   if (typeof waiver !== "string") return res.status(400).end();
 
-  const file = storage.file(`/events/${eventId}/waivers/${studentId}.pdf`);
+  const file = storage.file(`events/${eventId}/waivers/${studentId}.pdf`);
   const buffer = Buffer.from(waiver.replace(/^data:\w+\/\w+;base64,/, ""), "base64");
   await file.save(buffer, { contentType: "application/pdf" });
 
   const studentRef = firestore.collection("events").doc(eventId).collection("students").doc(studentId);
-  await studentRef.update({ waiver: `/events/${eventId}/waivers/${studentId}.pdf` });
+  await studentRef.update({ waiver: `events/${eventId}/waivers/${studentId}.pdf` });
 
   res.status(204).end();
 };
