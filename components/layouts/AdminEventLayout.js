@@ -32,7 +32,7 @@ const AdminEventLayoutContent = ({ children }) => {
   return (
     <Stack spacing={6} flex={1} minWidth={0}>
       <Heading>{event.name}</Heading>
-      <Tabs index={index} onChange={(i) => router.push(`/admin/${entityId}/${eventId}/${tabs[i].route}`)}>
+      <Tabs isManual index={index} onChange={(i) => router.push(`/admin/${entityId}/${eventId}/${tabs[i].route}`)}>
         <TabList>
           {tabs.map((x) => (
             <Tab key={x.route}>{x.name}</Tab>
