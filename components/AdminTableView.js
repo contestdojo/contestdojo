@@ -94,7 +94,7 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder
       const mult = sortOrder === "asc" ? 1 : -1;
       return av > bv ? mult : -mult;
     });
-  }, [sortBy, sortOrder]);
+  }, [rows, sortBy, sortOrder]);
 
   return (
     <Stack spacing={4} position="relative">
