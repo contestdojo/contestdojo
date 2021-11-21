@@ -22,7 +22,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
 
   const cols = [
     { label: "ID", key: "id", hideByDefault: true },
-    { label: "Number", key: "number" },
+    { label: "Number", key: "number", renderer: updateRenderer(onUpdate, "number") },
     {
       label: "Name",
       key: "name",
