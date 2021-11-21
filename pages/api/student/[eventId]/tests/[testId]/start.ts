@@ -47,6 +47,10 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
     return res.status(400).send("You are not authorized to start this test.");
   }
 
+  if (!studentData.team) {
+    return res.status(400).send("You must be placed on a team before starting a test.");
+  }
+
   const submissionId = testData.team ? studentData.team.id : uid;
   const submissionRef = testRef.collection("submissions").doc(submissionId);
   const submissionSnapshot = await submissionRef.get();
