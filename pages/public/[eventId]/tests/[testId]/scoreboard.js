@@ -62,7 +62,7 @@ const TestContent = () => {
   }
 
   return (
-    <Stack spacing={8}>
+    <Stack spacing={8} maxW="6xl" mx="auto" p={8}>
       <VStack spacing={4}>
         <Heading size="lg">{test.name}</Heading>
         <Heading size="2xl">{timer}</Heading>
