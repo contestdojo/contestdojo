@@ -33,7 +33,7 @@ export const DialogContainer = ({ type, title, description, isOpen, onClose, onC
           <AlertDialogHeader fontSize="lg" fontWeight="bold">
             {title}
           </AlertDialogHeader>
-          <AlertDialogBody>{description}</AlertDialogBody>
+          <AlertDialogBody dangerouslySetInnerHTML={{ __html: description }} />
           <AlertDialogFooter>
             {type === "alert" ? (
               <Button colorScheme="blue" ref={ref} onClick={onClose}>

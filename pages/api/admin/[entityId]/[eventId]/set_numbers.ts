@@ -45,7 +45,6 @@ const handler = withFirebaseAuth(async (req, res) => {
 
   for (const student of students.docs) {
     if (!student.data().team) continue;
-    console.log(count);
 
     const team = teamsById.get(student.data().team.id);
     const idx = team._idx ?? 0;

@@ -39,6 +39,14 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
     return res.status(400).send("This test is not open.");
   }
 
+  if (
+    testData.authorizedIds &&
+    !testData.authorizedIds.includes(uid) &&
+    !(studentData.number && testData.authorizedIds.includes(studentData.number))
+  ) {
+    return res.status(400).send("You are not authorized to start this test.");
+  }
+
   const submissionId = testData.team ? studentData.team.id : uid;
   const submissionRef = testRef.collection("submissions").doc(submissionId);
   const submissionSnapshot = await submissionRef.get();

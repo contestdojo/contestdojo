@@ -4,12 +4,27 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Alert, AlertIcon, Box, Button, Checkbox, Divider, Heading, HStack, Stack, Text } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  Flex,
+  Heading,
+  HStack,
+  Icon,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import minMax from "dayjs/plugin/minMax";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { HiCheck } from "react-icons/hi";
 import { useAuth, useFirestoreCollectionData, useFirestoreDoc, useFirestoreDocData, useUser } from "reactfire";
 
 import ButtonLink from "~/components/ButtonLink";
@@ -18,10 +33,11 @@ import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useFormState, useTime } from "~/helpers/utils";
 
+dayjs.extend(relativeTime);
 dayjs.extend(minMax);
 dayjs.extend(duration);
 
-const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time, closeTime }) => {
+const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time, openTime, closeTime }) => {
   const [openDialog] = useDialog();
   const { ref: eventRef } = useEvent();
 
@@ -29,40 +45,82 @@ const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time,
   const submissionRef = eventRef.collection("tests").doc(id).collection("submissions").doc(sid);
   const { data: submission } = useFirestoreDoc(submissionRef);
 
-  const endTime = dayjs.min(dayjs.unix(closeTime.seconds), time.add(duration, "seconds"));
-  const dur = dayjs.duration(endTime.diff(time));
-  const mins = dur.asMinutes().toFixed(0);
-
   const handleClick = () => {
     if (submission.exists) {
-      onStart();
-    } else {
-      openDialog({
-        type: "confirm",
-        title: "Are you sure?",
-        description: team
-          ? `By starting the test, your timer will begin for the entire team. You will have ${mins} minutes to complete the test. Please communicate with your team members to ensure you are ready.`
-          : `By starting the test, your timer will begin. You will have ${mins} minutes to complete the test. Please ensure you are ready.`,
-        onConfirm: onStart,
-      });
+      return onStart();
     }
+
+    const endTime = dayjs.min(dayjs.unix(closeTime.seconds), time.add(duration, "seconds"));
+    const dur = dayjs.duration(endTime.diff(time));
+
+    const description = `
+        By starting the test, your timer will begin. You will have
+        <b style="color: red;">${dur.humanize()}</b> to complete the test.
+        Please ensure you are ready.
+      `;
+
+    if (team) description = description.replace("your timer will begin", "your timer will begin for the entire team");
+
+    if (dur.asSeconds() < duration / 2) {
+      description += `
+          <br><br><b style="color: red;">
+            The testing window is already more than halfway over.
+            Please double check to make sure you are testing in the intended window.
+          </b>
+        `;
+    }
+
+    openDialog({
+      type: "confirm",
+      title: "Are you sure?",
+      description,
+      onConfirm: onStart,
+    });
   };
 
-  let finished = false;
+  if (name.includes("Algebra") && openTime) console.log(openTime.toDate(), time.toDate(), closeTime.toDate());
+
+  const open = openTime && closeTime && openTime.toDate() < time.toDate() && time.toDate() < closeTime.toDate();
+  let children = "";
+  let order = 0;
+
   if (submission.exists) {
-    const endTime = dayjs(submission.data().endTime.toDate());
-    finished = time.isAfter(endTime);
+    if (time.toDate() > submission.data().endTime.toDate()) {
+      order = 100;
+      children = <Icon as={HiCheck} color="green.500" fontSize="2xl" />;
+    } else {
+      order = -200;
+      children = (
+        <Button size="sm" colorScheme="blue" onClick={handleClick} isLoading={isLoading === id}>
+          Resume
+        </Button>
+      );
+    }
+  } else if (!open) {
+    order = 50;
+    children = (
+      <Button size="sm" disabled>
+        Not Open
+      </Button>
+    );
+  } else {
+    order = -100;
+    children = (
+      <Button size="sm" colorScheme="blue" onClick={handleClick} isLoading={isLoading === id}>
+        Start
+      </Button>
+    );
   }
 
   return (
-    <Card as={HStack} p={4} key={id}>
+    <Card as={HStack} p={3} my={2} key={id} order={order}>
       <Box flex="1">
-        <Heading size="md">{name}</Heading>
-        <Text color="gray.500">Duration: {duration / 60} minutes</Text>
+        <Heading size="sm">{name}</Heading>
+        <Text color="gray.500" fontSize="sm">
+          Duration: {duration / 60} minutes
+        </Text>
       </Box>
-      <Button colorScheme="blue" onClick={handleClick} isLoading={isLoading === id} disabled={finished}>
-        {finished ? "Submitted" : submission.exists ? "Resume" : "Start"}
-      </Button>
+      {children}
     </Card>
   );
 };
@@ -152,11 +210,10 @@ const Tests = () => {
 
   let displayTests = tests.filter(
     (x) =>
-      x.openTime &&
-      !x.hide &&
-      x.openTime.toDate() < time.toDate() &&
-      time.toDate() < x.closeTime.toDate() &&
-      (!x.authorizedIds || x.authorizedIds.includes(student.id))
+      // !x.hide &&
+      !x.authorizedIds ||
+      x.authorizedIds.includes(student.id) ||
+      (student.number && x.authorizedIds.includes(student.number))
   );
 
   // Test Selection
@@ -165,6 +222,8 @@ const Tests = () => {
     const indivTests = Object.keys(event.testSelection);
     displayTests = displayTests.filter((x) => !indivTests.includes(x.id) || student.testSelection?.includes(x.id));
   }
+
+  displayTests.sort((a, b) => a.name.localeCompare(b.name));
 
   const handleTestSelectionUpdate = async (selection) => {
     const authorization = await auth.currentUser.getIdToken();
@@ -181,7 +240,6 @@ const Tests = () => {
   const [{ isLoading, error }, wrapAction] = useFormState({ multiple: true });
 
   const handleStartTest = wrapAction(async (testId) => {
-    console.log(testId);
     const authorization = await auth.currentUser.getIdToken();
     const resp = await fetch(`/api/student/${event.id}/tests/${testId}/start`, {
       method: "POST",
@@ -236,16 +294,20 @@ const Tests = () => {
               : "The following tests are available for you to take:"}
           </Text>
 
-          {displayTests.map((x) => (
-            <TestCard
-              key={x.id}
-              {...x}
-              onStart={() => handleStartTest(x.id)}
-              isLoading={isLoading}
-              student={student}
-              time={time}
-            />
-          ))}
+          {displayTests.length > 0 && (
+            <Flex flexDir="column" style={{ marginTop: "0.5rem", marginBottom: "-0.5rem" }}>
+              {displayTests.map((x) => (
+                <TestCard
+                  key={x.id}
+                  {...x}
+                  onStart={() => handleStartTest(x.id)}
+                  isLoading={isLoading}
+                  student={student}
+                  time={time}
+                />
+              ))}
+            </Flex>
+          )}
         </>
       )}
 
