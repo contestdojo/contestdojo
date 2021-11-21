@@ -86,6 +86,7 @@ const Submissions = () => {
     { label: "#", key: "number" },
     { label: test.team ? "Team Name" : " Student Name", key: "name" },
     { label: "Score", key: "score" },
+    { label: "Start Time", key: "startTime", hideByDefault: true },
     ...problems.map((x, idx) => ({ label: `A${idx + 1}`, key: `${idx}`, hideByDefault: true })),
     ...problems.map((x, idx) => ({
       label: `C${idx + 1}`,
@@ -112,6 +113,7 @@ const Submissions = () => {
       number: (test.team ? teamsById[s.id] : studentsById[s.id])?.number,
       name: test.team ? teamsById[s.id]?.name : `${studentsById[s.id].fname} ${studentsById[s.id].lname}`,
       score: total,
+      startTime: startTime.format("M/D/YYYY h:mm A"),
       ...Object.fromEntries(answers),
       ...Object.fromEntries(correct),
       ...Object.fromEntries(times),
