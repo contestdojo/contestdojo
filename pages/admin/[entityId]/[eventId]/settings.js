@@ -5,17 +5,19 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { Button, Heading, HStack, Stack, Switch, Text } from "@chakra-ui/react";
-import { useFunctions } from "reactfire";
+import { useAuth } from "reactfire";
 
 import Card from "~/components/Card";
+import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import EventForm from "~/components/forms/EventForm";
 import { useFormState } from "~/helpers/utils";
 
 const EventDetails = () => {
   const { ref: eventRef, data: event } = useEvent();
-
   const [formState, wrapAction] = useFormState();
+  const [openDialog] = useDialog();
+  const auth = useAuth();
 
   const handleCheck = async (e) => {
     await eventRef.update({ frozen: e.target.checked });
@@ -27,8 +29,20 @@ const EventDetails = () => {
 
   // Roster
 
-  const functions = useFunctions();
-  const updateStudentNumbers = functions.httpsCallable("updateStudentNumbers");
+  const handleAssignNumbers = () => {
+    openDialog({
+      type: "confirm",
+      title: "Are you sure?",
+      description: "This will overwrite any previously assigned numbers.",
+      onConfirm: async () => {
+        const authorization = await auth.currentUser.getIdToken();
+        await fetch(`/api/admin/${event.owner.id}/${event.id}/set_numbers`, {
+          method: "POST",
+          headers: { authorization },
+        });
+      },
+    });
+  };
 
   return (
     <>
@@ -38,8 +52,8 @@ const EventDetails = () => {
           <Switch isChecked={event.frozen} onChange={handleCheck} />
           <Text>Freeze roster changes</Text>
         </HStack>
-        <Button onClick={() => updateStudentNumbers({ eventId: eventRef.id })} alignSelf="flex-start">
-          Assign/reassign Numbers
+        <Button onClick={handleAssignNumbers} alignSelf="flex-start">
+          Assign Team/Student Numbers
         </Button>
       </Card>
       <Card as={Stack} spacing={4} p={4}>
