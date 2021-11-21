@@ -10,11 +10,15 @@ import { NextApiRequest, NextApiResponse } from "next";
 const cert = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT as string);
 
 if (admin.apps.length === 0) {
-  admin.initializeApp({ credential: admin.credential.cert(cert) });
+  admin.initializeApp({
+    credential: admin.credential.cert(cert),
+    storageBucket: "ncmt-67ea1.appspot.com",
+  });
 }
 
 export const auth = admin.auth();
 export const firestore = admin.firestore();
+export const storage = admin.storage().bucket();
 
 type FirebaseHandler = (req: NextApiRequest, res: NextApiResponse, context: FirebaseContext) => void;
 type FirebaseContext = { uid: string };
