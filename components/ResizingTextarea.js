@@ -9,16 +9,7 @@ import { forwardRef } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 const ResizingTextarea = forwardRef((props, ref) => (
-  <Textarea
-    ref={ref}
-    minH="unset"
-    overflow="hidden"
-    transition="none"
-    resize="none"
-    minRows={3}
-    as={TextareaAutosize}
-    {...props}
-  />
+  <Textarea ref={ref} minH="unset" transition="none" resize="none" minRows={3} as={TextareaAutosize} {...props} />
 ));
 
 export default ResizingTextarea;

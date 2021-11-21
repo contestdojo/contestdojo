@@ -4,19 +4,29 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, Button, Heading, HStack, IconButton, Stack, Tag, Text, Tooltip } from "@chakra-ui/react";
+import { Box, Button, Heading, HStack, IconButton, Stack, Tag, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import firebase from "firebase";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { HiClipboardCheck, HiPencilAlt, HiSpeakerphone, HiTable, HiTrash } from "react-icons/hi";
+import { useState } from "react";
+import {
+  HiClipboardCheck,
+  HiLockClosed,
+  HiLockOpen,
+  HiPencilAlt,
+  HiSpeakerphone,
+  HiTable,
+  HiTrash,
+} from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
 
+import AllowedStudentsModal from "~/components/AllowedStudentsModal";
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import AddTestForm from "~/components/forms/AddTestForm";
-import { toDict, useFormState, useTime } from "~/helpers/utils";
+import { delay, useFormState, useTime } from "~/helpers/utils";
 
 const TooltipLink = ({ label, href, children }) => (
   <Tooltip label={label}>
@@ -28,12 +38,58 @@ const TooltipLink = ({ label, href, children }) => (
   </Tooltip>
 );
 
+const AllowedStudentsButton = ({ isPrivate, authorizedIds, testRef }) => {
+  const [formState, wrapAction] = useFormState();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [state, setState] = useState(false); // Hack for resetting default value
+
+  const handleSubmit = wrapAction(async ({ isPrivate, allowedStudents }) => {
+    const newIds = isPrivate
+      ? allowedStudents
+          .split("\n")
+          .map((x) => x.trim())
+          .filter(Boolean)
+      : firebase.firestore.FieldValue.delete();
+
+    await testRef.update({ authorizedIds: newIds });
+    onClose();
+    // Hack for resetting default value
+    await delay(500);
+    setState(!state);
+  });
+
+  return (
+    <Tooltip label="Edit Allowed Students">
+      <Box>
+        <IconButton
+          as="a"
+          colorScheme={authorizedIds ? "purple" : undefined}
+          icon={authorizedIds ? <HiLockClosed /> : <HiLockOpen />}
+          onClick={onOpen}
+          cursor="pointer"
+        />
+        <AllowedStudentsModal
+          key={state.toString()}
+          defaultValues={{ isPrivate: !!authorizedIds, allowedStudents: (authorizedIds ?? []).join("\n") }}
+          isOpen={isOpen}
+          onClose={onClose}
+          onSubmit={handleSubmit}
+          {...formState}
+        />
+      </Box>
+    </Tooltip>
+  );
+};
+
 const TestCard = ({
   id,
   type,
   name,
   team,
   duration,
+  authorizedIds,
+  testRef,
   openTime: rawOpenTime,
   closeTime: rawCloseTime,
   time,
@@ -109,6 +165,8 @@ const TestCard = ({
         {open ? "Open" : openTime ? "Reopen Test" : "Open Test"}
       </Button>
 
+      <AllowedStudentsButton authorizedIds={authorizedIds} testRef={testRef} />
+
       <IconButton icon={<HiTrash />} colorScheme="red" onClick={handleDelete} />
     </Card>
   );
@@ -120,7 +178,6 @@ const TestsTab = () => {
 
   const testsRef = eventRef.collection("tests");
   const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
-  let testsById = tests.reduce(toDict, {});
   const [formState, wrapAction] = useFormState();
 
   tests.sort((a, b) => a.name.localeCompare(b.name));
@@ -151,7 +208,14 @@ const TestsTab = () => {
   return (
     <Stack spacing={4}>
       {tests.map((x) => (
-        <TestCard key={x.id} {...x} time={time} onOpen={handleOpenTest(x)} onDelete={handleDeleteTest(x)} />
+        <TestCard
+          key={x.id}
+          {...x}
+          time={time}
+          testRef={testsRef.doc(x.id)}
+          onOpen={handleOpenTest(x)}
+          onDelete={handleDeleteTest(x)}
+        />
       ))}
       <Card as={Stack} spacing={4} p={4} maxW="md">
         <Heading size="md">Add Test</Heading>
