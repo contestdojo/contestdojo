@@ -23,7 +23,7 @@ import {
 import { useRouter } from "next/router";
 import { useState } from "react";
 import NoSSR from "react-no-ssr";
-import { useFirestoreDocData } from "reactfire";
+import { useFirestoreDocData, useStorage, useStorageDownloadURL } from "reactfire";
 
 import Card from "~/components/Card";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
@@ -67,6 +67,12 @@ const WaiverConfirmModal = ({ pdf, onCancel, onConfirm }) => {
       </ModalContent>
     </Modal>
   );
+};
+
+const SubmittedWaiver = ({ waiver }) => {
+  const storage = useStorage();
+  const { data: waiverURL } = useStorageDownloadURL(storage.ref().child(waiver));
+  return <iframe width="100%" height="100%" src={waiverURL} />;
 };
 
 const WaiverContent = () => {
@@ -128,7 +134,7 @@ const WaiverContent = () => {
           <AlertIcon />
           The waiver has been submitted. You can view it below.
         </Alert>
-        <iframe width="100%" height="100%" src={`${student.waiver}`} />
+        <SubmittedWaiver waiver={student.waiver} />
       </Stack>
     );
   }

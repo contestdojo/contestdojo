@@ -25,13 +25,30 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { HiUser } from "react-icons/hi";
-import { useAuth, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
+import {
+  useAuth,
+  useFirestoreCollectionData,
+  useFirestoreDocData,
+  useStorage,
+  useStorageDownloadURL,
+  useUser,
+} from "reactfire";
 
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import WaiverRequestForm from "~/components/forms/WaiverRequestForm";
 import { useFormState } from "~/helpers/utils";
+
+const DownloadWaiver = ({ waiver }) => {
+  const storage = useStorage();
+  const { data: waiverURL } = useStorageDownloadURL(storage.ref().child(waiver));
+  return (
+    <Button colorScheme="blue" onClick={() => window.open(waiverURL, "_blank")} alignSelf="flex-start">
+      Download Signed Waiver
+    </Button>
+  );
+};
 
 const Event = () => {
   const auth = useAuth();
@@ -116,9 +133,7 @@ const Event = () => {
                 <AlertIcon />
                 Your waiver has been signed.
               </Alert>
-              <a href={student.waiver} download="waiver.pdf">
-                <Button colorScheme="blue">Download Signed Waiver</Button>
-              </a>
+              <DownloadWaiver waiver={student.waiver} />
             </>
           ) : (
             <>

@@ -6,7 +6,7 @@
 
 import { Button, IconButton } from "@chakra-ui/react";
 import { HiDownload } from "react-icons/hi";
-import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import { useFirestore, useFirestoreCollectionData, useStorage } from "reactfire";
 
 import AdminTableView, { countReducer, updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
@@ -18,7 +18,10 @@ const toDict = (obj, x) => {
 };
 
 const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
+  const { data: event } = useEvent();
   const impersonate = useImpersonate();
+  const storage = useStorage();
+  const root = storage.ref();
 
   const cols = [
     { label: "ID", key: "id", hideByDefault: true },
@@ -40,9 +43,13 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
       key: "waiver",
       renderer: (val, row) =>
         val ? (
-          <a href={val} download={`${row.name}.pdf`}>
-            <IconButton variant="ghost" my={-2} rounded="full" icon={<HiDownload />} />
-          </a>
+          <IconButton
+            variant="ghost"
+            my={-2}
+            rounded="full"
+            icon={<HiDownload />}
+            onClick={async () => window.open(await root.child(val).getDownloadURL(), "_blank")}
+          />
         ) : null,
       reducer: countReducer,
       hideInCsv: true,

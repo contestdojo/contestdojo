@@ -27,7 +27,7 @@ import {
   Tooltip,
   Tr,
 } from "@chakra-ui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
 import { HiChevronDown, HiMinus, HiPlus } from "react-icons/hi";
 
@@ -82,18 +82,19 @@ const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder
   const [sortBy, setSortBy] = useState(defaultSortKey ?? "");
   const [sortOrder, setSortOrder] = useState(defaultSortOrder ?? "asc");
 
-  let displayRows = rows;
   let displayCols = cols.filter((x) => showCols.includes(x.key));
-
-  if (sortBy !== "") {
-    displayRows = [...rows].sort((a, b) => {
+  let displayRows = useMemo(() => {
+    if (sortBy === "") return rows;
+    return [...rows].sort((a, b) => {
       const av = a[sortBy] ?? "";
       const bv = b[sortBy] ?? "";
       if (av === bv) return 0;
+      if (av === "") return 1;
+      if (bv === "") return -1;
       const mult = sortOrder === "asc" ? 1 : -1;
       return av > bv ? mult : -mult;
     });
-  }
+  }, [sortBy, sortOrder]);
 
   return (
     <Stack spacing={4} position="relative">
