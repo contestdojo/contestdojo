@@ -97,7 +97,7 @@ const Submissions = () => {
   const rows = submissions.map((s) => {
     const startTime = dayjs(s.startTime.toDate());
     const answers = problems.map((x, idx) => [idx, s[idx] ?? null]);
-    const correct = problems.map((x, idx) => [`c${idx}`, s[idx] ? gradedById[s.id]?.[idx] ?? null : undefined]);
+    const correct = problems.map((x, idx) => [`c${idx}`, s[`${idx}r`] ? gradedById[s.id]?.[idx] ?? null : undefined]);
     const times = problems.map((x, idx) => [
       `t${idx}`,
       s[`${idx}t`] && dayjs.duration(dayjs(s[`${idx}t`].toDate()).diff(startTime)).format("HH:mm:ss"),
