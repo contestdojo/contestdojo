@@ -28,7 +28,7 @@ import {
   Tooltip,
   useDisclosure,
   Wrap,
-  WrapItem
+  WrapItem,
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
@@ -39,6 +39,7 @@ import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData,
 import AddStudentModal from "~/components/AddStudentModal";
 import AddTeamModal from "~/components/AddTeamModal";
 import BlankCard from "~/components/BlankCard";
+import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
@@ -47,7 +48,6 @@ import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
-
 
 const StudentCard = ({ id, fname, lname, email, waiver }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -413,6 +413,19 @@ const TeamsContent = () => {
           <Heading size="lg">{org.name}</Heading>
         </HStack>
         <Divider />
+        {event.scoreReportsAvailable && (
+          <>
+            <Card p={4} maxW="md">
+              <Stack spacing={4} alignItems="flex-start">
+                <Heading size="md">Score Reports Available</Heading>
+                <ButtonLink href={`/coach/${orgRef.id}/${eventRef.id}/reports`} colorScheme="blue" size="sm">
+                  View Score Reports
+                </ButtonLink>
+              </Stack>
+            </Card>
+            <Divider />
+          </>
+        )}
         <Teams
           title="Teams"
           event={event}

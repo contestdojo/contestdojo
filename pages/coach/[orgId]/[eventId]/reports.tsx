@@ -10,6 +10,7 @@ import { Divider, Heading, HStack, IconButton, Stack, Text, Wrap, WrapItem } fro
 import { HiDownload } from "react-icons/hi";
 import { useFirestore, useFirestoreCollectionData, useStorage, useStorageDownloadURL } from "reactfire";
 
+import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
@@ -62,16 +63,20 @@ const Reports = () => {
       <Stack spacing={4}>
         <Heading size="lg">Score Reports</Heading>
         <p>Available score reports for your organization&quot;s teams are listed below.</p>
-        <Wrap>
-          {teams
-            .filter((x) => x.scoreReport)
-            .map((x) => (
-              <WrapItem key={x.id}>
-                <ReportCard {...x} />
-              </WrapItem>
-            ))}
-        </Wrap>
       </Stack>
+      <Wrap>
+        {teams
+          .filter((x) => x.scoreReport)
+          .map((x) => (
+            <WrapItem key={x.id}>
+              <ReportCard {...x} />
+            </WrapItem>
+          ))}
+      </Wrap>
+
+      <ButtonLink href={`/coach/${orgRef.id}/${eventRef.id}`} colorScheme="blue" alignSelf="flex-start">
+        Back to {event.name}
+      </ButtonLink>
     </Stack>
   );
 };
