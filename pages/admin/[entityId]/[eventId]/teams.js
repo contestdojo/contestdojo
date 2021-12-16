@@ -4,9 +4,16 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import { HiDownload } from "react-icons/hi";
+import { useFirestore, useFirestoreCollectionData, useStorage } from "reactfire";
 
-import AdminTableView, { sumReducer, updateRenderer } from "~/components/AdminTableView";
+import AdminTableView, {
+  countReducer,
+  iconButtonRenderer,
+  sumReducer,
+  updateRenderer,
+} from "../../../../components/AdminTableView";
+
 import { useEvent } from "~/components/contexts/EventProvider";
 
 const toDict = (obj, x) => {
@@ -15,12 +22,24 @@ const toDict = (obj, x) => {
 };
 
 const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
+  const storage = useStorage();
+  const root = storage.ref();
+
   const cols = [
     { label: "ID", key: "id", hideByDefault: true },
     { label: "Number", key: "number", renderer: updateRenderer(onUpdate, "number") },
     { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
     { label: "Organization", key: "org" },
     { label: "# Students", key: "numStudents", reducer: sumReducer },
+    {
+      label: "Score Report",
+      key: "scoreReport",
+      renderer: iconButtonRenderer(HiDownload, Boolean, async (val) =>
+        window.open(await root.child(val).getDownloadURL(), "_blank")
+      ),
+      reducer: countReducer,
+      hideInCsv: true,
+    },
     { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
   ];
 
@@ -30,6 +49,7 @@ const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
     name: x.name,
     org: orgsById[x.org.id]?.name,
     numStudents: studentsByTeam[x.id]?.length ?? 0,
+    scoreReport: x.scoreReport,
     notes: x.notes ?? "",
   }));
 
