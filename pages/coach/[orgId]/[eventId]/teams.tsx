@@ -159,7 +159,7 @@ const PurchaseSeats = ({ stripeAccount }) => {
 
   return (
     <>
-      <Button colorScheme="blue" onClick={onOpen} isDisabled>
+      <Button colorScheme="blue" onClick={onOpen}>
         Purchase Seats
       </Button>
       <PurchaseSeatsModal isOpen={isOpen} onClose={onClose} onSubmit={handlePurchaseSeats} {...formState} />
@@ -244,7 +244,7 @@ const Teams = ({
             </Box>
           </Tooltip>
         )}
-        {costPerStudent && <PurchaseSeats stripeAccount={stripeAccount} />}
+        {costPerStudent && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} />}
       </ButtonGroup>
       <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddTeam} {...formState} />
     </Stack>
