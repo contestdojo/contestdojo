@@ -24,7 +24,7 @@ const EventDetails = () => {
   };
 
   const handleSubmit = wrapAction(async (values) => {
-    await eventRef.update(Object.fromEntries(Object.entries(values).filter(([, b]) => b !== "")));
+    await eventRef.update(values);
   });
 
   // Roster
