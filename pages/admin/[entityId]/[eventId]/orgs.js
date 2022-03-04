@@ -64,7 +64,7 @@ const OrgsTab = () => {
 
   const rootOrgsRef = firestore.collection("orgs");
   const { data: rootOrgs } = useFirestoreCollectionData(rootOrgsRef, { idField: "id" });
-  orgsById = rootOrgs.reduce(toDict, orgsById);
+  orgsById = rootOrgs.filter((x) => orgsById.hasOwnProperty(x.id)).reduce(toDict, orgsById);
 
   const handleOrgUpdate = async (id, update) => {
     await eventOrgsRef.doc(id).update(update);
