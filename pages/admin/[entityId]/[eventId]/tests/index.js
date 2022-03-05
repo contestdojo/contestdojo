@@ -4,12 +4,31 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, Button, Heading, HStack, IconButton, Stack, Tag, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
+import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Box,
+  Button,
+  Heading,
+  HStack,
+  IconButton,
+  Stack,
+  Tag,
+  Text,
+  Tooltip,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import dayjs from "dayjs";
 import firebase from "firebase";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   HiClipboardCheck,
   HiLockClosed,
@@ -20,11 +39,13 @@ import {
   HiTrash,
 } from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
+import * as yup from "yup";
 
 import AllowedStudentsModal from "~/components/AllowedStudentsModal";
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
+import FormField from "~/components/FormField";
 import AddTestForm from "~/components/forms/AddTestForm";
 import { delay, useFormState, useTime } from "~/helpers/utils";
 
@@ -82,6 +103,65 @@ const AllowedStudentsButton = ({ isPrivate, authorizedIds, testRef }) => {
   );
 };
 
+const schema = yup.object({
+  gracePeriod: yup.number().typeError("Invalid number").required().label("Grace Period (seconds)"),
+});
+
+const OpenTestModal = ({ type, duration, isOpen, onClose, onSubmit }) => {
+  const { register, handleSubmit, watch, errors } = useForm({
+    defaultValues: { gracePeriod: type === "guts" ? 0 : 300 },
+    mode: "onTouched",
+    resolver: yupResolver(schema),
+  });
+
+  const ref = useRef();
+
+  return (
+    <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={ref} motionPreset="slideInBottom">
+      <AlertDialogOverlay>
+        <AlertDialogContent>
+          <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            Open Test
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            <form
+              id="open-test-form"
+              onSubmit={handleSubmit((values) => {
+                onSubmit(values);
+                onClose();
+              })}
+            >
+              <Stack spacing={4}>
+                <FormField
+                  ref={register}
+                  type="number"
+                  name="gracePeriod"
+                  label="Grace Period (seconds)"
+                  placeholder="5"
+                  error={errors.gracePeriod}
+                  isRequired
+                />
+                <Box>
+                  This will open the test for all eligible students for a window of{" "}
+                  <b>{(duration + Number(watch("gracePeriod", 0))) / 60} minutes</b>. Confirm?
+                </Box>
+              </Stack>
+            </form>
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={ref} onClick={onClose}>
+              Cancel
+            </Button>
+            <Button colorScheme="blue" type="submit" form="open-test-form" ml={3}>
+              Confirm
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogOverlay>
+    </AlertDialog>
+  );
+};
+
 const TestCard = ({
   id,
   type,
@@ -105,16 +185,7 @@ const TestCard = ({
 
   const [openDialog] = useDialog();
 
-  const handleOpen = () => {
-    openDialog({
-      type: "confirm",
-      title: "Are you sure?",
-      description: `This will open the test for all students for a window of ${
-        duration / 60 + (type === "guts" ? 0 : 5)
-      } minutes. Confirm?`,
-      onConfirm: onOpen,
-    });
-  };
+  const { isOpen, onOpen: handleOpen, onClose } = useDisclosure();
 
   const handleDelete = () => {
     openDialog({
@@ -168,6 +239,8 @@ const TestCard = ({
       <AllowedStudentsButton authorizedIds={authorizedIds} testRef={testRef} />
 
       <IconButton icon={<HiTrash />} colorScheme="red" onClick={handleDelete} />
+
+      <OpenTestModal isOpen={isOpen} onClose={onClose} onSubmit={onOpen} duration={duration} type={type} />
     </Card>
   );
 };
@@ -182,9 +255,9 @@ const TestsTab = () => {
 
   tests.sort((a, b) => a.name.localeCompare(b.name));
 
-  const handleOpenTest = (test) => async () => {
+  const handleOpenTest = (test) => async (values) => {
     const now = dayjs();
-    const closeTime = now.add(test.duration, "seconds").add(test.type === "guts" ? 0 : 5, "minutes");
+    const closeTime = now.add(test.duration, "seconds").add(values.gracePeriod, "seconds");
     await testsRef.doc(test.id).update({
       openTime: firebase.firestore.Timestamp.fromDate(now.toDate()),
       closeTime: firebase.firestore.Timestamp.fromDate(closeTime.toDate()),
