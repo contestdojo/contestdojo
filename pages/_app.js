@@ -83,11 +83,15 @@ const App = ({ Component, pageProps }) => {
 
   const DefaultLayout = router.pathname.startsWith("/coach")
     ? CoachLayout
-    : router.pathname.startsWith("/student/[eventId]") || router.pathname.startsWith("/student/smt21")
+    : router.pathname.startsWith("/student/[eventId]") ||
+      router.pathname.startsWith("/student/smt21") ||
+      router.pathname.startsWith("/student/xQAnkZ7gdhSdhXHNQetN")
     ? StudentEventLayout
     : router.pathname.startsWith("/student")
     ? StudentLayout
-    : router.pathname.startsWith("/admin/[entityId]/[eventId]") || router.pathname.startsWith("/admin/[entityId]/smt21")
+    : router.pathname.startsWith("/admin/[entityId]/[eventId]") ||
+      router.pathname.startsWith("/admin/[entityId]/smt21") ||
+      router.pathname.startsWith("/admin/[entityId]/xQAnkZ7gdhSdhXHNQetN")
     ? AdminEventLayout
     : router.pathname.startsWith("/admin")
     ? AdminLayout

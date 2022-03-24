@@ -19,7 +19,9 @@ const EventProvider = ({ children }) => {
   let { eventId } = router.query;
   if (router.pathname.startsWith("/coach/[orgId]/smt21")) eventId = "smt21";
   if (router.pathname.startsWith("/admin/[entityId]/smt21")) eventId = "smt21";
+  if (router.pathname.startsWith("/admin/[entityId]/xQAnkZ7gdhSdhXHNQetN")) eventId = "xQAnkZ7gdhSdhXHNQetN";
   if (router.pathname.startsWith("/student/smt21")) eventId = "smt21";
+  if (router.pathname.startsWith("/student/xQAnkZ7gdhSdhXHNQetN")) eventId = "xQAnkZ7gdhSdhXHNQetN";
 
   const eventRef = firestore.collection("events").doc(eventId);
   const { data: event } = useFirestoreDoc(eventRef);
