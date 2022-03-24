@@ -25,6 +25,7 @@ const AdminEventLayoutContent = ({ children }) => {
   const router = useRouter();
   let { entityId, eventId } = router.query;
   if (router.pathname.startsWith("/admin/[entityId]/smt21")) eventId = "smt21";
+  if (router.pathname.startsWith("/admin/[entityId]/xQAnkZ7gdhSdhXHNQetN")) eventId = "smt21";
 
   const routename = router.pathname.split("/");
   const index = tabs.findIndex((x) => routename.includes(x.route));
