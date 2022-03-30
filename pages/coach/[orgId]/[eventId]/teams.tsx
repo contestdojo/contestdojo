@@ -28,7 +28,7 @@ import {
   Tooltip,
   useDisclosure,
   Wrap,
-  WrapItem,
+  WrapItem
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
@@ -48,6 +48,7 @@ import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
+
 
 const StudentCard = ({ id, fname, lname, email, waiver }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -225,7 +226,7 @@ const Teams = ({
               onDelete={() => onDeleteTeam(x.id)}
               {...x}
               students={studentsByTeam[x.id] ?? []}
-              needSeats={costPerStudent > 0 && seatsRemaining === 0}
+              needSeats={costPerStudent > 0 && seatsRemaining <= 0}
             />
           ))}
         </SimpleGrid>
