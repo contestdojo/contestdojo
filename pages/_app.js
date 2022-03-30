@@ -41,29 +41,12 @@ const firebaseConfig = {
   appId: "1:97736862094:web:6a71d522dc08e59eb15cdf",
 };
 
-const preloadSDKs = async (firebaseApp) => {
-  if (process.env.NODE_ENV === "production") {
-    return Promise.all([
-      preloadAuth({ firebaseApp }),
-      preloadFirestore({ firebaseApp }),
-      preloadFunctions({ firebaseApp }),
-    ]);
-  } else if (process.env.NODE_ENV === "development" && useEmulatorsInDebug) {
-    return Promise.all([
-      // preloadAuth({
-      //     firebaseApp,
-      //     setup: auth => auth().useEmulator("http://localhost:9099/"),
-      // }),
-      // preloadFirestore({
-      //     firebaseApp,
-      //     setup: firestore => firestore().useEmulator("localhost", 8080),
-      // }),
-      preloadFunctions({
-        firebaseApp,
-        setup: (functions) => functions().useEmulator("localhost", 5001),
-      }),
-    ]);
-  }
+const preloadSDKs = (firebaseApp) => {
+  return Promise.all([
+    preloadAuth({ firebaseApp }),
+    preloadFirestore({ firebaseApp }),
+    preloadFunctions({ firebaseApp }),
+  ]);
 };
 
 const PageSpinner = () => (
