@@ -5,7 +5,6 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { Alert, AlertIcon, Divider, Heading, HStack, Icon, Stack, Tag, Text } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import { HiUser } from "react-icons/hi";
 import { useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 
@@ -18,7 +17,6 @@ import { useFormState } from "~/helpers/utils";
 const Event = () => {
   const { ref: eventRef, data: event } = useEvent();
   const { data: user } = useUser();
-  const { eventId } = useRouter().query;
 
   const studentRef = eventRef.collection("students").doc(user.uid);
   const { data: student } = useFirestoreDocData(studentRef, { idField: "id" });
@@ -70,7 +68,7 @@ const Event = () => {
       )}
 
       <ButtonLink
-        href={event.waiver && !student.waiver ? "#" : `/student/${eventId}/tests`}
+        href={event.waiver && !student.waiver ? "#" : `/student/xQAnkZ7gdhSdhXHNQetN/tests`}
         colorScheme="blue"
         size="lg"
         isDisabled={event.waiver && !student.waiver}
