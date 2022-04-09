@@ -118,7 +118,7 @@ const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats })
 
       <Flex direction="column" flex={1} ref={setNodeRef}>
         {students.map((x) => (
-          <StudentCard key={x.id} {...x} />
+          <StudentCard key={x.id} {...x} waiver={x.waiver || !!x.waiverSigned} />
         ))}
         {students.length === 0 &&
           (needSeats ? <BlankCard>More seats required</BlankCard> : <BlankCard>Drag students here</BlankCard>)}
@@ -284,7 +284,7 @@ const Students = ({ students, onAddStudent, event }) => {
       >
         {students.map((x) => (
           <WrapItem key={x.id}>
-            <StudentCard {...x} width={300} />
+            <StudentCard {...x} width={300} waiver={x.waiver || !!x.waiverSigned} />
           </WrapItem>
         ))}
         {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
