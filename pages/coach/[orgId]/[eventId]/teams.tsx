@@ -28,7 +28,7 @@ import {
   Tooltip,
   useDisclosure,
   Wrap,
-  WrapItem
+  WrapItem,
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
@@ -48,7 +48,6 @@ import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
-
 
 const StudentCard = ({ id, fname, lname, email, waiver }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -128,7 +127,7 @@ const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats })
   );
 };
 
-const PurchaseSeats = ({ stripeAccount }) => {
+const PurchaseSeats = ({ stripeAccount, event }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
   const { orgId, eventId } = useRouter().query;
@@ -160,7 +159,7 @@ const PurchaseSeats = ({ stripeAccount }) => {
 
   return (
     <>
-      <Button colorScheme="blue" onClick={onOpen}>
+      <Button colorScheme="blue" onClick={onOpen} disabled={!!event.frozen}>
         Purchase Seats
       </Button>
       <PurchaseSeatsModal isOpen={isOpen} onClose={onClose} onSubmit={handlePurchaseSeats} {...formState} />
@@ -233,7 +232,7 @@ const Teams = ({
       )}
       <ButtonGroup>
         {teams.length < (maxTeams ?? 100) ? (
-          <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
+          <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
             Add Team
           </Button>
         ) : (
@@ -245,14 +244,14 @@ const Teams = ({
             </Box>
           </Tooltip>
         )}
-        {costPerStudent && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} />}
+        {costPerStudent && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
       </ButtonGroup>
       <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddTeam} {...formState} />
     </Stack>
   );
 };
 
-const Students = ({ students, onAddStudent }) => {
+const Students = ({ students, onAddStudent, event }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
 
@@ -291,7 +290,7 @@ const Students = ({ students, onAddStudent }) => {
         {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
       </Wrap>
 
-      <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen}>
+      <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
         Invite Student
       </Button>
       <AddStudentModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddStudent} {...formState} />
@@ -442,7 +441,7 @@ const TeamsContent = () => {
           stripeAccount={entity.stripeAccountId}
         />
         <Divider />
-        <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} />
+        <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} event={event} />
       </Stack>
     </DndContext>
   );
