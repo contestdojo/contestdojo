@@ -125,7 +125,15 @@ const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time,
   );
 };
 
-const TestSelection = ({ testsById, testSelection, currentSelection, testSelectionMax, disabled, onUpdate }) => {
+const TestSelection = ({
+  testsById,
+  testSelection,
+  testSelectionDescription,
+  currentSelection,
+  testSelectionMax,
+  disabled,
+  onUpdate,
+}) => {
   const [formState, wrapAction] = useFormState();
   const [edited, setEdited] = useState(false);
   const [selection, setSelection] = useState({});
@@ -158,6 +166,7 @@ const TestSelection = ({ testsById, testSelection, currentSelection, testSelecti
         <b>{testSelectionMax}</b> slots from the choices below. You may modify your selection any time before you begin
         your first test.
       </Text>
+      {testSelectionDescription && <Text>{testSelectionDescription}</Text>}
       {formState.error && (
         <Alert status="error">
           <AlertIcon />
@@ -278,6 +287,7 @@ const Tests = () => {
       {event.testSelection && (
         <TestSelection
           testSelection={event.testSelection}
+          testSelectionDescription={event.testSelectionDescription}
           currentSelection={student.testSelection}
           testSelectionMax={event.testSelectionMax ?? 0}
           testsById={testsById}
