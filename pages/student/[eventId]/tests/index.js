@@ -37,7 +37,7 @@ dayjs.extend(relativeTime);
 dayjs.extend(minMax);
 dayjs.extend(duration);
 
-const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time, openTime, closeTime }) => {
+const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time, openTime, closeTime, waiting }) => {
   const [openDialog] = useDialog();
   const { ref: eventRef } = useEvent();
 
@@ -78,8 +78,6 @@ const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time,
     });
   };
 
-  if (name.includes("Algebra") && openTime) console.log(openTime.toDate(), time.toDate(), closeTime.toDate());
-
   const open = openTime && closeTime && openTime.toDate() < time.toDate() && time.toDate() < closeTime.toDate();
   let children = "";
   let order = 0;
@@ -96,6 +94,13 @@ const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time,
         </Button>
       );
     }
+  } else if (waiting) {
+    order = -50;
+    children = (
+      <Button size="sm" disabled>
+        Waiting
+      </Button>
+    );
   } else if (!open) {
     order = 50;
     children = (
@@ -215,11 +220,11 @@ const Tests = () => {
 
   const testsRef = eventRef.collection("tests");
   const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
+  tests.sort((a, b) => a.name.localeCompare(b.name));
   const testsById = tests.reduce(toDict, {});
 
   let displayTests = tests.filter(
     (x) =>
-      // !x.hide &&
       !x.authorizedIds ||
       x.authorizedIds.includes(student.id) ||
       (student.number && x.authorizedIds.includes(student.number))
@@ -230,9 +235,25 @@ const Tests = () => {
   if (event.testSelection) {
     const indivTests = Object.keys(event.testSelection);
     displayTests = displayTests.filter((x) => !indivTests.includes(x.id) || student.testSelection?.includes(x.id));
-  }
 
-  displayTests.sort((a, b) => a.name.localeCompare(b.name));
+    const waiting = false;
+
+    if (event.forceAlphabetical) {
+      for (const x of displayTests) {
+        const open =
+          x.openTime && x.closeTime && x.openTime.toDate() < time.toDate() && time.toDate() < x.closeTime.toDate();
+        if (!indivTests.includes(x.id)) continue;
+        if (!open) continue;
+
+        x.waiting = waiting;
+
+        waiting = true;
+        if (student.startedSelected && x.id === student.startedSelected) {
+          waiting = false;
+        }
+      }
+    }
+  }
 
   const handleTestSelectionUpdate = async (selection) => {
     const authorization = await auth.currentUser.getIdToken();

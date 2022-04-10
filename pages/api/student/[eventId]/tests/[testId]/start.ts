@@ -70,7 +70,7 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
     });
 
     if (eventData.testSelection && Object.keys(eventData.testSelection).includes(testId)) {
-      await studentRef.update({ startedSelected: true, nextSelectedStart: testData.closeTime });
+      await studentRef.update({ startedSelected: testId, nextSelectedStart: testData.closeTime });
     }
   }
 
