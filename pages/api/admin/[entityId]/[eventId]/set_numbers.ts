@@ -23,8 +23,9 @@ const handler = withFirebaseAuth(async (req, res) => {
 
   const eventRef = firestore.collection("events").doc(eventId);
   const teamsRef = eventRef.collection("teams");
-  const teams = await teamsRef.get();
-  teams.docs.sort((a, b) => orgsById.get(a.data().org.id).name.localeCompare(orgsById.get(b.data().org.id).name));
+  let { docs: teams } = await teamsRef.get();
+  teams = teams.filter((x) => orgsById.get(x.data().org.id));
+  teams.sort((a, b) => orgsById.get(a.data().org.id).name.localeCompare(orgsById.get(b.data().org.id).name));
 
   const studentsRef = eventRef.collection("students");
   const students = await studentsRef.get();
@@ -33,7 +34,7 @@ const handler = withFirebaseAuth(async (req, res) => {
   const batches = [firestore.batch()];
   let count = 0;
 
-  for (const team of teams.docs) {
+  for (const team of teams) {
     const data = team.data();
     const number = String(count + 1).padStart(3, "0");
     teamsById.set(team.id, { ...data, number });
@@ -47,6 +48,8 @@ const handler = withFirebaseAuth(async (req, res) => {
     if (!student.data().team) continue;
 
     const team = teamsById.get(student.data().team.id);
+    if (!team) continue;
+
     const idx = team._idx ?? 0;
     team._idx = idx + 1;
 
