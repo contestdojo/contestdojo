@@ -21,7 +21,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure,
+  useDisclosure
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { HiUser } from "react-icons/hi";
@@ -31,7 +31,7 @@ import {
   useFirestoreDocData,
   useStorage,
   useStorageDownloadURL,
-  useUser,
+  useUser
 } from "reactfire";
 
 import ButtonLink from "~/components/ButtonLink";
@@ -39,6 +39,7 @@ import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import WaiverRequestForm from "~/components/forms/WaiverRequestForm";
 import { useFormState } from "~/helpers/utils";
+
 
 const DownloadWaiver = ({ waiver }) => {
   const storage = useStorage();
@@ -115,7 +116,7 @@ const Event = () => {
       )}
 
       <ButtonLink
-        href={event.waiver && !student.waiver ? "#" : `/student/${eventId}/tests`}
+        href={event.waiver && !student.waiver && !student.waiverSigned ? "#" : `/student/${eventId}/tests`}
         colorScheme="blue"
         size="lg"
         isDisabled={event.waiver && !student.waiver && !student.waiverSigned}

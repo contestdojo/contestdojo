@@ -68,10 +68,10 @@ const Event = () => {
       )}
 
       <ButtonLink
-        href={event.waiver && !student.waiver ? "#" : `/student/xQAnkZ7gdhSdhXHNQetN/tests`}
+        href={event.waiver && !student.waiver && !student.waiverSigned ? "#" : `/student/xQAnkZ7gdhSdhXHNQetN/tests`}
         colorScheme="blue"
         size="lg"
-        isDisabled={event.waiver && !student.waiver}
+        isDisabled={event.waiver && !student.waiver && !student.waiverSigned}
       >
         Click here to take your tests
       </ButtonLink>
