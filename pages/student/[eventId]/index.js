@@ -118,7 +118,7 @@ const Event = () => {
         href={event.waiver && !student.waiver ? "#" : `/student/${eventId}/tests`}
         colorScheme="blue"
         size="lg"
-        isDisabled={event.waiver && !student.waiver}
+        isDisabled={event.waiver && !student.waiver && !student.waiverSigned}
       >
         Click here to take your tests
       </ButtonLink>
