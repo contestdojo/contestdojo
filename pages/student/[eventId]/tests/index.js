@@ -280,8 +280,22 @@ const Tests = () => {
   });
 
   // Waiver
+  if (!student.team) {
+    return (
+      <>
+        <Alert status="error">
+          <AlertIcon />
+          You must be in a team to take tests.
+        </Alert>
 
-  if (event.waiver && !student.waiver) {
+        <ButtonLink href={`/student/${event.id}`} colorScheme="blue" alignSelf="flex-start">
+          Back to {event.name}
+        </ButtonLink>
+      </>
+    );
+  }
+
+  if (event.waiver && !student.waiver && !student.waiverSigned) {
     return (
       <>
         <Alert status="error">
