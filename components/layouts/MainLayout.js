@@ -14,7 +14,7 @@ const Navigation = ({ sidebar }) => {
   const auth = useAuth();
 
   return (
-    <Stack flexBasis={300} shadow="md" spacing={0} divider={<Divider />}>
+    <Stack overflow="scroll" flexBasis={300} shadow="md" spacing={0} divider={<Divider />}>
       <Box padding={6} mx="auto">
         <NextLink href="/">
           <a>
