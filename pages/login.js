@@ -199,9 +199,18 @@ const LoginSection = () => {
       <Stack spacing={6}>
         <LoginForm onSubmit={handleSubmit} error={error} isLoading={loading} />
 
-        <Link color="red.500" onClick={onOpen}>
-          Forgot Password
-        </Link>
+        <Stack spacing={4}>
+          <Text>
+            New coach?{" "}
+            <NextLink href="/register" passHref>
+              <Link color="blue.500">Register here</Link>
+            </NextLink>
+          </Text>
+
+          <Link color="red.500" onClick={onOpen}>
+            Forgot Password
+          </Link>
+        </Stack>
       </Stack>
 
       <Logos />
