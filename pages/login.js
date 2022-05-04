@@ -26,6 +26,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
+import firebase from "firebase";
 import Image from "next/image";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
