@@ -28,7 +28,7 @@ import {
   Tooltip,
   useDisclosure,
   Wrap,
-  WrapItem,
+  WrapItem
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
@@ -48,6 +48,8 @@ import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
+
+
 
 const StudentCard = ({ id, fname, lname, email, waiver }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -390,9 +392,11 @@ const TeamsContent = () => {
     }
   };
 
+  console.log(seatsRemaining);
+
   const handleDragEnd = ({ active, over }) => {
     if (!over) return;
-    if (studentsById[active.id].team === null && event.costPerStudent && seatsRemaining === 0) return;
+    if (!studentsById[active.id].team && event.costPerStudent && seatsRemaining <= 0) return;
     if (
       over.id !== "unassigned" &&
       event.studentsPerTeam &&
