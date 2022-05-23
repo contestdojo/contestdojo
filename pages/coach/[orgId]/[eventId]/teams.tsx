@@ -28,7 +28,7 @@ import {
   Tooltip,
   useDisclosure,
   Wrap,
-  WrapItem
+  WrapItem,
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
@@ -48,8 +48,6 @@ import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
-
-
 
 const StudentCard = ({ id, fname, lname, email, waiver }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
@@ -75,25 +73,26 @@ const StudentCard = ({ id, fname, lname, email, waiver }) => {
       </Heading>
       <Text fontSize="sm">{email}</Text>
       <Box position="absolute" top={2} right={2} lineHeight={1}>
-        {waiver ? (
-          <Tooltip label="Waiver Signed">
-            <span>
-              <Icon as={HiClipboardCheck} color="green.500" />
-            </span>
-          </Tooltip>
-        ) : (
-          <Tooltip label="Waiver Missing">
-            <span>
-              <Icon as={HiExclamation} color="red.500" />
-            </span>
-          </Tooltip>
-        )}
+        {waiver !== undefined &&
+          (waiver ? (
+            <Tooltip label="Waiver Signed">
+              <span>
+                <Icon as={HiClipboardCheck} color="green.500" />
+              </span>
+            </Tooltip>
+          ) : (
+            <Tooltip label="Waiver Missing">
+              <span>
+                <Icon as={HiExclamation} color="red.500" />
+              </span>
+            </Tooltip>
+          ))}
       </Box>
     </Card>
   );
 };
 
-const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats }) => {
+const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats, waiver }) => {
   const { isOver, setNodeRef } = useDroppable({ id });
   const props = { backgroundColor: isOver ? "gray.100" : undefined };
 
@@ -120,7 +119,7 @@ const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats })
 
       <Flex direction="column" flex={1} ref={setNodeRef}>
         {students.map((x) => (
-          <StudentCard key={x.id} {...x} waiver={x.waiver || !!x.waiverSigned} />
+          <StudentCard key={x.id} {...x} waiver={waiver ? x.waiver || !!x.waiverSigned : undefined} />
         ))}
         {students.length === 0 &&
           (needSeats ? <BlankCard>More seats required</BlankCard> : <BlankCard>Drag students here</BlankCard>)}
@@ -173,6 +172,7 @@ const Teams = ({
   title,
   maxTeams,
   teams,
+  waiver,
   onAddTeam,
   onUpdateTeam,
   onDeleteTeam,
@@ -228,6 +228,7 @@ const Teams = ({
               {...x}
               students={studentsByTeam[x.id] ?? []}
               needSeats={costPerStudent > 0 && seatsRemaining <= 0}
+              waiver={waiver}
             />
           ))}
         </SimpleGrid>
@@ -443,6 +444,7 @@ const TeamsContent = () => {
           maxStudents={eventOrg?.maxStudents ?? 0}
           seatsRemaining={seatsRemaining}
           stripeAccount={entity.stripeAccountId}
+          waiver={event.waiver}
         />
         <Divider />
         <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} event={event} />
