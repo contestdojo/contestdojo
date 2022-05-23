@@ -254,7 +254,7 @@ const Teams = ({
   );
 };
 
-const Students = ({ students, onAddStudent, event }) => {
+const Students = ({ students, onAddStudent, event, waiver }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
 
@@ -287,7 +287,7 @@ const Students = ({ students, onAddStudent, event }) => {
       >
         {students.map((x) => (
           <WrapItem key={x.id}>
-            <StudentCard {...x} width={300} waiver={x.waiver || !!x.waiverSigned} />
+            <StudentCard {...x} width={300} waiver={waiver ? x.waiver || !!x.waiverSigned : undefined} />
           </WrapItem>
         ))}
         {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
@@ -447,7 +447,12 @@ const TeamsContent = () => {
           waiver={event.waiver}
         />
         <Divider />
-        <Students students={studentsByTeam[null] ?? []} onAddStudent={handleAddStudent} event={event} />
+        <Students
+          students={studentsByTeam[null] ?? []}
+          onAddStudent={handleAddStudent}
+          event={event}
+          waiver={event.waiver}
+        />
       </Stack>
     </DndContext>
   );
