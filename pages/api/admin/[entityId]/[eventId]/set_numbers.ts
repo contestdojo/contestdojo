@@ -25,21 +25,36 @@ const handler = withFirebaseAuth(async (req, res) => {
   const teamsRef = eventRef.collection("teams");
   let { docs: teams } = await teamsRef.get();
   teams = teams.filter((x) => orgsById.get(x.data().org.id));
-  teams.sort((a, b) => orgsById.get(a.data().org.id).name.localeCompare(orgsById.get(b.data().org.id).name));
+
+  teams.sort((a, b) => {
+    // Put values with non-empty number at front
+    if (!a.data().number) return 1;
+    if (!b.data().number) return -1;
+    return orgsById.get(a.data().org.id).name.localeCompare(orgsById.get(b.data().org.id).name);
+  });
 
   const studentsRef = eventRef.collection("students");
   const students = await studentsRef.get();
 
   const teamsById = new Map<string, any>();
   const batches = [firestore.batch()];
+
+  let num = 0;
   let count = 0;
 
   for (const team of teams) {
     const data = team.data();
-    const number = String(count + 1).padStart(3, "0");
-    teamsById.set(team.id, { ...data, number });
+    console.log(data.number);
+    if (data.number) {
+      num = Math.max(num, Number(data.number) + 1);
+      teamsById.set(team.id, data);
+      continue;
+    }
 
+    const number = String(num).padStart(3, "0");
+    teamsById.set(team.id, { ...data, number });
     batches[batches.length - 1].update(team.ref, { number });
+    num++;
     count++;
     if (count % 500 === 0) batches.push(firestore.batch());
   }

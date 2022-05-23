@@ -33,7 +33,7 @@ const EventDetails = () => {
     openDialog({
       type: "confirm",
       title: "Are you sure?",
-      description: "This will overwrite any previously assigned numbers.",
+      description: "Previously assigned team numbers will not be changed. Student letters may shift.",
       onConfirm: async () => {
         const authorization = await auth.currentUser.getIdToken();
         await fetch(`/api/admin/${event.owner.id}/${event.id}/set_numbers`, {
