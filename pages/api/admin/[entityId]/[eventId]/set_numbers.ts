@@ -33,43 +33,62 @@ const handler = withFirebaseAuth(async (req, res) => {
     return orgsById.get(a.data().org.id).name.localeCompare(orgsById.get(b.data().org.id).name);
   });
 
-  const studentsRef = eventRef.collection("students");
-  const students = await studentsRef.get();
-
   const teamsById = new Map<string, any>();
   const batches = [firestore.batch()];
 
-  let num = 0;
+  let num = 1;
   let count = 0;
 
   for (const team of teams) {
     const data = team.data();
     console.log(data.number);
     if (data.number) {
-      num = Math.max(num, Number(data.number) + 1);
-      teamsById.set(team.id, data);
+      num = Math.max(num, (Number(data.number) || 0) + 1);
+      teamsById.set(team.id, { ...data, _idx: 0 });
       continue;
     }
 
     const number = String(num).padStart(3, "0");
-    teamsById.set(team.id, { ...data, number });
+    teamsById.set(team.id, { ...data, number, _idx: 0 });
     batches[batches.length - 1].update(team.ref, { number });
     num++;
     count++;
     if (count % 500 === 0) batches.push(firestore.batch());
   }
 
-  for (const student of students.docs) {
-    if (!student.data().team) continue;
+  const studentsRef = eventRef.collection("students");
+  let { docs: students } = await studentsRef.get();
+  students = students.filter((x) => x.data().team && teamsById.get(x.data().team.id));
+
+  const valid = new Set<string>();
+  const numbers = new Set<string>();
+
+  for (const student of students) {
+    const team = teamsById.get(student.data().team.id);
+    const number = student.data().number;
+    if (number && number.startsWith(team.number)) {
+      valid.add(student.id);
+      numbers.add(number);
+    }
+  }
+
+  for (const student of students) {
+    if (valid.has(student.id)) continue;
 
     const team = teamsById.get(student.data().team.id);
-    if (!team) continue;
 
-    const idx = team._idx ?? 0;
-    team._idx = idx + 1;
+    let number = team.number + alphabet[team._idx];
+    while (numbers.has(number)) {
+      team._idx++;
+      number = team.number + alphabet[team._idx];
+    }
 
-    batches[batches.length - 1].update(student.ref, { number: team.number + alphabet[idx] });
+    batches[batches.length - 1].update(student.ref, { number });
+    numbers.add(number);
+
+    team._idx++;
     count++;
+
     if (count % 500 === 0) batches.push(firestore.batch());
   }
 
