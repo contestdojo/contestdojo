@@ -4,14 +4,14 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Button } from "@chakra-ui/react";
+import { Button, HStack, Text } from "@chakra-ui/react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 
 import AdminTableView, { addRemoveRenderer, sumReducer, updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useImpersonate } from "~/helpers/utils";
 
-const OrgsTable = ({ orgs, onUpdate }) => {
+const OrgsTable = ({ orgs, studentsByOrg, onUpdate }) => {
   const impersonate = useImpersonate();
 
   const cols = [
@@ -24,6 +24,20 @@ const OrgsTable = ({ orgs, onUpdate }) => {
       label: "# Seats Purchased",
       key: "maxStudents",
       renderer: addRemoveRenderer(onUpdate, "maxStudents"),
+      reducer: sumReducer,
+    },
+    { label: "# Students Added", key: "numStudents", reducer: sumReducer },
+    {
+      label: "# Students Assigned",
+      key: "numStudentsAssigned",
+      renderer: (val, row) => (
+        <HStack>
+          <Text>{val}</Text>
+          <Text fontSize="xs" color={row.maxStudents === val ? "gray.300" : "red.300"}>
+            {row.maxStudents - val} left
+          </Text>
+        </HStack>
+      ),
       reducer: sumReducer,
     },
     { label: "Notes", key: "notes", renderer: updateRenderer(onUpdate, "notes") },
@@ -48,6 +62,8 @@ const OrgsTable = ({ orgs, onUpdate }) => {
     adminEmail: x.adminData?.email,
     adminId: x.admin.id,
     maxStudents: x.maxStudents ?? 0,
+    numStudents: studentsByOrg[x.id]?.length ?? 0,
+    numStudentsAssigned: studentsByOrg[x.id]?.filter((x) => x.team)?.length ?? 0,
     notes: x.notes ?? "",
   }));
 
@@ -66,11 +82,21 @@ const OrgsTab = () => {
   const { data: rootOrgs } = useFirestoreCollectionData(rootOrgsRef, { idField: "id" });
   orgsById = rootOrgs.filter((x) => orgsById.hasOwnProperty(x.id)).reduce(toDict, orgsById);
 
+  const studentsRef = eventRef.collection("students");
+  const { data: students } = useFirestoreCollectionData(studentsRef, { idField: "id" });
+  const studentsByOrg = students.reduce((acc, obj) => {
+    if (!acc[obj.org.id]) acc[obj.org.id] = [];
+    acc[obj.org.id].push(obj);
+    return acc;
+  }, {});
+
   const handleOrgUpdate = async (id, update) => {
     await eventOrgsRef.doc(id).update(update);
   };
 
-  return <OrgsTable event={event} orgs={Object.values(orgsById)} onUpdate={handleOrgUpdate} />;
+  return (
+    <OrgsTable event={event} orgs={Object.values(orgsById)} studentsByOrg={studentsByOrg} onUpdate={handleOrgUpdate} />
+  );
 };
 
 export default OrgsTab;
