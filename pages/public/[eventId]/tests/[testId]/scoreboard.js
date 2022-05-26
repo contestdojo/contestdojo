@@ -28,7 +28,7 @@ import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useTime } from "~/helpers/utils";
 
 const points = [
-  9, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12, 12, 14, 14, 14, 16, 16, 16, 18, 18, 18, 21, 21, 21, 0, 0, 0,
+  10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 15, 15, 15, 17, 17, 17, 19, 19, 19, 22, 22, 22, 25, 25, 25,
 ];
 
 const TestContent = () => {
@@ -43,10 +43,10 @@ const TestContent = () => {
   let displayGraded = graded
     .map((x) => ({
       ...x,
-      gutsSet: Math.min(x.gutsSet, 7),
+      gutsSet: Math.min(x.gutsSet, 8),
       score: Object.entries(x)
         .filter((e) => Object.keys(points).includes(e[0]))
-        .filter((e) => Number(e[0]) < test.numPerSet * Math.min(x.gutsSet, 7))
+        .filter((e) => Number(e[0]) < test.numPerSet * Math.min(x.gutsSet, 8))
         .reduce((acc, [idx, val]) => acc + points[idx] * val, 0),
     }))
     .sort((a, b) => b.score - a.score);
@@ -69,7 +69,7 @@ const TestContent = () => {
         <Heading size="2xl">{timer}</Heading>
         <Text textAlign="center">
           Scores are preliminary and may change as tests are graded. <br />
-          Set 8 scores are not reflected on this leaderboard.
+          Set 9 scores are not reflected on this leaderboard.
         </Text>
       </VStack>
       <Table size="sm">
@@ -88,7 +88,7 @@ const TestContent = () => {
               <Td>{idx + 1}</Td>
               <Td>
                 <SimpleGrid columns={3} width="24px" spacing="3px">
-                  {[...Array(8).keys()].map((idx) => (
+                  {[...Array(9).keys()].map((idx) => (
                     <Box
                       key={idx}
                       backgroundColor={idx < x.gutsSet ? "blue.500" : "gray.300"}
