@@ -9,13 +9,16 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Box,
   Button,
   chakra,
+  Collapse,
   Heading,
   Icon,
   Input,
   Stack,
   Text,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import TeX from "@matejmazur/react-katex";
@@ -164,6 +167,8 @@ const TestContent = () => {
     await submissionRef.update(update);
   };
 
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true });
+
   // Guts
 
   const [openDialog, closeDialog] = useDialog();
@@ -263,6 +268,21 @@ const TestContent = () => {
             <Stack spacing={4} mt={4} {...style}>
               <TestTimer time={time} endTime={endTime} />
               {test.type === "target" && <TestTimer time={time} endTime={nextSetTime} target />}
+
+              {test.rules && (
+                <Card as={Stack} spacing={0} p={4} onClick={onToggle} cursor="pointer" position="relative">
+                  <Heading size="md">Round Rules</Heading>
+                  <Collapse in={isOpen} animateOpacity>
+                    <Box mt={4}>
+                      <MathJax math={test.rules} />
+                    </Box>
+                  </Collapse>
+                  <Text fontSize="xs" color="gray.500" position="absolute" bottom={2} right={2}>
+                    Click to {isOpen ? "collapse" : "expand"}
+                  </Text>
+                </Card>
+              )}
+
               <Card as={Stack} spacing={4} p={4}>
                 <Heading size="md">Clarifications</Heading>
                 <MathJax math={test.clarifications ?? "None at this time."} />

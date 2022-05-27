@@ -12,7 +12,7 @@ import Card from "~/components/Card";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import ResizingTextarea from "~/components/ResizingTextarea";
 
-const Editor = ({ text, onUpdate, isLoading, error }) => {
+const Editor = ({ label, text, onUpdate, isLoading, error }) => {
   const [state, setState] = useState(text);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const Editor = ({ text, onUpdate, isLoading, error }) => {
   return (
     <Stack spacing={4} direction="row">
       <Card as={Stack} p={4} spacing={4} flex={1}>
-        <Heading size="md">Clarifications</Heading>
+        <Heading size="md">{label}</Heading>
         <Box flex={1}>
           <ResizingTextarea value={state} onChange={(e) => setState(e.target.value)} fontFamily="mono" minH="100%" />
         </Box>
@@ -43,14 +43,19 @@ const Editor = ({ text, onUpdate, isLoading, error }) => {
 const Test = () => {
   const { ref: testRef, data: test } = useTest();
 
-  const handleUpdate = async (clarifications) => {
-    await testRef.update({ clarifications });
+  const handleUpdate = async (values) => {
+    await testRef.update(values);
   };
 
   return (
     <Stack spacing={4}>
       <Heading size="lg">{test.name}</Heading>
-      <Editor text={test.clarifications ?? ""} onUpdate={handleUpdate} />
+      <Editor label="Rules" text={test.rules ?? ""} onUpdate={(x) => handleUpdate({ rules: x })} />
+      <Editor
+        label="Clarifications"
+        text={test.clarifications ?? ""}
+        onUpdate={(x) => handleUpdate({ clarifications: x })}
+      />
     </Stack>
   );
 };

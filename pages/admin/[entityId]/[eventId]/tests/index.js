@@ -20,7 +20,7 @@ import {
   Tag,
   Text,
   Tooltip,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import dayjs from "dayjs";
@@ -36,7 +36,7 @@ import {
   HiPencilAlt,
   HiSpeakerphone,
   HiTable,
-  HiTrash
+  HiTrash,
 } from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
 import * as yup from "yup";
@@ -48,7 +48,6 @@ import { useEvent } from "~/components/contexts/EventProvider";
 import FormField from "~/components/FormField";
 import AddTestForm from "~/components/forms/AddTestForm";
 import { delay, useFormState, useTime } from "~/helpers/utils";
-
 
 const TooltipLink = ({ label, href, children }) => (
   <Tooltip label={label}>
@@ -226,7 +225,10 @@ const TestCard = ({
         <IconButton as="a" icon={<HiPencilAlt />} />
       </TooltipLink>
 
-      <TooltipLink label="Edit Clarifications" href={`/admin/${entityId}/${eventId}/tests/${id}/clarifications`}>
+      <TooltipLink
+        label="Edit Rules and Clarifications"
+        href={`/admin/${entityId}/${eventId}/tests/${id}/clarifications`}
+      >
         <IconButton as="a" icon={<HiSpeakerphone />} />
       </TooltipLink>
 
