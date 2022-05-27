@@ -102,7 +102,7 @@ const TestContent = () => {
             idx={idx}
             text={x}
             submission={submission[idx]}
-            graded={graded[idx]}
+            graded={graded?.[idx]}
             solution={solutions?.[idx]}
           />
         ))}
