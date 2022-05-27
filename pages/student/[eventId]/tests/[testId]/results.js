@@ -96,6 +96,20 @@ const TestContent = () => {
       <Stack spacing={4} flex={1}>
         <Heading size="lg">{test.name}</Heading>
 
+        {test.rules && (
+          <Card as={Stack} spacing={0} p={4} onClick={onToggle} cursor="pointer" position="relative">
+            <Heading size="md">Round Rules</Heading>
+            <Collapse in={isOpen} animateOpacity>
+              <Box mt={4}>
+                <MathJax math={test.rules} />
+              </Box>
+            </Collapse>
+            <Text fontSize="xs" color="gray.500" position="absolute" bottom={2} right={2}>
+              Click to {isOpen ? "collapse" : "expand"}
+            </Text>
+          </Card>
+        )}
+
         {problems.map((x, idx) => (
           <Problem
             key={idx}
@@ -112,20 +126,6 @@ const TestContent = () => {
         <Sticky relative>
           {({ style }) => (
             <Stack spacing={4} mt={4} {...style}>
-              {test.rules && (
-                <Card as={Stack} spacing={0} p={4} onClick={onToggle} cursor="pointer" position="relative">
-                  <Heading size="md">Round Rules</Heading>
-                  <Collapse in={isOpen} animateOpacity>
-                    <Box mt={4}>
-                      <MathJax math={test.rules} />
-                    </Box>
-                  </Collapse>
-                  <Text fontSize="xs" color="gray.500" position="absolute" bottom={2} right={2}>
-                    Click to {isOpen ? "collapse" : "expand"}
-                  </Text>
-                </Card>
-              )}
-
               <Card as={Stack} spacing={4} p={4}>
                 <Heading size="md">Clarifications</Heading>
                 <MathJax math={test.clarifications ?? "None at this time."} />

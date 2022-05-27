@@ -238,6 +238,20 @@ const TestContent = () => {
           {test.type == "target" && ` (Submission ${(set ?? 0) + 1})`}
         </Heading>
 
+        {test.rules && (
+          <Card as={Stack} spacing={0} p={4} onClick={onToggle} cursor="pointer" position="relative">
+            <Heading size="md">Round Rules</Heading>
+            <Collapse in={isOpen} animateOpacity>
+              <Box mt={4}>
+                <MathJax math={test.rules} />
+              </Box>
+            </Collapse>
+            <Text fontSize="xs" color="gray.500" position="absolute" bottom={2} right={2}>
+              Click to {isOpen ? "collapse" : "expand"}
+            </Text>
+          </Card>
+        )}
+
         {displayProblems.map(([x, idx]) => (
           <Problem
             test={test}
@@ -268,20 +282,6 @@ const TestContent = () => {
             <Stack spacing={4} mt={4} {...style}>
               <TestTimer time={time} endTime={endTime} />
               {test.type === "target" && <TestTimer time={time} endTime={nextSetTime} target />}
-
-              {test.rules && (
-                <Card as={Stack} spacing={0} p={4} onClick={onToggle} cursor="pointer" position="relative">
-                  <Heading size="md">Round Rules</Heading>
-                  <Collapse in={isOpen} animateOpacity>
-                    <Box mt={4}>
-                      <MathJax math={test.rules} />
-                    </Box>
-                  </Collapse>
-                  <Text fontSize="xs" color="gray.500" position="absolute" bottom={2} right={2}>
-                    Click to {isOpen ? "collapse" : "expand"}
-                  </Text>
-                </Card>
-              )}
 
               <Card as={Stack} spacing={4} p={4}>
                 <Heading size="md">Clarifications</Heading>
