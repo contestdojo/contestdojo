@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Alert, AlertIcon, Heading, Stack, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, chakra, Heading, Stack, Text } from "@chakra-ui/react";
 import TeX from "@matejmazur/react-katex";
 import MathJax from "react-mathjax-preview";
 import { Sticky } from "react-sticky";
@@ -42,7 +42,7 @@ const Problem = ({ text, idx, submission, graded, solution }) => {
               <Heading size="sm">Your Submission</Heading>
               <TeX math={rendered} />
               <Text color="gray.500" fontSize="sm">
-                Raw: {submission}
+                Raw: <chakra.span fontFamily="mono">{submission}</chakra.span>
               </Text>
             </Card>
           )}
