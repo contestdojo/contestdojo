@@ -128,8 +128,9 @@ const TestContent = () => {
   if (test.type === "target") {
     numSets = Math.ceil(problems.length / test.numPerSet);
     const timePerSet = (test.duration / numSets) * 1000;
-    set = Math.floor(time.diff(startTime) / timePerSet);
-    nextSetTime = startTime.add(timePerSet * (set + 1), "milliseconds");
+    const setsRemaining = Math.floor(endTime.diff(time) / timePerSet);
+    set = numSets - setsRemaining - 1;
+    nextSetTime = endTime.subtract(timePerSet * setsRemaining, "milliseconds");
     displayProblems = displayProblems.slice(test.numPerSet * set, test.numPerSet * (set + 1));
   }
 
