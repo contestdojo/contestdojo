@@ -24,7 +24,7 @@ class ErrorBoundary extends React.Component {
           <AlertIcon />
           <Box>
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>An unexpected error has occurred. Try refreshing the page.</AlertDescription>
+            <AlertDescription>{this.state.error.message}</AlertDescription>
           </Box>
         </Alert>
       );

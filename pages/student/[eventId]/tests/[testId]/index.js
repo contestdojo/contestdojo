@@ -152,7 +152,7 @@ const TestContent = () => {
   }
 
   useEffect(() => {
-    if (set <= 0 || set === numSets) return;
+    if (set <= 0 || set >= numSets) return;
     openDialog({
       type: "alert",
       title: "Next Submission",

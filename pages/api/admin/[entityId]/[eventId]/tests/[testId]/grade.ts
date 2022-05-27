@@ -29,6 +29,8 @@ const handler = withFirebaseAuth(async (req, res) => {
     answersEntries = answersEntries.filter(([idx]) => idx === problemIdx.toString());
   }
 
+  const answersFreq = answersEntries.map<[string, { [key: string]: number }]>(([idx]) => [idx, {}]);
+
   const submissionsRef = testRef.collection("submissions");
   const submissions = await submissionsRef.get();
 
@@ -40,20 +42,35 @@ const handler = withFirebaseAuth(async (req, res) => {
   for (const s of submissions.docs) {
     const submission = s.data();
     const graded: { [key: string]: number | null } = {};
-    for (const [idx, problem] of answersEntries) {
+
+    for (const [_i, [idx, problem]] of answersEntries.entries()) {
       if (problem.hasOwnProperty(submission[`${idx}r`])) {
         graded[idx] = Number(problem[submission[`${idx}r`]]);
+
+        // Count freq
+        if (!answersFreq[_i][1][submission[`${idx}r`]]) answersFreq[_i][1][submission[`${idx}r`]] = 0;
+        answersFreq[_i][1][submission[`${idx}r`]]++;
       } else {
         graded[idx] = null;
       }
     }
+
     if (count === 500) {
       batches.push(firestore.batch());
       count = 0;
     }
+
     batches[batches.length - 1].set(gradedSubmissionsRef.doc(s.id), graded, { merge: true });
     count++;
   }
+
+  const solutionsRef = testRef.collection("private").doc("solutions");
+  const solutions = answersFreq.map(([idx, entry]) => [
+    idx,
+    Object.keys(entry).reduce((a, b) => (entry[a] > entry[b] ? a : b), "") || null,
+  ]);
+
+  batches[batches.length - 1].set(solutionsRef, Object.fromEntries(solutions), { merge: true });
 
   await Promise.all(batches.map((x) => x.commit()));
 

@@ -12,6 +12,7 @@ import MathJax from "react-mathjax-preview";
 import { useAuth, useFirestoreCollectionData } from "reactfire";
 
 import AdminTableView, { sumReducer } from "~/components/AdminTableView";
+import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { toDict, useFormState } from "~/helpers/utils";
@@ -70,14 +71,27 @@ const Submissions = () => {
   // funcs
   const auth = useAuth();
   const [{ isLoading }, wrapAction] = useFormState();
+  const [openDialog] = useDialog();
 
-  const handleClick = wrapAction(async () => {
+  const handleRegrade = wrapAction(async () => {
     const authorization = await auth.currentUser.getIdToken();
     await fetch(`/api/admin/${event.owner.id}/${eventId}/tests/${testId}/grade`, {
       method: "POST",
       headers: { authorization },
     });
   });
+
+  const handleRelease = () => {
+    openDialog({
+      type: "confirm",
+      title: "Are you sure?",
+      description: "Students will be able to view their graded tests.",
+      onConfirm: wrapAction(async () => {
+        await handleRegrade();
+        await testRef.update({ resultsReleased: true });
+      }),
+    });
+  };
 
   // Make table
 
@@ -131,9 +145,14 @@ const Submissions = () => {
         filename={`${test.id}.csv`}
         tableProps={{ variant: "lined" }}
         extraButtons={
-          <Button onClick={handleClick} isLoading={isLoading}>
-            Re-grade All
-          </Button>
+          <>
+            <Button onClick={handleRelease} isLoading={isLoading}>
+              Release Results
+            </Button>
+            <Button onClick={handleRegrade} isLoading={isLoading}>
+              Re-grade All
+            </Button>
+          </>
         }
       />
     </Stack>

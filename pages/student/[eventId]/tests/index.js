@@ -37,7 +37,21 @@ dayjs.extend(relativeTime);
 dayjs.extend(minMax);
 dayjs.extend(duration);
 
-const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time, openTime, closeTime, waiting }) => {
+const TestCard = ({
+  eventId,
+  id,
+  name,
+  team,
+  duration,
+  onStart,
+  isLoading,
+  student,
+  time,
+  openTime,
+  closeTime,
+  waiting,
+  resultsReleased,
+}) => {
   const [openDialog] = useDialog();
   const { ref: eventRef } = useEvent();
 
@@ -84,8 +98,22 @@ const TestCard = ({ id, name, team, duration, onStart, isLoading, student, time,
 
   if (submission.exists) {
     if (time.toDate() > submission.data().endTime.toDate()) {
-      order = 100;
-      children = <Icon as={HiCheck} color="green.500" fontSize="2xl" />;
+      if (resultsReleased) {
+        order = 200;
+        children = (
+          <ButtonLink
+            href={`/student/${eventId}/tests/${id}/results`}
+            size="sm"
+            colorScheme="blue"
+            isLoading={isLoading === id}
+          >
+            View Results
+          </ButtonLink>
+        );
+      } else {
+        order = 100;
+        children = <Icon as={HiCheck} color="green.500" fontSize="2xl" />;
+      }
     } else {
       order = -200;
       children = (
@@ -344,6 +372,7 @@ const Tests = () => {
               {displayTests.map((x) => (
                 <TestCard
                   key={x.id}
+                  eventId={event.id}
                   {...x}
                   onStart={() => handleStartTest(x.id)}
                   isLoading={isLoading}
