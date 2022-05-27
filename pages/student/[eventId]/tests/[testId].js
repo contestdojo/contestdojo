@@ -114,6 +114,7 @@ const TestContent = () => {
   const { data: submission } = useFirestoreDocData(submissionRef);
   const startTime = dayjs(submission.startTime.toDate());
   const endTime = dayjs(submission.endTime.toDate());
+  let numSets;
   let set;
   let nextSetTime;
 
@@ -125,7 +126,7 @@ const TestContent = () => {
   }
 
   if (test.type === "target") {
-    const numSets = Math.ceil(problems.length / test.numPerSet);
+    numSets = Math.ceil(problems.length / test.numPerSet);
     const timePerSet = (test.duration / numSets) * 1000;
     set = Math.floor(time.diff(startTime) / timePerSet);
     nextSetTime = startTime.add(timePerSet * (set + 1), "milliseconds");
@@ -133,7 +134,7 @@ const TestContent = () => {
   }
 
   useEffect(() => {
-    if (set === 0) return;
+    if (set === 0 || set === numSets) return;
     openDialog({
       type: "alert",
       title: "Next Set",
