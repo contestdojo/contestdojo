@@ -10,6 +10,7 @@ import {
   AlertIcon,
   AlertTitle,
   Button,
+  chakra,
   Heading,
   Icon,
   Input,
@@ -62,6 +63,7 @@ const Problem = ({ test, text, idx, submission, onUpdate }) => {
       <MathJax math={text} config={{ menuSettings: { inTabOrder: false } }} />
 
       <Input
+        fontFamily="mono"
         value={value ?? ""}
         onChange={(e) => {
           setValue(e.target.value);
@@ -73,9 +75,24 @@ const Problem = ({ test, text, idx, submission, onUpdate }) => {
 
       {rendered && <TeX math={rendered} />}
 
-      {isLoading && <Text color="yellow.500">Saving...</Text>}
-      {!isLoading && !error && submission && <Text color="green.500">Saved: {submission}</Text>}
-      {error && <Text color="red.500">Error: {error.message}</Text>}
+      {isLoading && (
+        <Text color="yellow.500" fontSize="sm">
+          Saving...
+        </Text>
+      )}
+      {!isLoading && !error && submission && (
+        <Text color="green.500" fontSize="sm">
+          Saved:{" "}
+          <chakra.span fontFamily="mono" fontSize>
+            {submission}
+          </chakra.span>
+        </Text>
+      )}
+      {error && (
+        <Text color="red.500" fontSize="sm">
+          Error: {error.message}
+        </Text>
+      )}
     </Card>
   );
 };
