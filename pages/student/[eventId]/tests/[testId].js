@@ -80,7 +80,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
   );
 };
 
-const TestTimer = ({ time, endTime }) => {
+const TestTimer = ({ time, endTime, type }) => {
   const timeRemaining = dayjs.duration(endTime.diff(time));
   const mins = timeRemaining.asMinutes();
   const color = mins < 1 ? "red" : mins < 5 ? "orange" : "blue";
@@ -88,7 +88,7 @@ const TestTimer = ({ time, endTime }) => {
   return (
     <Alert size="xl" colorScheme={color}>
       <AlertIcon />
-      <AlertTitle>Time Remaining</AlertTitle>
+      <AlertTitle>{type === "target" ? "This Set" : "Time Remaining"}</AlertTitle>
       <AlertDescription>{timeRemaining.format("HH:mm:ss")}</AlertDescription>
     </Alert>
   );
@@ -112,14 +112,34 @@ const TestContent = () => {
   const submissionId = test.team ? student.team.id : user.uid;
   const submissionRef = testRef.collection("submissions").doc(submissionId);
   const { data: submission } = useFirestoreDocData(submissionRef);
+  const startTime = dayjs(submission.startTime.toDate());
   const endTime = dayjs(submission.endTime.toDate());
+  let set;
+  let nextSetTime;
 
   let displayProblems = problems.map((x, idx) => [x, idx]);
 
-  if (test.type == "guts") {
-    const set = submission.gutsSet ?? 0;
+  if (test.type === "guts") {
+    set = submission.gutsSet ?? 0;
     displayProblems = displayProblems.slice(test.numPerSet * set, test.numPerSet * (set + 1));
   }
+
+  if (test.type === "target") {
+    const numSets = Math.ceil(problems.length / test.numPerSet);
+    const timePerSet = (test.duration / numSets) * 1000;
+    set = Math.floor(time.diff(startTime) / timePerSet);
+    nextSetTime = startTime.add(timePerSet * (set + 1), "milliseconds");
+    displayProblems = displayProblems.slice(test.numPerSet * set, test.numPerSet * (set + 1));
+  }
+
+  useEffect(() => {
+    if (set === 0) return;
+    openDialog({
+      type: "alert",
+      title: "Next Set",
+      description: `You have moved onto Set ${set + 1}.`,
+    });
+  }, [set]);
 
   const handleUpdate = async (update) => {
     await submissionRef.update(update);
@@ -191,6 +211,7 @@ const TestContent = () => {
         <Heading size="lg">
           {test.name}
           {test.type == "guts" && ` (Set ${(submission.gutsSet ?? 0) + 1})`}
+          {test.type == "target" && ` (Set ${(submission.gutsSet ?? 0) + 1})`}
         </Heading>
 
         {displayProblems.map(([x, idx]) => (
@@ -215,11 +236,12 @@ const TestContent = () => {
           </Button>
         )}
       </Stack>
+
       <Stack flexBasis={300} flexShrink={0} spacing={4} style={{ marginTop: "-1rem" }}>
         <Sticky relative>
           {({ style }) => (
             <Stack spacing={4} mt={4} {...style}>
-              <TestTimer time={time} endTime={endTime} />
+              <TestTimer time={time} endTime={test.type === "target" ? nextSetTime : endTime} type={test.type} />
               <Card as={Stack} spacing={4} p={4}>
                 <Heading size="md">Clarifications</Heading>
                 <MathJax math={test.clarifications ?? "None at this time."} />

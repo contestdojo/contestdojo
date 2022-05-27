@@ -211,6 +211,11 @@ const TestCard = ({
               Guts
             </Tag>
           )}
+          {type === "target" && (
+            <Tag size="sm" colorScheme="blue">
+              Target
+            </Tag>
+          )}
         </HStack>
         <Text color="gray.500">Duration: {duration / 60} minutes</Text>
         {open && <Text color="red.500">Closes {closeTime.format("MM/DD/YYYY h:mm A")}</Text>}

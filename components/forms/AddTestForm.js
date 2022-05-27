@@ -23,11 +23,11 @@ import FormField from "~/components/FormField";
 
 const schema = yup.object({
   name: yup.string().required().label("Name"),
-  type: yup.string().required().oneOf(["standard", "guts"], "Invalid type").label("Type"),
+  type: yup.string().required().oneOf(["standard", "guts", "target"], "Invalid type").label("Type"),
   duration: yup.number().typeError("Invalid number").required().label("Duration"),
   team: yup.boolean().required(),
   numPerSet: yup.number().when("type", {
-    is: "guts",
+    is: (x) => ["guts", "target"].includes(x),
     then: yup.number().typeError("Invalid number").required(),
   }),
 });
@@ -62,7 +62,7 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
           ref={register}
           type="number"
           name="duration"
-          label="Duration (seconds)"
+          label="Total Duration (seconds)"
           placeholder="300"
           error={errors.duration}
           isRequired
@@ -73,11 +73,24 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
           <Select ref={register} name="type" placeholder="Select option">
             <option value="standard">Standard</option>
             <option value="guts">Guts</option>
+            <option value="target">Target</option>
           </Select>
           <FormErrorMessage>{errors.type?.message}</FormErrorMessage>
         </FormControl>
 
         {watch("type") === "guts" && (
+          <FormField
+            ref={register}
+            type="number"
+            name="numPerSet"
+            label="# Problems Per Set"
+            placeholder="4"
+            error={errors.numPerSet}
+            isRequired
+          />
+        )}
+
+        {watch("type") === "target" && (
           <FormField
             ref={register}
             type="number"
