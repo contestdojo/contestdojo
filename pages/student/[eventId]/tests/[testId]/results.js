@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Alert, AlertIcon, chakra, Heading, Stack, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, chakra, Collapse, Heading, Stack, Text, useDisclosure } from "@chakra-ui/react";
 import TeX from "@matejmazur/react-katex";
 import MathJax from "react-mathjax-preview";
 import { Sticky } from "react-sticky";
@@ -19,8 +19,6 @@ const parser = new AsciiMathParser();
 
 const Problem = ({ text, idx, submission, graded, solution }) => {
   const rendered = submission && parser.parse(submission);
-
-  console.log(solution);
 
   return (
     <Card as={Stack} p={4} spacing={4} flex={1}>
@@ -82,7 +80,7 @@ const TestContent = () => {
   const solutionsRef = testRef.collection("private").doc("solutions");
   const { data: solutions } = useFirestoreDocData(solutionsRef);
 
-  // Guts
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true });
 
   if (!submission.startTime) {
     return (
@@ -114,6 +112,20 @@ const TestContent = () => {
         <Sticky relative>
           {({ style }) => (
             <Stack spacing={4} mt={4} {...style}>
+              {test.rules && (
+                <Card as={Stack} spacing={0} p={4} onClick={onToggle} cursor="pointer" position="relative">
+                  <Heading size="md">Round Rules</Heading>
+                  <Collapse in={isOpen} animateOpacity>
+                    <Box mt={4}>
+                      <MathJax math={test.rules} />
+                    </Box>
+                  </Collapse>
+                  <Text fontSize="xs" color="gray.500" position="absolute" bottom={2} right={2}>
+                    Click to {isOpen ? "collapse" : "expand"}
+                  </Text>
+                </Card>
+              )}
+
               <Card as={Stack} spacing={4} p={4}>
                 <Heading size="md">Clarifications</Heading>
                 <MathJax math={test.clarifications ?? "None at this time."} />
