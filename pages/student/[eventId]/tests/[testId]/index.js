@@ -37,7 +37,7 @@ import { useFormState, useTime } from "~/helpers/utils";
 
 const parser = new AsciiMathParser();
 
-const Problem = ({ text, idx, submission, onUpdate }) => {
+const Problem = ({ test, text, idx, submission, onUpdate }) => {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const [{ isLoading, error }, wrapAction] = useFormState();
@@ -58,7 +58,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
 
   return (
     <Card as={Stack} p={4} spacing={4} flex={1}>
-      <Heading size="md">Problem {idx + 1}</Heading>
+      {test.type !== "target" && <Heading size="md">Problem {idx + 1}</Heading>}
       <MathJax math={text} config={{ menuSettings: { inTabOrder: false } }} />
 
       <Input
@@ -134,11 +134,11 @@ const TestContent = () => {
   }
 
   useEffect(() => {
-    if (set === 0 || set === numSets) return;
+    if (set <= 0 || set === numSets) return;
     openDialog({
       type: "alert",
-      title: "Next Set",
-      description: `You have moved onto Set ${set + 1}.`,
+      title: "Next Submission",
+      description: `You have moved onto Submission ${set + 1}.`,
     });
   }, [set]);
 
@@ -212,11 +212,12 @@ const TestContent = () => {
         <Heading size="lg">
           {test.name}
           {test.type == "guts" && ` (Set ${(submission.gutsSet ?? 0) + 1})`}
-          {test.type == "target" && ` (Set ${(set ?? 0) + 1})`}
+          {test.type == "target" && ` (Submission ${(set ?? 0) + 1})`}
         </Heading>
 
         {displayProblems.map(([x, idx]) => (
           <Problem
+            test={test}
             key={idx}
             idx={idx}
             text={x}
