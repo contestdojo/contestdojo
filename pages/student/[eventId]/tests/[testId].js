@@ -80,7 +80,7 @@ const Problem = ({ text, idx, submission, onUpdate }) => {
   );
 };
 
-const TestTimer = ({ time, endTime, type }) => {
+const TestTimer = ({ time, endTime, target = false }) => {
   const timeRemaining = dayjs.duration(endTime.diff(time));
   const mins = timeRemaining.asMinutes();
   const color = mins < 1 ? "red" : mins < 5 ? "orange" : "blue";
@@ -88,7 +88,7 @@ const TestTimer = ({ time, endTime, type }) => {
   return (
     <Alert size="xl" colorScheme={color}>
       <AlertIcon />
-      <AlertTitle>{type === "target" ? "This Set" : "Time Remaining"}</AlertTitle>
+      <AlertTitle>{target ? "This Set" : "Time Remaining"}</AlertTitle>
       <AlertDescription>{timeRemaining.format("HH:mm:ss")}</AlertDescription>
     </Alert>
   );
@@ -212,7 +212,7 @@ const TestContent = () => {
         <Heading size="lg">
           {test.name}
           {test.type == "guts" && ` (Set ${(submission.gutsSet ?? 0) + 1})`}
-          {test.type == "target" && ` (Set ${(submission.gutsSet ?? 0) + 1})`}
+          {test.type == "target" && ` (Set ${(set ?? 0) + 1})`}
         </Heading>
 
         {displayProblems.map(([x, idx]) => (
@@ -242,7 +242,8 @@ const TestContent = () => {
         <Sticky relative>
           {({ style }) => (
             <Stack spacing={4} mt={4} {...style}>
-              <TestTimer time={time} endTime={test.type === "target" ? nextSetTime : endTime} type={test.type} />
+              <TestTimer time={time} endTime={endTime} />
+              {test.type === "target" && <TestTimer time={time} endTime={nextSetTime} target />}
               <Card as={Stack} spacing={4} p={4}>
                 <Heading size="md">Clarifications</Heading>
                 <MathJax math={test.clarifications ?? "None at this time."} />
