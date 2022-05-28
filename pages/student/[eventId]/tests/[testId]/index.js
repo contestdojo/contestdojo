@@ -155,6 +155,7 @@ const TestContent = () => {
   }
 
   useEffect(() => {
+    if (test.type !== "target") return;
     if (set <= 0 || set >= numSets) return;
     openDialog({
       type: "alert",
