@@ -33,7 +33,7 @@ const Editor = ({ label, text, onUpdate, isLoading, error }) => {
         )}
       </Card>
       <Card as={Stack} p={4} spacing={4} flex={1}>
-        <Heading size="md">Clarifications</Heading>
+        <Heading size="md">{label}</Heading>
         <MathJax math={state} />
       </Card>
     </Stack>
