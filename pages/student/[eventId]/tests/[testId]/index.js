@@ -101,7 +101,7 @@ const Problem = ({ test, text, idx, submission, onUpdate }) => {
 };
 
 const TestTimer = ({ time, endTime, target = false }) => {
-  const timeRemaining = dayjs.duration(endTime.diff(time));
+  const timeRemaining = dayjs.duration(Math.max(endTime.diff(time) - 2000, 0));
   const mins = timeRemaining.asMinutes();
   const color = mins < 1 ? "red" : mins < 5 ? "orange" : "blue";
 
