@@ -89,6 +89,10 @@ const AddAnswerModal = ({ isOpen, onClose, onUpdate }) => {
   const [correct, setCorrect] = useState(true);
   const rendered = value && parser.parse(value);
 
+  useEffect(() => {
+    setValue("");
+  }, [isOpen]);
+
   const handleSubmit = wrapAction(async () => {
     await onUpdate({ [rendered]: correct });
     onClose();
