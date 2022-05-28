@@ -52,9 +52,8 @@ const Answer = ({ text, correct, count, onUpdate }) => {
       minH="16"
       borderColor={correct === true ? "green.500" : correct === false ? "red.500" : undefined}
       backgroundColor={correct === true ? "green.50" : correct === false ? "red.50" : undefined}
-      overflow="hidden"
     >
-      <HStack p={3} flex="1">
+      <HStack p={4} flex="1" overflow="scroll" height="full">
         <TeX math={text} />
         <Text color={correct === undefined ? "gray.500" : "gray.300"}>&times;{count}</Text>
       </HStack>
