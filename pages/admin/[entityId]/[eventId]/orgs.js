@@ -11,7 +11,7 @@ import AdminTableView, { addRemoveRenderer, sumReducer, updateRenderer } from "~
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useImpersonate } from "~/helpers/utils";
 
-const OrgsTable = ({ orgs, studentsByOrg, onUpdate }) => {
+const OrgsTable = ({ event, orgs, studentsByOrg, onUpdate }) => {
   const impersonate = useImpersonate();
 
   const cols = [
@@ -20,24 +20,28 @@ const OrgsTable = ({ orgs, studentsByOrg, onUpdate }) => {
     { label: "Address", key: "address", hideByDefault: true },
     { label: "Contact", key: "admin" },
     { label: "Contact Email", key: "adminEmail" },
-    {
-      label: "# Seats Purchased",
-      key: "maxStudents",
-      renderer: addRemoveRenderer(onUpdate, "maxStudents"),
-      reducer: sumReducer,
-    },
+    event.costPerStudent
+      ? {
+          label: "# Seats Purchased",
+          key: "maxStudents",
+          renderer: addRemoveRenderer(onUpdate, "maxStudents"),
+          reducer: sumReducer,
+        }
+      : undefined,
     { label: "# Students Added", key: "numStudents", reducer: sumReducer },
     {
       label: "# Students Assigned",
       key: "numStudentsAssigned",
-      renderer: (val, row) => (
-        <HStack>
-          <Text>{val}</Text>
-          <Text fontSize="xs" color={row.maxStudents === val ? "gray.300" : "red.300"}>
-            {row.maxStudents - val} left
-          </Text>
-        </HStack>
-      ),
+      renderer: event.costPerStudent
+        ? (val, row) => (
+            <HStack>
+              <Text>{val}</Text>
+              <Text fontSize="xs" color={row.maxStudents === val ? "gray.300" : "red.300"}>
+                {row.maxStudents - val} left
+              </Text>
+            </HStack>
+          )
+        : undefined,
       reducer: sumReducer,
     },
     { label: "Notes", key: "notes", renderer: updateRenderer(onUpdate, "notes") },
@@ -67,7 +71,14 @@ const OrgsTable = ({ orgs, studentsByOrg, onUpdate }) => {
     notes: x.notes ?? "",
   }));
 
-  return <AdminTableView cols={cols} rows={rows} defaultSortKey="name" filename="organizations.csv" />;
+  return (
+    <AdminTableView
+      cols={cols.filter((x) => x !== undefined)}
+      rows={rows}
+      defaultSortKey="name"
+      filename="organizations.csv"
+    />
+  );
 };
 
 const OrgsTab = () => {
