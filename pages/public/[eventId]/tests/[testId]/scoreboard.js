@@ -27,9 +27,7 @@ import EventProvider from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useTime } from "~/helpers/utils";
 
-const points = [
-  10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 15, 15, 15, 17, 17, 17, 19, 19, 19, 22, 22, 22, 25, 25, 25,
-];
+const points = [3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 7, 7, 7];
 
 const TestContent = () => {
   const { ref: testRef, data: test } = useTest();
@@ -41,12 +39,12 @@ const TestContent = () => {
   }
 
   let displayGraded = graded
+    .map((x) => ({ ...x, gutsSet: Math.min(x.gutsSet, 7) })) // Limit to 7
     .map((x) => ({
       ...x,
-      gutsSet: Math.min(x.gutsSet, 8),
       score: Object.entries(x)
         .filter((e) => Object.keys(points).includes(e[0]))
-        .filter((e) => Number(e[0]) < test.numPerSet * Math.min(x.gutsSet, 8))
+        .filter((e) => Number(e[0]) < test.numPerSet * x.gutsSet, 7)
         .reduce((acc, [idx, val]) => acc + points[idx] * val, 0),
     }))
     .sort((a, b) => b.score - a.score);
@@ -69,7 +67,7 @@ const TestContent = () => {
         <Heading size="2xl">{timer}</Heading>
         <Text textAlign="center">
           Scores are preliminary and may change as tests are graded. <br />
-          Set 9 scores are not reflected on this leaderboard.
+          Set 8 &amp; 9 scores are not reflected on this leaderboard.
         </Text>
       </VStack>
       <Table size="sm">
