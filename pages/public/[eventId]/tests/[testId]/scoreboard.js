@@ -67,7 +67,7 @@ const TestContent = () => {
         <Heading size="2xl">{timer}</Heading>
         <Text textAlign="center">
           Scores are preliminary and may change as tests are graded. <br />
-          Set 8 &amp; 9 scores are not reflected on this leaderboard.
+          Set 8 &amp; Set 9 scores are not reflected on this leaderboard.
         </Text>
       </VStack>
       <Table size="sm">
