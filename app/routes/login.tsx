@@ -15,7 +15,7 @@ export const action: ActionFunction = async ({ request }) => {
   const { idToken } = LoginFields.parse(formData);
 
   const url = new URL(request.url);
-  const redirectTo = url.searchParams.get("next") ?? "/admin";
+  const redirectTo = url.searchParams.get("next") ?? "/";
   return loginWithIdToken(idToken, redirectTo);
 };
 

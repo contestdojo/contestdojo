@@ -1,4 +1,4 @@
-import { createCookie, redirect } from "@remix-run/node";
+import { createCookie, redirect, Response } from "@remix-run/node";
 import { fromUnixTime, isBefore, subMinutes } from "date-fns";
 import { auth, firestore } from "./firebase.server";
 
@@ -60,7 +60,7 @@ function getSessionCookie(request: Request) {
   return session.parse(request.headers.get("Cookie"));
 }
 
-export async function verifySession(request: Request): Promise<User> {
+export async function requireSession(request: Request): Promise<User> {
   let decodedIdToken;
 
   try {
@@ -79,4 +79,12 @@ export async function verifySession(request: Request): Promise<User> {
     displayName: user.displayName,
     isAdmin: user.customClaims?.admin === true,
   };
+}
+
+export async function requireAdmin(request: Request) {
+  const user = await requireSession(request);
+  if (!user.isAdmin) {
+    throw new Response("You must be an admin to view this page.", { status: 401 });
+  }
+  return user;
 }
