@@ -41,6 +41,7 @@ export default function IndexRoute() {
             <th>ID</th>
             <th>Name</th>
             <th>Address</th>
+            <th>Contact ID</th>
             <th>Contact Name</th>
             <th>Contact Email</th>
             <th>Seats Purchased</th>
@@ -55,6 +56,7 @@ export default function IndexRoute() {
               <td>
                 {x.address}, {x.city}, {x.state}, {x.country} {x.zip}
               </td>
+              <td>{x.admin.id}</td>
               <td>
                 {x.adminData.fname} {x.adminData.lname}
               </td>
