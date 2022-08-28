@@ -1,5 +1,6 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
+import styles from "~/tailwind.css";
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -15,6 +16,7 @@ export const links: LinksFunction = () => [
   { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
   { rel: "manifest", href: "/site.webmanifest" },
   { rel: "mask-icon", href: "/safari-pinned-tab.svg", color: "#f40808" },
+  { rel: "stylesheet", href: styles },
 ];
 
 export default function App() {
