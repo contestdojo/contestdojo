@@ -66,11 +66,28 @@ const EventOrganization = zfb.firestoreObject(
   })
 );
 
+const EventStudent = zfb.firestoreObject(
+  z.object({
+    id: z.string(),
+    email: z.string(),
+    fname: z.string(),
+    lname: z.string(),
+    grade: z.number(),
+    user: zfb.documentReference(),
+    org: zfb.documentReference(),
+    team: zfb.documentReference().optional().nullable(),
+    number: z.string().optional(),
+    waiver: z.string().optional(),
+    notes: z.string().optional(),
+  })
+);
+
 export type User = z.infer<typeof User>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Entity = z.infer<typeof Entity>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Event = z.infer<typeof Event>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Organization = z.infer<typeof Organization>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EventOrganization = z.infer<typeof EventOrganization>; // eslint-disable-line @typescript-eslint/no-redeclare
+export type EventStudent = z.infer<typeof EventStudent>; // eslint-disable-line @typescript-eslint/no-redeclare
 
 namespace db {
   // Collections
@@ -82,6 +99,10 @@ namespace db {
 
   export function eventOrgs(eventId: string) {
     return events.doc(eventId).collection("orgs").withConverter(EventOrganization.converter);
+  }
+
+  export function eventStudents(eventId: string) {
+    return events.doc(eventId).collection("students").withConverter(EventStudent.converter);
   }
 
   // Documents
@@ -104,6 +125,10 @@ namespace db {
 
   export function eventOrg(eventId: string, id: string) {
     return eventOrgs(eventId).doc(id).withConverter(EventOrganization.converter);
+  }
+
+  export function eventStudent(eventId: string, id: string) {
+    return eventStudents(eventId).doc(id).withConverter(EventStudent.converter);
   }
 }
 
