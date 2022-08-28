@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import type { User } from "~/utils/auth.server";
 import { requireAdmin } from "~/utils/auth.server";
 
@@ -18,7 +18,9 @@ export default function AdminRoute() {
 
   return (
     <div>
-      <h1>Admin Page</h1>
+      <h1>
+        <Link to=".">Admin Page</Link>
+      </h1>
       <p>Logged in as: {loaderData.user.displayName}</p>
       <Outlet />
     </div>

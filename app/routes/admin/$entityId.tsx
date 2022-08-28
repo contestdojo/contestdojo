@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import type { Entity } from "~/utils/db.server";
 import db from "~/utils/db.server";
 
@@ -23,7 +23,9 @@ export default function EntityIdRoute() {
 
   return (
     <div>
-      <h2>{loaderData.entity.name}</h2>
+      <h2>
+        <Link to=".">{loaderData.entity.name}</Link>
+      </h2>
       <Outlet />
     </div>
   );
