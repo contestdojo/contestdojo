@@ -14,7 +14,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const eventSnap = await db.event(params.eventId).get();
   const event = eventSnap.data();
 
-  if (!event) throw new Response("Entity not found.", { status: 404 });
+  if (!event) throw new Response("Event not found.", { status: 404 });
 
   return json<LoaderData>({ event });
 };
@@ -36,6 +36,7 @@ export default function EntityIdRoute() {
           <Link to="students">Students</Link>
         </li>
       </ul>
+      <hr />
       <Outlet />
     </div>
   );

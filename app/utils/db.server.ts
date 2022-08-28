@@ -12,6 +12,25 @@ const User = zfb.firestoreObject(
   })
 );
 
+const Organization = zfb.firestoreObject(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    admin: zfb.documentReference(),
+    address: z.string(),
+    city: z.string(),
+    state: z.string(),
+    country: z.string(),
+    zip: z.string(),
+    adminData: z.object({
+      email: z.string(),
+      fname: z.string(),
+      lname: z.string(),
+      type: z.string(),
+    }),
+  })
+);
+
 const Entity = zfb.firestoreObject(
   z.object({
     id: z.string(),
@@ -39,17 +58,40 @@ const Event = zfb.firestoreObject(
   })
 );
 
+const EventOrganization = zfb.firestoreObject(
+  z.object({
+    id: z.string(),
+    maxStudents: z.number().optional(),
+    notes: z.string().optional(),
+  })
+);
+
 export type User = z.infer<typeof User>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Entity = z.infer<typeof Entity>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Event = z.infer<typeof Event>; // eslint-disable-line @typescript-eslint/no-redeclare
+export type Organization = z.infer<typeof Organization>; // eslint-disable-line @typescript-eslint/no-redeclare
+export type EventOrganization = z.infer<typeof EventOrganization>; // eslint-disable-line @typescript-eslint/no-redeclare
 
 namespace db {
+  // Collections
+
   export const users = firestore.collection("users").withConverter(User.converter);
+  export const orgs = firestore.collection("orgs").withConverter(Organization.converter);
   export const entities = firestore.collection("entities").withConverter(Entity.converter);
   export const events = firestore.collection("events").withConverter(Event.converter);
 
+  export function eventOrgs(eventId: string) {
+    return events.doc(eventId).collection("orgs").withConverter(EventOrganization.converter);
+  }
+
+  // Documents
+
   export function user(id: string) {
     return users.doc(id).withConverter(User.converter);
+  }
+
+  export function org(id: string) {
+    return orgs.doc(id).withConverter(Organization.converter);
   }
 
   export function entity(id: string) {
@@ -58,6 +100,10 @@ namespace db {
 
   export function event(id: string) {
     return events.doc(id).withConverter(Event.converter);
+  }
+
+  export function eventOrg(eventId: string, id: string) {
+    return eventOrgs(eventId).doc(id).withConverter(EventOrganization.converter);
   }
 }
 
