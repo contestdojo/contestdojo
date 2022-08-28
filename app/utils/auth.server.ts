@@ -15,8 +15,8 @@ const session = createCookie("session", {
 });
 
 async function migrateLegacyProfile(uid: string) {
-  const userSnapshot = await firestore.collection("users").doc(uid).get();
-  const user = userSnapshot.data();
+  const userSnap = await firestore.collection("users").doc(uid).get();
+  const user = userSnap.data();
   if (!user) return;
 
   if (user.fname && user.lname) {
