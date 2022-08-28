@@ -12,14 +12,20 @@ export const firestoreObject = <
   return {
     ...schema,
     converter: {
-      toFirestore: (data: z.infer<S>) => data,
+      toFirestore: (data: never) => {
+        throw new Error("Unimplemented");
+      },
       fromFirestore: (snapshot: QueryDocumentSnapshot) =>
         schema.parse({ ...snapshot.data(), id: snapshot.id }) as z.infer<S>,
     },
   };
 };
 
+export type DocumentReferenceInfo = { path: string; id: string };
+
 export const documentReference = () =>
-  z.custom<DocumentReference>((data) => data instanceof DocumentReference);
+  z
+    .custom<DocumentReference>((data) => data instanceof DocumentReference)
+    .transform<DocumentReferenceInfo>((x) => ({ path: x.path, id: x.id }));
 
 export const timestamp = () => z.custom<Timestamp>((data) => data instanceof Timestamp);
