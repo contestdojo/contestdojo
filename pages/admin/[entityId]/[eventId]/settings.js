@@ -5,6 +5,7 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { Button, Heading, HStack, Stack, Switch, Text } from "@chakra-ui/react";
+import firebase from "firebase";
 import { useAuth } from "reactfire";
 
 import Card from "~/components/Card";
@@ -24,7 +25,14 @@ const EventDetails = () => {
   };
 
   const handleSubmit = wrapAction(async (values) => {
-    await eventRef.update(values);
+    await eventRef.update(
+      Object.fromEntries(
+        Object.entries(values).map(([k, v]) =>
+          // Empty field = delete
+          v === "" ? [k, firebase.firestore.FieldValue.delete()] : [k, v]
+        )
+      )
+    );
   });
 
   // Roster
