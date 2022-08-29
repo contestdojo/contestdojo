@@ -97,7 +97,6 @@ type EntityEventSelectorProps<T> = {
   current?: T;
   icon: JSX.Element;
   label: string;
-  mobile?: boolean;
   align?: "left" | "right";
   to: (item: T) => string;
 };
@@ -107,7 +106,6 @@ function EntityEventSelector<T extends { id: string; name: string }>({
   current,
   icon,
   label,
-  mobile,
   align,
   to,
 }: EntityEventSelectorProps<T>) {
@@ -249,7 +247,6 @@ export default function AdminRoute() {
                     label="Entity"
                     to={(x) => x.id}
                     align="left"
-                    mobile
                   />
 
                   {events && (
@@ -259,7 +256,6 @@ export default function AdminRoute() {
                       icon={<CalendarIcon className="mr-2 h-5 w-5" aria-hidden="true" />}
                       label="Event"
                       to={(x) => `${x.owner.id}/${x.id}`}
-                      mobile
                     />
                   )}
                 </div>
