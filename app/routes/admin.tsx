@@ -85,11 +85,54 @@ function MobileNavItem({ children, ...props }: MobileNavItemProps) {
 
 function NavDivider() {
   return (
-    <div className="relative self-stretch">
+    <div className="relative hidden self-stretch lg:block">
       <div className="absolute inset-0 flex items-center" aria-hidden="true">
         <div className="h-full border-l border-gray-700" />
       </div>
     </div>
+  );
+}
+
+type EntityEventSelectorProps<T> = {
+  all: T[];
+  current?: T;
+  icon: JSX.Element;
+  label: string;
+  mobile?: boolean;
+  align?: "left" | "right";
+  to: (item: T) => string;
+};
+
+function EntityEventSelector<T extends { id: string; name: string }>({
+  all,
+  current,
+  icon,
+  label,
+  mobile,
+  align,
+  to,
+}: EntityEventSelectorProps<T>) {
+  return (
+    <Dropdown className="grow">
+      <Menu.Button
+        className={clsx`flex w-full items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white ${
+          current ? "text-white" : "text-gray-400"
+        } ${mobile ? "w-full" : ""}`}
+      >
+        {icon}
+        {current?.name ?? `Select ${label}...`}
+        <div className="grow" />
+        <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+      </Menu.Button>
+
+      <Dropdown.Items align={align}>
+        {all.map((x) => (
+          <Dropdown.Item key={x.id} to={to(x)}>
+            {x.name}
+          </Dropdown.Item>
+        ))}
+      </Dropdown.Items>
+    </Dropdown>
   );
 }
 
@@ -120,54 +163,30 @@ export default function AdminRoute() {
 
                 <NavDivider />
 
-                <div className="hidden gap-4 md:flex">
-                  {
-                    <Dropdown>
-                      <Menu.Button
-                        className={clsx`flex justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white  ${
-                          entity ? "text-white" : "text-gray-400"
-                        }`}
-                      >
-                        <BuildingOffice2Icon className="mr-2 h-5 w-5" aria-hidden="true" />
-                        {entity?.name ?? "Select Entity..."}
-                        <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
-                      </Menu.Button>
-                      <Dropdown.Items>
-                        {entities.map((x) => (
-                          <Dropdown.Item key={x.id} to={x.id}>
-                            {x.name}
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown.Items>
-                    </Dropdown>
-                  }
+                <div className="hidden gap-4 lg:flex">
+                  <EntityEventSelector
+                    all={entities}
+                    current={entity}
+                    icon={<BuildingOffice2Icon className="mr-2 h-5 w-5" aria-hidden="true" />}
+                    label="Entity"
+                    to={(x) => x.id}
+                  />
 
                   {events && (
-                    <Dropdown>
-                      <Menu.Button
-                        className={clsx`flex justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-medium ${
-                          event ? "text-white" : "text-gray-400"
-                        }`}
-                      >
-                        <CalendarIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-                        {event?.name ?? "Select Event..."}
-                        <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
-                      </Menu.Button>
-                      <Dropdown.Items>
-                        {events.map((x) => (
-                          <Dropdown.Item key={x.id} to={`${x.owner.id}/${x.id}`}>
-                            {x.name}
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown.Items>
-                    </Dropdown>
+                    <EntityEventSelector
+                      all={events}
+                      current={event}
+                      icon={<CalendarIcon className="mr-2 h-5 w-5" aria-hidden="true" />}
+                      label="Event"
+                      to={(x) => `${x.owner.id}/${x.id}`}
+                    />
                   )}
                 </div>
 
                 {entity && event && (
                   <>
                     <NavDivider />
-                    <div className="hidden gap-4 md:flex">
+                    <div className="hidden gap-4 lg:flex">
                       <>
                         <NavItem to={`${entity.id}/${event.id}/orgs`}>Organizations</NavItem>
                         <NavItem to={`${entity.id}/${event.id}/teams`}>Teams</NavItem>
@@ -179,7 +198,7 @@ export default function AdminRoute() {
               </div>
 
               {/* Profile dropdown */}
-              <div className="ml-4 hidden items-center md:ml-6 md:flex">
+              <div className="ml-4 hidden items-center lg:ml-6 lg:flex">
                 <Dropdown>
                   <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                     <span className="sr-only">Open user menu</span>
@@ -205,7 +224,7 @@ export default function AdminRoute() {
               </div>
 
               {/* Mobile menu button */}
-              <div className="-mr-2 flex md:hidden">
+              <div className="-mr-2 flex lg:hidden">
                 <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                   <span className="sr-only">Open main menu</span>
                   {open ? (
@@ -217,8 +236,29 @@ export default function AdminRoute() {
               </div>
             </div>
 
-            <Disclosure.Panel className="md:hidden">
-              {/* TODO: Event Selector */}
+            <Disclosure.Panel className="lg:hidden">
+              <div className="flex justify-between gap-3 px-2 py-3 sm:px-3">
+                <EntityEventSelector
+                  all={entities}
+                  current={entity}
+                  icon={<BuildingOffice2Icon className="mr-2 h-5 w-5" aria-hidden="true" />}
+                  label="Entity"
+                  to={(x) => x.id}
+                  align="left"
+                  mobile
+                />
+
+                {events && (
+                  <EntityEventSelector
+                    all={events}
+                    current={event}
+                    icon={<CalendarIcon className="mr-2 h-5 w-5" aria-hidden="true" />}
+                    label="Event"
+                    to={(x) => `${x.owner.id}/${x.id}`}
+                    mobile
+                  />
+                )}
+              </div>
 
               {entity && event && (
                 <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">

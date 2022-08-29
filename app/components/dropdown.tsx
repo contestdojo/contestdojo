@@ -4,19 +4,26 @@ import clsx from "clsx";
 import type { PropsWithChildren } from "react";
 import React from "react";
 
-type DropdownProps = PropsWithChildren<{}>;
+type DropdownProps = PropsWithChildren<{ className?: string }>;
 
-export default function Dropdown({ children }: DropdownProps) {
+export default function Dropdown({ className, children }: DropdownProps) {
   return (
-    <Menu as="div" className="relative">
+    <Menu as="div" className={`relative ${className}`}>
       {children}
     </Menu>
   );
 }
 
-type DropdownItemsProps = PropsWithChildren<{ className?: string }>;
+type DropdownItemsProps = PropsWithChildren<{
+  className?: string;
+  align?: "left" | "right";
+}>;
 
-Dropdown.Items = function DropdownItems({ className, children }: DropdownItemsProps) {
+Dropdown.Items = function DropdownItems({
+  className,
+  children,
+  align = "right",
+}: DropdownItemsProps) {
   return (
     <Transition
       as={React.Fragment}
@@ -28,7 +35,7 @@ Dropdown.Items = function DropdownItems({ className, children }: DropdownItemsPr
       leaveTo="transform opacity-0 scale-95"
     >
       <Menu.Items
-        className={clsx`absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${className}`}
+        className={clsx`absolute ${`${align}-0`} mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${className}`}
       >
         {children}
       </Menu.Items>
