@@ -3,7 +3,7 @@ import { BuildingOffice2Icon, CalendarIcon, ChevronDownIcon } from "@heroicons/r
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, NavLink, Outlet, useLoaderData, useMatches } from "@remix-run/react";
+import { Form, Link, NavLink, Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import clsx from "clsx";
 import type { PropsWithChildren } from "react";
 import Dropdown from "~/components/dropdown";
@@ -155,11 +155,13 @@ export default function AdminRoute() {
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
               {/* Left navigation */}
               <div className="flex items-center gap-5">
-                <img
-                  className="h-8 w-8 flex-shrink-0"
-                  src="/assets/logo-icon.svg"
-                  alt="ContestDojo Logo"
-                />
+                <Link to=".">
+                  <img
+                    className="h-8 w-8 flex-shrink-0"
+                    src="/assets/logo-icon.svg"
+                    alt="ContestDojo Logo"
+                  />
+                </Link>
 
                 <NavDivider />
 
