@@ -1,8 +1,10 @@
 import type { ActionFunction } from "@remix-run/node";
-import { Form, useSubmit } from "@remix-run/react";
+import { Form, useSubmit, useTransition } from "@remix-run/react";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useRef } from "react";
 import { zfd } from "zod-form-data";
+import Button from "~/components/button";
+import Input from "~/components/input";
 import { loginWithIdToken } from "~/utils/auth.server";
 import { auth as clientAuth } from "~/utils/firebase.client";
 
@@ -23,6 +25,7 @@ export default function LoginRoute() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
+  const transition = useTransition();
   const submit = useSubmit();
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -43,13 +46,32 @@ export default function LoginRoute() {
   };
 
   return (
-    <div>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gray-50">
       <noscript>JavaScript is required to run this page.</noscript>
 
-      <Form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" ref={emailRef} />
-        <input type="password" placeholder="Password" ref={passwordRef} />
-        <button type="submit">Login</button>
+      <img className="mx-auto h-16 w-auto" src="/assets/logo.png" alt="" />
+
+      <Form
+        className="flex w-full flex-col gap-6 bg-white p-8 shadow sm:max-w-md sm:rounded-lg"
+        onSubmit={handleSubmit}
+      >
+        <Input
+          autoComplete="email"
+          label="Email address"
+          type="email"
+          placeholder="blaise.pascal@gmail.com"
+          ref={emailRef}
+        />
+
+        <Input
+          autoComplete="current-password"
+          label="Password"
+          type="password"
+          placeholder="Enter password..."
+          ref={passwordRef}
+        />
+
+        <Button type="submit">Sign in</Button>
       </Form>
     </div>
   );

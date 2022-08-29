@@ -16,6 +16,7 @@ export const links: LinksFunction = () => [
   { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
   { rel: "manifest", href: "/site.webmanifest" },
   { rel: "mask-icon", href: "/safari-pinned-tab.svg", color: "#f40808" },
+  { rel: "stylesheet", href: "https://rsms.me/inter/inter.css" },
   { rel: "stylesheet", href: styles },
 ];
 
