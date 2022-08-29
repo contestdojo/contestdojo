@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2022 Oliver Ni
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 import type { EntryContext } from "@remix-run/node";
 
 import { RemixServer } from "@remix-run/react";
@@ -9,9 +17,7 @@ export default function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
-  const markup = renderToString(
-    <RemixServer context={remixContext} url={request.url} />
-  );
+  const markup = renderToString(<RemixServer context={remixContext} url={request.url} />);
 
   responseHeaders.set("Content-Type", "text/html");
 
