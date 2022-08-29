@@ -38,24 +38,23 @@ function NavItem({ to, children }: NavItemProps) {
   );
 }
 
-type MobileNavItemProps = PropsWithChildren<
-  { to: string } | { type: JSX.IntrinsicElements["button"]["type"] }
->;
+const MOBILE_NAV_ITEM_CLASS_NAME = clsx`block rounded-md px-3 py-2 font-medium text-gray-400 ${
+  false ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+}`;
+
+type MobileNavItemProps = PropsWithChildren<{ to: string }>;
 
 function MobileNavItem({ children, ...props }: MobileNavItemProps) {
-  const className = clsx`block w-full rounded-md px-3 py-2 text-left font-medium text-gray-400 ${
-    false ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
-  }`;
-
-  return "to" in props ? (
-    <Disclosure.Button as={NavLink} to={props.to} className={className} aria-current="page">
+  return (
+    <Disclosure.Button
+      as={NavLink}
+      to={props.to}
+      className={MOBILE_NAV_ITEM_CLASS_NAME}
+      aria-current="page"
+    >
       {children}
     </Disclosure.Button>
-  ) : "type" in props ? (
-    <button type={props.type} className={className}>
-      {children}
-    </button>
-  ) : null;
+  );
 }
 
 export default function AdminRoute() {
@@ -64,6 +63,9 @@ export default function AdminRoute() {
   const matches = useMatches();
   const entityId = matches.find((x) => x.id === "routes/admin/$entityId")?.params.entityId;
   const eventId = matches.find((x) => x.id === "routes/admin/$entityId/$eventId")?.params.eventId;
+
+  const titles = matches.map((x) => x.handle?.navigationHeading).filter(Boolean);
+  const title = titles.length > 0 ? titles[titles.length - 1] : "Admin";
 
   return (
     <div className="min-h-full">
@@ -107,9 +109,15 @@ export default function AdminRoute() {
                       <Dropdown.Item to="/admin">Entities</Dropdown.Item>
                       <Dropdown.Item to="/admin/settings">Settings</Dropdown.Item>
                     </div>
-                    <div className="py-1">
-                      <Dropdown.Item to="/logout">Sign Out</Dropdown.Item>
-                    </div>
+                    <Form className="py-1" action="/logout" method="post">
+                      <Dropdown.ItemFn>
+                        {(className) => (
+                          <button className={`w-full text-left ${className}`} type="submit">
+                            Sign Out
+                          </button>
+                        )}
+                      </Dropdown.ItemFn>
+                    </Form>
                   </Dropdown.Items>
                 </Dropdown>
               </div>
@@ -154,10 +162,15 @@ export default function AdminRoute() {
                 </div>
 
                 <div className="mt-3 space-y-1 px-2 sm:px-3">
-                  <Form reloadDocument action="/logout" method="post">
+                  <Form action="/logout" method="post">
                     <MobileNavItem to="/admin">Entities</MobileNavItem>
                     <MobileNavItem to="/admin/settings">Settings</MobileNavItem>
-                    <MobileNavItem type="submit">Sign Out</MobileNavItem>
+                    <button
+                      className={`w-full text-left ${MOBILE_NAV_ITEM_CLASS_NAME}`}
+                      type="submit"
+                    >
+                      Sign Out
+                    </button>
                   </Form>
                 </div>
               </div>
@@ -168,7 +181,7 @@ export default function AdminRoute() {
 
       <header className="bg-white shadow-sm">
         <div className="mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-lg font-semibold leading-6 text-gray-900">Dashboard</h1>
+          <h1 className="text-lg font-semibold leading-6 text-gray-900">{title}</h1>
         </div>
       </header>
 

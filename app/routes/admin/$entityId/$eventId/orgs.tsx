@@ -70,3 +70,7 @@ export default function IndexRoute() {
     </div>
   );
 }
+
+export const handle = {
+  navigationHeading: "Organizations",
+};

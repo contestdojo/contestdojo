@@ -36,19 +36,28 @@ Dropdown.Items = function DropdownItems({ className, children }: DropdownItemsPr
   );
 };
 
+type DropdownItemFnProps = { children: (className: string) => JSX.Element };
+
+Dropdown.ItemFn = function DropdownItem({ children }: DropdownItemFnProps) {
+  return (
+    <Menu.Item>
+      {({ active }) =>
+        children(clsx`block px-4 py-2 text-sm text-gray-700 ${active && "bg-gray-100"}`)
+      }
+    </Menu.Item>
+  );
+};
+
 type DropdownItemProps = PropsWithChildren<{ to: string }>;
 
 Dropdown.Item = function DropdownItem({ to, children }: DropdownItemProps) {
   return (
-    <Menu.Item>
-      {({ active }) => (
-        <Link
-          to={to}
-          className={clsx`block px-4 py-2 text-sm text-gray-700 ${active && "bg-gray-100"}`}
-        >
+    <Dropdown.ItemFn>
+      {(className) => (
+        <Link to={to} className={className}>
           {children}
         </Link>
       )}
-    </Menu.Item>
+    </Dropdown.ItemFn>
   );
 };
