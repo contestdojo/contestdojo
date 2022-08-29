@@ -1,5 +1,16 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
+import {
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useTransition,
+} from "@remix-run/react";
+import nProgress from "nprogress";
+import { useEffect } from "react";
+import nProgressStyles from "~/nprogress.css";
 import styles from "~/tailwind.css";
 
 export const meta: MetaFunction = () => ({
@@ -18,9 +29,20 @@ export const links: LinksFunction = () => [
   { rel: "mask-icon", href: "/safari-pinned-tab.svg", color: "#f40808" },
   { rel: "stylesheet", href: "https://rsms.me/inter/inter.css" },
   { rel: "stylesheet", href: styles },
+  { rel: "stylesheet", href: nProgressStyles },
 ];
 
 export default function App() {
+  const transition = useTransition();
+
+  useEffect(() => {
+    if (transition.state === "loading" || transition.state === "submitting") {
+      nProgress.start();
+    } else {
+      nProgress.done();
+    }
+  }, [transition.state]);
+
   return (
     <html lang="en" className="h-full bg-gray-100">
       <head>
