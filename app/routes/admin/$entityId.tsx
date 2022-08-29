@@ -4,7 +4,7 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import type { Entity } from "~/utils/db.server";
 import db from "~/utils/db.server";
 
-type LoaderData = {
+export type LoaderData = {
   entity: Entity;
 };
 

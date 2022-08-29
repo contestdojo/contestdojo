@@ -1,4 +1,5 @@
 import { Disclosure, Menu } from "@headlessui/react";
+import { BuildingOffice2Icon, CalendarIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -6,16 +7,41 @@ import { Form, NavLink, Outlet, useLoaderData, useMatches } from "@remix-run/rea
 import clsx from "clsx";
 import type { PropsWithChildren } from "react";
 import Dropdown from "~/components/dropdown";
+import type { LoaderData as EntityIdLoaderData } from "~/routes/admin/$entityId";
+import type { LoaderData as EventIdLoaderData } from "~/routes/admin/$entityId/$eventId";
 import type { User } from "~/utils/auth.server";
 import { requireAdmin } from "~/utils/auth.server";
+import type { Entity, Event } from "~/utils/db.server";
+import db from "~/utils/db.server";
+import makePartial from "~/utils/make-partial";
+import useMatchData from "~/utils/use-match-data";
+
+function* chunks<T>(arr: T[], chunk_size: number) {
+  for (let i = 0; i < arr.length; i += chunk_size) {
+    yield arr.slice(i, i + chunk_size);
+  }
+}
 
 type LoaderData = {
   user: User;
+  entities: Entity[];
+  events?: Event[];
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireAdmin(request);
-  return json<LoaderData>({ user });
+  const entitiesSnap = await db.entities.where("admins", "array-contains", db.user(user.uid)).get();
+  const entities = entitiesSnap.docs.map((x) => x.data());
+
+  const eventChunks = await Promise.all(
+    [...chunks(entities, 10)]
+      .map((ch) => ch.map((x) => db.entity(x.id)))
+      .map((ch) => db.events.where("owner", "in", ch).get())
+  );
+
+  const events = eventChunks.flatMap((ch) => ch.docs.map((x) => x.data()));
+
+  return json<LoaderData>({ user, entities, events });
 };
 
 type NavItemProps = PropsWithChildren<{
@@ -57,12 +83,23 @@ function MobileNavItem({ children, ...props }: MobileNavItemProps) {
   );
 }
 
-export default function AdminRoute() {
-  const { user } = useLoaderData<LoaderData>();
+function NavDivider() {
+  return (
+    <div className="relative self-stretch">
+      <div className="absolute inset-0 flex items-center" aria-hidden="true">
+        <div className="h-full border-l border-gray-700" />
+      </div>
+    </div>
+  );
+}
 
+export default function AdminRoute() {
   const matches = useMatches();
-  const entityId = matches.find((x) => x.id === "routes/admin/$entityId")?.params.entityId;
-  const eventId = matches.find((x) => x.id === "routes/admin/$entityId/$eventId")?.params.eventId;
+  const { entity } = makePartial(useMatchData<EntityIdLoaderData>("routes/admin/$entityId"));
+  const { event } = makePartial(useMatchData<EventIdLoaderData>("routes/admin/$entityId/$eventId"));
+
+  let { user, entities, events } = useLoaderData<LoaderData>();
+  events = entity && events?.filter((x) => x.owner.id === entity?.id);
 
   const titles = matches.map((x) => x.handle?.navigationHeading).filter(Boolean);
   const title = titles.length > 0 ? titles[titles.length - 1] : "Admin";
@@ -74,26 +111,71 @@ export default function AdminRoute() {
           <>
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
               {/* Left navigation */}
-              <div className="flex items-center">
+              <div className="flex items-center gap-5">
                 <img
                   className="h-8 w-8 flex-shrink-0"
                   src="/assets/logo-icon.svg"
                   alt="ContestDojo Logo"
                 />
 
-                {/* TODO: Event Selector */}
+                <NavDivider />
 
-                <div className="hidden md:block">
-                  <div className="ml-10 flex items-baseline space-x-4">
-                    {entityId && eventId && (
-                      <>
-                        <NavItem to={`${entityId}/${eventId}/orgs`}>Organizations</NavItem>
-                        <NavItem to={`${entityId}/${eventId}/teams`}>Teams</NavItem>
-                        <NavItem to={`${entityId}/${eventId}/students`}>Students</NavItem>
-                      </>
-                    )}
-                  </div>
+                <div className="hidden gap-4 md:flex">
+                  {
+                    <Dropdown>
+                      <Menu.Button
+                        className={clsx`flex justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white  ${
+                          entity ? "text-white" : "text-gray-400"
+                        }`}
+                      >
+                        <BuildingOffice2Icon className="mr-2 h-5 w-5" aria-hidden="true" />
+                        {entity?.name ?? "Select Entity..."}
+                        <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+                      </Menu.Button>
+                      <Dropdown.Items>
+                        {entities.map((x) => (
+                          <Dropdown.Item key={x.id} to={x.id}>
+                            {x.name}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Items>
+                    </Dropdown>
+                  }
+
+                  {events && (
+                    <Dropdown>
+                      <Menu.Button
+                        className={clsx`flex justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-medium ${
+                          event ? "text-white" : "text-gray-400"
+                        }`}
+                      >
+                        <CalendarIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                        {event?.name ?? "Select Event..."}
+                        <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+                      </Menu.Button>
+                      <Dropdown.Items>
+                        {events.map((x) => (
+                          <Dropdown.Item key={x.id} to={`${x.owner.id}/${x.id}`}>
+                            {x.name}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Items>
+                    </Dropdown>
+                  )}
                 </div>
+
+                {entity && event && (
+                  <>
+                    <NavDivider />
+                    <div className="hidden gap-4 md:flex">
+                      <>
+                        <NavItem to={`${entity.id}/${event.id}/orgs`}>Organizations</NavItem>
+                        <NavItem to={`${entity.id}/${event.id}/teams`}>Teams</NavItem>
+                        <NavItem to={`${entity.id}/${event.id}/students`}>Students</NavItem>
+                      </>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Profile dropdown */}
@@ -138,11 +220,11 @@ export default function AdminRoute() {
             <Disclosure.Panel className="md:hidden">
               {/* TODO: Event Selector */}
 
-              {entityId && eventId && (
+              {entity && event && (
                 <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
-                  <MobileNavItem to={`${entityId}/${eventId}/orgs`}>Organizations</MobileNavItem>
-                  <MobileNavItem to={`${entityId}/${eventId}/teams`}>Teams</MobileNavItem>
-                  <MobileNavItem to={`${entityId}/${eventId}/students`}>Students</MobileNavItem>
+                  <MobileNavItem to={`${entity.id}/${event.id}/orgs`}>Organizations</MobileNavItem>
+                  <MobileNavItem to={`${entity.id}/${event.id}/teams`}>Teams</MobileNavItem>
+                  <MobileNavItem to={`${entity.id}/${event.id}/students`}>Students</MobileNavItem>
                 </div>
               )}
 
