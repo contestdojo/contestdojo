@@ -54,7 +54,7 @@ function NavItem({ to, children }: NavItemProps) {
       to={to}
       className={({ isActive }) =>
         clsx`rounded-md px-3 py-2 text-sm font-medium ${
-          isActive ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+          isActive ? "bg-gray-900 text-white" : "text-gray-400 hover:bg-gray-700 hover:text-white"
         }`
       }
       aria-current="page"
@@ -64,9 +64,8 @@ function NavItem({ to, children }: NavItemProps) {
   );
 }
 
-const MOBILE_NAV_ITEM_CLASS_NAME = clsx`block rounded-md px-3 py-2 font-medium text-gray-400 ${
-  false ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
-}`;
+const MOBILE_NAV_ITEM_CLASS_NAME =
+  "block rounded-md px-3 py-2 font-medium text-gray-400 hover:bg-gray-700 hover:text-white";
 
 type MobileNavItemProps = PropsWithChildren<{ to: string }>;
 
@@ -117,7 +116,7 @@ function EntityEventSelector<T extends { id: string; name: string }>({
       <Menu.Button
         className={clsx`flex w-full items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white ${
           current ? "text-white" : "text-gray-400"
-        } ${mobile ? "w-full" : ""}`}
+        }`}
       >
         {icon}
         {current?.name ?? `Select ${label}...`}
@@ -152,7 +151,7 @@ export default function AdminRoute() {
       <Disclosure as="nav" className="bg-gray-800">
         {({ open }) => (
           <>
-            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
               {/* Left navigation */}
               <div className="flex items-center gap-5">
                 <Link to=".">
@@ -165,6 +164,7 @@ export default function AdminRoute() {
 
                 <NavDivider />
 
+                {/* Entity & Event Selectors */}
                 <div className="hidden gap-4 lg:flex">
                   <EntityEventSelector
                     all={entities}
@@ -185,6 +185,7 @@ export default function AdminRoute() {
                   )}
                 </div>
 
+                {/* Event Navigation */}
                 {entity && event && (
                   <>
                     <NavDivider />
@@ -200,9 +201,9 @@ export default function AdminRoute() {
               </div>
 
               {/* Profile dropdown */}
-              <div className="ml-4 hidden items-center lg:ml-6 lg:flex">
+              <div className="hidden items-center lg:ml-6 lg:flex">
                 <Dropdown>
-                  <Menu.Button className="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                  <Menu.Button className="flex items-center rounded-full focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                     <span className="sr-only">Open user menu</span>
                     <img className="h-8 w-8 rounded-full" src={user.photoUrl} alt="" />
                   </Menu.Button>
@@ -227,7 +228,7 @@ export default function AdminRoute() {
 
               {/* Mobile menu button */}
               <div className="-mr-2 flex lg:hidden">
-                <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                <Disclosure.Button className="flex rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                   <span className="sr-only">Open main menu</span>
                   {open ? (
                     <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
@@ -238,83 +239,77 @@ export default function AdminRoute() {
               </div>
             </div>
 
-            <Disclosure.Panel className="lg:hidden">
-              <div className="flex justify-between gap-3 px-2 py-3 sm:px-3">
-                <EntityEventSelector
-                  all={entities}
-                  current={entity}
-                  icon={<BuildingOffice2Icon className="mr-2 h-5 w-5" aria-hidden="true" />}
-                  label="Entity"
-                  to={(x) => x.id}
-                  align="left"
-                  mobile
-                />
-
-                {events && (
+            <Disclosure.Panel className="divide-y divide-gray-700 lg:hidden">
+              <div className="flex flex-col gap-1 p-2">
+                <div className="flex justify-between gap-3 px-2 pb-2">
                   <EntityEventSelector
-                    all={events}
-                    current={event}
-                    icon={<CalendarIcon className="mr-2 h-5 w-5" aria-hidden="true" />}
-                    label="Event"
-                    to={(x) => `${x.owner.id}/${x.id}`}
+                    all={entities}
+                    current={entity}
+                    icon={<BuildingOffice2Icon className="mr-2 h-5 w-5" aria-hidden="true" />}
+                    label="Entity"
+                    to={(x) => x.id}
+                    align="left"
                     mobile
                   />
+
+                  {events && (
+                    <EntityEventSelector
+                      all={events}
+                      current={event}
+                      icon={<CalendarIcon className="mr-2 h-5 w-5" aria-hidden="true" />}
+                      label="Event"
+                      to={(x) => `${x.owner.id}/${x.id}`}
+                      mobile
+                    />
+                  )}
+                </div>
+
+                {entity && event && (
+                  <>
+                    <MobileNavItem to={`${entity.id}/${event.id}/orgs`}>
+                      Organizations
+                    </MobileNavItem>
+                    <MobileNavItem to={`${entity.id}/${event.id}/teams`}>Teams</MobileNavItem>
+                    <MobileNavItem to={`${entity.id}/${event.id}/students`}>Students</MobileNavItem>
+                  </>
                 )}
               </div>
 
-              {entity && event && (
-                <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
-                  <MobileNavItem to={`${entity.id}/${event.id}/orgs`}>Organizations</MobileNavItem>
-                  <MobileNavItem to={`${entity.id}/${event.id}/teams`}>Teams</MobileNavItem>
-                  <MobileNavItem to={`${entity.id}/${event.id}/students`}>Students</MobileNavItem>
-                </div>
-              )}
-
-              <div className="border-t border-gray-700 pt-4 pb-3">
-                <div className="flex items-center px-5">
-                  <div className="flex-shrink-0">
-                    <img className="h-10 w-10 rounded-full" src={user.photoUrl} alt="" />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium leading-snug text-white">
-                      {user.displayName}
-                    </div>
+              <div className="p-2">
+                <div className="flex items-center gap-3 p-3">
+                  <img className="h-10 w-10 rounded-full" src={user.photoUrl} alt="" />
+                  <div>
+                    <div className="font-medium leading-snug text-white">{user.displayName}</div>
                     <div className="text-sm font-medium leading-snug text-gray-400">
                       {user.email}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 space-y-1 px-2 sm:px-3">
-                  <Form action="/logout" method="post">
-                    <MobileNavItem to="/admin">Entities</MobileNavItem>
-                    <MobileNavItem to="/admin/settings">Settings</MobileNavItem>
-                    <button
-                      className={`w-full text-left ${MOBILE_NAV_ITEM_CLASS_NAME}`}
-                      type="submit"
-                    >
-                      Sign Out
-                    </button>
-                  </Form>
-                </div>
+                <Form className="flex flex-col gap-1" action="/logout" method="post">
+                  <MobileNavItem to="/admin">Entities</MobileNavItem>
+                  <MobileNavItem to="/admin/settings">Settings</MobileNavItem>
+                  <button
+                    className={`w-full text-left ${MOBILE_NAV_ITEM_CLASS_NAME}`}
+                    type="submit"
+                  >
+                    Sign Out
+                  </button>
+                </Form>
               </div>
             </Disclosure.Panel>
           </>
         )}
       </Disclosure>
 
-      <header className="bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-lg font-semibold leading-6 text-gray-900">{title}</h1>
+      <header className="bg-white shadow">
+        <div className="mx-auto max-w-7xl py-4 px-6">
+          <h1 className="text-lg font-semibold leading-none">{title}</h1>
         </div>
       </header>
 
-      <main>
-        <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-          <div className="px-4 py-4 sm:px-0">
-            <Outlet />
-          </div>
-        </div>
+      <main className="mx-auto max-w-7xl p-6">
+        <Outlet />
       </main>
     </div>
   );
