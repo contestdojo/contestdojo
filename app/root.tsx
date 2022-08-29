@@ -1,4 +1,5 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
+
 import {
   Links,
   LiveReload,
@@ -10,6 +11,7 @@ import {
 } from "@remix-run/react";
 import nProgress from "nprogress";
 import { useEffect } from "react";
+
 import nProgressStyles from "~/nprogress.css";
 import styles from "~/tailwind.css";
 

@@ -1,5 +1,6 @@
 import { createCookie, redirect, Response } from "@remix-run/node";
 import { fromUnixTime, isBefore, subMinutes } from "date-fns";
+
 import { auth, firestore } from "./firebase.server";
 
 export type User = {

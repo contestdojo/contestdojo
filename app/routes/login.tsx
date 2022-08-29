@@ -1,8 +1,10 @@
 import type { ActionFunction } from "@remix-run/node";
-import { Form, useSubmit, useTransition } from "@remix-run/react";
+
+import { Form, useSubmit } from "@remix-run/react";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useRef } from "react";
 import { zfd } from "zod-form-data";
+
 import Button from "~/components/button";
 import Input from "~/components/input";
 import { loginWithIdToken } from "~/utils/auth.server";
@@ -25,7 +27,6 @@ export default function LoginRoute() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  const transition = useTransition();
   const submit = useSubmit();
 
   const handleSubmit = async (event: React.FormEvent) => {

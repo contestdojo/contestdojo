@@ -1,7 +1,9 @@
 import type { App } from "firebase-admin/app";
+
 import { cert, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+
 import env from "./env.server";
 
 declare global {

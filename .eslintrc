@@ -1,3 +1,19 @@
 {
-  "extends": ["@remix-run/eslint-config", "@remix-run/eslint-config/node"]
+  "extends": ["@remix-run/eslint-config", "@remix-run/eslint-config/node"],
+  "rules": {
+    "import/order": [
+      "warn",
+      {
+        "groups": [
+          "type",
+          ["builtin", "external"],
+          "internal",
+          ["parent", "index", "sibling"],
+          "unknown",
+          "object"
+        ],
+        "newlines-between": "always"
+      }
+    ]
+  }
 }

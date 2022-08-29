@@ -1,7 +1,8 @@
+import type { PropsWithChildren } from "react";
+
 import { Menu, Transition } from "@headlessui/react";
 import { Link } from "@remix-run/react";
 import clsx from "clsx";
-import type { PropsWithChildren } from "react";
 import React from "react";
 
 type DropdownProps = PropsWithChildren<{ className?: string }>;

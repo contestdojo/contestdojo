@@ -1,17 +1,19 @@
-import { Disclosure, Menu } from "@headlessui/react";
-import { BuildingOffice2Icon, CalendarIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import type { LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, Link, NavLink, Outlet, useLoaderData, useMatches } from "@remix-run/react";
-import clsx from "clsx";
 import type { PropsWithChildren } from "react";
-import Dropdown from "~/components/dropdown";
 import type { LoaderData as EntityIdLoaderData } from "~/routes/admin/$entityId";
 import type { LoaderData as EventIdLoaderData } from "~/routes/admin/$entityId/$eventId";
 import type { User } from "~/utils/auth.server";
-import { requireAdmin } from "~/utils/auth.server";
 import type { Entity, Event } from "~/utils/db.server";
+
+import { Disclosure, Menu } from "@headlessui/react";
+import { BuildingOffice2Icon, CalendarIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { json } from "@remix-run/node";
+import { Form, Link, NavLink, Outlet, useLoaderData, useMatches } from "@remix-run/react";
+import clsx from "clsx";
+
+import Dropdown from "~/components/dropdown";
+import { requireAdmin } from "~/utils/auth.server";
 import db from "~/utils/db.server";
 import makePartial from "~/utils/make-partial";
 import useMatchData from "~/utils/use-match-data";

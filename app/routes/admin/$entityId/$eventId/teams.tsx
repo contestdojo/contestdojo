@@ -1,7 +1,9 @@
 import type { LoaderFunction } from "@remix-run/node";
+import type { EventTeam } from "~/utils/db.server";
+
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import type { EventTeam } from "~/utils/db.server";
+
 import db from "~/utils/db.server";
 
 type LoaderData = {

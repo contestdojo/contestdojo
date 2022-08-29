@@ -1,8 +1,10 @@
 import type { LoaderFunction } from "@remix-run/node";
+import type { Entity } from "~/utils/db.server";
+
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
+
 import { requireAdmin } from "~/utils/auth.server";
-import type { Entity } from "~/utils/db.server";
 import db from "~/utils/db.server";
 
 type LoaderData = {
