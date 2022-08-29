@@ -46,7 +46,7 @@ export default function LoginRoute() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gray-50">
+    <div className="flex min-h-full flex-col items-center justify-center gap-8 bg-gray-50">
       <noscript>JavaScript is required to run this page.</noscript>
 
       <img className="mx-auto h-16 w-auto" src="/assets/logo.png" alt="" />

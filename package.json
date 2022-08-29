@@ -11,11 +11,14 @@
     "generate:css": "npx tailwindcss -o ./app/tailwind.css"
   },
   "dependencies": {
+    "@headlessui/react": "^1.6.6",
+    "@heroicons/react": "^2.0.8",
     "@remix-run/node": "^1.7.0",
     "@remix-run/react": "^1.7.0",
     "@remix-run/vercel": "^1.7.0",
     "@tailwindcss/forms": "^0.5.2",
     "@vercel/node": "^2.4.4",
+    "clsx": "^1.2.1",
     "date-fns": "^2.29.2",
     "envalid": "^7.3.1",
     "firebase": "^9.9.3",

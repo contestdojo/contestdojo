@@ -6,6 +6,7 @@ export type User = {
   uid: string;
   email?: string;
   displayName?: string;
+  photoUrl: string;
   isAdmin: boolean;
 };
 
@@ -15,15 +16,17 @@ const session = createCookie("session", {
 });
 
 async function migrateLegacyProfile(uid: string) {
-  const userSnap = await firestore.collection("users").doc(uid).get();
-  const user = userSnap.data();
-  if (!user) return;
+  const user = await auth.getUser(uid);
+  const profileSnap = await firestore.collection("users").doc(uid).get();
+  const profile = profileSnap.data();
 
-  if (user.fname && user.lname) {
-    await auth.updateUser(uid, { displayName: `${user.fname} ${user.lname}` });
+  if (!profile) return;
+
+  if (profile.fname && profile.lname && !user.displayName) {
+    await auth.updateUser(uid, { displayName: `${profile.fname} ${profile.lname}` });
   }
 
-  if (user.type === "admin") {
+  if (profile.type === "admin" && !user.customClaims?.admin) {
     await auth.setCustomUserClaims(uid, { admin: true });
   }
 }
@@ -77,6 +80,7 @@ export async function requireSession(request: Request): Promise<User> {
     uid: user.uid,
     email: user.email,
     displayName: user.displayName,
+    photoUrl: user.photoURL ?? `https://source.boringavatars.com/beam/512/${user.uid}`,
     isAdmin: user.customClaims?.admin === true,
   };
 }
