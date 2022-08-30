@@ -69,7 +69,6 @@ export default function OrgsRoute() {
 
   return (
     <div>
-      <h4>Organizations</h4>
       <DataTable table={table} />
     </div>
   );

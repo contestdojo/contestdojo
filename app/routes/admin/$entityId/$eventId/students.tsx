@@ -59,7 +59,6 @@ export default function StudentsRoute() {
 
   return (
     <div>
-      <h4>Students</h4>
       <DataTable table={table} />
     </div>
   );

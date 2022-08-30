@@ -10,7 +10,7 @@ import type { LoaderFunction } from "@remix-run/node";
 import type { Event } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { Outlet } from "@remix-run/react";
 
 import db from "~/utils/db.server";
 
@@ -30,24 +30,5 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function EventIdRoute() {
-  const loaderData = useLoaderData<LoaderData>();
-
-  return (
-    <div>
-      <h3>{loaderData.event.name}</h3>
-      <ul>
-        <li>
-          <Link to="orgs">Organizations</Link>
-        </li>
-        <li>
-          <Link to="teams">Teams</Link>
-        </li>
-        <li>
-          <Link to="students">Students</Link>
-        </li>
-      </ul>
-      <hr />
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 }

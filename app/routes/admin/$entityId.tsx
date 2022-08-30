@@ -10,7 +10,7 @@ import type { LoaderFunction } from "@remix-run/node";
 import type { Entity } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
-import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { Outlet } from "@remix-run/react";
 
 import db from "~/utils/db.server";
 
@@ -29,14 +29,5 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function EntityIdRoute() {
-  const loaderData = useLoaderData<LoaderData>();
-
-  return (
-    <div>
-      <h2>
-        <Link to=".">{loaderData.entity.name}</Link>
-      </h2>
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 }

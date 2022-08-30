@@ -56,7 +56,6 @@ export default function TeamsRoute() {
 
   return (
     <div>
-      <h4>Teams</h4>
       <DataTable table={table} />
     </div>
   );

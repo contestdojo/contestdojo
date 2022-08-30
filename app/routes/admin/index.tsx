@@ -31,7 +31,6 @@ export default function IndexRoute() {
 
   return (
     <div>
-      <h2>Entities</h2>
       <ul>
         {loaderData.entities.map((x) => (
           <li key={x.id}>

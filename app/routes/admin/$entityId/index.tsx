@@ -38,7 +38,6 @@ export default function IndexRoute() {
 
   return (
     <div>
-      <h3>Events</h3>
       <ul>
         {loaderData.events.map((x) => (
           <li key={x.id}>
