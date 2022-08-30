@@ -156,7 +156,7 @@ export default function AdminRoute() {
 
   return (
     <div className="flex h-full flex-col">
-      <Disclosure as="nav" className="bg-gray-800">
+      <Disclosure as="nav" className="z-20 bg-gray-800">
         {({ open }) => (
           <>
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
@@ -314,7 +314,7 @@ export default function AdminRoute() {
         </div>
       </header>
 
-      <main className="mx-auto min-h-0 w-full flex-1 overflow-auto">
+      <main className="z-0 mx-auto min-h-0 w-full flex-1 overflow-auto">
         <div className="mx-auto max-w-7xl p-6">
           <Outlet />
         </div>
