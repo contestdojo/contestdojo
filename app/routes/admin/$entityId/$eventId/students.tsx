@@ -11,7 +11,9 @@ import type { EventStudent } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
+import DataTable from "~/components/data-table";
 import db from "~/utils/db.server";
 
 type LoaderData = {
@@ -32,44 +34,33 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ students });
 };
 
-export default function IndexRoute() {
+const columnHelper = createColumnHelper<EventStudent>();
+
+const columns = [
+  columnHelper.accessor("id", { header: "ID" }),
+  columnHelper.accessor("number", { header: "Number" }),
+  columnHelper.accessor((x) => `${x.fname} ${x.lname}`, { header: "Name" }),
+  columnHelper.accessor("email", { header: "Email" }),
+  columnHelper.accessor("grade", { header: "Grade" }),
+  columnHelper.accessor("org.id", { header: "Org ID" }),
+  columnHelper.accessor((x) => x.team?.id, { header: "Team ID" }),
+  columnHelper.accessor("notes", { header: "Notes" }),
+  columnHelper.accessor("waiver", { header: "Waiver" }),
+];
+
+export default function StudentsRoute() {
   const loaderData = useLoaderData<LoaderData>();
+
+  const table = useReactTable({
+    data: loaderData.students,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <div>
       <h4>Students</h4>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Number</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Grade</th>
-            <th>Org ID</th>
-            <th>Team ID</th>
-            <th>Notes</th>
-            <th>Waiver</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loaderData.students.map((x) => (
-            <tr key={x.id}>
-              <td>{x.id}</td>
-              <td>{x.number}</td>
-              <td>
-                {x.fname} {x.lname}
-              </td>
-              <td>{x.email}</td>
-              <td>{x.grade}</td>
-              <td>{x.org.id}</td>
-              <td>{x.team?.id}</td>
-              <td>{x.notes}</td>
-              <td>{x.waiver}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable table={table} />
     </div>
   );
 }

@@ -11,7 +11,9 @@ import type { EventOrganization, Organization } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
+import DataTable from "~/components/data-table";
 import db from "~/utils/db.server";
 
 type LoaderData = {
@@ -39,44 +41,36 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ orgs });
 };
 
-export default function IndexRoute() {
+const columnHelper = createColumnHelper<Organization & EventOrganization>();
+
+const columns = [
+  columnHelper.accessor("id", { header: "ID" }),
+  columnHelper.accessor("name", { header: "Name" }),
+  columnHelper.accessor((x) => `${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`, {
+    header: "Address",
+  }),
+  columnHelper.accessor("admin.id", { header: "Contact ID" }),
+  columnHelper.accessor((x) => `${x.adminData.fname} ${x.adminData.lname}`, {
+    header: "Contact Name",
+  }),
+  columnHelper.accessor("adminData.email", { header: "Contact Email" }),
+  columnHelper.accessor("maxStudents", { header: "Seats Purchased" }),
+  columnHelper.accessor("notes", { header: "Notes" }),
+];
+
+export default function OrgsRoute() {
   const loaderData = useLoaderData<LoaderData>();
+
+  const table = useReactTable({
+    data: loaderData.orgs,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <div>
       <h4>Organizations</h4>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Contact ID</th>
-            <th>Contact Name</th>
-            <th>Contact Email</th>
-            <th>Seats Purchased</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loaderData.orgs.map((x) => (
-            <tr key={x.id}>
-              <td>{x.id}</td>
-              <td>{x.name}</td>
-              <td>
-                {x.address}, {x.city}, {x.state}, {x.country} {x.zip}
-              </td>
-              <td>{x.admin.id}</td>
-              <td>
-                {x.adminData.fname} {x.adminData.lname}
-              </td>
-              <td>{x.adminData.email}</td>
-              <td>{x.maxStudents ?? 0}</td>
-              <td>{x.notes}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable table={table} />
     </div>
   );
 }

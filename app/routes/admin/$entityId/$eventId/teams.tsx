@@ -11,7 +11,9 @@ import type { EventTeam } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
+import DataTable from "~/components/data-table";
 import db from "~/utils/db.server";
 
 type LoaderData = {
@@ -32,36 +34,30 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ teams });
 };
 
-export default function IndexRoute() {
+const columnHelper = createColumnHelper<EventTeam>();
+
+const columns = [
+  columnHelper.accessor("id", { header: "ID" }),
+  columnHelper.accessor("number", { header: "Number" }),
+  columnHelper.accessor("name", { header: "Name" }),
+  columnHelper.accessor("org.id", { header: "Org ID" }),
+  columnHelper.accessor("notes", { header: "Notes" }),
+  columnHelper.accessor("scoreReport", { header: "Score Report" }),
+];
+
+export default function TeamsRoute() {
   const loaderData = useLoaderData<LoaderData>();
+
+  const table = useReactTable({
+    data: loaderData.teams,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <div>
       <h4>Teams</h4>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Number</th>
-            <th>Name</th>
-            <th>Org ID</th>
-            <th>Notes</th>
-            <th>Score Report</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loaderData.teams.map((x) => (
-            <tr key={x.id}>
-              <td>{x.id}</td>
-              <td>{x.number}</td>
-              <td>{x.name}</td>
-              <td>{x.org.id}</td>
-              <td>{x.notes}</td>
-              <td>{x.scoreReport}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable table={table} />
     </div>
   );
 }

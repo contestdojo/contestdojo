@@ -29,7 +29,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ event });
 };
 
-export default function EntityIdRoute() {
+export default function EventIdRoute() {
   const loaderData = useLoaderData<LoaderData>();
 
   return (
