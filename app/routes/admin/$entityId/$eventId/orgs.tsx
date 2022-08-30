@@ -68,7 +68,7 @@ export default function OrgsRoute() {
   });
 
   return (
-    <div>
+    <div className="h-full">
       <DataTable table={table} />
     </div>
   );

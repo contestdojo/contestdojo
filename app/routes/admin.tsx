@@ -155,7 +155,7 @@ export default function AdminRoute() {
   const title = titles.length > 0 ? titles[titles.length - 1] : "Admin";
 
   return (
-    <div className="min-h-full">
+    <div className="flex h-full flex-col">
       <Disclosure as="nav" className="bg-gray-800">
         {({ open }) => (
           <>
@@ -314,7 +314,7 @@ export default function AdminRoute() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl p-6">
+      <main className="mx-auto min-h-0 w-full max-w-7xl flex-1 p-6">
         <Outlet />
       </main>
     </div>
