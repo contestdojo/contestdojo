@@ -308,14 +308,16 @@ export default function AdminRoute() {
         )}
       </Disclosure>
 
-      <header className="bg-white shadow">
+      <header className="z-10 bg-white shadow">
         <div className="mx-auto max-w-7xl py-4 px-6">
           <h1 className="text-lg font-semibold leading-none">{title}</h1>
         </div>
       </header>
 
-      <main className="mx-auto min-h-0 w-full max-w-7xl flex-1 p-6">
-        <Outlet />
+      <main className="mx-auto min-h-0 w-full flex-1 overflow-auto">
+        <div className="mx-auto max-w-7xl p-6">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
