@@ -8,8 +8,13 @@
 
 import type { ColumnDef, RowData, Table, TableState } from "@tanstack/react-table";
 
-import { CheckIcon } from "@heroicons/react/20/solid";
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
+import {
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 import Dropdown from "./dropdown";
 
@@ -44,16 +49,22 @@ function FieldSelector<T extends RowData>({ table }: TableProps<T>) {
 function Headers<T extends RowData>({ table }: TableProps<T>) {
   return (
     <thead className="bg-gray-50">
-      {table.getHeaderGroups().map((headerGroup) => (
-        <tr key={headerGroup.id} className="divide-x divide-gray-200">
-          {headerGroup.headers.map((header) => (
+      {table.getHeaderGroups().map((group) => (
+        <tr key={group.id} className="divide-x divide-gray-200">
+          {group.headers.map((x) => (
             <th
-              key={header.id}
-              className="whitespace-nowrap px-4 py-3 text-left text-sm font-semibold text-gray-900"
-              colSpan={header.colSpan}
+              key={x.id}
+              colSpan={x.colSpan}
               scope="col"
+              onClick={x.column.getToggleSortingHandler()}
             >
-              {flexRender(header.column.columnDef.header, header.getContext())}
+              <div className="inset-0 flex cursor-pointer items-center justify-between whitespace-nowrap px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                {flexRender(x.column.columnDef.header, x.getContext())}
+                {{
+                  asc: <ChevronUpIcon className="-mr-1 ml-3 h-4 w-5" />,
+                  desc: <ChevronDownIcon className="-mr-1 ml-3 h-4 w-5" />,
+                }[x.column.getIsSorted() as string] ?? null}
+              </div>
             </th>
           ))}
         </tr>
@@ -67,9 +78,9 @@ function Body<T extends RowData>({ table }: TableProps<T>) {
     <tbody className="divide-y divide-gray-200 bg-white">
       {table.getRowModel().rows.map((row) => (
         <tr key={row.id} className="divide-x divide-gray-200">
-          {row.getVisibleCells().map((cell) => (
-            <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500" key={cell.id}>
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          {row.getVisibleCells().map((x) => (
+            <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500" key={x.id}>
+              {flexRender(x.column.columnDef.cell, x.getContext())}
             </td>
           ))}
         </tr>
@@ -94,6 +105,7 @@ export default function DataTable<T extends RowData>({
     columns,
     initialState,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
