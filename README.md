@@ -3,6 +3,7 @@
 
 ContestDojo is an online math competition platform built and used for tournaments such as the
 [Stanford Math Tournament](https://sumo.stanford.edu/smt/) and the
-[Berkeley Math Tournament](https://bmt.berkeley.edu/home/). The aim of the project is to be a
-powerful and customizable site to handle registration, payment, test-taking, and other aspects of
-any math contest, eliminating the need for each event to build custom software.
+[Berkeley Math Tournament](https://bmt.berkeley.edu/home/).
+
+This repository houses ContestDojo's gradual rewrite. Click
+[here](https://github.com/oliver-ni/contestdojo) for the current version.
