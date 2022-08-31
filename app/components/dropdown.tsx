@@ -7,9 +7,10 @@
  */
 
 import type { PropsWithChildren } from "react";
+import type { PropsWithAs } from "~/utils/props-with-as";
 
 import { Menu, Transition } from "@headlessui/react";
-import { Link } from "@remix-run/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import React from "react";
 
@@ -22,6 +23,19 @@ export default function Dropdown({ className, children }: DropdownProps) {
     </Menu>
   );
 }
+
+type DropdownButtonProps = PropsWithChildren<{ className?: string }>;
+
+Dropdown.Button = function DropdownButton({ className, children }: DropdownButtonProps) {
+  return (
+    <Menu.Button
+      className={clsx`flex w-full items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100 ${className}`}
+    >
+      {children}
+      <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+    </Menu.Button>
+  );
+};
 
 type DropdownItemsProps = PropsWithChildren<{
   className?: string;
@@ -54,28 +68,20 @@ Dropdown.Items = function DropdownItems({
   );
 };
 
-type DropdownItemFnProps = { children: (className: string) => JSX.Element };
+Dropdown.Item = function DropdownItem<T extends React.ElementType = "button">({
+  as,
+  ...props
+}: PropsWithAs<{}, T>) {
+  const As = as ?? "button";
 
-Dropdown.ItemFn = function DropdownItem({ children }: DropdownItemFnProps) {
   return (
     <Menu.Item>
-      {({ active }) =>
-        children(clsx`block px-4 py-2 text-sm text-gray-700 ${active && "bg-gray-100"}`)
-      }
-    </Menu.Item>
-  );
-};
-
-type DropdownItemProps = PropsWithChildren<{ to: string }>;
-
-Dropdown.Item = function DropdownItem({ to, children }: DropdownItemProps) {
-  return (
-    <Dropdown.ItemFn>
-      {(className) => (
-        <Link to={to} className={className}>
-          {children}
-        </Link>
+      {({ active }) => (
+        <As
+          className={clsx`block px-4 py-2 text-sm text-gray-700 ${active && "bg-gray-100"}`}
+          {...props}
+        />
       )}
-    </Dropdown.ItemFn>
+    </Menu.Item>
   );
 };

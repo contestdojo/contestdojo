@@ -63,7 +63,7 @@ function NavItem({ to, children }: NavItemProps) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        clsx`rounded-md px-3 py-2 text-sm font-medium ${
+        clsx`rounded-md px-4 py-2 text-sm font-medium ${
           isActive ? "bg-gray-900 text-white" : "text-gray-400 hover:bg-gray-700 hover:text-white"
         }`
       }
@@ -122,7 +122,7 @@ function EntityEventSelector<T extends { id: string; name: string }>({
   return (
     <Dropdown className="grow">
       <Menu.Button
-        className={clsx`flex w-full items-center rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white ${
+        className={clsx`flex w-full items-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white ${
           current ? "text-white" : "text-gray-400"
         }`}
       >
@@ -134,7 +134,7 @@ function EntityEventSelector<T extends { id: string; name: string }>({
 
       <Dropdown.Items align={align}>
         {all.map((x) => (
-          <Dropdown.Item key={x.id} to={to(x)}>
+          <Dropdown.Item key={x.id} as={Link} to={to(x)}>
             {x.name}
           </Dropdown.Item>
         ))}
@@ -218,17 +218,17 @@ export default function AdminRoute() {
 
                   <Dropdown.Items className="divide-y divide-gray-100">
                     <div className="py-1">
-                      <Dropdown.Item to="/admin">Entities</Dropdown.Item>
-                      <Dropdown.Item to="/admin/settings">Settings</Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin">
+                        Entities
+                      </Dropdown.Item>
+                      <Dropdown.Item as={Link} to="/admin/settings">
+                        Settings
+                      </Dropdown.Item>
                     </div>
                     <Form className="py-1" action="/logout" method="post">
-                      <Dropdown.ItemFn>
-                        {(className) => (
-                          <button className={`w-full text-left ${className}`} type="submit">
-                            Sign Out
-                          </button>
-                        )}
-                      </Dropdown.ItemFn>
+                      <Dropdown.Item as="button" type="submit">
+                        Sign Out
+                      </Dropdown.Item>
                     </Form>
                   </Dropdown.Items>
                 </Dropdown>
