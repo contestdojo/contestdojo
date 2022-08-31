@@ -7,11 +7,12 @@
  */
 
 import type { LoaderFunction } from "@remix-run/node";
+import type { TableState } from "@tanstack/react-table";
 import type { EventOrganization, Organization } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 
 import DataTable from "~/components/data-table";
 import db from "~/utils/db.server";
@@ -58,20 +59,18 @@ const columns = [
   columnHelper.accessor("notes", { header: "Notes" }),
 ];
 
+const initialState: Partial<TableState> = {
+  columnVisibility: {
+    id: false,
+    Address: false,
+    admin_id: false,
+  },
+};
+
 export default function OrgsRoute() {
   const loaderData = useLoaderData<LoaderData>();
 
-  const table = useReactTable({
-    data: loaderData.orgs,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  return (
-    <div>
-      <DataTable table={table} />
-    </div>
-  );
+  return <DataTable data={loaderData.orgs} columns={columns} initialState={initialState} />;
 }
 
 export const handle = {

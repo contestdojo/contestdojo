@@ -7,11 +7,12 @@
  */
 
 import type { LoaderFunction } from "@remix-run/node";
+import type { TableState } from "@tanstack/react-table";
 import type { EventStudent } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 
 import DataTable from "~/components/data-table";
 import db from "~/utils/db.server";
@@ -48,20 +49,17 @@ const columns = [
   columnHelper.accessor("waiver", { header: "Waiver" }),
 ];
 
+const initialState: Partial<TableState> = {
+  columnVisibility: {
+    id: false,
+    email: false,
+  },
+};
+
 export default function StudentsRoute() {
   const loaderData = useLoaderData<LoaderData>();
 
-  const table = useReactTable({
-    data: loaderData.students,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  return (
-    <div>
-      <DataTable table={table} />
-    </div>
-  );
+  return <DataTable data={loaderData.students} columns={columns} initialState={initialState} />;
 }
 
 export const handle = {

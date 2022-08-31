@@ -70,6 +70,7 @@ Dropdown.Items = function DropdownItems({
 
 Dropdown.Item = function DropdownItem<T extends React.ElementType = "button">({
   as,
+  className,
   ...props
 }: PropsWithAs<{}, T>) {
   const As = as ?? "button";
@@ -78,8 +79,10 @@ Dropdown.Item = function DropdownItem<T extends React.ElementType = "button">({
     <Menu.Item>
       {({ active }) => (
         <As
-          className={clsx`block px-4 py-2 text-sm text-gray-700 ${active && "bg-gray-100"}`}
           {...props}
+          className={clsx`block w-full px-4 py-2 text-left text-sm text-gray-700 ${
+            active && "bg-gray-100"
+          } ${className}`}
         />
       )}
     </Menu.Item>

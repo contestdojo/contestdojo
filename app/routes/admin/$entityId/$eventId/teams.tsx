@@ -7,11 +7,12 @@
  */
 
 import type { LoaderFunction } from "@remix-run/node";
+import type { TableState } from "@tanstack/react-table";
 import type { EventTeam } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 
 import DataTable from "~/components/data-table";
 import db from "~/utils/db.server";
@@ -45,20 +46,16 @@ const columns = [
   columnHelper.accessor("scoreReport", { header: "Score Report" }),
 ];
 
+const initialState: Partial<TableState> = {
+  columnVisibility: {
+    id: false,
+  },
+};
+
 export default function TeamsRoute() {
   const loaderData = useLoaderData<LoaderData>();
 
-  const table = useReactTable({
-    data: loaderData.teams,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  return (
-    <div>
-      <DataTable table={table} />
-    </div>
-  );
+  return <DataTable data={loaderData.teams} columns={columns} initialState={initialState} />;
 }
 
 export const handle = {

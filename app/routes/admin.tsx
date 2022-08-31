@@ -226,9 +226,7 @@ export default function AdminRoute() {
                       </Dropdown.Item>
                     </div>
                     <Form className="py-1" action="/logout" method="post">
-                      <Dropdown.Item as="button" type="submit">
-                        Sign Out
-                      </Dropdown.Item>
+                      <Dropdown.Item type="submit">Sign Out</Dropdown.Item>
                     </Form>
                   </Dropdown.Items>
                 </Dropdown>
