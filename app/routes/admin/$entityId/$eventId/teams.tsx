@@ -8,17 +8,20 @@
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
-import type { EventTeam } from "~/utils/db.server";
+import type { EventOrganization, EventTeam, Organization } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 
 import DataTable from "~/components/data-table";
+import { EventOrganizationReferenceEmbed } from "~/components/reference-embed";
 import db from "~/utils/db.server";
+import { reduceToMap } from "~/utils/utils";
 
 type LoaderData = {
   teams: EventTeam[];
+  orgs: (Organization & EventOrganization)[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -29,22 +32,23 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!event) throw new Response("Event not found.", { status: 404 });
 
+  const eventOrgsSnap = await db.eventOrgs(params.eventId).get();
+  const eventOrgs = new Map(eventOrgsSnap.docs.map((x) => [x.id, x.data()]));
+
+  const orgsSnap = await db.orgs.get();
+  const orgs = orgsSnap.docs.flatMap((x) => {
+    const eventOrg = eventOrgs.get(x.id);
+    if (!eventOrg) return [];
+    return { ...eventOrg, ...x.data() };
+  });
+
   const teamsSnap = await db.eventTeams(params.eventId).get();
   const teams = teamsSnap.docs.map((x) => x.data());
 
-  return json<LoaderData>({ teams });
+  return json<LoaderData>({ teams, orgs });
 };
 
 const columnHelper = createColumnHelper<EventTeam>();
-
-const columns = [
-  columnHelper.accessor("id", { header: "ID" }),
-  columnHelper.accessor("number", { header: "Number" }),
-  columnHelper.accessor("name", { header: "Name" }),
-  columnHelper.accessor("org.id", { header: "Org ID" }),
-  columnHelper.accessor("notes", { header: "Notes" }),
-  columnHelper.accessor("scoreReport", { header: "Score Report" }),
-];
 
 const initialState: Partial<TableState> = {
   columnVisibility: {
@@ -53,9 +57,25 @@ const initialState: Partial<TableState> = {
 };
 
 export default function TeamsRoute() {
-  const loaderData = useLoaderData<LoaderData>();
+  const { teams, orgs } = useLoaderData<LoaderData>();
+  const orgsById = reduceToMap(orgs);
 
-  return <DataTable data={loaderData.teams} columns={columns} initialState={initialState} />;
+  const columns = [
+    columnHelper.accessor("id", { header: "ID" }),
+    columnHelper.accessor("number", { header: "Number" }),
+    columnHelper.accessor("name", { header: "Name" }),
+    columnHelper.accessor("org", {
+      header: "Organization",
+      cell: (props) => {
+        const org = orgsById.get(props.getValue().id);
+        return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue().id;
+      },
+    }),
+    columnHelper.accessor("notes", { header: "Notes" }),
+    columnHelper.accessor("scoreReport", { header: "Score Report" }),
+  ];
+
+  return <DataTable data={teams} columns={columns} initialState={initialState} />;
 }
 
 export const handle = {

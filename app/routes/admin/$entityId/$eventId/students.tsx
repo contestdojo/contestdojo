@@ -8,17 +8,24 @@
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
-import type { EventStudent } from "~/utils/db.server";
+import type { EventOrganization, EventStudent, EventTeam, Organization } from "~/utils/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 
 import DataTable from "~/components/data-table";
+import {
+  EventOrganizationReferenceEmbed,
+  EventTeamReferenceEmbed,
+} from "~/components/reference-embed";
 import db from "~/utils/db.server";
+import { reduceToMap } from "~/utils/utils";
 
 type LoaderData = {
   students: EventStudent[];
+  orgs: (Organization & EventOrganization)[];
+  teams: EventTeam[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -32,22 +39,22 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const studentsSnap = await db.eventStudents(params.eventId).get();
   const students = studentsSnap.docs.map((x) => x.data());
 
-  return json<LoaderData>({ students });
+  const eventOrgsSnap = await db.eventOrgs(params.eventId).get();
+  const eventOrgs = new Map(eventOrgsSnap.docs.map((x) => [x.id, x.data()]));
+
+  const orgsSnap = await db.orgs.get();
+  const orgs = orgsSnap.docs.flatMap((x) => {
+    const eventOrg = eventOrgs.get(x.id);
+    if (!eventOrg) return [];
+    return { ...eventOrg, ...x.data() };
+  });
+  const teamsSnap = await db.eventTeams(params.eventId).get();
+  const teams = teamsSnap.docs.map((x) => x.data());
+
+  return json<LoaderData>({ students, orgs, teams });
 };
 
 const columnHelper = createColumnHelper<EventStudent>();
-
-const columns = [
-  columnHelper.accessor("id", { header: "ID" }),
-  columnHelper.accessor("number", { header: "Number" }),
-  columnHelper.accessor((x) => `${x.fname} ${x.lname}`, { header: "Name" }),
-  columnHelper.accessor("email", { header: "Email" }),
-  columnHelper.accessor("grade", { header: "Grade" }),
-  columnHelper.accessor("org.id", { header: "Org ID" }),
-  columnHelper.accessor((x) => x.team?.id, { header: "Team ID" }),
-  columnHelper.accessor("notes", { header: "Notes" }),
-  columnHelper.accessor("waiver", { header: "Waiver" }),
-];
 
 const initialState: Partial<TableState> = {
   columnVisibility: {
@@ -57,9 +64,36 @@ const initialState: Partial<TableState> = {
 };
 
 export default function StudentsRoute() {
-  const loaderData = useLoaderData<LoaderData>();
+  const { students, orgs, teams } = useLoaderData<LoaderData>();
+  const orgsById = reduceToMap(orgs);
+  const teamsById = reduceToMap(teams);
 
-  return <DataTable data={loaderData.students} columns={columns} initialState={initialState} />;
+  const columns = [
+    columnHelper.accessor("id", { header: "ID" }),
+    columnHelper.accessor("number", { header: "Number" }),
+    columnHelper.accessor((x) => `${x.fname} ${x.lname}`, { header: "Name" }),
+    columnHelper.accessor("email", { header: "Email" }),
+    columnHelper.accessor("grade", { header: "Grade" }),
+    columnHelper.accessor("org", {
+      header: "Organization",
+      cell: (props) => {
+        const org = orgsById.get(props.getValue().id);
+        return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue().id;
+      },
+    }),
+    columnHelper.accessor("team", {
+      header: "Team",
+      cell: (props) => {
+        const id = props.getValue()?.id;
+        const team = id ? teamsById.get(id) : undefined;
+        return team ? <EventTeamReferenceEmbed team={team} /> : id;
+      },
+    }),
+    columnHelper.accessor("notes", { header: "Notes" }),
+    columnHelper.accessor("waiver", { header: "Waiver" }),
+  ];
+
+  return <DataTable data={students} columns={columns} initialState={initialState} />;
 }
 
 export const handle = {

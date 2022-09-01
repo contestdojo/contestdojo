@@ -58,7 +58,7 @@ function Headers<T extends RowData>({ table }: TableProps<T>) {
               scope="col"
               onClick={x.column.getToggleSortingHandler()}
             >
-              <div className="inset-0 flex cursor-pointer items-center justify-between whitespace-nowrap px-4 py-3 text-left text-sm font-semibold text-gray-900">
+              <div className="flex cursor-pointer items-center justify-between whitespace-nowrap px-4 py-3 text-left text-sm font-semibold text-gray-900">
                 {flexRender(x.column.columnDef.header, x.getContext())}
                 {{
                   asc: <ChevronUpIcon className="-mr-1 ml-3 h-4 w-5" />,
