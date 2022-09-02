@@ -21,16 +21,11 @@ import { Form, Link, NavLink, Outlet, useLoaderData, useMatches } from "@remix-r
 import clsx from "clsx";
 
 import Dropdown from "~/components/dropdown";
+import { chunk } from "~/utils/array-utils";
 import { requireAdmin } from "~/utils/auth.server";
 import db from "~/utils/db.server";
 import makePartial from "~/utils/make-partial";
 import useMatchData from "~/utils/use-match-data";
-
-function* chunks<T>(arr: T[], chunk_size: number) {
-  for (let i = 0; i < arr.length; i += chunk_size) {
-    yield arr.slice(i, i + chunk_size);
-  }
-}
 
 type LoaderData = {
   user: User;
@@ -44,7 +39,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const entities = entitiesSnap.docs.map((x) => x.data());
 
   const eventChunks = await Promise.all(
-    [...chunks(entities, 10)]
+    [...chunk(entities, 10)]
       .map((ch) => ch.map((x) => db.entity(x.id)))
       .map((ch) => db.events.where("owner", "in", ch).get())
   );

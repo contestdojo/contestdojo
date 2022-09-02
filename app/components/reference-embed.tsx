@@ -12,6 +12,8 @@ import type { EventOrganization, EventTeam, Organization } from "~/utils/db.serv
 import { Popover, Transition } from "@headlessui/react";
 import React from "react";
 
+import { intersperse } from "~/utils/array-utils";
+
 type ReferenceEmbedProps = PropsWithChildren<{
   title: string;
   subtitle: string;
@@ -40,8 +42,10 @@ export default function ReferenceEmbed({ title, subtitle, fields, children }: Re
           <div className="mt-1 flex flex-col gap-1">
             {fields.map((x) => (
               <div key={x.name} className="flex justify-between gap-2">
-                <div className="font-medium text-gray-600">{x.name}</div>
-                <div className="text-right">{x.value ?? "-"}</div>
+                <div className="whitespace-nowrap font-medium text-gray-600">{x.name}</div>
+                <div className="break-all text-right">
+                  {x.value ? [...intersperse(x.value.split("\n"), <br />)] : "-"}
+                </div>
               </div>
             ))}
           </div>
@@ -61,7 +65,7 @@ export function EventOrganizationReferenceEmbed({ org }: EventOrganizationRefere
       fields={[
         {
           name: "Address",
-          value: `${org.address}, ${org.city}, ${org.state}, ${org.country} ${org.zip}`,
+          value: `${org.address}\n${org.city}, ${org.state}, ${org.country} ${org.zip}`,
         },
         { name: "Contact Name", value: `${org.adminData.fname} ${org.adminData.lname}` },
         { name: "Contact Email", value: org.adminData.email },
