@@ -10,11 +10,13 @@ import type { LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
 import type { EventOrganization, EventStudent, EventTeam, Organization } from "~/utils/db.server";
 
+import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 
 import DataTable from "~/components/data-table";
+import IconButton from "~/components/icon-button";
 import {
   EventOrganizationReferenceEmbed,
   EventTeamReferenceEmbed,
@@ -90,7 +92,17 @@ export default function StudentsRoute() {
       },
     }),
     columnHelper.accessor("notes", { header: "Notes" }),
-    columnHelper.accessor("waiver", { header: "Waiver" }),
+    columnHelper.accessor("waiver", {
+      header: "Waiver",
+      cell: (props) => {
+        const path = props.getValue();
+        return path ? (
+          <IconButton as={Link} to={`/storage/${path}`} reloadDocument>
+            <ArrowDownTrayIcon className="h-4 w-4" />
+          </IconButton>
+        ) : null;
+      },
+    }),
   ];
 
   return <DataTable data={students} columns={columns} initialState={initialState} />;

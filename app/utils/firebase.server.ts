@@ -11,6 +11,7 @@ import type { App } from "firebase-admin/app";
 import { cert, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 import env from "./env.server";
 
@@ -31,3 +32,4 @@ if (env.isProduction) {
 
 export const auth = getAuth(app);
 export const firestore = getFirestore(app);
+export const storage = getStorage(app).bucket("gs://ncmt-67ea1.appspot.com");

@@ -79,8 +79,10 @@ function Body<T extends RowData>({ table }: TableProps<T>) {
       {table.getRowModel().rows.map((row) => (
         <tr key={row.id} className="divide-x divide-gray-200">
           {row.getVisibleCells().map((x) => (
-            <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-500" key={x.id}>
-              {flexRender(x.column.columnDef.cell, x.getContext())}
+            <td key={x.id}>
+              <div className="flex items-center whitespace-nowrap px-4 py-2 text-sm text-gray-500">
+                {flexRender(x.column.columnDef.cell, x.getContext())}
+              </div>
             </td>
           ))}
         </tr>

@@ -12,7 +12,7 @@ import { forwardRef } from "react";
 
 type ButtonProps = JSX.IntrinsicElements["button"];
 
-export default forwardRef(function Input(
+export default forwardRef(function Button(
   { children, ...props }: ButtonProps,
   ref: ForwardedRef<HTMLButtonElement>
 ) {
