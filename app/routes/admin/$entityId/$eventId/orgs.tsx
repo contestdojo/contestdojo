@@ -48,13 +48,15 @@ const columns = [
   columnHelper.accessor("id", { header: "ID" }),
   columnHelper.accessor("name", { header: "Name" }),
   columnHelper.accessor((x) => `${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`, {
+    id: "address",
     header: "Address",
   }),
   columnHelper.accessor("admin.id", { header: "Contact ID" }),
   columnHelper.accessor((x) => `${x.adminData.fname} ${x.adminData.lname}`, {
+    id: "admin_name",
     header: "Contact Name",
   }),
-  columnHelper.accessor("adminData.email", { header: "Contact Email" }),
+  columnHelper.accessor("adminData.email", { id: "admin_email", header: "Contact Email" }),
   columnHelper.accessor("maxStudents", { header: "Seats Purchased" }),
   columnHelper.accessor("notes", { header: "Notes" }),
 ];
@@ -70,7 +72,9 @@ const initialState: Partial<TableState> = {
 export default function OrgsRoute() {
   const loaderData = useLoaderData<LoaderData>();
 
-  return <DataTable data={loaderData.orgs} columns={columns} initialState={initialState} />;
+  return (
+    <DataTable name="orgs" data={loaderData.orgs} columns={columns} initialState={initialState} />
+  );
 }
 
 export const handle = {

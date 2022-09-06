@@ -73,20 +73,21 @@ export default function StudentsRoute() {
   const columns = [
     columnHelper.accessor("id", { header: "ID" }),
     columnHelper.accessor("number", { header: "Number" }),
-    columnHelper.accessor((x) => `${x.fname} ${x.lname}`, { header: "Name" }),
+    columnHelper.accessor((x) => `${x.fname} ${x.lname}`, { id: "name", header: "Name" }),
     columnHelper.accessor("email", { header: "Email" }),
     columnHelper.accessor("grade", { header: "Grade" }),
-    columnHelper.accessor("org", {
+    columnHelper.accessor("org.id", {
       header: "Organization",
       cell: (props) => {
-        const org = orgsById.get(props.getValue().id);
-        return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue().id;
+        const org = orgsById.get(props.getValue());
+        return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue();
       },
     }),
-    columnHelper.accessor("team", {
+    columnHelper.accessor((x) => x.team?.id, {
+      id: "team_id",
       header: "Team",
       cell: (props) => {
-        const id = props.getValue()?.id;
+        const id = props.getValue();
         const team = id ? teamsById.get(id) : undefined;
         return team ? <EventTeamReferenceEmbed team={team} /> : id;
       },
@@ -105,7 +106,9 @@ export default function StudentsRoute() {
     }),
   ];
 
-  return <DataTable data={students} columns={columns} initialState={initialState} />;
+  return (
+    <DataTable name="students" data={students} columns={columns} initialState={initialState} />
+  );
 }
 
 export const handle = {

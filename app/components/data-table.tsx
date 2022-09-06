@@ -15,14 +15,29 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { CSVLink } from "react-csv";
+import { ClientOnly } from "remix-utils";
 
+import Button from "./button";
 import Dropdown from "./dropdown";
 
-type TableProps<T extends RowData> = { table: Table<T> };
+type TableProps<T extends RowData> = { name: string; table: Table<T> };
 
-function FieldSelector<T extends RowData>({ table }: TableProps<T>) {
+function HeaderButtons<T extends RowData>({ name, table }: TableProps<T>) {
+  const csvData = useMemo(() => {
+    const model = table.getCoreRowModel();
+    return model.flatRows.map((row) =>
+      row.getAllCells().reduce<{ [key: string]: any }>((acc, curr) => {
+        acc[curr.column.id] = curr.getValue();
+        return acc;
+      }, {})
+    );
+  }, [table]);
+
   return (
-    <div className="sm:flex sm:justify-end">
+    <div className="flex flex-col justify-end gap-4 sm:flex-row">
+      {/* Field Selector */}
       <Dropdown>
         <Dropdown.Button>Fields</Dropdown.Button>
         <Dropdown.Items>
@@ -42,6 +57,15 @@ function FieldSelector<T extends RowData>({ table }: TableProps<T>) {
           ))}
         </Dropdown.Items>
       </Dropdown>
+
+      {/* Download Button */}
+      <ClientOnly fallback={<Button disabled>Download CSV</Button>}>
+        {() => (
+          <Button as={CSVLink} data={csvData} filename={`${name}.csv`}>
+            Download CSV
+          </Button>
+        )}
+      </ClientOnly>
     </div>
   );
 }
@@ -92,12 +116,14 @@ function Body<T extends RowData>({ table }: TableProps<T>) {
 }
 
 type DataTableProps<T extends RowData> = {
+  name: string;
   data: T[];
   columns: ColumnDef<T, any>[];
   initialState?: Partial<TableState>;
 };
 
 export default function DataTable<T extends RowData>({
+  name,
   data,
   columns,
   initialState,
@@ -112,12 +138,12 @@ export default function DataTable<T extends RowData>({
 
   return (
     <div className="flex flex-col items-stretch gap-4">
-      <FieldSelector table={table} />
+      <HeaderButtons name={name} table={table} />
 
       <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
         <table className="min-w-full divide-y divide-gray-300">
-          <Headers table={table} />
-          <Body table={table} />
+          <Headers name={name} table={table} />
+          <Body name={name} table={table} />
         </table>
       </div>
     </div>

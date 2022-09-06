@@ -66,11 +66,11 @@ export default function TeamsRoute() {
     columnHelper.accessor("id", { header: "ID" }),
     columnHelper.accessor("number", { header: "Number" }),
     columnHelper.accessor("name", { header: "Name" }),
-    columnHelper.accessor("org", {
+    columnHelper.accessor("org.id", {
       header: "Organization",
       cell: (props) => {
-        const org = orgsById.get(props.getValue().id);
-        return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue().id;
+        const org = orgsById.get(props.getValue());
+        return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue();
       },
     }),
     columnHelper.accessor("notes", { header: "Notes" }),
@@ -87,7 +87,7 @@ export default function TeamsRoute() {
     }),
   ];
 
-  return <DataTable data={teams} columns={columns} initialState={initialState} />;
+  return <DataTable name="teams" data={teams} columns={columns} initialState={initialState} />;
 }
 
 export const handle = {
