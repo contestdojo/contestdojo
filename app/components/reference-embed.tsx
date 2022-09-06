@@ -23,7 +23,7 @@ type ReferenceEmbedProps = PropsWithChildren<{
 export default function ReferenceEmbed({ title, subtitle, fields, children }: ReferenceEmbedProps) {
   return (
     <Popover className="relative inline-block whitespace-normal">
-      <Popover.Button className="max-w-xs cursor-pointer truncate rounded-lg bg-gray-100 px-2 text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+      <Popover.Button className="max-w-xs cursor-pointer truncate rounded-lg bg-gray-100 px-2 text-gray-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
         {children}
       </Popover.Button>
 

@@ -17,7 +17,7 @@ export default function IconButton<T extends React.ElementType = "button">({
 
   return (
     <As
-      className={`-m-1 rounded-full border border-transparent p-1 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${className}`}
+      className={`-m-1 rounded-full border border-transparent p-1 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${className}`}
       {...props}
     />
   );

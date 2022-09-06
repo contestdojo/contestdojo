@@ -35,7 +35,7 @@ export default function IndexRoute() {
         {loaderData.entities.map((x) => (
           <li
             key={x.id}
-            className="rounded-lg border border-gray-300 bg-white shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
+            className="rounded-lg border border-gray-300 bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:border-gray-400"
           >
             <Link to={x.id} className="flex flex-col gap-1 p-4 focus:outline-none">
               <h2 className="text-lg font-medium text-gray-900">{x.name}</h2>
