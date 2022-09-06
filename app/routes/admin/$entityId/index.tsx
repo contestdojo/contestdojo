@@ -40,12 +40,15 @@ export default function IndexRoute() {
     <div>
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {loaderData.events.map((x) => (
-          <Link key={x.id} to={x.id}>
-            <li className="flex flex-col gap-1 rounded-lg bg-white p-4 shadow">
+          <li
+            key={x.id}
+            className="rounded-lg border border-gray-300 bg-white shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
+          >
+            <Link to={x.id} className="flex flex-col gap-1 p-4 focus:outline-none">
               <h2 className="text-lg font-medium text-gray-900">{x.name}</h2>
               <h3 className="text-sm text-gray-400">{x.id}</h3>
-            </li>
-          </Link>
+            </Link>
+          </li>
         ))}
       </ul>
     </div>
