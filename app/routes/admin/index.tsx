@@ -31,11 +31,14 @@ export default function IndexRoute() {
 
   return (
     <div>
-      <ul>
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {loaderData.entities.map((x) => (
-          <li key={x.id}>
-            <Link to={x.id}>{x.name}</Link>
-          </li>
+          <Link key={x.id} to={x.id}>
+            <li className="flex flex-col gap-1 rounded-lg bg-white p-4 shadow">
+              <h2 className="text-lg font-medium text-gray-900">{x.name}</h2>
+              <h3 className="text-sm text-gray-400">{x.id}</h3>
+            </li>
+          </Link>
         ))}
       </ul>
     </div>
