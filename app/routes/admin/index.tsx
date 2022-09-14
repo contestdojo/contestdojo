@@ -12,6 +12,7 @@ import type { Entity } from "~/utils/db.server";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
+import Box from "~/components/box";
 import { requireAdmin } from "~/utils/auth.server";
 import db from "~/utils/db.server";
 
@@ -33,15 +34,13 @@ export default function IndexRoute() {
     <div>
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {loaderData.entities.map((x) => (
-          <li
-            key={x.id}
-            className="rounded-lg border border-gray-300 bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:border-gray-400"
-          >
-            <Link to={x.id} className="flex flex-col gap-1 p-4 focus:outline-none">
+          <Box key={x.id} as="li" hoverEffect focusEffect>
+            <Link to={x.id} className="flex flex-col gap-1 focus:outline-none">
+              <span className="absolute inset-0" aria-hidden="true" />
               <h2 className="text-lg font-medium text-gray-900">{x.name}</h2>
               <h3 className="text-sm text-gray-400">{x.id}</h3>
             </Link>
-          </li>
+          </Box>
         ))}
       </ul>
     </div>

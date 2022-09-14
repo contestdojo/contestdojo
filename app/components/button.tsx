@@ -10,12 +10,10 @@ import type { PropsWithAs } from "~/utils/props-with-as";
 
 import React from "react";
 
-type ButtonProps = JSX.IntrinsicElements["button"];
-
 export default function Button<T extends React.ElementType = "button">({
   as,
   ...props
-}: PropsWithAs<ButtonProps, T>) {
+}: PropsWithAs<{}, T>) {
   const As = as ?? "button";
 
   return (
