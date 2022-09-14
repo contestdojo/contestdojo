@@ -197,6 +197,8 @@ export default function AdminRoute() {
                         <NavItem to={`${entity.id}/${event.id}/orgs`}>Organizations</NavItem>
                         <NavItem to={`${entity.id}/${event.id}/teams`}>Teams</NavItem>
                         <NavItem to={`${entity.id}/${event.id}/students`}>Students</NavItem>
+                        <NavItem to={`${entity.id}/${event.id}/tests`}>Tests</NavItem>
+                        <NavItem to={`${entity.id}/${event.id}/settings`}>Settings</NavItem>
                       </>
                     </div>
                   </>
@@ -270,6 +272,8 @@ export default function AdminRoute() {
                     </MobileNavItem>
                     <MobileNavItem to={`${entity.id}/${event.id}/teams`}>Teams</MobileNavItem>
                     <MobileNavItem to={`${entity.id}/${event.id}/students`}>Students</MobileNavItem>
+                    <MobileNavItem to={`${entity.id}/${event.id}/tests`}>Tests</MobileNavItem>
+                    <MobileNavItem to={`${entity.id}/${event.id}/settings`}>Settings</MobileNavItem>
                   </>
                 )}
               </div>
