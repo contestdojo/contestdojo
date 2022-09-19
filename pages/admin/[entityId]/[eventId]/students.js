@@ -22,7 +22,7 @@ const toDict = (obj, x) => {
   return obj;
 };
 
-const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
+const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }) => {
   const impersonate = useImpersonate();
   const storage = useStorage();
   const root = storage.ref();
@@ -63,6 +63,11 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
       hideInCsv: true,
       hideByDefault: true,
     },
+    ...customFields.map((x) => ({
+      label: `[Custom] ${x.label}`,
+      key: `custom_${x.id}`,
+      hideByDefault: true,
+    })),
   ];
 
   const rows = students.map((x) => {
@@ -79,6 +84,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
       team: team?.name ?? "",
       waiver: x.waiver,
       notes: x.notes ?? "",
+      ...Object.fromEntries(customFields.map((f) => [`custom_${f.id}`, x[f.id]])),
     };
   });
 
@@ -87,7 +93,7 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
 
 const TeamsTab = () => {
   const firestore = useFirestore();
-  const { ref: eventRef } = useEvent();
+  const { data: event, ref: eventRef } = useEvent();
 
   // Get orgs
 
@@ -112,7 +118,15 @@ const TeamsTab = () => {
     await studentsRef.doc(id).update(update);
   };
 
-  return <StudentsTable students={students} teamsById={teamsById} orgsById={orgsById} onUpdate={handleStudentUpdate} />;
+  return (
+    <StudentsTable
+      students={students}
+      customFields={event.customFields ?? []}
+      teamsById={teamsById}
+      orgsById={orgsById}
+      onUpdate={handleStudentUpdate}
+    />
+  );
 };
 
 export default TeamsTab;

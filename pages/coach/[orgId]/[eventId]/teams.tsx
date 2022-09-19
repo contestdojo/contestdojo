@@ -33,7 +33,8 @@ import {
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/router";
-import { HiClipboardCheck, HiDotsHorizontal, HiExclamation, HiTrash } from "react-icons/hi";
+import { useState } from "react";
+import { HiClipboardCheck, HiDotsHorizontal, HiExclamation, HiPencil, HiTrash } from "react-icons/hi";
 import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 
 import AddStudentModal from "~/components/AddStudentModal";
@@ -49,52 +50,64 @@ import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
 
-const StudentCard = ({ id, fname, lname, email, waiver }) => {
+const StudentCard = ({ id, fname, lname, email, waiver, onEdit }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
   const props = transform
     ? { cursor: "grabbing", shadow: "xl", transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
     : { cursor: "grab" };
 
   return (
-    <Card
-      as={Stack}
-      spacing={0}
-      my={1}
-      mx={2}
-      p={2}
-      position="relative"
-      ref={setNodeRef}
-      {...props}
-      {...listeners}
-      {...attributes}
-    >
-      <Heading as="h4" size="sm">
-        {fname} {lname}
-      </Heading>
-      <Text fontSize="sm">{email}</Text>
-      <Box position="absolute" top={2} right={2} lineHeight={1}>
-        {waiver !== undefined &&
-          (waiver ? (
-            <Tooltip label="Waiver Signed">
-              <span>
-                <Icon as={HiClipboardCheck} color="green.500" />
-              </span>
-            </Tooltip>
-          ) : (
-            <Tooltip label="Waiver Missing">
-              <span>
-                <Icon as={HiExclamation} color="red.500" />
-              </span>
-            </Tooltip>
-          ))}
+    <Card as={Stack} direction="row" my={1} mx={2} spacing={0} {...props} {...attributes}>
+      <Stack flex={1} spacing={0} p={2} position="relative" ref={setNodeRef} {...listeners}>
+        <Heading as="h4" size="sm">
+          {fname} {lname}
+        </Heading>
+        <Text fontSize="sm">{email}</Text>
+        <Box position="absolute" top={2} right={2} lineHeight={1}>
+          {waiver !== undefined &&
+            (waiver ? (
+              <Tooltip label="Waiver Signed">
+                <span>
+                  <Icon as={HiClipboardCheck} color="green.500" />
+                </span>
+              </Tooltip>
+            ) : (
+              <Tooltip label="Waiver Missing">
+                <span>
+                  <Icon as={HiExclamation} color="red.500" />
+                </span>
+              </Tooltip>
+            ))}
+        </Box>
+      </Stack>
+      <Box>
+        <Divider orientation="vertical" />
+      </Box>
+      <Box>
+        <IconButton
+          icon={<Icon as={HiPencil} />}
+          size="sm"
+          variant="ghost"
+          h="full"
+          borderLeftRadius={0}
+          onClick={onEdit}
+        />
       </Box>
     </Card>
   );
 };
 
-const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats, waiver }) => {
+const TeamCard = ({ event, id, name, number, students, onUpdate, onDelete, onEditStudent, needSeats, waiver }) => {
   const { isOver, setNodeRef } = useDroppable({ id });
   const props = { backgroundColor: isOver ? "gray.100" : undefined };
+
+  const [editing, setEditing] = useState(null);
+  const [formState, wrapAction] = useFormState();
+
+  const handleEditStudent = wrapAction(async (values) => {
+    await onEditStudent(students[editing].id, values);
+    setEditing(null);
+  });
 
   return (
     <Card as={Stack} spacing={0} flex={1} p={2} minHeight="xs" transition="background-color 0.1s" {...props}>
@@ -118,12 +131,29 @@ const TeamCard = ({ id, name, number, students, onUpdate, onDelete, needSeats, w
       </HStack>
 
       <Flex direction="column" flex={1} ref={setNodeRef}>
-        {students.map((x) => (
-          <StudentCard key={x.id} {...x} waiver={waiver ? x.waiver || !!x.waiverSigned : undefined} />
+        {students.map((x, i) => (
+          <StudentCard
+            key={x.id}
+            {...x}
+            waiver={waiver ? x.waiver || !!x.waiverSigned : undefined}
+            onEdit={() => setEditing(i)}
+          />
         ))}
         {students.length === 0 &&
           (needSeats ? <BlankCard>More seats required</BlankCard> : <BlankCard>Drag students here</BlankCard>)}
       </Flex>
+
+      <AddStudentModal
+        key={editing}
+        title="Edit Student"
+        isOpen={editing != null}
+        onClose={() => setEditing(null)}
+        onSubmit={handleEditStudent}
+        defaultValues={students[editing]}
+        customFields={event.customFields ?? []}
+        allowEditEmail={false}
+        {...formState}
+      />
     </Card>
   );
 };
@@ -178,6 +208,7 @@ const Teams = ({
   onDeleteTeam,
   studentsByTeam,
   costPerStudent,
+  onEditStudent,
   maxStudents,
   seatsRemaining,
   stripeAccount,
@@ -223,6 +254,8 @@ const Teams = ({
           {teams.map((x) => (
             <TeamCard
               key={x.id}
+              event={event}
+              onEditStudent={onEditStudent}
               onUpdate={(update) => onUpdateTeam(x.id, update)}
               onDelete={() => onDeleteTeam(x.id)}
               {...x}
@@ -254,13 +287,20 @@ const Teams = ({
   );
 };
 
-const Students = ({ students, onAddStudent, event, waiver }) => {
+const Students = ({ students, onAddStudent, onEditStudent, event, waiver }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [editing, setEditing] = useState(null);
   const [formState, wrapAction] = useFormState();
 
   const handleAddStudent = wrapAction(async (values) => {
     await onAddStudent(values);
     onClose();
+  });
+
+  const handleEditStudent = wrapAction(async (values) => {
+    await onEditStudent(students[editing].id, values);
+    setEditing(null);
   });
 
   // Unassigned droppable
@@ -285,9 +325,14 @@ const Students = ({ students, onAddStudent, event, waiver }) => {
         ref={setNodeRef}
         {...props}
       >
-        {students.map((x) => (
+        {students.map((x, i) => (
           <WrapItem key={x.id}>
-            <StudentCard {...x} width={300} waiver={waiver ? x.waiver || !!x.waiverSigned : undefined} />
+            <StudentCard
+              {...x}
+              width={300}
+              waiver={waiver ? x.waiver || !!x.waiverSigned : undefined}
+              onEdit={() => setEditing(i)}
+            />
           </WrapItem>
         ))}
         {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
@@ -296,7 +341,24 @@ const Students = ({ students, onAddStudent, event, waiver }) => {
       <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
         Invite Student
       </Button>
-      <AddStudentModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddStudent} {...formState} />
+      <AddStudentModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handleAddStudent}
+        customFields={event.customFields ?? []}
+        {...formState}
+      />
+      <AddStudentModal
+        key={editing}
+        title="Edit Student"
+        isOpen={editing != null}
+        onClose={() => setEditing(null)}
+        onSubmit={handleEditStudent}
+        defaultValues={students[editing]}
+        customFields={event.customFields ?? []}
+        allowEditEmail={false}
+        {...formState}
+      />
     </Stack>
   );
 };
@@ -376,10 +438,10 @@ const TeamsContent = () => {
     if (snap.exists) throw new Error("This student is already associated with an organization.");
 
     await studentRef.set({
+      ...values,
       fname,
       lname,
       email,
-      grade: values.grade,
       user: firestore.collection("users").doc(uid),
       org: orgRef,
     });
@@ -393,7 +455,11 @@ const TeamsContent = () => {
     }
   };
 
-  console.log(seatsRemaining);
+  const handleEditStudent = async (uid, _values) => {
+    const { id, email, user, org, ...values } = _values;
+    const studentRef = studentsRef.doc(uid);
+    await studentRef.update(values);
+  };
 
   const handleDragEnd = ({ active, over }) => {
     if (!over) return;
@@ -444,12 +510,14 @@ const TeamsContent = () => {
           maxStudents={eventOrg?.maxStudents ?? 0}
           seatsRemaining={seatsRemaining}
           stripeAccount={entity.stripeAccountId}
+          onEditStudent={handleEditStudent}
           waiver={event.waiver}
         />
         <Divider />
         <Students
           students={studentsByTeam[null] ?? []}
           onAddStudent={handleAddStudent}
+          onEditStudent={handleEditStudent}
           event={event}
           waiver={event.waiver}
         />
