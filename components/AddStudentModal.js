@@ -41,8 +41,8 @@ const AddStudentModal = ({
       yup.object({
         fname: yup.string().required().label("First Name"),
         lname: yup.string().required().label("Last Name"),
-        email: yup.string().email().required().label("Email Address"),
         grade: yup.number().typeError("Invalid number").required().label("Grade"),
+        ...(allowEditEmail ? { email: yup.string().email().required().label("Email Address") } : {}),
         ...Object.fromEntries(
           customFields.map((v) => {
             let field = yup.string().label(v.label);
@@ -52,7 +52,7 @@ const AddStudentModal = ({
           })
         ),
       }),
-    [customFields]
+    [customFields, allowEditEmail]
   );
 
   const { register, handleSubmit, errors } = useForm({
@@ -108,7 +108,7 @@ const AddStudentModal = ({
                 placeholder="blaise.pascal@gmail.com"
                 error={errors.email}
                 isDisabled={!allowEditEmail}
-                isRequired
+                isRequired={allowEditEmail}
               />
 
               <FormField ref={register} name="grade" label="Grade" placeholder="10" error={errors.grade} isRequired />
