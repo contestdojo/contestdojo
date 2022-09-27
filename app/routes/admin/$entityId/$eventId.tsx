@@ -7,12 +7,12 @@
  */
 
 import type { LoaderFunction } from "@remix-run/node";
-import type { Event } from "~/utils/db.server";
+import type { Event } from "~/lib/db.server";
 
 import { json } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 
-import db from "~/utils/db.server";
+import db from "~/lib/db.server";
 
 export type LoaderData = {
   event: Event;

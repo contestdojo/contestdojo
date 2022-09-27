@@ -8,14 +8,14 @@
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
-import type { EventOrganization, Organization } from "~/utils/db.server";
+import type { EventOrganization, Organization } from "~/lib/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 
 import DataTable from "~/components/data-table";
-import db from "~/utils/db.server";
+import db from "~/lib/db.server";
 
 type LoaderData = {
   orgs: (Organization & EventOrganization)[];

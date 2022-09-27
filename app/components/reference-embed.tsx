@@ -7,12 +7,12 @@
  */
 
 import type { PropsWithChildren } from "react";
-import type { EventOrganization, EventTeam, Organization } from "~/utils/db.server";
+import type { EventOrganization, EventTeam, Organization } from "~/lib/db.server";
 
 import { Popover, Transition } from "@headlessui/react";
 import React from "react";
 
-import { intersperse } from "~/utils/array-utils";
+import { intersperse } from "~/lib/utils/array-utils";
 
 type ReferenceEmbedProps = PropsWithChildren<{
   title: string;

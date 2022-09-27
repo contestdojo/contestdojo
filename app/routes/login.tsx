@@ -15,8 +15,8 @@ import { zfd } from "zod-form-data";
 
 import Button from "~/components/button";
 import Input from "~/components/input";
-import { loginWithIdToken } from "~/utils/auth.server";
-import { auth as clientAuth } from "~/utils/firebase.client";
+import { loginWithIdToken } from "~/lib/auth.server";
+import { auth as clientAuth } from "~/lib/firebase.client";
 
 const LoginFields = zfd.formData({
   idToken: zfd.text(),

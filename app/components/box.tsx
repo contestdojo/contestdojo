@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { PropsWithAs } from "~/utils/props-with-as";
+import type { PropsWithAs } from "~/lib/utils/props-with-as";
 
 import clsx from "clsx";
 import React from "react";

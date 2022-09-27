@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { PropsWithAs } from "~/utils/props-with-as";
+import type { PropsWithAs } from "~/lib/utils/props-with-as";
 
 export default function IconButton<T extends React.ElementType = "button">({
   as,

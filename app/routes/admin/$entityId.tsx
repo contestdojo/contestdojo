@@ -7,12 +7,12 @@
  */
 
 import type { LoaderFunction } from "@remix-run/node";
-import type { Entity } from "~/utils/db.server";
+import type { Entity } from "~/lib/db.server";
 
 import { json } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 
-import db from "~/utils/db.server";
+import db from "~/lib/db.server";
 
 export type LoaderData = {
   entity: Entity;

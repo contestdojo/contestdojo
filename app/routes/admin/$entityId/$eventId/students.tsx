@@ -8,7 +8,7 @@
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
-import type { EventOrganization, EventStudent, EventTeam, Organization } from "~/utils/db.server";
+import type { EventOrganization, EventStudent, EventTeam, Organization } from "~/lib/db.server";
 
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import { json } from "@remix-run/node";
@@ -21,8 +21,8 @@ import {
   EventOrganizationReferenceEmbed,
   EventTeamReferenceEmbed,
 } from "~/components/reference-embed";
-import db from "~/utils/db.server";
-import { reduceToMap } from "~/utils/utils";
+import db from "~/lib/db.server";
+import { reduceToMap } from "~/lib/utils/misc";
 
 type LoaderData = {
   students: EventStudent[];

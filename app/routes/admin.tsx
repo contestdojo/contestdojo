@@ -8,10 +8,10 @@
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { PropsWithChildren } from "react";
+import type { User } from "~/lib/auth.server";
+import type { Entity, Event } from "~/lib/db.server";
 import type { LoaderData as EntityIdLoaderData } from "~/routes/admin/$entityId";
 import type { LoaderData as EventIdLoaderData } from "~/routes/admin/$entityId/$eventId";
-import type { User } from "~/utils/auth.server";
-import type { Entity, Event } from "~/utils/db.server";
 
 import { Disclosure, Menu } from "@headlessui/react";
 import { BuildingOffice2Icon, CalendarIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -21,11 +21,11 @@ import { Form, Link, NavLink, Outlet, useLoaderData, useMatches } from "@remix-r
 import clsx from "clsx";
 
 import Dropdown from "~/components/dropdown";
-import { chunk } from "~/utils/array-utils";
-import { requireAdmin } from "~/utils/auth.server";
-import db from "~/utils/db.server";
-import makePartial from "~/utils/make-partial";
-import useMatchData from "~/utils/use-match-data";
+import { requireAdmin } from "~/lib/auth.server";
+import db from "~/lib/db.server";
+import { chunk } from "~/lib/utils/array-utils";
+import makePartial from "~/lib/utils/make-partial";
+import useMatchData from "~/lib/utils/use-match-data";
 
 type LoaderData = {
   user: User;

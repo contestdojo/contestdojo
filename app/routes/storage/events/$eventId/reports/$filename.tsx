@@ -10,7 +10,7 @@ import type { LoaderFunction } from "@remix-run/node";
 
 import { Readable } from "stream";
 
-import { storage } from "~/utils/firebase.server";
+import { storage } from "~/lib/firebase.server";
 
 export const loader: LoaderFunction = async ({ params }) => {
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });

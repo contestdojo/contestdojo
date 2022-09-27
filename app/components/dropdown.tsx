@@ -7,7 +7,7 @@
  */
 
 import type { PropsWithChildren } from "react";
-import type { PropsWithAs } from "~/utils/props-with-as";
+import type { PropsWithAs } from "~/lib/utils/props-with-as";
 
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";

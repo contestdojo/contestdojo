@@ -8,7 +8,7 @@
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
-import type { EventOrganization, EventTeam, Organization } from "~/utils/db.server";
+import type { EventOrganization, EventTeam, Organization } from "~/lib/db.server";
 
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import { json } from "@remix-run/node";
@@ -18,8 +18,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import DataTable from "~/components/data-table";
 import IconButton from "~/components/icon-button";
 import { EventOrganizationReferenceEmbed } from "~/components/reference-embed";
-import db from "~/utils/db.server";
-import { reduceToMap } from "~/utils/utils";
+import db from "~/lib/db.server";
+import { reduceToMap } from "~/lib/utils/misc";
 
 type LoaderData = {
   teams: EventTeam[];
