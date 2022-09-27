@@ -21,7 +21,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { HiUser } from "react-icons/hi";
@@ -31,15 +31,16 @@ import {
   useFirestoreDocData,
   useStorage,
   useStorageDownloadURL,
-  useUser
+  useUser,
 } from "reactfire";
+
+import AddStudentForm from "../../../components/forms/AddStudentForm";
 
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import WaiverRequestForm from "~/components/forms/WaiverRequestForm";
 import { useFormState } from "~/helpers/utils";
-
 
 const DownloadWaiver = ({ waiver }) => {
   const storage = useStorage();
@@ -73,7 +74,14 @@ const Event = () => {
   const [formState, wrapAction] = useFormState();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const handleSubmit = wrapAction(async ({ parentEmail }) => {
+  const handleUpdate = wrapAction(async (_values) => {
+    const { id, email, user, org, ...values } = _values;
+    await studentRef.update(values);
+  });
+
+  const [formStateWaiver, wrapActionWaiver] = useFormState();
+
+  const handleSubmitWaiver = wrapActionWaiver(async ({ parentEmail }) => {
     const authorization = await auth.currentUser.getIdToken();
     const resp = await fetch("/api/student/request_waiver", {
       method: "POST",
@@ -124,6 +132,17 @@ const Event = () => {
         Click here to take your tests
       </ButtonLink>
 
+      <Divider />
+
+      <Heading size="lg">Student Information</Heading>
+      <AddStudentForm
+        onSubmit={handleUpdate}
+        customFields={event.customFields}
+        allowEditEmail={false}
+        {...formState}
+        defaultValues={student}
+      />
+
       {event.waiver && (
         <>
           <Divider />
@@ -143,7 +162,7 @@ const Event = () => {
                 complete this waiver. The waiver will be sent directly to your parent&apos;s email for them to complete.
                 Please enter their email address below:
               </Text>
-              <WaiverRequestForm onSubmit={handleSubmit} {...formState} />
+              <WaiverRequestForm onSubmit={handleSubmitWaiver} {...formStateWaiver} />
               <AlertDialog isOpen={isOpen} onClose={onClose}>
                 <AlertDialogOverlay>
                   <AlertDialogContent>
