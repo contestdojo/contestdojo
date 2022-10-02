@@ -7,18 +7,17 @@
  */
 
 import type { ActionFunction } from "@remix-run/node";
-import type { Validator } from "remix-validated-form";
 
 import { redirect } from "@remix-run/node";
 import { useSubmit } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import React from "react";
-import { ValidatedForm, validationError } from "remix-validated-form";
+import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
 import Button from "~/components/button";
-import FormControl from "~/components/forms/form-control";
+import SchemaForm from "~/components/forms/schema-form";
 import { loginWithIdToken } from "~/lib/auth.server";
 import { auth as clientAuth } from "~/lib/firebase.client";
 
@@ -28,14 +27,10 @@ const LoginValidator = withZod(
   })
 );
 
-const LoginFormValidator = withZod(
-  z.object({
-    email: z.string().min(1, "Required").email(),
-    password: z.string().min(1, "Required"),
-  })
-);
-
-type LoginFormData = typeof LoginFormValidator extends Validator<infer T> ? T : never;
+const LoginForm = z.object({
+  email: z.string().min(1, "Required").email(),
+  password: z.string().min(1, "Required"),
+});
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await LoginValidator.validate(await request.formData());
@@ -50,7 +45,10 @@ export const action: ActionFunction = async ({ request }) => {
 export default function LoginRoute() {
   const submit = useSubmit();
 
-  const handleSubmit = async (data: LoginFormData, event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    data: z.infer<typeof LoginForm>,
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
     const { user } = await signInWithEmailAndPassword(clientAuth, data.email, data.password);
     const idToken = await user.getIdToken();
@@ -64,29 +62,17 @@ export default function LoginRoute() {
 
       <img className="mx-auto h-16 w-auto" src="/assets/logo.png" alt="" />
 
-      <ValidatedForm
+      <SchemaForm
         className="flex w-full flex-col gap-5 bg-white p-8 shadow sm:max-w-md sm:rounded-lg"
-        validator={LoginFormValidator}
+        schema={LoginForm}
         onSubmit={handleSubmit}
+        fieldProps={{
+          email: { placeholder: "blaise.pascal@gmail.com" },
+          password: { type: "password" },
+        }}
       >
-        <FormControl
-          label="Email address"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="blaise.pascal@gmail.com"
-        />
-
-        <FormControl
-          label="Password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="Enter password..."
-        />
-
         <Button type="submit">Sign in</Button>
-      </ValidatedForm>
+      </SchemaForm>
     </div>
   );
 }
