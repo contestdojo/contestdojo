@@ -8,8 +8,8 @@
 
 import { z } from "zod";
 
-import { firestore } from "./firebase.server";
-import * as zfb from "./zfb.server";
+import { firestore } from "~/lib/firebase.server";
+import * as zfb from "~/lib/zfb.server";
 
 const User = zfb.firestoreObject(
   z.object({

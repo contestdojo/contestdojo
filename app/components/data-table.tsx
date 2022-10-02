@@ -19,8 +19,8 @@ import { useMemo } from "react";
 import { CSVLink } from "react-csv";
 import { ClientOnly } from "remix-utils";
 
-import Button from "./button";
-import Dropdown from "./dropdown";
+import Button from "~/components/button";
+import Dropdown from "~/components/dropdown";
 
 type TableProps<T extends RowData> = { name: string; table: Table<T> };
 

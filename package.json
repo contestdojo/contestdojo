@@ -9,6 +9,7 @@
     "dev:css": "npm run generate:css -- --watch",
     "dev:remix": "remix dev",
     "generate:css": "npx tailwindcss -o ./app/tailwind.css",
+    "postinstall": "patch-package",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -31,8 +32,11 @@
     "react": "^18.2.0",
     "react-csv": "^2.2.2",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.35.0",
+    "remix-domains": "^0.3.2",
+    "remix-forms": "^0.18.2",
     "remix-utils": "^3.3.0",
-    "zod": "^3.18.0",
+    "zod": "^3.19.1",
     "zod-form-data": "^1.2.1"
   },
   "devDependencies": {
