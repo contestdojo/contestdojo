@@ -18,7 +18,7 @@ export type LoaderData = {
   event: Event;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ params }) => {
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
 
   const eventSnap = await db.event(params.eventId).get();

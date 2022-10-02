@@ -6,48 +6,48 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import type { ComponentPropsWithoutRef } from "react";
 import type { ZodTypeAny } from "zod";
 
 import Checkbox from "~/components/forms/checkbox";
 import FormControl from "~/components/forms/form-control";
 import { shapeInfo } from "~/components/forms/schema-form/shape-info";
+import Select from "~/components/forms/select";
 
 function generateLabel(name: string) {
-  return name
-    .slice(0)
-    .replace(/(\p{Lu})/g, " $1")
-    .toLowerCase();
+  return name.charAt(0).toUpperCase() + name.replace(/([A-Z])/g, " $1").slice(1);
 }
 
 type FieldProps<T extends ZodTypeAny> = {
   name: string;
+  label?: string;
   type: T;
-  extraProps?: any;
+  extraProps?: Partial<ComponentPropsWithoutRef<typeof FormControl>>;
 };
 
-export default function Field<T extends ZodTypeAny>({ name, type, extraProps }: FieldProps<T>) {
+export default function Field<T extends ZodTypeAny>({
+  name,
+  label = generateLabel(name),
+  type,
+  extraProps,
+}: FieldProps<T>) {
   const { typeName, getDefaultValue, enumValues } = shapeInfo(type);
   if (getDefaultValue) throw new Error("Zod default value is unsupported");
 
-  const label = generateLabel(name);
-
   const props = {
     name,
-    label: label.charAt(0).toUpperCase() + label.slice(1),
+    label,
     placeholder: `Enter ${label}...`,
   };
 
   if (typeName === "ZodString") return <FormControl {...props} type="text" {...extraProps} />;
   if (typeName === "ZodNumber") return <FormControl {...props} type="number" {...extraProps} />;
   if (typeName === "ZodDate") return <FormControl {...props} type="date" {...extraProps} />;
-
-  if (typeName === "ZodBoolean") {
-    return <FormControl {...props} as={Checkbox} labelInside {...extraProps} />;
-  }
+  if (typeName === "ZodBoolean") return <FormControl {...props} as={Checkbox} {...extraProps} />;
 
   if (typeName === "ZodEnum") {
     return (
-      <FormControl {...props} as={Checkbox} {...extraProps}>
+      <FormControl {...props} as={Select} {...extraProps}>
         {enumValues?.map((x) => (
           <option key={x} value={x}>
             {x}
