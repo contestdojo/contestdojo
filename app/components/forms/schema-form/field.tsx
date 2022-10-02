@@ -14,20 +14,16 @@ import FormControl from "~/components/forms/form-control";
 import { shapeInfo } from "~/components/forms/schema-form/shape-info";
 import Select from "~/components/forms/select";
 
-function generateLabel(name: string) {
-  return name.charAt(0).toUpperCase() + name.replace(/([A-Z])/g, " $1").slice(1);
-}
-
 type FieldProps<T extends ZodTypeAny> = {
   name: string;
-  label?: string;
+  label: string;
   type: T;
   extraProps?: Partial<ComponentPropsWithoutRef<typeof FormControl>>;
 };
 
 export default function Field<T extends ZodTypeAny>({
   name,
-  label = generateLabel(name),
+  label,
   type,
   extraProps,
 }: FieldProps<T>) {
@@ -43,7 +39,8 @@ export default function Field<T extends ZodTypeAny>({
   if (typeName === "ZodString") return <FormControl {...props} type="text" {...extraProps} />;
   if (typeName === "ZodNumber") return <FormControl {...props} type="number" {...extraProps} />;
   if (typeName === "ZodDate") return <FormControl {...props} type="date" {...extraProps} />;
-  if (typeName === "ZodBoolean") return <FormControl {...props} as={Checkbox} {...extraProps} />;
+  if (typeName === "ZodBoolean")
+    return <FormControl {...props} as={Checkbox} type="checkbox" {...extraProps} />;
 
   if (typeName === "ZodEnum") {
     return (
@@ -56,6 +53,8 @@ export default function Field<T extends ZodTypeAny>({
       </FormControl>
     );
   }
+
+  console.log(typeName);
 
   return null;
 }

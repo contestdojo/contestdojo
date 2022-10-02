@@ -22,7 +22,6 @@ const Checkbox = forwardRef(function Checkbox(
   return (
     <input
       ref={ref}
-      type="checkbox"
       {...props}
       className={clsx`h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 ${
         invalid && "border-red-300 focus:border-red-500 focus:ring-red-500"

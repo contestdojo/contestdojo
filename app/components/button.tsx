@@ -8,10 +8,12 @@
 
 import type { PropsWithAs } from "~/lib/utils/props-with-as";
 
+import clsx from "clsx";
 import React from "react";
 
 export default function Button<T extends React.ElementType = "button">({
   as,
+  className,
   ...props
 }: PropsWithAs<{}, T>) {
   const As = as ?? "button";
@@ -19,7 +21,7 @@ export default function Button<T extends React.ElementType = "button">({
   return (
     <As
       {...props}
-      className="flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:hover:bg-blue-600"
+      className={clsx`flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:hover:bg-blue-600 ${className}`}
     />
   );
 }

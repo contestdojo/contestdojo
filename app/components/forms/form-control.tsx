@@ -6,6 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import type { ComponentPropsWithoutRef } from "react";
 import type { LabelProps } from "~/components/forms/label";
 import type { PropsWithAsAndRef } from "~/lib/utils/props-with-as";
 
@@ -53,7 +54,11 @@ export default function FormControl<T extends React.ElementType = typeof Input>(
 
       <div className="flex flex-1 flex-col gap-2">
         <div className="relative flex items-center gap-2">
-          <As id={name} name={name} {...props} {...getInputProps()} invalid={error !== undefined} />
+          <As
+            id={name}
+            {...getInputProps(props as ComponentPropsWithoutRef<T>)}
+            invalid={error !== undefined}
+          />
 
           {labelInside && labelElement}
 
