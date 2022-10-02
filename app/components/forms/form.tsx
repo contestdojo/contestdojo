@@ -9,7 +9,7 @@
 import type { FormProps } from "remix-forms";
 import type { SomeZodObject } from "zod";
 
-import { Form as RemixForm } from "remix-forms";
+import { Form as RemixFormsForm } from "remix-forms";
 
 import Checkbox from "~/components/forms/checkbox";
 import CheckboxWrapper from "~/components/forms/checkbox-wrapper";
@@ -24,7 +24,7 @@ import TextArea from "~/components/forms/text-area";
 
 export default function Form<Schema extends SomeZodObject>(props: FormProps<Schema>) {
   return (
-    <RemixForm<Schema>
+    <RemixFormsForm<Schema>
       className="flex flex-col gap-5"
       fieldComponent={Field}
       globalErrorsComponent={GlobalErrors}
