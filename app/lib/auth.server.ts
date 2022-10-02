@@ -8,8 +8,6 @@
 
 import { createCookie, redirect, Response } from "@remix-run/node";
 import { fromUnixTime, isBefore, subMinutes } from "date-fns";
-import { makeDomainFunction } from "remix-domains";
-import { z } from "zod";
 
 import { auth, firestore } from "~/lib/firebase.server";
 
@@ -42,23 +40,21 @@ async function migrateLegacyProfile(uid: string) {
   }
 }
 
-export const loginWithIdToken = makeDomainFunction(z.object({ idToken: z.string() }))(
-  async ({ idToken }) => {
-    const decodedIdToken = await auth.verifyIdToken(idToken, true);
+export const loginWithIdToken = async (idToken: string) => {
+  const decodedIdToken = await auth.verifyIdToken(idToken, true);
 
-    if (isBefore(fromUnixTime(decodedIdToken.auth_time), subMinutes(new Date(), 5))) {
-      throw new Response("Recent sign-in required", { status: 401 });
-    }
-
-    await migrateLegacyProfile(decodedIdToken.uid);
-
-    const sessionCookie = await auth.createSessionCookie(idToken, {
-      expiresIn: 1000 * 60 * 60 * 24 * 5,
-    });
-
-    return await session.serialize(sessionCookie);
+  if (isBefore(fromUnixTime(decodedIdToken.auth_time), subMinutes(new Date(), 5))) {
+    throw new Response("Recent sign-in required", { status: 401 });
   }
-);
+
+  await migrateLegacyProfile(decodedIdToken.uid);
+
+  const sessionCookie = await auth.createSessionCookie(idToken, {
+    expiresIn: 1000 * 60 * 60 * 24 * 5,
+  });
+
+  return await session.serialize(sessionCookie);
+};
 
 export async function logout() {
   return redirect("/login", {

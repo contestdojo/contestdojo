@@ -8,17 +8,25 @@
 
 import type { ForwardedRef } from "react";
 
+import clsx from "clsx";
 import { forwardRef } from "react";
 
+type CheckboxProps = JSX.IntrinsicElements["input"] & {
+  invalid?: boolean;
+};
+
 const Checkbox = forwardRef(function Checkbox(
-  { className, ...props }: JSX.IntrinsicElements["input"],
+  { className, invalid = false, ...props }: CheckboxProps,
   ref: ForwardedRef<HTMLInputElement>
 ) {
   return (
     <input
       ref={ref}
+      type="checkbox"
       {...props}
-      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+      className={clsx`h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 ${
+        invalid && "border-red-300 focus:border-red-500 focus:ring-red-500"
+      } ${className}`}
     />
   );
 });

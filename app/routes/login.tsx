@@ -7,53 +7,54 @@
  */
 
 import type { ActionFunction } from "@remix-run/node";
-import type { Result } from "remix-domains";
+import type { Validator } from "remix-validated-form";
 
 import { redirect } from "@remix-run/node";
-import { Form as RemixForm, useActionData, useSubmit } from "@remix-run/react";
+import { useSubmit } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { useRef } from "react";
-import { errorMessagesForSchema, inputFromForm } from "remix-domains";
+import React from "react";
+import { ValidatedForm, validationError } from "remix-validated-form";
 import { z } from "zod";
 
 import Button from "~/components/button";
-import Field from "~/components/forms/field";
-import Input from "~/components/forms/input";
-import Label from "~/components/forms/label";
+import FormControl from "~/components/forms/form-control";
 import { loginWithIdToken } from "~/lib/auth.server";
 import { auth as clientAuth } from "~/lib/firebase.client";
 
+const LoginValidator = withZod(
+  z.object({
+    idToken: z.string(),
+  })
+);
+
+const LoginFormValidator = withZod(
+  z.object({
+    email: z.string().min(1, "Required").email(),
+    password: z.string().min(1, "Required"),
+  })
+);
+
+type LoginFormData = typeof LoginFormValidator extends Validator<infer T> ? T : never;
+
 export const action: ActionFunction = async ({ request }) => {
-  const result = await loginWithIdToken(await inputFromForm(request));
-  if (!result.success) return result;
+  const result = await LoginValidator.validate(await request.formData());
+  if (result.error) throw validationError(result.error);
 
   const url = new URL(request.url);
   const next = url.searchParams.get("next") ?? "/";
-  return redirect(next, { headers: { "Set-Cookie": result.data } });
+  const cookie = await loginWithIdToken(result.data.idToken);
+  return redirect(next, { headers: { "Set-Cookie": cookie } });
 };
 
 export default function LoginRoute() {
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-
   const submit = useSubmit();
-  const actionData = useActionData<Result<string>>();
-  const errors = actionData ? errorMessagesForSchema(actionData.inputErrors, z.object({})) : [];
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (data: LoginFormData, event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (!emailRef.current || !passwordRef.current) return;
-
-    const { user } = await signInWithEmailAndPassword(
-      clientAuth,
-      emailRef.current.value,
-      passwordRef.current.value
-    );
-
+    const { user } = await signInWithEmailAndPassword(clientAuth, data.email, data.password);
     const idToken = await user.getIdToken();
     submit({ idToken }, { method: "post" });
-
     await signOut(clientAuth);
   };
 
@@ -63,32 +64,29 @@ export default function LoginRoute() {
 
       <img className="mx-auto h-16 w-auto" src="/assets/logo.png" alt="" />
 
-      <RemixForm
+      <ValidatedForm
         className="flex w-full flex-col gap-5 bg-white p-8 shadow sm:max-w-md sm:rounded-lg"
+        validator={LoginFormValidator}
         onSubmit={handleSubmit}
       >
-        <Field>
-          <Label>Email address</Label>
-          <Input
-            type="email"
-            autoComplete="email"
-            placeholder="blaise.pascal@gmail.com"
-            ref={emailRef}
-          />
-        </Field>
+        <FormControl
+          label="Email address"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="blaise.pascal@gmail.com"
+        />
 
-        <Field>
-          <Label>Password</Label>
-          <Input
-            type="password"
-            autoComplete="current-password"
-            placeholder="Enter password..."
-            ref={passwordRef}
-          />
-        </Field>
+        <FormControl
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="Enter password..."
+        />
 
         <Button type="submit">Sign in</Button>
-      </RemixForm>
+      </ValidatedForm>
     </div>
   );
 }

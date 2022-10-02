@@ -7,6 +7,11 @@
  */
 
 export type PropsWithAs<P, T extends React.ElementType> = P &
-  Omit<React.ComponentProps<T>, "as" | keyof P> & {
+  Omit<React.ComponentPropsWithoutRef<T>, "as" | keyof P> & {
+    as?: T;
+  };
+
+export type PropsWithAsAndRef<P, T extends React.ElementType> = P &
+  Omit<React.ComponentPropsWithRef<T>, "as" | keyof P> & {
     as?: T;
   };

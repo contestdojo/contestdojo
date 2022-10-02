@@ -12,3 +12,7 @@ export function reduceToMap<T extends { id: string }>(data: T[]) {
     new Map<string, T>()
   );
 }
+
+export function isObject(x: any): x is object {
+  return x && typeof x === "object";
+}
