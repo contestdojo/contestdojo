@@ -117,6 +117,12 @@ function CustomFields() {
               <FieldsFromSchema
                 schema={CustomFieldsForm.shape.customFields.innerType().element}
                 namePrefix={`customFields[${i}].`}
+                fieldProps={{
+                  choices: {
+                    label: "Choices (optional)",
+                    placeholder: "Enter choices, comma-separated...",
+                  },
+                }}
               >
                 <FormControl
                   as={Checkbox}
