@@ -64,6 +64,16 @@ const Event = zfb.firestoreObject(
     description: z.string().optional(),
     costDescription: z.string().optional(),
     waiver: z.string().optional(),
+    customFields: z
+      .array(
+        z.object({
+          id: z.string(),
+          label: z.string(),
+          required: z.boolean(),
+          choices: z.array(z.string()).optional().nullable(),
+        })
+      )
+      .optional(),
   })
 );
 
