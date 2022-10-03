@@ -83,7 +83,23 @@ const AddStudentForm = ({
           isRequired={allowEditEmail}
         />
 
-        <FormField ref={register} name="grade" label="Grade" placeholder="10" error={errors.grade} isRequired />
+        <FormField
+          ref={register}
+          as={Select}
+          name="grade"
+          label="Grade"
+          placeholder="10"
+          error={errors.grade}
+          isRequired
+        >
+          <option>6 or below</option>
+          <option>7</option>
+          <option>8</option>
+          <option>9</option>
+          <option>10</option>
+          <option>11</option>
+          <option>12 or above</option>
+        </FormField>
 
         {customFields.map((x) => (
           <FormField
