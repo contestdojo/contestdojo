@@ -258,6 +258,10 @@ const Tests = () => {
       (student.number && x.authorizedIds.includes(student.number))
   );
 
+  if (!event.teamsEnabled) {
+    displayTests = displayTests.filter((x) => !x.team);
+  }
+
   // Test Selection
 
   if (event.testSelection) {
@@ -308,7 +312,7 @@ const Tests = () => {
   });
 
   // Waiver
-  if (!student.team) {
+  if (event.teamsEnabled && !student.team) {
     return (
       <>
         <Alert status="error">

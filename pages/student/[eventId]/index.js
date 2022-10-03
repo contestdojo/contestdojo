@@ -92,12 +92,14 @@ const Event = () => {
     onOpen();
   });
 
+  if (event.teamsEnabled && student.team && !team) return null;
+
   return (
     <Stack spacing={6} flexBasis={600}>
       <p>
-        {student.team
-          ? `Welcome to ${event.name}! Your coach at ${org.name} has assigned you to Team ${team.name}. `
-          : `Welcome to ${event.name}! You have yet to be assigned a team by your coach. `}
+        Welcome to {event.name}!{" "}
+        {event.teamsEnabled && student.team && `Your coach at ${org.name} has assigned you to Team ${team.name}. `}
+        {event.teamsEnabled && !student.team && `You have yet to be assigned a team by your coach. `}
         You will complete registration and take tests on this portal.
       </p>
 
@@ -127,7 +129,7 @@ const Event = () => {
         href={event.waiver && !student.waiver && !student.waiverSigned ? "#" : `/student/${eventId}/tests`}
         colorScheme="blue"
         size="lg"
-        isDisabled={event.waiver && !student.waiver && !student.waiverSigned}
+        isDisabled={(event.waiver && !student.waiver && !student.waiverSigned) || (event.teamsEnabled && !student.team)}
       >
         Click here to take your tests
       </ButtonLink>
@@ -137,7 +139,7 @@ const Event = () => {
       <Heading size="lg">Student Information</Heading>
       <AddStudentForm
         onSubmit={handleUpdate}
-        customFields={event.customFields}
+        customFields={event.customFields ?? []}
         allowEditEmail={false}
         {...formState}
         defaultValues={student}
