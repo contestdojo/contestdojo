@@ -311,11 +311,11 @@ const Students = ({ students, onAddStudent, onEditStudent, event, waiver }) => {
 
   return (
     <Stack spacing={4}>
-      <Heading size="lg">Unassigned Students</Heading>
+      <Heading size="lg">{event.teamsEnabled ? "Unassigned Students " : "Students"}</Heading>
       <p>
-        Once you add a student to your team, they will receive an email invitation to create an account on our website.
-        If a student already has an account from a previous tournament (such as the Stanford Math Tournament), they will
-        receive an email letting them know to reuse that same account.
+        Once you add a student to your organization, they will receive an email invitation to create an account on our
+        website. If a student already has an account from a previous tournament (such as the Stanford Math Tournament),
+        they will receive an email letting them know to reuse that same account.
       </p>
       <Wrap
         spacing={0}
@@ -335,7 +335,8 @@ const Students = ({ students, onAddStudent, onEditStudent, event, waiver }) => {
             />
           </WrapItem>
         ))}
-        {students.length === 0 && <BlankCard>Drag students here</BlankCard>}
+        {event.teamsEnabled && students.length === 0 && <BlankCard>Drag students here</BlankCard>}
+        {!event.teamsEnabled && students.length === 0 && <BlankCard>No students added</BlankCard>}
       </Wrap>
 
       <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
@@ -483,7 +484,9 @@ const TeamsContent = () => {
           <Heading size="2xl">{event.name}</Heading>
           <Heading size="lg">{org.name}</Heading>
         </HStack>
+
         <Divider />
+
         {event.scoreReportsAvailable && (
           <>
             <Card p={4} maxW="md">
@@ -497,23 +500,29 @@ const TeamsContent = () => {
             <Divider />
           </>
         )}
-        <Teams
-          title="Teams"
-          event={event}
-          teams={teams}
-          maxTeams={event.maxTeams}
-          studentsByTeam={studentsByTeam}
-          onAddTeam={handleAddTeam}
-          onUpdateTeam={handleUpdateTeam}
-          onDeleteTeam={handleDeleteTeam}
-          costPerStudent={event.costPerStudent}
-          maxStudents={eventOrg?.maxStudents ?? 0}
-          seatsRemaining={seatsRemaining}
-          stripeAccount={entity.stripeAccountId}
-          onEditStudent={handleEditStudent}
-          waiver={event.waiver}
-        />
-        <Divider />
+
+        {event.teamsEnabled && (
+          <>
+            <Teams
+              title="Teams"
+              event={event}
+              teams={teams}
+              maxTeams={event.maxTeams}
+              studentsByTeam={studentsByTeam}
+              onAddTeam={handleAddTeam}
+              onUpdateTeam={handleUpdateTeam}
+              onDeleteTeam={handleDeleteTeam}
+              costPerStudent={event.costPerStudent}
+              maxStudents={eventOrg?.maxStudents ?? 0}
+              seatsRemaining={seatsRemaining}
+              stripeAccount={entity.stripeAccountId}
+              onEditStudent={handleEditStudent}
+              waiver={event.waiver}
+            />
+            <Divider />
+          </>
+        )}
+
         <Students
           students={studentsByTeam[null] ?? []}
           onAddStudent={handleAddStudent}
