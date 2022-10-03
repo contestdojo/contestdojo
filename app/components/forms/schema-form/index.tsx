@@ -33,12 +33,12 @@ function generateLabel(name: string) {
   return name.charAt(0).toUpperCase() + name.replace(/([A-Z])/g, " $1").slice(1);
 }
 
-function SubmitButton() {
+function SubmitButton({ children }: PropsWithChildren<{}>) {
   const isSubmitting = useIsSubmitting();
 
   return (
     <Button type="submit" disabled={isSubmitting}>
-      Submit
+      {children ?? "Submit"}
     </Button>
   );
 }
@@ -91,10 +91,11 @@ export function FieldsFromSchema<T extends ZodRawShape, S extends ZodObject<T>>(
 type SchemaFormProps<T extends ZodRawShape, S extends ZodObject<T>> = Omit<
   FormProps<z.infer<S>>,
   "validator"
-> & { id: string } & FieldsFromSchemaProps<T, S>;
+> & { id: string; buttonLabel?: string } & FieldsFromSchemaProps<T, S>;
 
 export default function SchemaForm<T extends ZodRawShape, S extends ZodObject<T>>({
   id,
+  buttonLabel,
   children,
   ...props
 }: SchemaFormProps<T, S>) {
@@ -105,7 +106,7 @@ export default function SchemaForm<T extends ZodRawShape, S extends ZodObject<T>
       <FieldsFromSchema {...props} />
       <input type="hidden" name="_form" value={id} />
       {children}
-      <SubmitButton />
+      <SubmitButton>{buttonLabel}</SubmitButton>
     </ValidatedForm>
   );
 }

@@ -91,6 +91,7 @@ function EventDetails() {
         method="post"
         schema={EventDetailsForm}
         labels={{ name: "Event Name" }}
+        buttonLabel="Save"
       />
     </Box>
   );
@@ -109,6 +110,7 @@ function CustomFields() {
         className="flex flex-col gap-5"
         method="post"
         schema={CustomFieldsForm}
+        buttonLabel="Save"
       >
         {Array(count)
           .fill(null)

@@ -16,7 +16,6 @@ import React from "react";
 import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
-import Button from "~/components/button";
 import SchemaForm from "~/components/forms/schema-form";
 import { loginWithIdToken } from "~/lib/auth.server";
 import { auth as clientAuth } from "~/lib/firebase.client";
@@ -63,6 +62,7 @@ export default function LoginRoute() {
       <img className="mx-auto h-16 w-auto" src="/assets/logo.png" alt="" />
 
       <SchemaForm
+        id="Login"
         className="flex w-full flex-col gap-5 bg-white p-8 shadow sm:max-w-md sm:rounded-lg"
         schema={LoginForm}
         onSubmit={handleSubmit}
@@ -70,9 +70,8 @@ export default function LoginRoute() {
           email: { placeholder: "blaise.pascal@gmail.com" },
           password: { type: "password" },
         }}
-      >
-        <Button type="submit">Sign in</Button>
-      </SchemaForm>
+        buttonLabel="Sign in"
+      />
     </div>
   );
 }
