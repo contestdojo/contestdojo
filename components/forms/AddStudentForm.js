@@ -92,13 +92,13 @@ const AddStudentForm = ({
           error={errors.grade}
           isRequired
         >
-          <option>6 or below</option>
-          <option>7</option>
-          <option>8</option>
-          <option>9</option>
-          <option>10</option>
-          <option>11</option>
-          <option>12 or above</option>
+          <option value="6">6 or below</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12 or above</option>
         </FormField>
 
         {customFields.map((x) => (
