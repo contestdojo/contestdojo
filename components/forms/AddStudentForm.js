@@ -61,7 +61,7 @@ const AddStudentForm = ({
         <FormField
           ref={(e) => {
             register(e);
-            initialFocusRef.current = e;
+            if (initialFocusRef) initialFocusRef.current = e;
           }}
           name="fname"
           label="First Name"
