@@ -34,7 +34,7 @@ const AddStudentForm = ({
           customFields.map((v) => {
             let field = yup.string().label(v.label);
             if (v.required) field = field.required();
-            if (v.choices) field = field.oneOf(v.choices);
+            if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
             return [v.id, field];
           })
         ),
@@ -88,7 +88,7 @@ const AddStudentForm = ({
           as={Select}
           name="grade"
           label="Grade"
-          placeholder="10"
+          placeholder="Select Grade"
           error={errors.grade}
           isRequired
         >
@@ -110,6 +110,7 @@ const AddStudentForm = ({
             error={errors[x.id]}
             isRequired={x.required}
             as={x.choices ? Select : undefined}
+            placeholder={x.choices ? "Select..." : ""}
           >
             {x.choices &&
               x.choices.map((v) => (
