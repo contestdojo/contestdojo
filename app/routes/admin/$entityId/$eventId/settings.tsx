@@ -20,6 +20,11 @@ import Box from "~/components/box";
 import SchemaForm from "~/components/forms/schema-form";
 import db from "~/lib/db.server";
 
+const UNIQUE_ERROR = {
+  code: z.ZodIssueCode.custom,
+  message: "Must be unique",
+};
+
 const EventDetailsForm = z.object({
   name: zfd.text(),
   studentsPerTeam: zfd.numeric(),
@@ -27,19 +32,29 @@ const EventDetailsForm = z.object({
 });
 
 const CustomFieldsForm = z.object({
-  customFields: zfd.repeatableOfType(
-    z.object({
-      id: zfd.text(),
-      label: zfd.text(),
-      choices: zfd.text(z.string().optional()).transform((value) => {
-        if (!value) return null;
-        const items = value.split(",").map((x) => x.trim());
-        if (items.length === 0) return null;
-        return items;
-      }),
-      required: zfd.checkbox(),
-    })
-  ),
+  customFields: zfd
+    .repeatableOfType(
+      z.object({
+        id: zfd.text(),
+        label: zfd.text(),
+        choices: zfd.text(z.string().optional()).transform((value) => {
+          if (!value) return null;
+          const items = value.split(",").map((x) => x.trim());
+          if (items.length === 0) return null;
+          return items;
+        }),
+        required: zfd.checkbox(),
+      })
+    )
+    .superRefine((items, ctx) => {
+      const ids = items.map((x, index) => [x.id, index]).sort();
+      for (let i = 1; i < ids.length; i++) {
+        if (ids[i - 1][0] === ids[i][0]) {
+          ctx.addIssue({ ...UNIQUE_ERROR, path: [ids[i - 1][1], "id"] });
+          ctx.addIssue({ ...UNIQUE_ERROR, path: [ids[i][1], "id"] });
+        }
+      }
+    }),
 });
 
 export const loader: LoaderFunction = async ({ params }) => {
