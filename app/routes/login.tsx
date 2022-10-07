@@ -63,7 +63,7 @@ export default function LoginRoute() {
 
       <SchemaForm
         id="Login"
-        className="flex w-full flex-col gap-5 bg-white p-8 shadow sm:max-w-md sm:rounded-lg"
+        className="w-full bg-white p-8 shadow sm:max-w-md sm:rounded-lg"
         schema={LoginForm}
         onSubmit={handleSubmit}
         fieldProps={{

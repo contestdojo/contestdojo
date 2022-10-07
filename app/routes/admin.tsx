@@ -293,7 +293,7 @@ export default function AdminRoute() {
                   <MobileNavItem to="/admin">Entities</MobileNavItem>
                   <MobileNavItem to="/admin/settings">Settings</MobileNavItem>
                   <button
-                    className={`w-full text-left ${MOBILE_NAV_ITEM_CLASS_NAME}`}
+                    className={clsx`w-full text-left ${MOBILE_NAV_ITEM_CLASS_NAME}`}
                     type="submit"
                   >
                     Sign Out

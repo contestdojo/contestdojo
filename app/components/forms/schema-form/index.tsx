@@ -14,6 +14,7 @@ import type { FieldProps } from "~/components/forms/schema-form/from-zod";
 import { withZod } from "@remix-validated-form/with-zod";
 import { useMemo } from "react";
 import { useIsSubmitting, ValidatedForm } from "remix-validated-form";
+import clsx from "clsx";
 
 import Button from "~/components/button";
 import { FromZodObject } from "~/components/forms/schema-form/from-zod/object";
@@ -43,13 +44,19 @@ export default function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>
   schema,
   buttonLabel,
   fieldProps,
+  className,
   children,
   ...props
 }: SchemaFormProps<S, T>) {
   const validator = useMemo(() => withZod(schema), [schema]);
 
   return (
-    <ValidatedForm id={id} validator={validator} {...props}>
+    <ValidatedForm
+      className={clsx`flex flex-col gap-5 ${className}`}
+      id={id}
+      validator={validator}
+      {...props}
+    >
       <FromZodObject fieldProps={fieldProps} type={schema} />
       <input type="hidden" name="_form" value={id} />
       {children}

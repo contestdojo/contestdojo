@@ -26,19 +26,28 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Bars3Icon, TrashIcon } from "@heroicons/react/20/solid";
+import clsx from "clsx";
 import { useFieldArray } from "remix-validated-form";
+import { twMerge } from "tailwind-merge";
 import { v4 as uuidv4 } from "uuid";
 
 import Button from "~/components/button";
+import Label from "~/components/forms/label";
 import FromZod from "~/components/forms/schema-form/from-zod";
 import IconButton from "~/components/icon-button";
 
 type ArrayItemProps<T extends ZodTypeAny> = FromZodProps<T> & {
   sortableId: string;
   onRemove: () => void;
+  className?: string;
 };
 
-function ArrayItem<T extends ZodTypeAny>({ sortableId, onRemove, ...props }: ArrayItemProps<T>) {
+function ArrayItem<T extends ZodTypeAny>({
+  sortableId,
+  onRemove,
+  className,
+  ...props
+}: ArrayItemProps<T>) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: sortableId,
   });
@@ -46,14 +55,12 @@ function ArrayItem<T extends ZodTypeAny>({ sortableId, onRemove, ...props }: Arr
   const style = { transform: CSS.Transform.toString(transform), transition };
 
   return (
-    <div
-      className={`flex flex-col gap-5 md:flex-row ${isDragging && "z-10"}`}
-      ref={setNodeRef}
-      style={style}
-    >
-      <FromZod {...props} />
+    <div className={clsx`flex gap-5 ${isDragging && "z-10"}`} style={style} ref={setNodeRef}>
+      <div className={twMerge(clsx`flex flex-1 flex-col gap-5 ${className}`)}>
+        <FromZod {...props} />
+      </div>
 
-      <div className="flex items-center gap-4 self-center md:flex-col">
+      <div className="flex flex-col items-center gap-4">
         <IconButton type="button" {...attributes} {...listeners}>
           <Bars3Icon className="h-4 w-4" />
         </IconButton>
@@ -93,6 +100,8 @@ export function FromZodArray<T extends ZodTypeAny>({
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
+      {fieldProps?.__parent?.label && <Label>{fieldProps.__parent.label}</Label>}
+
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
         {items.map((item, index) => (
           <ArrayItem
@@ -102,6 +111,7 @@ export function FromZodArray<T extends ZodTypeAny>({
             name={`${name}[${index}]`}
             type={type.element}
             fieldProps={fieldProps}
+            className={fieldProps?.__element?.className}
           />
         ))}
       </SortableContext>

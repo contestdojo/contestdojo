@@ -95,7 +95,6 @@ function EventDetails() {
 
       <SchemaForm
         id="EventDetails"
-        className="flex flex-col gap-5"
         method="post"
         schema={EventDetailsForm}
         buttonLabel="Save"
@@ -112,12 +111,12 @@ function CustomFields() {
 
       <SchemaForm
         id="CustomFields"
-        className="flex flex-col gap-5"
         method="post"
         schema={CustomFieldsForm}
         buttonLabel="Save"
         fieldProps={{
           customFields: {
+            __element: { className: "md:flex-row" },
             choices: {
               label: "Choices (optional)",
               placeholder: "Enter choices, comma-separated...",
@@ -131,7 +130,7 @@ function CustomFields() {
 
 export default function SettingsRoute() {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <EventDetails />
       <CustomFields />
     </div>

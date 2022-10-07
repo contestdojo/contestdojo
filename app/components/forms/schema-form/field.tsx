@@ -23,13 +23,11 @@ function getDefaultProps(name: string) {
   return { label, placeholder };
 }
 
-export type FieldProps<T extends React.ElementType> = FormControlProps<T>;
-
 export default function Field<T extends React.ElementType = typeof Input>({
   name,
   type,
   ...props
-}: FieldProps<T>) {
+}: FormControlProps<T>) {
   const { error, getInputProps } = useField(name);
   const [value, setValue] = useControlField<any>(name);
 

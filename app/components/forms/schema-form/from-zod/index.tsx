@@ -31,7 +31,7 @@ import FromZodUnion from "~/components/forms/schema-form/from-zod/union";
 export type FieldProps<T extends ZodTypeAny> = T extends ZodObject<infer S>
   ? { [key in keyof T["shape"]]?: FieldProps<S[key]> }
   : T extends ZodArray<infer U>
-  ? FieldProps<U>
+  ? FieldProps<U> & { __parent?: { label: string }; __element?: { className: string } }
   : T extends ZodEffects<infer U>
   ? FieldProps<U>
   : T extends ZodOptional<infer U>

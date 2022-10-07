@@ -8,6 +8,8 @@
 
 import type { PropsWithAs } from "~/lib/utils/props-with-as";
 
+import clsx from "clsx";
+
 export default function IconButton<T extends React.ElementType = "button">({
   as,
   className,
@@ -17,7 +19,7 @@ export default function IconButton<T extends React.ElementType = "button">({
 
   return (
     <As
-      className={`-m-1 rounded-full border border-transparent p-1 text-gray-500 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${className}`}
+      className={clsx`-m-1 rounded-full border border-transparent p-1 text-gray-500 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${className}`}
       {...props}
     />
   );

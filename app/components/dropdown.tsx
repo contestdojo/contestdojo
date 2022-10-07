@@ -18,7 +18,7 @@ type DropdownProps = PropsWithChildren<{ className?: string }>;
 
 export default function Dropdown({ className, children }: DropdownProps) {
   return (
-    <Menu as="div" className={`relative ${className}`}>
+    <Menu as="div" className={clsx`relative ${className}`}>
       {children}
     </Menu>
   );
