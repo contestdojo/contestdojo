@@ -48,5 +48,5 @@ export default function FromZodUnion<T extends ZodUnionOptions>({
     return <Field as={Checkbox} type="checkbox" name={name} {...fieldProps} />;
   }
 
-  return <Field as={Input} type="text" name={name} {...fieldProps} />;
+  return <Field className="flex-1" as={Input} type="text" name={name} {...fieldProps} />;
 }

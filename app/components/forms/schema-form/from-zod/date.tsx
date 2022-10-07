@@ -13,5 +13,5 @@ import FormControl from "~/components/forms/form-control";
 import Input from "~/components/forms/input";
 
 export default function FromZodDate({ name, fieldProps }: FromZodProps<ZodDate>) {
-  return <FormControl as={Input} type="date" name={name} {...fieldProps} />;
+  return <FormControl className="flex-1" as={Input} type="date" name={name} {...fieldProps} />;
 }

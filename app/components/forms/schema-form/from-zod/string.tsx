@@ -13,5 +13,5 @@ import Input from "~/components/forms/input";
 import Field from "~/components/forms/schema-form/field";
 
 export default function FromZodString({ name, fieldProps }: FromZodProps<ZodString>) {
-  return <Field as={Input} type="text" name={name} {...fieldProps} />;
+  return <Field className="flex-1" as={Input} type="text" name={name} {...fieldProps} />;
 }

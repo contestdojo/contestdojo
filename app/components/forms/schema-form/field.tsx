@@ -6,12 +6,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { ComponentPropsWithRef } from "react";
+import type { ChangeEvent, ComponentPropsWithRef } from "react";
 import type { FormControlProps } from "~/components/forms/form-control";
 import type Input from "~/components/forms/input";
 
 import React from "react";
-import { useField } from "remix-validated-form";
+import { useControlField, useField } from "remix-validated-form";
 
 import FormControl from "~/components/forms/form-control";
 
@@ -30,14 +30,16 @@ export default function Field<T extends React.ElementType = typeof Input>({
   ...props
 }: FieldProps<T>) {
   const { error, getInputProps } = useField(name);
+  const [value, setValue] = useControlField<string>(name);
 
-  return (
-    <FormControl
-      className="flex-1"
-      name={name}
-      error={error}
-      {...getDefaultProps(name)}
-      {...getInputProps(props as ComponentPropsWithRef<T>)}
-    />
-  );
+  const allProps = {
+    name,
+    value: value ?? "",
+    error,
+    onChange: (e: ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
+    ...getDefaultProps(name),
+    ...props,
+  };
+
+  return <FormControl {...allProps} {...getInputProps(allProps as ComponentPropsWithRef<T>)} />;
 }

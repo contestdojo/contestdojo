@@ -13,5 +13,5 @@ import Input from "~/components/forms/input";
 import Field from "~/components/forms/schema-form/field";
 
 export default function FromZodNumber({ name, fieldProps }: FromZodProps<ZodNumber>) {
-  return <Field as={Input} type="number" name={name} {...fieldProps} />;
+  return <Field className="flex-1" as={Input} type="number" name={name} {...fieldProps} />;
 }
