@@ -47,5 +47,7 @@ export default function Field<T extends React.ElementType = typeof Input>({
     allProps.onChange = (e) => setValue(e.target.value);
   }
 
-  return <FormControl {...allProps} {...getInputProps(allProps as ComponentPropsWithRef<T>)} />;
+  const { defaultChecked, ...rvfProps } = getInputProps(allProps as ComponentPropsWithRef<T>);
+
+  return <FormControl {...allProps} {...rvfProps} />;
 }

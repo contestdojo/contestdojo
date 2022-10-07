@@ -12,9 +12,9 @@ import type { z, ZodObject, ZodRawShape } from "zod";
 import type { FieldProps } from "~/components/forms/schema-form/from-zod";
 
 import { withZod } from "@remix-validated-form/with-zod";
+import clsx from "clsx";
 import { useMemo } from "react";
 import { useIsSubmitting, ValidatedForm } from "remix-validated-form";
-import clsx from "clsx";
 
 import Button from "~/components/button";
 import { FromZodObject } from "~/components/forms/schema-form/from-zod/object";

@@ -14,7 +14,7 @@ import { useMemo } from "react";
 import Checkbox from "~/components/forms/checkbox";
 import Input from "~/components/forms/input";
 import Field from "~/components/forms/schema-form/field";
-import guards from "~/components/forms/schema-form/from-zod/guards";
+import { guardType } from "~/components/forms/schema-form/from-zod/guards";
 
 type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>;
 
@@ -23,15 +23,15 @@ function isZfdCheckbox<T extends ZodUnionOptions>(type: ZodUnion<T>) {
 
   if (
     type.options.length === 2 &&
-    guards.ZodEffects(type.options[0]) &&
-    guards.ZodEffects(type.options[1]) &&
+    guardType.ZodEffects(type.options[0]) &&
+    guardType.ZodEffects(type.options[1]) &&
     type.options[0]._def.effect.type === "transform" &&
     type.options[1]._def.effect.type === "transform" &&
     type.options[0]._def.effect.transform(undefined, ctx) === true &&
     type.options[1]._def.effect.transform(undefined, ctx) === false
   ) {
     const two = type.options[1].innerType();
-    return guards.ZodLiteral(two) && two.value === undefined;
+    return guardType.ZodLiteral(two) && two.value === undefined;
   }
 
   return false;

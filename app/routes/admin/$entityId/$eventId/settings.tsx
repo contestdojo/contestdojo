@@ -116,10 +116,12 @@ function CustomFields() {
         buttonLabel="Save"
         fieldProps={{
           customFields: {
-            __element: { className: "md:flex-row" },
-            choices: {
-              label: "Choices (optional)",
-              placeholder: "Enter choices, comma-separated...",
+            elementClassName: "md:flex-row",
+            element: {
+              choices: {
+                label: "Choices (optional)",
+                placeholder: "Enter choices, comma-separated...",
+              },
             },
           },
         }}

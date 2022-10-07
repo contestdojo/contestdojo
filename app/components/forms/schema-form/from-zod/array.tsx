@@ -8,7 +8,7 @@
 
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { ZodArray, ZodTypeAny } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FieldProps, FromZodProps } from "~/components/forms/schema-form/from-zod";
 
 import {
   closestCenter,
@@ -72,11 +72,17 @@ function ArrayItem<T extends ZodTypeAny>({
   );
 }
 
-export function FromZodArray<T extends ZodTypeAny>({
+export type ArrayFieldProps<T extends ZodArray<ZodTypeAny>> = {
+  label?: string;
+  elementClassName?: string;
+  element: FieldProps<T["element"]>;
+};
+
+export function FromZodArray<T extends ZodArray<ZodTypeAny>>({
   name,
   fieldProps,
   type,
-}: FromZodProps<ZodArray<T>>) {
+}: FromZodProps<T>) {
   const [items, { push, move, remove }, error] = useFieldArray(name);
   const itemIds = items.map((x) => x.__sortableId ?? x.id);
 
@@ -100,7 +106,7 @@ export function FromZodArray<T extends ZodTypeAny>({
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      {fieldProps?.__parent?.label && <Label>{fieldProps.__parent.label}</Label>}
+      {fieldProps?.label && <Label>{fieldProps.label}</Label>}
 
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
         {items.map((item, index) => (
@@ -110,8 +116,8 @@ export function FromZodArray<T extends ZodTypeAny>({
             onRemove={() => remove(index)}
             name={`${name}[${index}]`}
             type={type.element}
-            fieldProps={fieldProps}
-            className={fieldProps?.__element?.className}
+            fieldProps={fieldProps?.element}
+            className={fieldProps?.elementClassName}
           />
         ))}
       </SortableContext>

@@ -7,11 +7,15 @@
  */
 
 import type { ZodObject, ZodRawShape } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FieldProps, FromZodProps } from "~/components/forms/schema-form/from-zod";
 
 import FromZod from "~/components/forms/schema-form/from-zod";
 
-export function FromZodObject<S extends ZodRawShape, T extends ZodObject<S>>({
+export type ZodObjectFieldProps<T extends ZodObject<ZodRawShape>> = {
+  [key in keyof T["shape"]]?: FieldProps<T["shape"][key]>;
+};
+
+export function FromZodObject<T extends ZodObject<ZodRawShape>>({
   name,
   type,
   fieldProps,
