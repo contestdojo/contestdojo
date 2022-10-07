@@ -11,10 +11,10 @@ import type { FormDefaults, Validator } from "remix-validated-form";
 import type { Event } from "~/lib/db.server";
 import type { LoaderData as EventIdLoaderData } from "~/routes/admin/$entityId/$eventId";
 
+import { TrashIcon } from "@heroicons/react/20/solid";
 import { json } from "@remix-run/node";
 import { withZod } from "@remix-validated-form/with-zod";
-import { useState } from "react";
-import { setFormDefaults, validationError } from "remix-validated-form";
+import { FieldArray, setFormDefaults, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
@@ -23,6 +23,7 @@ import Button from "~/components/button";
 import Checkbox from "~/components/forms/checkbox";
 import FormControl from "~/components/forms/form-control";
 import SchemaForm, { FieldsFromSchema } from "~/components/forms/schema-form";
+import IconButton from "~/components/icon-button";
 import db from "~/lib/db.server";
 import makePartial from "~/lib/utils/make-partial";
 import useMatchData from "~/lib/utils/use-match-data";
@@ -99,7 +100,6 @@ function EventDetails() {
 
 function CustomFields() {
   const { event } = makePartial(useMatchData<EventIdLoaderData>("routes/admin/$entityId/$eventId"));
-  const [count, setCount] = useState(event?.customFields?.length ?? 0);
 
   return (
     <Box className="col-span-2 flex flex-col gap-4 p-4">
@@ -112,33 +112,41 @@ function CustomFields() {
         schema={CustomFieldsForm}
         buttonLabel="Save"
       >
-        {Array(count)
-          .fill(null)
-          .map((_, i) => (
-            <div key={i} className="flex flex-col gap-5 md:flex-row">
-              <FieldsFromSchema
-                schema={CustomFieldsForm.shape.customFields.innerType().element}
-                namePrefix={`customFields[${i}].`}
-                fieldProps={{
-                  choices: {
-                    label: "Choices (optional)",
-                    placeholder: "Enter choices, comma-separated...",
-                  },
-                }}
-              >
-                <FormControl
-                  as={Checkbox}
-                  type="checkbox"
-                  name={`customFields[${i}].required`}
-                  label="Required"
-                />
-              </FieldsFromSchema>
-            </div>
-          ))}
+        {/* @ts-ignore */}
+        <FieldArray name="customFields">
+          {(items, { push, remove }, error) => (
+            <>
+              {items.map((_, index) => (
+                <div key={index} className="flex flex-col gap-5 md:flex-row">
+                  <FieldsFromSchema
+                    schema={CustomFieldsForm.shape.customFields.innerType().element}
+                    namePrefix={`customFields[${index}].`}
+                    fieldProps={{
+                      choices: {
+                        label: "Choices (optional)",
+                        placeholder: "Enter choices, comma-separated...",
+                      },
+                    }}
+                  >
+                    <FormControl
+                      as={Checkbox}
+                      type="checkbox"
+                      name={`customFields[${index}].required`}
+                      label="Required"
+                    />
+                    <IconButton className="self-center" type="button" onClick={() => remove(index)}>
+                      <TrashIcon className="h-4 w-4" />
+                    </IconButton>
+                  </FieldsFromSchema>
+                </div>
+              ))}
 
-        <Button type="button" className="self-start" onClick={() => setCount(count + 1)}>
-          Add Custom Field
-        </Button>
+              <Button type="button" className="self-start" onClick={() => push({})}>
+                Add Custom Field
+              </Button>
+            </>
+          )}
+        </FieldArray>
       </SchemaForm>
     </Box>
   );

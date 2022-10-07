@@ -34,7 +34,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.35.0",
     "remix-utils": "^3.3.0",
-    "remix-validated-form": "^4.5.7",
+    "remix-validated-form": "^4.6.0-beta.0",
     "tailwind-merge": "^1.6.1",
     "zod": "^3.19.1",
     "zod-form-data": "^1.2.1"

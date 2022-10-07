@@ -9,6 +9,8 @@
 import type { ComponentPropsWithoutRef } from "react";
 import type { ZodTypeAny } from "zod";
 
+import { useControlField } from "remix-validated-form";
+
 import Checkbox from "~/components/forms/checkbox";
 import FormControl from "~/components/forms/form-control";
 import { shapeInfo } from "~/components/forms/schema-form/shape-info";
@@ -28,15 +30,19 @@ export default function Field<T extends ZodTypeAny>({
   extraProps,
 }: FieldProps<T>) {
   const { typeName, getDefaultValue, enumValues } = shapeInfo(type);
+  const [value, setValue] = useControlField<string>(name);
   if (getDefaultValue) throw new Error("Zod default value is unsupported");
 
   const props = {
     name,
     label,
     placeholder: `Enter ${label}...`,
+    value: value ?? "",
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setValue(e.target.value),
   };
 
-  if (typeName === "ZodString") return <FormControl {...props} type="text" {...extraProps} />;
+  if (typeName === "ZodString") return <FormControl type="text" {...props} {...extraProps} />;
   if (typeName === "ZodNumber") return <FormControl {...props} type="number" {...extraProps} />;
   if (typeName === "ZodDate") return <FormControl {...props} type="date" {...extraProps} />;
   if (typeName === "ZodBoolean")
@@ -53,8 +59,6 @@ export default function Field<T extends ZodTypeAny>({
       </FormControl>
     );
   }
-
-  console.log(typeName);
 
   return null;
 }
