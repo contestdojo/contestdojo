@@ -8,30 +8,15 @@
 
 import type { PropsWithChildren } from "react";
 import type { FormProps } from "remix-validated-form";
-import type {
-  z,
-  ZodBoolean,
-  ZodDate,
-  ZodEnum,
-  ZodNumber,
-  ZodObject,
-  ZodRawShape,
-  ZodString,
-} from "zod";
-import type { FormControlProps } from "~/components/forms/form-control";
-import type Input from "~/components/forms/input";
-import type Select from "~/components/forms/select";
+import type { z, ZodObject, ZodRawShape } from "zod";
+import type { FieldProps } from "~/components/forms/schema-form/from-zod";
 
 import { withZod } from "@remix-validated-form/with-zod";
 import { useMemo } from "react";
 import { useIsSubmitting, ValidatedForm } from "remix-validated-form";
 
 import Button from "~/components/button";
-import Field from "~/components/forms/schema-form/field";
-
-function generateLabel(name: string) {
-  return name.charAt(0).toUpperCase() + name.replace(/([A-Z])/g, " $1").slice(1);
-}
+import { FromZodObject } from "~/components/forms/schema-form/from-zod/object";
 
 function SubmitButton({ children }: PropsWithChildren<{}>) {
   const isSubmitting = useIsSubmitting();
@@ -43,67 +28,29 @@ function SubmitButton({ children }: PropsWithChildren<{}>) {
   );
 }
 
-type FieldProps<T extends ZodRawShape, S extends ZodObject<T>> = {
-  [key in keyof z.infer<S>]: T[key] extends ZodString | ZodNumber | ZodDate | ZodBoolean
-    ? Partial<FormControlProps<typeof Input>>
-    : T[key] extends ZodEnum<any>
-    ? Partial<FormControlProps<typeof Select>>
-    : {};
+type SchemaFormOwnProps<S extends ZodRawShape, T extends ZodObject<S>> = {
+  id: string;
+  schema: T;
+  buttonLabel?: string;
+  fieldProps?: FieldProps<T>;
 };
 
-type FieldsFromSchemaProps<T extends ZodRawShape, S extends ZodObject<T>> = PropsWithChildren<{
-  namePrefix?: string;
-  sharedProps?: Partial<FormControlProps<any>>;
-  fieldProps?: Partial<FieldProps<T, S>>;
-  labels?: Partial<{ [key in keyof z.infer<S>]: string }>;
-  schema: S;
-}>;
+type SchemaFormProps<S extends ZodRawShape, T extends ZodObject<S>> = SchemaFormOwnProps<S, T> &
+  Omit<FormProps<z.infer<T>>, "validator">;
 
-export function FieldsFromSchema<T extends ZodRawShape, S extends ZodObject<T>>({
-  schema,
-  namePrefix = "",
-  sharedProps,
-  fieldProps,
-  labels,
-  children,
-}: FieldsFromSchemaProps<T, S>) {
-  return (
-    <>
-      {Object.entries(schema.shape).map(([_name, type]) => {
-        const name = _name as keyof z.infer<S>;
-
-        return (
-          <Field
-            key={namePrefix + _name}
-            name={namePrefix + _name}
-            type={type}
-            label={labels?.[name] ?? generateLabel(_name)}
-            extraProps={{ className: "flex-1", ...sharedProps, ...fieldProps?.[name] }}
-          />
-        );
-      })}
-
-      {children}
-    </>
-  );
-}
-
-type SchemaFormProps<T extends ZodRawShape, S extends ZodObject<T>> = Omit<
-  FormProps<z.infer<S>>,
-  "validator"
-> & { id: string; buttonLabel?: string } & FieldsFromSchemaProps<T, S>;
-
-export default function SchemaForm<T extends ZodRawShape, S extends ZodObject<T>>({
+export default function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
   id,
+  schema,
   buttonLabel,
+  fieldProps,
   children,
   ...props
-}: SchemaFormProps<T, S>) {
-  const validator = useMemo(() => withZod(props.schema), [props.schema]);
+}: SchemaFormProps<S, T>) {
+  const validator = useMemo(() => withZod(schema), [schema]);
 
   return (
     <ValidatedForm id={id} validator={validator} {...props}>
-      <FieldsFromSchema {...props} />
+      <FromZodObject fieldProps={fieldProps} type={schema} />
       <input type="hidden" name="_form" value={id} />
       {children}
       <SubmitButton>{buttonLabel}</SubmitButton>

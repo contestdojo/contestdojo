@@ -9,24 +9,16 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { FormDefaults, Validator } from "remix-validated-form";
 import type { Event } from "~/lib/db.server";
-import type { LoaderData as EventIdLoaderData } from "~/routes/admin/$entityId/$eventId";
 
-import { TrashIcon } from "@heroicons/react/20/solid";
 import { json } from "@remix-run/node";
 import { withZod } from "@remix-validated-form/with-zod";
-import { FieldArray, setFormDefaults, validationError } from "remix-validated-form";
+import { setFormDefaults, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
 import Box from "~/components/box";
-import Button from "~/components/button";
-import Checkbox from "~/components/forms/checkbox";
-import FormControl from "~/components/forms/form-control";
-import SchemaForm, { FieldsFromSchema } from "~/components/forms/schema-form";
-import IconButton from "~/components/icon-button";
+import SchemaForm from "~/components/forms/schema-form";
 import db from "~/lib/db.server";
-import makePartial from "~/lib/utils/make-partial";
-import useMatchData from "~/lib/utils/use-match-data";
 
 const EventDetailsForm = z.object({
   name: zfd.text(),
@@ -39,13 +31,13 @@ const CustomFieldsForm = z.object({
     z.object({
       id: zfd.text(),
       label: zfd.text(),
-      required: zfd.checkbox(),
       choices: zfd.text(z.string().optional()).transform((value) => {
         if (!value) return null;
         const items = value.split(",").map((x) => x.trim());
         if (items.length === 0) return null;
         return items;
       }),
+      required: zfd.checkbox(),
     })
   ),
 });
@@ -91,16 +83,14 @@ function EventDetails() {
         className="flex flex-col gap-5"
         method="post"
         schema={EventDetailsForm}
-        labels={{ name: "Event Name" }}
         buttonLabel="Save"
+        fieldProps={{ name: { label: "Event Name" } }}
       />
     </Box>
   );
 }
 
 function CustomFields() {
-  const { event } = makePartial(useMatchData<EventIdLoaderData>("routes/admin/$entityId/$eventId"));
-
   return (
     <Box className="col-span-2 flex flex-col gap-4 p-4">
       <h2 className="text-lg font-medium text-gray-900">Custom Registration Fields</h2>
@@ -111,43 +101,7 @@ function CustomFields() {
         method="post"
         schema={CustomFieldsForm}
         buttonLabel="Save"
-      >
-        {/* @ts-ignore */}
-        <FieldArray name="customFields">
-          {(items, { push, remove }, error) => (
-            <>
-              {items.map((_, index) => (
-                <div key={index} className="flex flex-col gap-5 md:flex-row">
-                  <FieldsFromSchema
-                    schema={CustomFieldsForm.shape.customFields.innerType().element}
-                    namePrefix={`customFields[${index}].`}
-                    fieldProps={{
-                      choices: {
-                        label: "Choices (optional)",
-                        placeholder: "Enter choices, comma-separated...",
-                      },
-                    }}
-                  >
-                    <FormControl
-                      as={Checkbox}
-                      type="checkbox"
-                      name={`customFields[${index}].required`}
-                      label="Required"
-                    />
-                    <IconButton className="self-center" type="button" onClick={() => remove(index)}>
-                      <TrashIcon className="h-4 w-4" />
-                    </IconButton>
-                  </FieldsFromSchema>
-                </div>
-              ))}
-
-              <Button type="button" className="self-start" onClick={() => push({})}>
-                Add Custom Field
-              </Button>
-            </>
-          )}
-        </FieldArray>
-      </SchemaForm>
+      />
     </Box>
   );
 }

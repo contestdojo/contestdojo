@@ -6,25 +6,22 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { ComponentPropsWithoutRef } from "react";
-import type { LabelProps } from "~/components/forms/label";
-import type { PropsWithAsAndRef } from "~/lib/utils/props-with-as";
+import type { PropsWithAs } from "~/lib/utils/props-with-as";
 
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import React from "react";
-import { useField } from "remix-validated-form";
 import { twMerge } from "tailwind-merge";
 
 import Input from "~/components/forms/input";
 import Label from "~/components/forms/label";
 
-export type FormControlProps<T extends React.ElementType> = PropsWithAsAndRef<
+export type FormControlProps<T extends React.ElementType> = PropsWithAs<
   {
     name: string;
     label?: string;
     labelInside?: boolean;
-    labelProps?: LabelProps;
+    error?: string;
     className?: string;
   },
   T
@@ -35,18 +32,13 @@ export default function FormControl<T extends React.ElementType = typeof Input>(
   name,
   label,
   labelInside = false,
-  labelProps,
+  error,
   className,
   ...props
 }: FormControlProps<T>) {
   const As = as ?? Input;
-  const { error, getInputProps } = useField(name);
 
-  const labelElement = label && (
-    <Label htmlFor={name} {...labelProps}>
-      {label}
-    </Label>
-  );
+  const labelElement = label && <Label htmlFor={name}>{label}</Label>;
 
   return (
     <div className={twMerge(clsx`flex flex-col gap-2 ${className}`)}>
@@ -54,11 +46,7 @@ export default function FormControl<T extends React.ElementType = typeof Input>(
 
       <div className="flex flex-1 flex-col gap-2">
         <div className="relative flex items-center gap-2">
-          <As
-            id={name}
-            {...getInputProps(props as ComponentPropsWithoutRef<T>)}
-            invalid={error !== undefined}
-          />
+          <As id={name} name={name} {...props} invalid={error !== undefined} />
 
           {labelInside && labelElement}
 
