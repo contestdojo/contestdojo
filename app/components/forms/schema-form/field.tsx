@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { ChangeEvent, ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef } from "react";
 import type { FormControlProps } from "~/components/forms/form-control";
 import type Input from "~/components/forms/input";
 
@@ -27,19 +27,27 @@ export type FieldProps<T extends React.ElementType> = FormControlProps<T>;
 
 export default function Field<T extends React.ElementType = typeof Input>({
   name,
+  type,
   ...props
 }: FieldProps<T>) {
   const { error, getInputProps } = useField(name);
-  const [value, setValue] = useControlField<string>(name);
+  const [value, setValue] = useControlField<any>(name);
 
-  const allProps = {
+  const allProps: FormControlProps<typeof Input> = {
     name,
-    value: value ?? "",
+    type,
     error,
-    onChange: (e: ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
     ...getDefaultProps(name),
     ...props,
   };
+
+  if (type === "checkbox") {
+    allProps.checked = value;
+    allProps.onChange = (e) => setValue(e.target.checked);
+  } else {
+    allProps.value = value ?? "";
+    allProps.onChange = (e) => setValue(e.target.value);
+  }
 
   return <FormControl {...allProps} {...getInputProps(allProps as ComponentPropsWithRef<T>)} />;
 }
