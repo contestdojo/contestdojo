@@ -116,6 +116,14 @@ function CustomFields() {
         method="post"
         schema={CustomFieldsForm}
         buttonLabel="Save"
+        fieldProps={{
+          customFields: {
+            choices: {
+              label: "Choices (optional)",
+              placeholder: "Enter choices, comma-separated...",
+            },
+          },
+        }}
       />
     </Box>
   );
