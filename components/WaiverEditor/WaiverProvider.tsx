@@ -16,7 +16,7 @@ export const useWaiverState = (key) => {
   return [values[key], (value) => updateValue(key, value)];
 };
 
-const WaiverProvider = ({ children, vars }) => {
+const WaiverProvider = ({ children }) => {
   const [values, setValues] = useState({});
   const updateValue = (key, value) => setValues((v) => ({ ...v, [key]: value }));
 

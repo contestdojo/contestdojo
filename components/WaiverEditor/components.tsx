@@ -10,6 +10,7 @@ import {
   Alert,
   AlertIcon,
   Button,
+  chakra,
   Input,
   Modal,
   ModalBody,
@@ -35,6 +36,8 @@ const MissingID = () => (
     An ID must be provided for this component.
   </Alert>
 );
+
+const RequiredIndicator = () => <chakra.span color="red">*</chakra.span>;
 
 const SignatureModal = ({ id, isOpen, onClose, setValue }) => {
   const ref = useRef(null);
@@ -95,45 +98,51 @@ const Signature = ({ node, id }) => {
   );
 };
 
-const Field = ({ node, id, placeholder, width = 300, readonly = false, initialValue }) => {
+const Field = ({ node, id, placeholder, width = 300, readonly = false, optional = false, initialValue = "" }) => {
   const [value, setValue] = useWaiverState(id);
   useEffect(() => {
-    if (value === undefined) setValue(null);
+    if (value === undefined && !optional) setValue(null);
   }, []);
   if (!id) return <MissingID />;
   return (
-    <Input
-      name={id}
-      mb={4}
-      placeholder={placeholder}
-      size="sm"
-      maxW={width}
-      isReadOnly={readonly}
-      value={value ?? initialValue}
-      onChange={(e) => setValue(e.target.value)}
-      isRequired
-    />
+    <>
+      <Input
+        name={id}
+        mb={4}
+        placeholder={placeholder}
+        size="sm"
+        maxW={width}
+        isReadOnly={readonly}
+        value={value ?? initialValue}
+        onChange={(e) => setValue(e.target.value)}
+        isRequired={!optional}
+      />
+      {!optional && <RequiredIndicator />}
+    </>
   );
 };
 
-const FieldInline = ({ node, id, placeholder, width = 200, readonly = false, initialValue }) => {
+const FieldInline = ({ node, id, placeholder, width = 200, readonly = false, optional = false, initialValue = "" }) => {
   const [value, setValue] = useWaiverState(id);
   useEffect(() => {
-    if (value === undefined) setValue(null);
+    if (value === undefined && !optional) setValue(null);
   }, []);
   if (!id) return <MissingID />;
   return (
-    <Input
-      name={id}
-      placeholder={placeholder}
-      size="xs"
-      display="inline"
-      maxW={width}
-      isReadOnly={readonly}
-      value={value ?? initialValue}
-      onChange={(e) => setValue(e.target.value)}
-      isRequired
-    />
+    <>
+      <Input
+        name={id}
+        placeholder={placeholder}
+        size="xs"
+        display="inline"
+        maxW={width}
+        isReadOnly={readonly}
+        value={value ?? initialValue}
+        onChange={(e) => setValue(e.target.value)}
+        isRequired={!optional}
+      />
+      {!optional && <RequiredIndicator />}
+    </>
   );
 };
 
