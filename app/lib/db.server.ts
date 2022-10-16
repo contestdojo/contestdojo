@@ -91,7 +91,7 @@ const EventStudent = zfb.firestoreObject(
     email: z.string(),
     fname: z.string(),
     lname: z.string(),
-    grade: z.number().optional(),
+    grade: z.union([z.number(), z.string()]).optional(),
     user: zfb.documentReference(),
     org: zfb.documentReference(),
     team: zfb.documentReference().optional().nullable(),
