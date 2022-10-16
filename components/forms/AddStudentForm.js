@@ -83,23 +83,25 @@ const AddStudentForm = ({
           isRequired={allowEditEmail}
         />
 
-        <FormField
-          ref={register}
-          as={Select}
-          name="grade"
-          label="Grade"
-          placeholder="Select Grade"
-          error={errors.grade}
-          isRequired
-        >
-          <option value="6">6 or below</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12 or above</option>
-        </FormField>
+        {!customFields.some((x) => x.id === "grade") && (
+          <FormField
+            ref={register}
+            as={Select}
+            name="grade"
+            label="Grade"
+            placeholder="Select Grade"
+            error={errors.grade}
+            isRequired
+          >
+            <option value="6">6 or below</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12 or above</option>
+          </FormField>
+        )}
 
         {customFields.map((x) => (
           <FormField
