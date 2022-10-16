@@ -92,7 +92,7 @@ const Event = () => {
     onOpen();
   });
 
-  if (event.teamsEnabled && student.team && !team) return null;
+  if (student.team && !team) return null;
 
   return (
     <Stack spacing={6} flexBasis={600}>

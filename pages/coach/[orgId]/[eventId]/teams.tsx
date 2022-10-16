@@ -33,7 +33,7 @@ import {
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiClipboardCheck, HiDotsHorizontal, HiExclamation, HiPencil, HiTrash } from "react-icons/hi";
 import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 
@@ -110,7 +110,15 @@ const TeamCard = ({ event, id, name, number, students, onUpdate, onDelete, onEdi
   });
 
   return (
-    <Card as={Stack} spacing={0} flex={1} p={2} minHeight="xs" transition="background-color 0.1s" {...props}>
+    <Card
+      as={Stack}
+      spacing={0}
+      flex={1}
+      p={2}
+      minHeight={event.teamsEnabled ? "xs" : undefined}
+      transition="background-color 0.1s"
+      {...props}
+    >
       <HStack px={2}>
         {number && <Text color="gray.500">{number}</Text>}
         <Heading as="h4" size="md" position="relative" flex="1">
@@ -130,18 +138,43 @@ const TeamCard = ({ event, id, name, number, students, onUpdate, onDelete, onEdi
         </Menu>
       </HStack>
 
-      <Flex direction="column" flex={1} ref={setNodeRef}>
-        {students.map((x, i) => (
-          <StudentCard
-            key={x.id}
-            {...x}
-            waiver={waiver ? x.waiver || !!x.waiverSigned : undefined}
-            onEdit={() => setEditing(i)}
-          />
-        ))}
-        {students.length === 0 &&
-          (needSeats ? <BlankCard>More seats required</BlankCard> : <BlankCard>Drag students here</BlankCard>)}
-      </Flex>
+      {event.teamsEnabled ? (
+        <Flex direction="column" flex={1} ref={setNodeRef}>
+          {students.map((x, i) => (
+            <StudentCard
+              key={x.id}
+              {...x}
+              waiver={waiver ? x.waiver || !!x.waiverSigned : undefined}
+              onEdit={() => setEditing(i)}
+            />
+          ))}
+          {students.length === 0 &&
+            (needSeats ? <BlankCard>More seats required</BlankCard> : <BlankCard>Drag students here</BlankCard>)}
+        </Flex>
+      ) : (
+        <Wrap
+          flex={1}
+          spacing={0}
+          p={students.length === 0 ? "2" : "0"}
+          transition="background-color 0.1s"
+          borderRadius={4}
+          ref={setNodeRef}
+          {...props}
+        >
+          {students.map((x, i) => (
+            <WrapItem key={x.id}>
+              <StudentCard
+                key={x.id}
+                {...x}
+                waiver={waiver ? x.waiver || !!x.waiverSigned : undefined}
+                onEdit={() => setEditing(i)}
+              />
+            </WrapItem>
+          ))}
+          {students.length === 0 &&
+            (needSeats ? <BlankCard>More seats required</BlankCard> : <BlankCard>Drag students here</BlankCard>)}
+        </Wrap>
+      )}
 
       <AddStudentModal
         key={editing}
@@ -199,7 +232,6 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
 };
 
 const Teams = ({
-  title,
   maxTeams,
   teams,
   waiver,
@@ -232,17 +264,19 @@ const Teams = ({
           <Divider />
         </>
       )}
-      <Heading size="lg">{title ?? "Teams"}</Heading>
-      <p>
-        Click the &ldquo;Add Team&rdquo; button to create a new team.
-        {costPerStudent > 0 && (
-          <>
-            {" "}
-            Before you can add students to teams, you must purchase seats. Each seat currently costs{" "}
-            <b>${costPerStudent} USD</b>. {event.costDescription ?? ""}
-          </>
-        )}
-      </p>
+      <Heading size="lg">{event.teamsEnabled ? "Teams" : "Participating Students"}</Heading>
+      {event.teamsEnabled && (
+        <p>
+          Click the &ldquo;Add Team&rdquo; button to create a new team.
+          {costPerStudent > 0 && (
+            <>
+              {" "}
+              Before you can add students to teams, you must purchase seats. Each seat currently costs{" "}
+              <b>${costPerStudent} USD</b>. {event.costDescription ?? ""}
+            </>
+          )}
+        </p>
+      )}
       {costPerStudent > 0 && (
         <p>
           You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> seats remaining. Seats
@@ -250,7 +284,7 @@ const Teams = ({
         </p>
       )}
       {teams.length > 0 && (
-        <SimpleGrid columns={{ sm: 1, lg: 2, xl: 3 }} spacing={4}>
+        <SimpleGrid columns={event.teamsEnabled ? { sm: 1, lg: 2, xl: 3 } : 1} spacing={4}>
           {teams.map((x) => (
             <TeamCard
               key={x.id}
@@ -267,19 +301,20 @@ const Teams = ({
         </SimpleGrid>
       )}
       <ButtonGroup>
-        {teams.length < (maxTeams ?? 100) ? (
-          <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
-            Add Team
-          </Button>
-        ) : (
-          <Tooltip label="You may not add more teams.">
-            <Box>
-              <Button colorScheme="blue" disabled>
-                Add Team
-              </Button>
-            </Box>
-          </Tooltip>
-        )}
+        {event.teamsEnabled &&
+          (teams.length < (maxTeams ?? 100) ? (
+            <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
+              Add Team
+            </Button>
+          ) : (
+            <Tooltip label="You may not add more teams.">
+              <Box>
+                <Button colorScheme="blue" disabled>
+                  Add Team
+                </Button>
+              </Box>
+            </Tooltip>
+          ))}
         {costPerStudent && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
       </ButtonGroup>
       <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddTeam} {...formState} />
@@ -287,7 +322,7 @@ const Teams = ({
   );
 };
 
-const Students = ({ students, onAddStudent, onEditStudent, event, waiver }) => {
+const Students = ({ students, onAddStudent, onEditStudent, event, waiver, stripeAccount }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [editing, setEditing] = useState(null);
@@ -311,11 +346,19 @@ const Students = ({ students, onAddStudent, onEditStudent, event, waiver }) => {
 
   return (
     <Stack spacing={4}>
-      <Heading size="lg">{event.teamsEnabled ? "Unassigned Students " : "Students"}</Heading>
+      <Heading size="lg">Unassigned (Non-participating) Students</Heading>
       <p>
         Once you add a student to your organization, they will receive an email invitation to create an account on our
         website. If a student already has an account from a previous tournament (such as the Stanford Math Tournament),
         they will receive an email letting them know to reuse that same account.
+      </p>
+      <p>
+        <strong>
+          Students in this section are not officially registered.{" "}
+          {event.teamsEnabled
+            ? "You must move all participating students to a team."
+            : 'You must move all participating students to the "Participating Students" section.'}
+        </strong>
       </p>
       <Wrap
         spacing={0}
@@ -405,8 +448,23 @@ const TeamsContent = () => {
   // Dialog
   const [openDialog] = useDialog();
 
+  console.log(eventOrg);
+
+  useEffect(() => {
+    (async () => {
+      if (!eventOrg) {
+        // Create organization object
+        await eventOrgRef.set({}, { merge: true });
+      }
+
+      if (!event.teamsEnabled && teams.length == 0) {
+        // Automatically create a team per organization for non-team events
+        await teamsRef.doc(orgRef.id).set({ name: org.name, org: orgRef }, { merge: true });
+      }
+    })();
+  }, [event, eventOrg]);
+
   const handleAddTeam = async ({ name }) => {
-    await eventOrgRef.set({}, { merge: true });
     await teamsRef.add({ name: name, org: orgRef });
   };
 
@@ -501,27 +559,22 @@ const TeamsContent = () => {
           </>
         )}
 
-        {event.teamsEnabled && (
-          <>
-            <Teams
-              title="Teams"
-              event={event}
-              teams={teams}
-              maxTeams={event.maxTeams}
-              studentsByTeam={studentsByTeam}
-              onAddTeam={handleAddTeam}
-              onUpdateTeam={handleUpdateTeam}
-              onDeleteTeam={handleDeleteTeam}
-              costPerStudent={event.costPerStudent}
-              maxStudents={eventOrg?.maxStudents ?? 0}
-              seatsRemaining={seatsRemaining}
-              stripeAccount={entity.stripeAccountId}
-              onEditStudent={handleEditStudent}
-              waiver={event.waiver}
-            />
-            <Divider />
-          </>
-        )}
+        <Teams
+          event={event}
+          teams={teams}
+          maxTeams={event.maxTeams}
+          studentsByTeam={studentsByTeam}
+          onAddTeam={handleAddTeam}
+          onUpdateTeam={handleUpdateTeam}
+          onDeleteTeam={handleDeleteTeam}
+          costPerStudent={event.costPerStudent}
+          maxStudents={eventOrg?.maxStudents ?? 0}
+          seatsRemaining={seatsRemaining}
+          stripeAccount={entity.stripeAccountId}
+          onEditStudent={handleEditStudent}
+          waiver={event.waiver}
+        />
+        <Divider />
 
         <Students
           students={studentsByTeam[null] ?? []}
@@ -529,6 +582,7 @@ const TeamsContent = () => {
           onEditStudent={handleEditStudent}
           event={event}
           waiver={event.waiver}
+          stripeAccount={entity.stripeAccountId}
         />
       </Stack>
     </DndContext>
