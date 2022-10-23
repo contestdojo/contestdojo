@@ -6,6 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import type { FieldValue, UpdateData } from "firebase-admin/firestore";
+
+import * as firebase from "firebase-admin";
 import { z } from "zod";
 
 import { firestore } from "~/lib/firebase.server";
@@ -170,6 +173,21 @@ namespace db {
 
   export function eventTeam(eventId: string, id: string) {
     return eventTeams(eventId).doc(id).withConverter(EventTeam.converter);
+  }
+
+  // Utils
+
+  export namespace util {
+    type Stupid<T> = { [K in keyof UpdateData<T>]: UpdateData<T>[K] | FieldValue };
+
+    export function mapUndefinedToDelete<T extends {}>(update: Stupid<T>): Stupid<T> {
+      for (const key in update) {
+        if (update[key] === undefined) {
+          update[key] = firebase.firestore.FieldValue.delete();
+        }
+      }
+      return update;
+    }
   }
 }
 

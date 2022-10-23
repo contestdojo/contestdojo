@@ -17,7 +17,9 @@ export default function FromZodString({ name, fieldProps: _fieldProps }: FromZod
   const { multiline, fieldProps } = _fieldProps ?? {};
 
   if (multiline) {
-    return <Field className="flex-1" as={TextArea} type="text" name={name} {...fieldProps} />;
+    return (
+      <Field className="flex-1" as={TextArea} type="text" name={name} rows={10} {...fieldProps} />
+    );
   } else {
     return <Field className="flex-1" as={Input} type="text" name={name} {...fieldProps} />;
   }

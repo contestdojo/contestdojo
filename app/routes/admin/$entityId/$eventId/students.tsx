@@ -190,7 +190,7 @@ function BulkUpdateModal({ open, setOpen }: BulkUpdateModalProps) {
         method="post"
         schema={form}
         buttonLabel="Update"
-        fieldProps={{ csv: { label: "CSV Text", multiline: true, rows: 10 } }}
+        fieldProps={{ csv: { label: "CSV Text", multiline: true } }}
       />
     </Modal>
   );

@@ -52,15 +52,19 @@ export default function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>
 
   return (
     <ValidatedForm
-      className={clsx`flex flex-col gap-5 ${className}`}
+      className={clsx`flex flex-1 flex-col gap-5 ${className}`}
       id={id}
       validator={validator}
       {...props}
     >
-      <FromZodObject fieldProps={fieldProps} type={schema} />
-      <input type="hidden" name="_form" value={id} />
-      {children}
-      <SubmitButton>{buttonLabel}</SubmitButton>
+      <div className="flex flex-col gap-5">
+        <FromZodObject fieldProps={fieldProps} type={schema} />
+        <input type="hidden" name="_form" value={id} />
+        {children}
+      </div>
+      <div className="flex flex-1 flex-col items-stretch justify-end">
+        <SubmitButton>{buttonLabel}</SubmitButton>
+      </div>
     </ValidatedForm>
   );
 }

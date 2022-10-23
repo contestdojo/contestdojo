@@ -7,11 +7,13 @@
  */
 
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { PropsWithChildren } from "react";
 import type { FormDefaults, Validator } from "remix-validated-form";
 import type { Event } from "~/lib/db.server";
 
 import { json } from "@remix-run/node";
 import { withZod } from "@remix-validated-form/with-zod";
+import clsx from "clsx";
 import { setFormDefaults, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
@@ -28,7 +30,12 @@ const UNIQUE_ERROR = {
 const EventDetailsForm = z.object({
   name: zfd.text(),
   studentsPerTeam: zfd.numeric(),
-  costPerStudent: zfd.numeric(),
+  description: zfd.text(),
+});
+
+const CostDetailsForm = z.object({
+  costPerStudent: zfd.numeric(z.number().optional()),
+  costDescription: zfd.text(z.string().optional()),
 });
 
 const CustomFieldsForm = z.object({
@@ -58,6 +65,10 @@ const CustomFieldsForm = z.object({
     }),
 });
 
+const WaiverForm = z.object({
+  waiver: zfd.text(z.string().optional()),
+});
+
 export const loader: LoaderFunction = async ({ params }) => {
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
 
@@ -68,7 +79,9 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   return json<FormDefaults>({
     ...setFormDefaults("EventDetails", event),
+    ...setFormDefaults("CostDetails", event),
     ...setFormDefaults("CustomFields", event),
+    ...setFormDefaults("Waiver", event),
   });
 };
 
@@ -78,55 +91,27 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   let validator: Validator<Partial<Event>> | undefined;
   if (formData.get("_form") === "EventDetails") validator = withZod(EventDetailsForm);
+  if (formData.get("_form") === "CostDetails") validator = withZod(CostDetailsForm);
   if (formData.get("_form") === "CustomFields") validator = withZod(CustomFieldsForm);
+  if (formData.get("_form") === "Waiver") validator = withZod(WaiverForm);
 
   if (validator) {
     const result = await validator.validate(formData);
     if (result.error) return validationError(result.error);
-    return await db.event(params.eventId).update(result.data);
+    return await db.event(params.eventId).update(db.util.mapUndefinedToDelete(result.data));
   }
 };
 
-function EventDetails() {
-  // TODO: TextArea fields
+type SectionProps = PropsWithChildren<{
+  title?: string;
+  className?: string;
+}>;
 
+function Section({ title, className, children }: SectionProps) {
   return (
-    <Box className="flex flex-col gap-4 p-4">
-      <h2 className="text-lg font-medium text-gray-900">Event Details</h2>
-
-      <SchemaForm
-        id="EventDetails"
-        method="post"
-        schema={EventDetailsForm}
-        buttonLabel="Save"
-        fieldProps={{ name: { label: "Event Name" } }}
-      />
-    </Box>
-  );
-}
-
-function CustomFields() {
-  return (
-    <Box className="col-span-2 flex flex-col gap-4 p-4">
-      <h2 className="text-lg font-medium text-gray-900">Custom Registration Fields</h2>
-
-      <SchemaForm
-        id="CustomFields"
-        method="post"
-        schema={CustomFieldsForm}
-        buttonLabel="Save"
-        fieldProps={{
-          customFields: {
-            elementClassName: "md:flex-row",
-            element: {
-              choices: {
-                label: "Choices (optional)",
-                placeholder: "Enter choices, comma-separated...",
-              },
-            },
-          },
-        }}
-      />
+    <Box className={clsx`flex flex-col gap-4 p-4 ${className}`}>
+      {title && <h2 className="text-lg font-medium text-gray-900">{title}</h2>}
+      {children}
     </Box>
   );
 }
@@ -134,8 +119,55 @@ function CustomFields() {
 export default function SettingsRoute() {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-      <EventDetails />
-      <CustomFields />
+      <Section title="Event Details">
+        <SchemaForm
+          id="EventDetails"
+          method="post"
+          schema={EventDetailsForm}
+          buttonLabel="Save"
+          fieldProps={{ name: { label: "Event Name" }, description: { multiline: true, rows: 10 } }}
+        />
+      </Section>
+
+      <Section title="Pricing Details">
+        <SchemaForm
+          id="CostDetails"
+          method="post"
+          schema={CostDetailsForm}
+          buttonLabel="Save"
+          fieldProps={{ costDescription: { multiline: true, rows: 10 } }}
+        />
+      </Section>
+
+      <Section title="Custom Fields" className="col-span-2">
+        <SchemaForm
+          id="CustomFields"
+          method="post"
+          schema={CustomFieldsForm}
+          buttonLabel="Save"
+          fieldProps={{
+            customFields: {
+              elementClassName: "md:flex-row",
+              element: {
+                choices: {
+                  label: "Choices (optional)",
+                  placeholder: "Enter choices, comma-separated...",
+                },
+              },
+            },
+          }}
+        />
+      </Section>
+
+      <Section title="Waiver" className="col-span-2">
+        <SchemaForm
+          id="Waiver"
+          method="post"
+          schema={WaiverForm}
+          buttonLabel="Save"
+          fieldProps={{ waiver: { multiline: true } }}
+        />
+      </Section>
     </div>
   );
 }
