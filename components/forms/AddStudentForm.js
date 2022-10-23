@@ -23,20 +23,23 @@ const AddStudentForm = ({
   allowEditEmail = true,
   defaultValues,
 }) => {
+  const hasCustomGrade = customFields.some((x) => x.id === "grade");
   const schema = useMemo(
     () =>
       yup.object({
         fname: yup.string().required().label("First Name"),
         lname: yup.string().required().label("Last Name"),
-        grade: yup.number().typeError("Invalid number").required().label("Grade"),
+        ...(!hasCustomGrade ? { grade: yup.number().typeError("Invalid number").required().label("Grade") } : {}),
         ...(allowEditEmail ? { email: yup.string().email().required().label("Email Address") } : {}),
-        ...Object.fromEntries(
-          customFields.map((v) => {
-            let field = yup.string().label(v.label);
-            if (v.required) field = field.required();
-            if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
-            return [v.id, field];
-          })
+        customFields: yup.object(
+          Object.fromEntries(
+            customFields.map((v) => {
+              let field = yup.string().label(v.label);
+              if (v.required) field = field.required();
+              if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
+              return [v.id, field];
+            })
+          )
         ),
       }),
     [customFields, allowEditEmail]
@@ -83,7 +86,7 @@ const AddStudentForm = ({
           isRequired={allowEditEmail}
         />
 
-        {!customFields.some((x) => x.id === "grade") && (
+        {!hasCustomGrade && (
           <FormField
             ref={register}
             as={Select}
@@ -105,11 +108,11 @@ const AddStudentForm = ({
 
         {customFields.map((x) => (
           <FormField
-            key={x.id}
+            key={`customFields.${x.id}`}
             ref={register}
-            name={x.id}
+            name={`customFields.${x.id}`}
             label={x.label}
-            error={errors[x.id]}
+            error={errors[`customFields.${x.id}`]}
             isRequired={x.required}
             as={x.choices ? Select : undefined}
             placeholder={x.choices ? "Select..." : ""}

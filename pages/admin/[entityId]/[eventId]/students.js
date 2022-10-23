@@ -84,7 +84,7 @@ const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }
       team: team?.name ?? "",
       waiver: x.waiver,
       notes: x.notes ?? "",
-      ...Object.fromEntries(customFields.map((f) => [`custom_${f.id}`, x[f.id]])),
+      ...Object.fromEntries(customFields.map((f) => [`custom_${f.id}`, x.customFields?.[f.id]])),
     };
   });
 
