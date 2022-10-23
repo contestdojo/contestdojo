@@ -245,7 +245,7 @@ export default function StudentsRoute() {
     ...(customColumns ?? []),
   ];
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <DataTable name="students" data={students} columns={columns} initialState={initialState}>
