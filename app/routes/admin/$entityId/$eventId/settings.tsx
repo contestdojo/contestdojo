@@ -44,6 +44,7 @@ const CustomFieldsForm = z.object({
           return items;
         }),
         required: zfd.checkbox(),
+        hidden: zfd.checkbox(),
       })
     )
     .superRefine((items, ctx) => {

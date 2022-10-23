@@ -71,6 +71,7 @@ const Event = zfb.firestoreObject(
           label: z.string(),
           required: z.boolean(),
           choices: z.array(z.string()).optional().nullable(),
+          hidden: z.boolean().optional(),
         })
       )
       .optional(),
