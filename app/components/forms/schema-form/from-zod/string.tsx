@@ -13,8 +13,10 @@ import Input from "~/components/forms/input";
 import Field from "~/components/forms/schema-form/field";
 import TextArea from "~/components/forms/text-area";
 
-export default function FromZodString({ name, fieldProps }: FromZodProps<ZodString>) {
-  if (fieldProps?.multiline) {
+export default function FromZodString({ name, fieldProps: _fieldProps }: FromZodProps<ZodString>) {
+  const { multiline, fieldProps } = _fieldProps ?? {};
+
+  if (multiline) {
     return <Field className="flex-1" as={TextArea} type="text" name={name} {...fieldProps} />;
   } else {
     return <Field className="flex-1" as={Input} type="text" name={name} {...fieldProps} />;
