@@ -13,6 +13,7 @@ import type {
   ZodObject,
   ZodOptional,
   ZodRawShape,
+  ZodString,
   ZodType as ZodTypeAny,
 } from "zod";
 import type { FormControlProps } from "~/components/forms/form-control";
@@ -31,13 +32,16 @@ import { FromZodOptional } from "~/components/forms/schema-form/from-zod/optiona
 import FromZodString from "~/components/forms/schema-form/from-zod/string";
 import FromZodUnion from "~/components/forms/schema-form/from-zod/union";
 
+type BaseFieldProps = Partial<FormControlProps<any>>;
+
 // prettier-ignore
 export type FieldProps<T extends ZodTypeAny> =
     T extends ZodObject<ZodRawShape> ? ZodObjectFieldProps<T>
   : T extends ZodArray<ZodTypeAny>   ? ArrayFieldProps<T>
   : T extends ZodEffects<infer U>    ? FieldProps<U>
   : T extends ZodOptional<infer U>   ? FieldProps<U>
-  : Partial<FormControlProps<any>>;
+  : T extends ZodString ? BaseFieldProps & { multiline?: boolean }
+  : BaseFieldProps
 
 export type FromZodProps<T extends ZodTypeAny> = {
   name: string;

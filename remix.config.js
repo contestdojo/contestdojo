@@ -1,4 +1,11 @@
-/** @type {import('@remix-run/dev').AppConfig} */
+/*
+ * Copyright (c) 2022 Oliver Ni
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 module.exports = {
   serverBuildTarget: "vercel",
   // When running locally in development mode, we use the built in remix
@@ -10,4 +17,5 @@ module.exports = {
   // assetsBuildDirectory: "public/build",
   // serverBuildPath: "api/index.js",
   // publicPath: "/build/",
+  serverDependenciesToBundle: ["csv/browser/esm"],
 };

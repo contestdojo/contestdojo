@@ -7,6 +7,7 @@
  */
 
 import type { ColumnDef, RowData, Table, TableState } from "@tanstack/react-table";
+import type { PropsWithChildren } from "react";
 
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
 import {
@@ -22,9 +23,12 @@ import { ClientOnly } from "remix-utils";
 import Button from "~/components/button";
 import Dropdown from "~/components/dropdown";
 
-type TableProps<T extends RowData> = { name: string; table: Table<T> };
+type TableProps<T extends RowData> = PropsWithChildren<{
+  name: string;
+  table: Table<T>;
+}>;
 
-function HeaderButtons<T extends RowData>({ name, table }: TableProps<T>) {
+function HeaderButtons<T extends RowData>({ name, table, children }: TableProps<T>) {
   const csvData = useMemo(() => {
     const model = table.getCoreRowModel();
     return model.flatRows.map((row) =>
@@ -37,6 +41,8 @@ function HeaderButtons<T extends RowData>({ name, table }: TableProps<T>) {
 
   return (
     <div className="flex flex-col justify-end gap-4 sm:flex-row">
+      {children}
+
       {/* Field Selector */}
       <Dropdown>
         <Dropdown.Button>Fields</Dropdown.Button>
@@ -115,18 +121,19 @@ function Body<T extends RowData>({ table }: TableProps<T>) {
   );
 }
 
-type DataTableProps<T extends RowData> = {
+type DataTableProps<T extends RowData> = PropsWithChildren<{
   name: string;
   data: T[];
   columns: ColumnDef<T, any>[];
   initialState?: Partial<TableState>;
-};
+}>;
 
 export default function DataTable<T extends RowData>({
   name,
   data,
   columns,
   initialState,
+  children,
 }: DataTableProps<T>) {
   const table = useReactTable<T>({
     data,
@@ -138,7 +145,7 @@ export default function DataTable<T extends RowData>({
 
   return (
     <div className="flex flex-col items-stretch gap-4">
-      <HeaderButtons name={name} table={table} />
+      <HeaderButtons name={name} table={table} children={children} />
 
       <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
         <table className="min-w-full divide-y divide-gray-300">

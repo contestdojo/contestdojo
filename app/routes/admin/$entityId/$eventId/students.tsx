@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
 import type {
   Event,
@@ -16,19 +16,66 @@ import type {
   Organization,
 } from "~/lib/db.server";
 
+import { Dialog } from "@headlessui/react";
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
+import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useActionData, useLoaderData } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
 import { createColumnHelper } from "@tanstack/react-table";
+import { parse } from "csv/browser/esm";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { validationError } from "remix-validated-form";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
 
 import DataTable from "~/components/data-table";
+import Dropdown from "~/components/dropdown";
+import SchemaForm from "~/components/forms/schema-form";
 import IconButton from "~/components/icon-button";
+import Modal from "~/components/modal";
 import {
   EventOrganizationReferenceEmbed,
   EventTeamReferenceEmbed,
 } from "~/components/reference-embed";
 import db from "~/lib/db.server";
+import { firestore } from "~/lib/firebase.server";
 import { reduceToMap } from "~/lib/utils/misc";
+
+const BulkUpdateForm = (customFields: Event["customFields"]) => {
+  const customFieldIds = customFields?.map((x) => x.id) ?? [];
+
+  return z.object({
+    csv: zfd
+      .text()
+      .transform(
+        (val) =>
+          new Promise((resolve, reject) => {
+            parse(val, { columns: true }, (err, data) => {
+              if (err) reject(err);
+              resolve(data);
+            });
+          })
+      )
+      .superRefine((val, ctx) => {
+        if (!Array.isArray(val)) return { message: "Must be an array" };
+        if (val.length === 0) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Cannot be empty" });
+        }
+        for (const item of val) {
+          const keys = Object.getOwnPropertyNames(item);
+          if (!keys.includes("id")) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Missing field id" });
+          }
+          for (const key of keys) {
+            if (key !== "id" && !customFieldIds.includes(key)) {
+              ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Invalid field ${key}` });
+            }
+          }
+        }
+      }),
+  });
+};
 
 type LoaderData = {
   event: Event;
@@ -63,6 +110,32 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ event, students, orgs, teams });
 };
 
+export const action: ActionFunction = async ({ request, params }) => {
+  if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
+  const eventSnap = await db.event(params.eventId).get();
+  const event = eventSnap.data();
+  if (!event) throw new Response("Event not found.", { status: 404 });
+
+  const formData = await request.formData();
+
+  const result = await withZod(BulkUpdateForm(event.customFields)).validate(formData);
+  if (result.error) return validationError(result.error);
+
+  const batch = firestore.batch();
+
+  for (const row of result.data.csv as { id: string; [key: string]: string }[]) {
+    batch.update(
+      db.eventStudent(params.eventId, row["id"]),
+      Object.fromEntries(Object.entries(row).map(([key, val]) => [`customFields.${key}`, val]))
+    );
+  }
+
+  // TODO: Refactor
+
+  await batch.commit();
+  return true;
+};
+
 const columnHelper = createColumnHelper<EventStudent>();
 
 const initialState: Partial<TableState> = {
@@ -71,6 +144,57 @@ const initialState: Partial<TableState> = {
     email: false,
   },
 };
+
+type BulkUpdateModalProps = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};
+
+function BulkUpdateModal({ open, setOpen }: BulkUpdateModalProps) {
+  const { event } = useLoaderData<LoaderData>();
+  const form = useMemo(() => BulkUpdateForm(event.customFields), [event]);
+  const actionData = useActionData<boolean>();
+
+  useEffect(() => {
+    if (actionData) setOpen(false);
+  }, [actionData, setOpen]);
+
+  return (
+    <Modal open={open} setOpen={setOpen} className="flex max-w-xl flex-col gap-4">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+        <ArrowUpTrayIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
+          Bulk Update Custom Fields
+        </Dialog.Title>
+
+        <p className="text-center text-sm text-gray-500">
+          Required fields: <span className="font-mono">id</span>
+        </p>
+
+        <p className="text-center text-sm text-gray-500">
+          Accepted fields:{" "}
+          {event.customFields?.map((x, i) => (
+            <Fragment key={x.id}>
+              {i !== 0 && ", "}
+              <span className="font-mono">{x.id}</span>
+            </Fragment>
+          ))}
+        </p>
+      </div>
+
+      <SchemaForm
+        id="BulkUpdate"
+        method="post"
+        schema={form}
+        buttonLabel="Update"
+        fieldProps={{ csv: { label: "CSV Text", multiline: true, rows: 10 } }}
+      />
+    </Modal>
+  );
+}
 
 export default function StudentsRoute() {
   const { event, students, orgs, teams } = useLoaderData<LoaderData>();
@@ -121,8 +245,18 @@ export default function StudentsRoute() {
     ...(customColumns ?? []),
   ];
 
+  const [open, setOpen] = useState(true);
+
   return (
-    <DataTable name="students" data={students} columns={columns} initialState={initialState} />
+    <DataTable name="students" data={students} columns={columns} initialState={initialState}>
+      <Dropdown>
+        <Dropdown.Button>Actions</Dropdown.Button>
+        <Dropdown.Items>
+          <Dropdown.Item onClick={() => setOpen(true)}>Bulk Update</Dropdown.Item>
+        </Dropdown.Items>
+      </Dropdown>
+      <BulkUpdateModal open={open} setOpen={setOpen} />
+    </DataTable>
   );
 }
 
