@@ -23,7 +23,7 @@ const AddStudentForm = ({
   allowEditEmail = true,
   defaultValues,
 }) => {
-  const hasCustomGrade = customFields.some((x) => x.id === "grade");
+  const hasCustomGrade = customFields.filter((v) => !v.hidden).some((x) => x.id === "grade");
   const schema = useMemo(
     () =>
       yup.object({
@@ -33,12 +33,14 @@ const AddStudentForm = ({
         ...(allowEditEmail ? { email: yup.string().email().required().label("Email Address") } : {}),
         customFields: yup.object(
           Object.fromEntries(
-            customFields.map((v) => {
-              let field = yup.string().label(v.label);
-              if (v.required) field = field.required();
-              if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
-              return [v.id, field];
-            })
+            customFields
+              .filter((v) => !v.hidden)
+              .map((v) => {
+                let field = yup.string().label(v.label);
+                if (v.required) field = field.required();
+                if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
+                return [v.id, field];
+              })
           )
         ),
       }),
@@ -106,25 +108,27 @@ const AddStudentForm = ({
           </FormField>
         )}
 
-        {customFields.map((x) => (
-          <FormField
-            key={`customFields.${x.id}`}
-            ref={register}
-            name={`customFields.${x.id}`}
-            label={x.label}
-            error={errors[`customFields.${x.id}`]}
-            isRequired={x.required}
-            as={x.choices ? Select : undefined}
-            placeholder={x.choices ? "Select..." : ""}
-          >
-            {x.choices &&
-              x.choices.map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
-              ))}
-          </FormField>
-        ))}
+        {customFields
+          .filter((v) => !v.hidden)
+          .map((x) => (
+            <FormField
+              key={`customFields.${x.id}`}
+              ref={register}
+              name={`customFields.${x.id}`}
+              label={x.label}
+              error={errors[`customFields.${x.id}`]}
+              isRequired={x.required}
+              as={x.choices ? Select : undefined}
+              placeholder={x.choices ? "Select..." : ""}
+            >
+              {x.choices &&
+                x.choices.map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+            </FormField>
+          ))}
 
         {showButton && (
           <Button isLoading={isLoading} type="submit" colorScheme="blue">
