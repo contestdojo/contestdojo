@@ -48,7 +48,7 @@ export default function Modal({ open, setOpen, className, children }: ModalProps
             >
               <Dialog.Panel
                 className={twMerge(
-                  clsx`relative w-full max-w-sm transform overflow-hidden rounded-lg bg-white p-6 text-left shadow-xl transition-all ${className}`
+                  clsx`relative w-full max-w-sm transform rounded-lg bg-white p-6 text-left shadow-xl transition-all ${className}`
                 )}
               >
                 {children}
