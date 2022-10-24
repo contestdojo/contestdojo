@@ -14,6 +14,7 @@
   "dependencies": {
     "@dnd-kit/core": "^6.0.5",
     "@dnd-kit/sortable": "^7.0.1",
+    "@headlessui-float/react": "^0.10.0",
     "@headlessui/react": "^1.6.6",
     "@heroicons/react": "^2.0.8",
     "@remix-run/node": "^1.7.0",

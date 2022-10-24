@@ -27,7 +27,7 @@ export function Tr({ className, ...props }: JSX.IntrinsicElements["tr"]) {
 export function Th({ className, ...props }: JSX.IntrinsicElements["th"]) {
   return (
     <th
-      className={clsx`items-center whitespace-nowrap px-4 py-3 text-sm font-semibold text-gray-900 ${className}`}
+      className={clsx`whitespace-nowrap px-4 py-3 text-sm font-semibold text-gray-900 ${className}`}
       {...props}
     />
   );
@@ -36,7 +36,7 @@ export function Th({ className, ...props }: JSX.IntrinsicElements["th"]) {
 export function Td({ className, ...props }: JSX.IntrinsicElements["td"]) {
   return (
     <td
-      className={clsx`items-center whitespace-nowrap px-4 py-2 text-sm text-gray-500 ${className}`}
+      className={clsx`whitespace-nowrap px-4 py-2 text-sm text-gray-500 ${className}`}
       {...props}
     />
   );
