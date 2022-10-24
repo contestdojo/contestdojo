@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { ColumnDef, RowData, Table, TableState } from "@tanstack/react-table";
+import type { ColumnDef, RowData, Table as TanstackTable, TableState } from "@tanstack/react-table";
 import type { PropsWithChildren } from "react";
 
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
@@ -23,9 +23,11 @@ import { ClientOnly } from "remix-utils";
 import Button from "~/components/button";
 import Dropdown from "~/components/dropdown";
 
+import { Table, Tbody, Td, Th, Thead, Tr } from "./table";
+
 type TableProps<T extends RowData> = PropsWithChildren<{
   name: string;
-  table: Table<T>;
+  table: TanstackTable<T>;
 }>;
 
 function HeaderButtons<T extends RowData>({ name, table, children }: TableProps<T>) {
@@ -78,46 +80,45 @@ function HeaderButtons<T extends RowData>({ name, table, children }: TableProps<
 
 function Headers<T extends RowData>({ table }: TableProps<T>) {
   return (
-    <thead className="bg-gray-50">
+    <Thead>
       {table.getHeaderGroups().map((group) => (
-        <tr key={group.id} className="divide-x divide-gray-200">
+        <Tr key={group.id}>
           {group.headers.map((x) => (
-            <th
+            <Th
               key={x.id}
               colSpan={x.colSpan}
               scope="col"
               onClick={x.column.getToggleSortingHandler()}
+              className="cursor-pointer"
             >
-              <div className="flex cursor-pointer items-center justify-between whitespace-nowrap px-4 py-3 text-left text-sm font-semibold text-gray-900">
+              <div className="items-between flex">
                 {flexRender(x.column.columnDef.header, x.getContext())}
                 {{
                   asc: <ChevronUpIcon className="-mr-1 ml-3 h-4 w-5" />,
                   desc: <ChevronDownIcon className="-mr-1 ml-3 h-4 w-5" />,
                 }[x.column.getIsSorted() as string] ?? null}
               </div>
-            </th>
+            </Th>
           ))}
-        </tr>
+        </Tr>
       ))}
-    </thead>
+    </Thead>
   );
 }
 
 function Body<T extends RowData>({ table }: TableProps<T>) {
   return (
-    <tbody className="divide-y divide-gray-200 bg-white">
+    <Tbody>
       {table.getRowModel().rows.map((row) => (
-        <tr key={row.id} className="divide-x divide-gray-200">
+        <Tr key={row.id}>
           {row.getVisibleCells().map((x) => (
-            <td key={x.id}>
-              <div className="flex items-center whitespace-nowrap px-4 py-2 text-sm text-gray-500">
-                {flexRender(x.column.columnDef.cell, x.getContext())}
-              </div>
-            </td>
+            <Td key={x.id}>
+              <div className="flex">{flexRender(x.column.columnDef.cell, x.getContext())}</div>
+            </Td>
           ))}
-        </tr>
+        </Tr>
       ))}
-    </tbody>
+    </Tbody>
   );
 }
 
@@ -148,10 +149,10 @@ export default function DataTable<T extends RowData>({
       <HeaderButtons name={name} table={table} children={children} />
 
       <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
-        <table className="min-w-full divide-y divide-gray-300">
+        <Table>
           <Headers name={name} table={table} />
           <Body name={name} table={table} />
-        </table>
+        </Table>
       </div>
     </div>
   );
