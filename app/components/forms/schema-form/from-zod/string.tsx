@@ -14,7 +14,7 @@ import Field from "~/components/forms/schema-form/field";
 import TextArea from "~/components/forms/text-area";
 
 export default function FromZodString({ name, fieldProps: _fieldProps }: FromZodProps<ZodString>) {
-  const { multiline, fieldProps } = _fieldProps ?? {};
+  const { multiline, ...fieldProps } = _fieldProps ?? {};
 
   if (multiline) {
     return (
