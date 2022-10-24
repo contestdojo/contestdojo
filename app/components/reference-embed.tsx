@@ -7,7 +7,7 @@
  */
 
 import type { PropsWithChildren } from "react";
-import type { EventOrganization, EventTeam, Organization } from "~/lib/db.server";
+import type { EventOrganization, EventStudent, EventTeam, Organization } from "~/lib/db.server";
 
 import { Popover, Transition } from "@headlessui/react";
 import React from "react";
@@ -42,8 +42,8 @@ export default function ReferenceEmbed({ title, subtitle, fields, children }: Re
           <div className="mt-1 flex flex-col gap-1">
             {fields.map((x) => (
               <div key={x.name} className="flex justify-between gap-2">
-                <div className="whitespace-nowrap font-medium text-gray-600">{x.name}</div>
-                <div className="break-all text-right">
+                <div className="whitespace-nowrap text-sm font-medium text-gray-600">{x.name}</div>
+                <div className="break-all text-right text-sm text-gray-500">
                   {x.value ? [...intersperse(x.value.split("\n"), <br />)] : "-"}
                 </div>
               </div>
@@ -92,6 +92,29 @@ export function EventTeamReferenceEmbed({ team }: EventTeamReferenceEmbedProps) 
       ]}
     >
       {team.number ? `${team.number} · ${team.name}` : team.name}
+    </ReferenceEmbed>
+  );
+}
+
+type EventStudentReferenceEmbedProps = { student: EventStudent };
+
+export function EventStudentReferenceEmbed({ student }: EventStudentReferenceEmbedProps) {
+  const name = `${student.fname} ${student.lname}`;
+
+  return (
+    <ReferenceEmbed
+      title={name}
+      subtitle={student.id}
+      fields={[
+        { name: "Number", value: student.number },
+        { name: "Email", value: student.email },
+        { name: "Grade", value: student.grade?.toString() },
+        { name: "Org ID", value: student.org.id },
+        { name: "Team ID", value: student.team?.id },
+        { name: "Notes", value: student.notes },
+      ]}
+    >
+      {student.number ? `${student.number} · ${name}` : name}
     </ReferenceEmbed>
   );
 }
