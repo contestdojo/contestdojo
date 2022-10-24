@@ -52,6 +52,14 @@ const Entity = zfb.firestoreObject(
   })
 );
 
+const EventCustomField = z.object({
+  id: z.string(),
+  label: z.string(),
+  required: z.boolean(),
+  choices: z.array(z.string()).optional().nullable(),
+  hidden: z.boolean().optional(),
+});
+
 const Event = zfb.firestoreObject(
   z.object({
     id: z.string(),
@@ -67,17 +75,7 @@ const Event = zfb.firestoreObject(
     description: z.string().optional(),
     costDescription: z.string().optional(),
     waiver: z.string().optional(),
-    customFields: z
-      .array(
-        z.object({
-          id: z.string(),
-          label: z.string(),
-          required: z.boolean(),
-          choices: z.array(z.string()).optional().nullable(),
-          hidden: z.boolean().optional(),
-        })
-      )
-      .optional(),
+    customFields: z.array(EventCustomField).optional(),
   })
 );
 
@@ -119,6 +117,7 @@ const EventTeam = zfb.firestoreObject(
 
 export type User = z.infer<typeof User>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Entity = z.infer<typeof Entity>; // eslint-disable-line @typescript-eslint/no-redeclare
+export type EventCustomField = z.infer<typeof EventCustomField>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Event = z.infer<typeof Event>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Organization = z.infer<typeof Organization>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EventOrganization = z.infer<typeof EventOrganization>; // eslint-disable-line @typescript-eslint/no-redeclare

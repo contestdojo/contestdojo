@@ -10,6 +10,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
 import type {
   Event,
+  EventCustomField,
   EventOrganization,
   EventStudent,
   EventTeam,
@@ -18,13 +19,13 @@ import type {
 
 import { Dialog } from "@headlessui/react";
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
-import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { json } from "@remix-run/node";
 import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import { createColumnHelper } from "@tanstack/react-table";
 import { parse } from "csv/browser/esm";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
@@ -36,44 +37,56 @@ import IconButton from "~/components/icon-button";
 import Modal from "~/components/modal";
 import {
   EventOrganizationReferenceEmbed,
+  EventStudentReferenceEmbed,
   EventTeamReferenceEmbed,
 } from "~/components/reference-embed";
+import { Table, Tbody, Td, Th, Thead, Tr } from "~/components/table";
 import db from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
 import { reduceToMap } from "~/lib/utils/misc";
+import { mapKeys } from "~/lib/utils/object-utils";
 
 const BulkUpdateForm = (customFields: Event["customFields"]) => {
   const customFieldIds = customFields?.map((x) => x.id) ?? [];
 
+  const verifyKeys = (item: Record<string, string>) => {
+    for (const key in item) {
+      if (key !== "id" && !customFieldIds.includes(key)) {
+        throw new Error(`Invalid field ${key}`);
+      }
+    }
+  };
+
+  const transformCsv = async (val: string) => {
+    const items = await new Promise((resolve, reject) => {
+      parse(val, { columns: true }, (err, data) => {
+        if (err) reject(err);
+        resolve(data);
+      });
+    });
+
+    if (!Array.isArray(items)) throw new Error("Must be an array");
+    if (items.length === 0) throw new Error("Cannot be empty");
+
+    return new Map<string, Record<string, string>>(
+      items.map(({ id, ...item }) => {
+        if (!id) throw new Error("Missing field id");
+        verifyKeys(item);
+        return [id, item];
+      })
+    );
+  };
+
   return z.object({
-    csv: zfd
-      .text()
-      .transform(
-        (val) =>
-          new Promise((resolve, reject) => {
-            parse(val, { columns: true }, (err, data) => {
-              if (err) reject(err);
-              resolve(data);
-            });
-          })
-      )
-      .superRefine((val, ctx) => {
-        if (!Array.isArray(val)) return { message: "Must be an array" };
-        if (val.length === 0) {
-          ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Cannot be empty" });
-        }
-        for (const item of val) {
-          const keys = Object.getOwnPropertyNames(item);
-          if (!keys.includes("id")) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Missing field id" });
-          }
-          for (const key of keys) {
-            if (key !== "id" && !customFieldIds.includes(key)) {
-              ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Invalid field ${key}` });
-            }
-          }
-        }
-      }),
+    csv: zfd.text().transform((val, ctx) => {
+      return transformCsv(val).catch((err) => {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: err.message,
+        });
+        return z.NEVER;
+      });
+    }),
   });
 };
 
@@ -110,6 +123,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ event, students, orgs, teams });
 };
 
+type ActionData = {
+  id: string;
+  update: Record<string, string>;
+  data: EventStudent | undefined;
+}[];
+
 export const action: ActionFunction = async ({ request, params }) => {
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
   const eventSnap = await db.event(params.eventId).get();
@@ -117,23 +136,22 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (!event) throw new Response("Event not found.", { status: 404 });
 
   const formData = await request.formData();
-
   const result = await withZod(BulkUpdateForm(event.customFields)).validate(formData);
   if (result.error) return validationError(result.error);
 
-  const batch = firestore.batch();
-
-  for (const row of result.data.csv as { id: string; [key: string]: string }[]) {
-    batch.update(
-      db.eventStudent(params.eventId, row["id"]),
-      Object.fromEntries(Object.entries(row).map(([key, val]) => [`customFields.${key}`, val]))
+  const results = await firestore.runTransaction((t) => {
+    return Promise.all(
+      [...result.data.csv].map(async ([id, update]) => {
+        const nestedUpdate = mapKeys(update, (key) => `customFields.${key}`);
+        const ref = db.eventStudent(event.id, id);
+        const doc = await t.get(ref);
+        if (doc.exists) t.update(ref, nestedUpdate);
+        return { id, update, data: doc.data() };
+      })
     );
-  }
+  });
 
-  // TODO: Refactor
-
-  await batch.commit();
-  return true;
+  return json<ActionData>(results);
 };
 
 const columnHelper = createColumnHelper<EventStudent>();
@@ -153,14 +171,72 @@ type BulkUpdateModalProps = {
 function BulkUpdateModal({ open, setOpen }: BulkUpdateModalProps) {
   const { event } = useLoaderData<LoaderData>();
   const form = useMemo(() => BulkUpdateForm(event.customFields), [event]);
-  const actionData = useActionData<boolean>();
+  const actionData = useActionData<ActionData>();
+  const customFieldsById = event.customFields?.reduce<Map<string, EventCustomField>>(
+    (acc, curr) => acc.set(curr.id, curr),
+    new Map()
+  );
 
-  useEffect(() => {
-    if (actionData) setOpen(false);
-  }, [actionData, setOpen]);
+  if (actionData) {
+    return (
+      <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+          <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+        </div>
+
+        <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
+          Bulk update successful
+        </Dialog.Title>
+
+        <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>Student</Th>
+                {Object.keys(actionData[0].update).map((x) => (
+                  <Th key={x}>{customFieldsById?.get(x)?.label ?? x}</Th>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {actionData.map(({ id, update, data }) => (
+                <Tr key={id}>
+                  <Td>{data ? <EventStudentReferenceEmbed student={data} /> : id}</Td>
+                  {data ? (
+                    Object.entries(update).map(([k, v]) => (
+                      <Td key={k}>
+                        <div className="flex items-center gap-2">
+                          {data.customFields[k] === v ? (
+                            v
+                          ) : (
+                            <>
+                              {data.customFields[k] && (
+                                <span className="text-red-300 line-through">
+                                  {data.customFields[k]}
+                                </span>
+                              )}
+                              <span className="text-green-500">{v}</span>
+                            </>
+                          )}
+                        </div>
+                      </Td>
+                    ))
+                  ) : (
+                    <Td className="font-medium text-red-500" colSpan={Object.keys(update).length}>
+                      Student Not Found
+                    </Td>
+                  )}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
-    <Modal open={open} setOpen={setOpen} className="flex max-w-xl flex-col gap-4">
+    <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
         <ArrowUpTrayIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
       </div>
