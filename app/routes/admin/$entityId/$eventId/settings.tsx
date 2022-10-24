@@ -121,6 +121,7 @@ export default function SettingsRoute() {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <Section title="Event Details">
         <SchemaForm
+          className="flex-1"
           id="EventDetails"
           method="post"
           schema={EventDetailsForm}
@@ -131,6 +132,7 @@ export default function SettingsRoute() {
 
       <Section title="Pricing Details">
         <SchemaForm
+          className="flex-1"
           id="CostDetails"
           method="post"
           schema={CostDetailsForm}
@@ -141,6 +143,7 @@ export default function SettingsRoute() {
 
       <Section title="Custom Fields" className="col-span-2">
         <SchemaForm
+          className="flex-1"
           id="CustomFields"
           method="post"
           schema={CustomFieldsForm}
@@ -161,6 +164,7 @@ export default function SettingsRoute() {
 
       <Section title="Waiver" className="col-span-2">
         <SchemaForm
+          className="flex-1"
           id="Waiver"
           method="post"
           schema={WaiverForm}
