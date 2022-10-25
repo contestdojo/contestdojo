@@ -12,8 +12,6 @@ import type { EventOrganization, EventStudent, EventTeam, Organization } from "~
 import { Float } from "@headlessui-float/react";
 import { Popover } from "@headlessui/react";
 
-import { intersperse } from "~/lib/utils/array-utils";
-
 type ReferenceEmbedProps = PropsWithChildren<{
   title: string;
   subtitle: string;
@@ -41,7 +39,7 @@ export default function ReferenceEmbed({ title, subtitle, fields, children }: Re
 
         <Popover.Panel className="flex w-screen max-w-xs flex-col gap-1 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
           <Float.Arrow className="absolute h-5 w-5 rotate-45 bg-white shadow-lg ring-1 ring-black ring-opacity-5" />
-          <div className="relative rounded-lg bg-white p-3">
+          <div className="relative flex flex-col gap-1 rounded-lg bg-white p-3">
             <h2 className="text-sm font-medium text-gray-900">{title}</h2>
             <h3 className="text-xs text-gray-400">{subtitle}</h3>
             <div className="mt-1 flex flex-col gap-1">
@@ -50,8 +48,8 @@ export default function ReferenceEmbed({ title, subtitle, fields, children }: Re
                   <div className="whitespace-nowrap text-sm font-medium text-gray-600">
                     {x.name}
                   </div>
-                  <div className="break-all text-right text-sm text-gray-500">
-                    {x.value ? [...intersperse(x.value.split("\n"), <br />)] : "-"}
+                  <div className="whitespace-pre break-all text-right text-sm text-gray-500">
+                    {x.value}
                   </div>
                 </div>
               ))}
