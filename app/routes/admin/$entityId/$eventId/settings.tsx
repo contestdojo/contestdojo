@@ -18,9 +18,9 @@ import { setFormDefaults, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
-import Box from "~/components/box";
-import SchemaForm from "~/components/forms/schema-form";
-import db from "~/lib/db.server";
+import { SchemaForm } from "~/components/schema-form";
+import { Box } from "~/components/ui";
+import { db } from "~/lib/db.server";
 
 const UNIQUE_ERROR = {
   code: z.ZodIssueCode.custom,

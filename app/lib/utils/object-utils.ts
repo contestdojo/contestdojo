@@ -6,6 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+export function makePartial<T>(obj: T | undefined): Partial<T> {
+  return obj ?? {};
+}
+
 export function mapEntries<T, U>(
   obj: Record<string, T>,
   func: (entry: [string, T]) => [string, U]

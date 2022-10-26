@@ -15,7 +15,7 @@ type CheckboxProps = JSX.IntrinsicElements["input"] & {
   invalid?: boolean;
 };
 
-const Checkbox = forwardRef(function Checkbox(
+export const Checkbox = forwardRef(function Checkbox(
   { className, invalid = false, ...props }: CheckboxProps,
   ref: ForwardedRef<HTMLInputElement>
 ) {
@@ -29,5 +29,3 @@ const Checkbox = forwardRef(function Checkbox(
     />
   );
 });
-
-export default Checkbox;

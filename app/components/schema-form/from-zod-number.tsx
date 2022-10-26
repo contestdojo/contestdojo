@@ -7,11 +7,12 @@
  */
 
 import type { ZodNumber } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FromZodProps } from "./from-zod";
 
-import Input from "~/components/forms/input";
-import Field from "~/components/forms/schema-form/field";
+import { Input } from "~/components/ui";
 
-export default function FromZodNumber({ name, fieldProps }: FromZodProps<ZodNumber>) {
+import { Field } from "./field";
+
+export function FromZodNumber({ name, fieldProps }: FromZodProps<ZodNumber>) {
   return <Field className="flex-1" as={Input} type="number" name={name} {...fieldProps} />;
 }

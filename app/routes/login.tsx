@@ -16,7 +16,7 @@ import React from "react";
 import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
-import SchemaForm from "~/components/forms/schema-form";
+import { SchemaForm } from "~/components/schema-form";
 import { loginWithIdToken } from "~/lib/auth.server";
 import { auth as clientAuth } from "~/lib/firebase.client";
 

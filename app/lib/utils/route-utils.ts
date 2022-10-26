@@ -6,6 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-export default function makePartial<T>(obj: T | undefined): Partial<T> {
-  return obj ?? {};
+import { useMatches } from "@remix-run/react";
+
+export function useMatchData<T>(routeId: string) {
+  return useMatches().find((x) => x.id === routeId)?.data as T | undefined;
 }

@@ -20,12 +20,12 @@ import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData, useMatches } from "@remix-run/react";
 import clsx from "clsx";
 
-import Dropdown from "~/components/dropdown";
+import { Dropdown } from "~/components/ui";
 import { requireAdmin } from "~/lib/auth.server";
-import db from "~/lib/db.server";
+import { db } from "~/lib/db.server";
 import { chunk } from "~/lib/utils/array-utils";
-import makePartial from "~/lib/utils/make-partial";
-import useMatchData from "~/lib/utils/use-match-data";
+import { makePartial } from "~/lib/utils/object-utils";
+import { useMatchData } from "~/lib/utils/route-utils";
 
 type LoaderData = {
   user: User;

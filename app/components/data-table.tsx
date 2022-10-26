@@ -20,10 +20,7 @@ import { useMemo } from "react";
 import { CSVLink } from "react-csv";
 import { ClientOnly } from "remix-utils";
 
-import Button from "~/components/button";
-import Dropdown from "~/components/dropdown";
-
-import { Table, Tbody, Td, Th, Thead, Tr } from "./table";
+import { Button, Dropdown, Table, Tbody, Td, Th, Thead, Tr } from "~/components/ui";
 
 type TableProps<T extends RowData> = PropsWithChildren<{
   name: string;
@@ -129,7 +126,7 @@ type DataTableProps<T extends RowData> = PropsWithChildren<{
   initialState?: Partial<TableState>;
 }>;
 
-export default function DataTable<T extends RowData>({
+export function DataTable<T extends RowData>({
   name,
   data,
   columns,

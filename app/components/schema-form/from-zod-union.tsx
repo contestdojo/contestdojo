@@ -7,14 +7,14 @@
  */
 
 import type { ZodTypeAny, ZodUnion } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FromZodProps } from "./from-zod";
 
 import { useMemo } from "react";
 
-import Checkbox from "~/components/forms/checkbox";
-import Input from "~/components/forms/input";
-import Field from "~/components/forms/schema-form/field";
-import { guardType } from "~/components/forms/schema-form/from-zod/guards";
+import { Checkbox, Input } from "~/components/ui";
+
+import { Field } from "./field";
+import { guardType } from "./guards";
 
 type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>;
 
@@ -37,7 +37,7 @@ function isZfdCheckbox<T extends ZodUnionOptions>(type: ZodUnion<T>) {
   return false;
 }
 
-export default function FromZodUnion<T extends ZodUnionOptions>({
+export function FromZodUnion<T extends ZodUnionOptions>({
   name,
   fieldProps,
   type,

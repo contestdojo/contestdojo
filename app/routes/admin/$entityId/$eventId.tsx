@@ -12,7 +12,7 @@ import type { Event } from "~/lib/db.server";
 import { json } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 
-import db from "~/lib/db.server";
+import { db } from "~/lib/db.server";
 
 export type LoaderData = {
   event: Event;

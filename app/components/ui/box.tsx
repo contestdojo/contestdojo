@@ -17,7 +17,7 @@ type BoxProps = {
   className?: string;
 };
 
-export default function Box<T extends React.ElementType = "div">({
+export function Box<T extends React.ElementType = "div">({
   as,
   hoverEffect = false,
   focusEffect = false,

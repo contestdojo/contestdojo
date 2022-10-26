@@ -6,8 +6,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { useMatches } from "@remix-run/react";
-
-export default function useMatchData<T>(routeId: string) {
-  return useMatches().find((x) => x.id === routeId)?.data as T | undefined;
-}
+export * from "./alert";
+export * from "./box";
+export * from "./button";
+export * from "./dropdown";
+export * from "./forms";
+export * from "./icon-button";
+export * from "./modal";
+export * from "./table";

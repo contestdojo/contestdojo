@@ -9,15 +9,16 @@
 import type { PropsWithChildren } from "react";
 import type { FormProps } from "remix-validated-form";
 import type { z, ZodObject, ZodRawShape } from "zod";
-import type { FieldProps } from "~/components/forms/schema-form/from-zod";
+import type { FieldProps } from "./from-zod";
 
 import { withZod } from "@remix-validated-form/with-zod";
 import clsx from "clsx";
 import { useMemo } from "react";
 import { useIsSubmitting, ValidatedForm } from "remix-validated-form";
 
-import Button from "~/components/button";
-import { FromZodObject } from "~/components/forms/schema-form/from-zod/object";
+import { Button } from "~/components/ui";
+
+import { FromZodObject } from "./from-zod-object";
 
 function SubmitButton({ children }: PropsWithChildren<{}>) {
   const isSubmitting = useIsSubmitting();
@@ -39,7 +40,7 @@ type SchemaFormOwnProps<S extends ZodRawShape, T extends ZodObject<S>> = {
 type SchemaFormProps<S extends ZodRawShape, T extends ZodObject<S>> = SchemaFormOwnProps<S, T> &
   Omit<FormProps<z.infer<T>>, "validator">;
 
-export default function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
+export function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
   id,
   schema,
   buttonLabel,

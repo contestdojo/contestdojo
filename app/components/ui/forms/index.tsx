@@ -6,7 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import * as build from "@remix-run/dev/server-build";
-import { createRequestHandler } from "@remix-run/vercel";
-
-export default createRequestHandler({ build, mode: process.env.NODE_ENV });
+export * from "./checkbox";
+export * from "./form-control";
+export * from "./input";
+export * from "./label";
+export * from "./select";
+export * from "./text-area";

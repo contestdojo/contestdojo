@@ -7,11 +7,10 @@
  */
 
 import type { ZodDate } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FromZodProps } from "./from-zod";
 
-import FormControl from "~/components/forms/form-control";
-import Input from "~/components/forms/input";
+import { FormControl, Input } from "~/components/ui";
 
-export default function FromZodDate({ name, fieldProps }: FromZodProps<ZodDate>) {
+export function FromZodDate({ name, fieldProps }: FromZodProps<ZodDate>) {
   return <FormControl className="flex-1" as={Input} type="date" name={name} {...fieldProps} />;
 }

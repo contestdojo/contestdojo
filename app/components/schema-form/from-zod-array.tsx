@@ -8,7 +8,7 @@
 
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { ZodArray, ZodTypeAny } from "zod";
-import type { FieldProps, FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FieldProps, FromZodProps } from "./from-zod";
 
 import {
   closestCenter,
@@ -31,10 +31,9 @@ import { useFieldArray } from "remix-validated-form";
 import { twMerge } from "tailwind-merge";
 import { v4 as uuidv4 } from "uuid";
 
-import Button from "~/components/button";
-import Label from "~/components/forms/label";
-import FromZod from "~/components/forms/schema-form/from-zod";
-import IconButton from "~/components/icon-button";
+import { Button, IconButton, Label } from "~/components/ui";
+
+import { FromZod } from "./from-zod";
 
 type ArrayItemProps<T extends ZodTypeAny> = FromZodProps<T> & {
   sortableId: string;

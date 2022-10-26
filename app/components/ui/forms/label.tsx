@@ -10,7 +10,7 @@ import clsx from "clsx";
 
 export type LabelProps = JSX.IntrinsicElements["label"];
 
-export default function Label({ className, ...props }: LabelProps) {
+export function Label({ className, ...props }: LabelProps) {
   return (
     <label {...props} className={clsx`block text-sm font-medium text-gray-700 ${className}`} />
   );

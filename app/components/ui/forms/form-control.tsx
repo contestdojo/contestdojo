@@ -13,8 +13,7 @@ import clsx from "clsx";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 
-import Input from "~/components/forms/input";
-import Label from "~/components/forms/label";
+import { Input, Label } from ".";
 
 export type FormControlProps<T extends React.ElementType> = PropsWithAs<
   {
@@ -27,7 +26,7 @@ export type FormControlProps<T extends React.ElementType> = PropsWithAs<
   T
 >;
 
-export default function FormControl<T extends React.ElementType = typeof Input>({
+export function FormControl<T extends React.ElementType = typeof Input>({
   as,
   name,
   label,

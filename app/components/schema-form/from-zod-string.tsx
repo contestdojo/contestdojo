@@ -7,13 +7,13 @@
  */
 
 import type { ZodString } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FromZodProps } from "./from-zod";
 
-import Input from "~/components/forms/input";
-import Field from "~/components/forms/schema-form/field";
-import TextArea from "~/components/forms/text-area";
+import { Input, TextArea } from "~/components/ui";
 
-export default function FromZodString({ name, fieldProps: _fieldProps }: FromZodProps<ZodString>) {
+import { Field } from "./field";
+
+export function FromZodString({ name, fieldProps: _fieldProps }: FromZodProps<ZodString>) {
   const { multiline, ...fieldProps } = _fieldProps ?? {};
 
   if (multiline) {

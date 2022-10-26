@@ -19,7 +19,7 @@ type ModalProps = PropsWithChildren<{
   className?: string;
 }>;
 
-export default function Modal({ open, setOpen, className, children }: ModalProps) {
+export function Modal({ open, setOpen, className, children }: ModalProps) {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-20" onClose={setOpen}>

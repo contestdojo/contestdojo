@@ -7,9 +7,9 @@
  */
 
 import type { ZodEffects, ZodTypeAny } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FromZodProps } from "./from-zod";
 
-import FromZod from "~/components/forms/schema-form/from-zod";
+import { FromZod } from "./from-zod";
 
 export function FromZodEffects<T extends ZodTypeAny>({
   type,

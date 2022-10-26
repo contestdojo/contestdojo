@@ -16,21 +16,22 @@ import type {
   ZodString,
   ZodType as ZodTypeAny,
 } from "zod";
-import type { FormControlProps } from "~/components/forms/form-control";
-import type { ArrayFieldProps } from "~/components/forms/schema-form/from-zod/array";
-import type { ZodObjectFieldProps } from "~/components/forms/schema-form/from-zod/object";
+import type { FormControlProps } from "~/components/ui";
+import type { ArrayFieldProps } from "./from-zod-array";
+import type { ZodObjectFieldProps } from "./from-zod-object";
 
-import Alert, { Status } from "~/components/alert";
-import { FromZodArray } from "~/components/forms/schema-form/from-zod/array";
-import FromZodBoolean from "~/components/forms/schema-form/from-zod/boolean";
-import FromZodDate from "~/components/forms/schema-form/from-zod/date";
-import { FromZodEffects } from "~/components/forms/schema-form/from-zod/effects";
-import { guardProps } from "~/components/forms/schema-form/from-zod/guards";
-import FromZodNumber from "~/components/forms/schema-form/from-zod/number";
-import { FromZodObject } from "~/components/forms/schema-form/from-zod/object";
-import { FromZodOptional } from "~/components/forms/schema-form/from-zod/optional";
-import FromZodString from "~/components/forms/schema-form/from-zod/string";
-import FromZodUnion from "~/components/forms/schema-form/from-zod/union";
+import { Alert, AlertStatus } from "~/components/ui";
+
+import { FromZodArray } from "./from-zod-array";
+import { FromZodBoolean } from "./from-zod-boolean";
+import { FromZodDate } from "./from-zod-date";
+import { FromZodEffects } from "./from-zod-effects";
+import { FromZodNumber } from "./from-zod-number";
+import { FromZodObject } from "./from-zod-object";
+import { FromZodOptional } from "./from-zod-optional";
+import { FromZodString } from "./from-zod-string";
+import { FromZodUnion } from "./from-zod-union";
+import { guardProps } from "./guards";
 
 type BaseFieldProps = Partial<FormControlProps<any>>;
 
@@ -49,7 +50,7 @@ export type FromZodProps<T extends ZodTypeAny> = {
   fieldProps?: FieldProps<T>;
 };
 
-export default function FromZod(props: FromZodProps<ZodFirstPartySchemaTypes>) {
+export function FromZod(props: FromZodProps<ZodFirstPartySchemaTypes>) {
   if (guardProps.ZodString(props)) return <FromZodString {...props} />;
   if (guardProps.ZodNumber(props)) return <FromZodNumber {...props} />;
   if (guardProps.ZodBoolean(props)) return <FromZodBoolean {...props} />;
@@ -61,7 +62,7 @@ export default function FromZod(props: FromZodProps<ZodFirstPartySchemaTypes>) {
   if (guardProps.ZodOptional(props)) return <FromZodOptional {...props} />;
 
   return (
-    <Alert status={Status.Error} title="Error">
+    <Alert status={AlertStatus.Error} title="Error">
       Unimplemented field type: {props.type._def.typeName}
     </Alert>
   );

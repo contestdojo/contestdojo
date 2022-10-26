@@ -124,7 +124,7 @@ export type EventOrganization = z.infer<typeof EventOrganization>; // eslint-dis
 export type EventStudent = z.infer<typeof EventStudent>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EventTeam = z.infer<typeof EventTeam>; // eslint-disable-line @typescript-eslint/no-redeclare
 
-namespace db {
+export namespace db {
   // Collections
 
   export const users = firestore.collection("users").withConverter(User.converter);
@@ -189,5 +189,3 @@ namespace db {
     }
   }
 }
-
-export default db;

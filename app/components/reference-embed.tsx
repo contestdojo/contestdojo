@@ -18,7 +18,7 @@ type ReferenceEmbedProps = PropsWithChildren<{
   fields: { name: string; value?: string }[];
 }>;
 
-export default function ReferenceEmbed({ title, subtitle, fields, children }: ReferenceEmbedProps) {
+export function ReferenceEmbed({ title, subtitle, fields, children }: ReferenceEmbedProps) {
   return (
     <Popover className="relative inline-block whitespace-normal">
       <Float

@@ -7,7 +7,7 @@
  */
 
 import type { ZodAny, ZodArray, ZodBigInt, ZodBoolean, ZodBranded, ZodDate, ZodDefault, ZodDiscriminatedUnion, ZodEffects, ZodEnum, ZodFirstPartySchemaTypes as ZFPST, ZodFunction, ZodIntersection, ZodLazy, ZodLiteral, ZodMap, ZodNaN, ZodNativeEnum, ZodNever, ZodNull, ZodNullable, ZodNumber, ZodObject, ZodOptional, ZodPromise, ZodRecord, ZodSet, ZodString, ZodTuple, ZodUndefined, ZodUnion, ZodUnknown, ZodVoid } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FromZodProps } from "./from-zod";
 
 export const guardType = {
   ZodString: (type: ZFPST): type is ZodString => type._def.typeName === "ZodString",

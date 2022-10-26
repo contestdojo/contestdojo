@@ -30,18 +30,15 @@ import { validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
-import DataTable from "~/components/data-table";
-import Dropdown from "~/components/dropdown";
-import SchemaForm from "~/components/forms/schema-form";
-import IconButton from "~/components/icon-button";
-import Modal from "~/components/modal";
+import { DataTable } from "~/components/data-table";
 import {
   EventOrganizationReferenceEmbed,
   EventStudentReferenceEmbed,
   EventTeamReferenceEmbed,
 } from "~/components/reference-embed";
-import { Table, Tbody, Td, Th, Thead, Tr } from "~/components/table";
-import db from "~/lib/db.server";
+import { SchemaForm } from "~/components/schema-form";
+import { Dropdown, IconButton, Modal, Table, Tbody, Td, Th, Thead, Tr } from "~/components/ui";
+import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
 import { reduceToMap } from "~/lib/utils/misc";
 import { mapKeys } from "~/lib/utils/object-utils";

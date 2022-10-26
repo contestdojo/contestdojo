@@ -16,7 +16,7 @@ import {
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 
-export enum Status {
+export enum AlertStatus {
   Success,
   Warning,
   Error,
@@ -25,46 +25,46 @@ export enum Status {
 
 type AlertProps = PropsWithChildren<{
   className?: string;
-  status: Status;
+  status: AlertStatus;
   title: string;
 }>;
 
 const ICON_COMPONENTS = {
-  [Status.Success]: CheckCircleIcon,
-  [Status.Warning]: ExclamationCircleIcon,
-  [Status.Error]: XCircleIcon,
-  [Status.Info]: InformationCircleIcon,
+  [AlertStatus.Success]: CheckCircleIcon,
+  [AlertStatus.Warning]: ExclamationCircleIcon,
+  [AlertStatus.Error]: XCircleIcon,
+  [AlertStatus.Info]: InformationCircleIcon,
 };
 
 const WRAPPER_CLASSES = {
-  [Status.Success]: "bg-green-50",
-  [Status.Warning]: "bg-yellow-50",
-  [Status.Error]: "bg-red-50",
-  [Status.Info]: "bg-blue-50",
+  [AlertStatus.Success]: "bg-green-50",
+  [AlertStatus.Warning]: "bg-yellow-50",
+  [AlertStatus.Error]: "bg-red-50",
+  [AlertStatus.Info]: "bg-blue-50",
 };
 
 const ICON_CLASSES = {
-  [Status.Success]: "text-green-400",
-  [Status.Warning]: "text-yellow-400",
-  [Status.Error]: "text-red-400",
-  [Status.Info]: "text-blue-400",
+  [AlertStatus.Success]: "text-green-400",
+  [AlertStatus.Warning]: "text-yellow-400",
+  [AlertStatus.Error]: "text-red-400",
+  [AlertStatus.Info]: "text-blue-400",
 };
 
 const TITLE_CLASSES = {
-  [Status.Success]: "text-green-800",
-  [Status.Warning]: "text-yellow-800",
-  [Status.Error]: "text-red-800",
-  [Status.Info]: "text-blue-800",
+  [AlertStatus.Success]: "text-green-800",
+  [AlertStatus.Warning]: "text-yellow-800",
+  [AlertStatus.Error]: "text-red-800",
+  [AlertStatus.Info]: "text-blue-800",
 };
 
 const DESCRIPTION_CLASSES = {
-  [Status.Success]: "text-green-700",
-  [Status.Warning]: "text-yellow-700",
-  [Status.Error]: "text-red-700",
-  [Status.Info]: "text-blue-700",
+  [AlertStatus.Success]: "text-green-700",
+  [AlertStatus.Warning]: "text-yellow-700",
+  [AlertStatus.Error]: "text-red-700",
+  [AlertStatus.Info]: "text-blue-700",
 };
 
-export default function Alert({ className, status, title, children }: AlertProps) {
+export function Alert({ className, status, title, children }: AlertProps) {
   const Icon = ICON_COMPONENTS[status];
 
   return (

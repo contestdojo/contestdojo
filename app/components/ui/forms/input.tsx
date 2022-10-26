@@ -15,7 +15,7 @@ type InputProps = JSX.IntrinsicElements["input"] & {
   invalid?: boolean;
 };
 
-const Input = forwardRef(function Input(
+export const Input = forwardRef(function Input(
   { className, invalid = false, ...props }: InputProps,
   ref: ForwardedRef<HTMLInputElement>
 ) {
@@ -30,5 +30,3 @@ const Input = forwardRef(function Input(
     />
   );
 });
-
-export default Input;

@@ -16,7 +16,7 @@ import React from "react";
 
 type DropdownProps = PropsWithChildren<{ className?: string }>;
 
-export default function Dropdown({ className, children }: DropdownProps) {
+export function Dropdown({ className, children }: DropdownProps) {
   return (
     <Menu as="div" className={clsx`relative ${className}`}>
       {children}

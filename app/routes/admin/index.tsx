@@ -12,9 +12,9 @@ import type { Entity } from "~/lib/db.server";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
-import Box from "~/components/box";
+import { Box } from "~/components/ui";
 import { requireAdmin } from "~/lib/auth.server";
-import db from "~/lib/db.server";
+import { db } from "~/lib/db.server";
 
 type LoaderData = {
   entities: Entity[];

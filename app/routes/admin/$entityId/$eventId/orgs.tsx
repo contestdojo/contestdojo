@@ -14,8 +14,8 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 
-import DataTable from "~/components/data-table";
-import db from "~/lib/db.server";
+import { DataTable } from "~/components/data-table";
+import { db } from "~/lib/db.server";
 
 type LoaderData = {
   orgs: (Organization & EventOrganization)[];

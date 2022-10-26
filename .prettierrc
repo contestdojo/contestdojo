@@ -3,7 +3,7 @@
   "proseWrap": "always",
   "overrides": [
     {
-      "files": ["app/components/forms/schema-form/from-zod/guards.tsx"],
+      "files": ["app/components/schema-form/guards.tsx"],
       "options": {
         "printWidth": 1000
       }

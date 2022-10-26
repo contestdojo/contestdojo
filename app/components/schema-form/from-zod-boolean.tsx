@@ -7,11 +7,12 @@
  */
 
 import type { ZodBoolean } from "zod";
-import type { FromZodProps } from "~/components/forms/schema-form/from-zod";
+import type { FromZodProps } from "./from-zod";
 
-import Checkbox from "~/components/forms/checkbox";
-import Field from "~/components/forms/schema-form/field";
+import { Checkbox } from "~/components/ui";
 
-export default function FromZodBoolean({ name, fieldProps }: FromZodProps<ZodBoolean>) {
+import { Field } from "./field";
+
+export function FromZodBoolean({ name, fieldProps }: FromZodProps<ZodBoolean>) {
   return <Field as={Checkbox} type="checkbox" name={name} {...fieldProps} />;
 }

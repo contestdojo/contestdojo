@@ -12,8 +12,8 @@ import type { Entity, Event } from "~/lib/db.server";
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
-import Box from "~/components/box";
-import db from "~/lib/db.server";
+import { Box } from "~/components/ui";
+import { db } from "~/lib/db.server";
 
 type LoaderData = {
   entity: Entity;

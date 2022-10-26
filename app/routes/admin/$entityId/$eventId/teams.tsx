@@ -15,10 +15,10 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { createColumnHelper } from "@tanstack/react-table";
 
-import DataTable from "~/components/data-table";
-import IconButton from "~/components/icon-button";
+import { DataTable } from "~/components/data-table";
 import { EventOrganizationReferenceEmbed } from "~/components/reference-embed";
-import db from "~/lib/db.server";
+import { IconButton } from "~/components/ui";
+import { db } from "~/lib/db.server";
 import { reduceToMap } from "~/lib/utils/misc";
 
 type LoaderData = {

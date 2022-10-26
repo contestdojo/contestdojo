@@ -7,13 +7,12 @@
  */
 
 import type { ComponentPropsWithRef } from "react";
-import type { FormControlProps } from "~/components/forms/form-control";
-import type Input from "~/components/forms/input";
+import type { FormControlProps, Input } from "~/components/ui";
 
 import React from "react";
 import { useControlField, useField } from "remix-validated-form";
 
-import FormControl from "~/components/forms/form-control";
+import { FormControl } from "~/components/ui";
 
 function getDefaultProps(name: string) {
   const ownName = name.split(".").pop() ?? name;
@@ -23,7 +22,7 @@ function getDefaultProps(name: string) {
   return { label, placeholder };
 }
 
-export default function Field<T extends React.ElementType = typeof Input>({
+export function Field<T extends React.ElementType = typeof Input>({
   name,
   type,
   ...props
