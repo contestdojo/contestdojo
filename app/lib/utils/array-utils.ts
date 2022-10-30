@@ -18,3 +18,7 @@ export function* chunk<T>(arr: T[], chunk_size: number) {
     yield arr.slice(i, i + chunk_size);
   }
 }
+
+export function isNotEmpty<T>(arr: T[]): arr is [T, ...T[]] {
+  return arr.length > 0;
+}

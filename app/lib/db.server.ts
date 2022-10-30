@@ -12,7 +12,7 @@ import * as firebase from "firebase-admin";
 import { z } from "zod";
 
 import { firestore } from "~/lib/firebase.server";
-import * as zfb from "~/lib/zfb.server";
+import * as zfb from "~/lib/zfb";
 
 const User = zfb.firestoreObject(
   z.object({
@@ -64,7 +64,7 @@ const Event = zfb.firestoreObject(
   z.object({
     id: z.string(),
     name: z.string(),
-    date: zfb.timestamp(),
+    // TODO: date: zfb.timestamp(),
     owner: zfb.documentReference(),
     frozen: z.boolean(),
     hide: z.boolean().optional(),
@@ -131,6 +131,10 @@ export namespace db {
   export const orgs = firestore.collection("orgs").withConverter(Organization.converter);
   export const entities = firestore.collection("entities").withConverter(Entity.converter);
   export const events = firestore.collection("events").withConverter(Event.converter);
+
+  export function doc(path: string) {
+    return firestore.doc(path);
+  }
 
   export function eventOrgs(eventId: string) {
     return events.doc(eventId).collection("orgs").withConverter(EventOrganization.converter);
