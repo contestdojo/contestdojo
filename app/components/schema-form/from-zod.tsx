@@ -26,6 +26,8 @@ import { FromZodArray } from "./from-zod-array";
 import { FromZodBoolean } from "./from-zod-boolean";
 import { FromZodDate } from "./from-zod-date";
 import { FromZodEffects } from "./from-zod-effects";
+import { FromZodEnum } from "./from-zod-enum";
+import { FromZodNullable } from "./from-zod-nullable";
 import { FromZodNumber } from "./from-zod-number";
 import { FromZodObject } from "./from-zod-object";
 import { FromZodOptional } from "./from-zod-optional";
@@ -58,8 +60,10 @@ export function FromZod(props: FromZodProps<ZodFirstPartySchemaTypes>) {
   if (guardProps.ZodArray(props)) return <FromZodArray {...props} />;
   if (guardProps.ZodObject(props)) return <FromZodObject {...props} />;
   if (guardProps.ZodUnion(props)) return <FromZodUnion {...props} />;
+  if (guardProps.ZodEnum(props)) return <FromZodEnum {...props} />;
   if (guardProps.ZodEffects(props)) return <FromZodEffects {...props} />;
   if (guardProps.ZodOptional(props)) return <FromZodOptional {...props} />;
+  if (guardProps.ZodNullable(props)) return <FromZodNullable {...props} />;
 
   return (
     <Alert status={AlertStatus.Error} title="Error">
