@@ -342,7 +342,7 @@ function StudentUpdateModal({ student, open, setOpen }: StudentUpdateModalProps)
   const form = useMemo(() => StudentUpdateForm(event.id, event.customFields), [event]);
 
   // TODO: Streamline DocumentReference fields
-  const defaultValues = { ...student, org: student.org.id, team: student.team?.id };
+  const defaultValues = { ...student, org: student.org?.id, team: student.team?.id };
 
   return (
     <Modal open={open} setOpen={setOpen} className="flex max-w-2xl flex-col gap-4">
@@ -391,10 +391,12 @@ export default function StudentsRoute() {
     columnHelper.accessor((x) => `${x.fname} ${x.lname}`, { id: "name", header: "Name" }),
     columnHelper.accessor("email", { header: "Email" }),
     columnHelper.accessor("grade", { header: "Grade" }),
-    columnHelper.accessor("org.id", {
+    columnHelper.accessor((x) => x.org?.id, {
+      id: "org_id",
       header: "Organization",
       cell: (props) => {
-        const org = orgsById.get(props.getValue());
+        const id = props.getValue();
+        const org = id ? orgsById.get(id) : undefined;
         return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue();
       },
     }),

@@ -93,7 +93,7 @@ export function EventTeamReferenceEmbed({ team }: EventTeamReferenceEmbedProps) 
       subtitle={team.id}
       fields={[
         { name: "Number", value: team.number },
-        { name: "Org ID", value: team.org.id },
+        { name: "Org ID", value: team.org?.id },
         { name: "Notes", value: team.notes },
       ]}
     >
@@ -115,7 +115,7 @@ export function EventStudentReferenceEmbed({ student }: EventStudentReferenceEmb
         { name: "Number", value: student.number },
         { name: "Email", value: student.email },
         { name: "Grade", value: student.grade?.toString() },
-        { name: "Org ID", value: student.org.id },
+        { name: "Org ID", value: student.org?.id },
         { name: "Team ID", value: student.team?.id },
         { name: "Notes", value: student.notes },
       ]}

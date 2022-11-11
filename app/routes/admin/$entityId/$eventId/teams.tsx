@@ -66,10 +66,12 @@ export default function TeamsRoute() {
     columnHelper.accessor("id", { header: "ID" }),
     columnHelper.accessor("number", { header: "Number" }),
     columnHelper.accessor("name", { header: "Name" }),
-    columnHelper.accessor("org.id", {
+    columnHelper.accessor((x) => x.org?.id, {
+      id: "org_id",
       header: "Organization",
       cell: (props) => {
-        const org = orgsById.get(props.getValue());
+        const id = props.getValue();
+        const org = id ? orgsById.get(id) : undefined;
         return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue();
       },
     }),

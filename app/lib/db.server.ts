@@ -95,7 +95,7 @@ const EventStudent = zfb.firestoreObject(
     lname: z.string(),
     grade: z.number().optional(),
     user: zfb.documentReference(),
-    org: zfb.documentReference(),
+    org: zfb.documentReference().optional().nullable(),
     team: zfb.documentReference().optional().nullable(),
     number: z.string().optional(),
     waiver: z.string().optional(),
@@ -108,7 +108,7 @@ const EventTeam = zfb.firestoreObject(
   z.object({
     id: z.string(),
     name: z.string(),
-    org: zfb.documentReference(),
+    org: zfb.documentReference().optional().nullable(),
     number: z.string().optional(),
     scoreReport: z.string().optional(),
     notes: z.string().optional(),
