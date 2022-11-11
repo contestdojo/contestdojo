@@ -230,8 +230,8 @@ const Instructions = () => (
 
     <Heading size="md">Coaches &amp; Parents</Heading>
     <Text>
-      If you are a coach, or a parent registering your child&apos;s team, please sign in with an existing coach account,
-      or create a new coach account using the link below. Once you sign in, you can register students for contests.
+      If you are a coach, please sign in with an existing coach account, or create a new coach account using the link
+      below. Once you sign in, you can register for contests.
     </Text>
     <NextLink href="/register" passHref>
       <Link color="blue.500">Create a coach account</Link>
@@ -239,9 +239,16 @@ const Instructions = () => (
 
     <Heading size="md">Students</Heading>
     <Text>
-      If you are a participant, please ask your math club/team coach or your parent to register you for contests. Once
-      you are registered, you will receive an email with your login credentials, which you will use to take tests.
+      If you are a participant, please ask your math club/team coach to register you for contests. Once registered, you
+      will receive an email with your login credentials.
     </Text>
+    <Text>
+      Some events allow students to register independently. For those contests, please sign in with an existing student
+      account, or create a new student account using the link below.
+    </Text>
+    <NextLink href="/register" passHref>
+      <Link color="blue.500">Create a student account</Link>
+    </NextLink>
   </Stack>
 );
 
