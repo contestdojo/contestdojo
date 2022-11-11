@@ -494,7 +494,8 @@ const TeamsContent = () => {
 
     const studentRef = studentsRef.doc(uid);
     const snap = await studentRef.get();
-    if (snap.exists) throw new Error("This student is already associated with an organization.");
+    if (snap.exists && snap.data().org) throw new Error("This student is already associated with an organization.");
+    if (snap.exists) throw new Error("This student is already registered independently for this event.");
 
     await studentRef.set({
       ...values,
