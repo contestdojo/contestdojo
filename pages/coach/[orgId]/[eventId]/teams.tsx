@@ -315,7 +315,7 @@ const Teams = ({
               </Box>
             </Tooltip>
           ))}
-        {costPerStudent && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
+        {costPerStudent > 0 && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
       </ButtonGroup>
       <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddTeam} {...formState} />
     </Stack>
