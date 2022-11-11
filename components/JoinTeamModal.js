@@ -25,10 +25,10 @@ import * as yup from "yup";
 import FormField from "~/components/FormField";
 
 const schema = yup.object({
-  name: yup.string().required().label("Team Name"),
+  code: yup.string().required().label("Join Code"),
 });
 
-const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
+const JoinTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
   const { register, handleSubmit, errors } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
@@ -40,10 +40,10 @@ const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
     <Modal isOpen={isOpen} initialFocusRef={ref} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create Team</ModalHeader>
+        <ModalHeader>Join Team</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <form id="add-team" onSubmit={handleSubmit(onSubmit)}>
+          <form id="join-team" onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
               {error && (
                 <Alert status="error">
@@ -53,14 +53,15 @@ const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
               )}
 
               <FormField
+                type="text"
                 ref={(e) => {
                   register(e);
                   ref.current = e;
                 }}
-                name="name"
-                label="Team Name"
-                placeholder="New Team"
-                error={errors.name}
+                name="code"
+                label="Join Code"
+                placeholder="abcd"
+                error={errors.code}
                 isRequired
               />
             </Stack>
@@ -68,8 +69,8 @@ const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
         </ModalBody>
 
         <ModalFooter>
-          <Button type="submit" form="add-team" colorScheme="blue" mr={3} isLoading={isLoading}>
-            Save
+          <Button type="submit" form="join-team" colorScheme="blue" mr={3} isLoading={isLoading}>
+            Join Team
           </Button>
           <Button onClick={onClose}>Cancel</Button>
         </ModalFooter>
@@ -78,4 +79,4 @@ const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
   );
 };
 
-export default AddTeamModal;
+export default JoinTeamModal;

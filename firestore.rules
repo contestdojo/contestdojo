@@ -13,10 +13,6 @@ service cloud.firestore {
       return /databases/$(database)/documents/orgs/$(id);
     }
 
-    function isOrgAdminOf(orgRef) {
-      return userRef() == get(orgRef).data.admin;
-    }
-
     match /{document=**} {
       allow read, write: if false;
 
@@ -51,6 +47,14 @@ service cloud.firestore {
         return userRef() in get(get(eventRef()).data.owner).data.admins;
       }
 
+      function studentRegistrationEnabled() {
+        return get(eventRef()).data.studentRegistrationEnabled;
+      }
+
+      function isOrgAdminOf(orgRef) {
+        return userRef() == get(orgRef).data.admin || studentRegistrationEnabled() && orgRef == null;
+      }
+
       function notFrozenAnd(cond) {
         return !get(eventRef()).data.frozen && cond;
       }
@@ -65,6 +69,12 @@ service cloud.firestore {
 
       function teamRef(id) {
         return /databases/$(database)/documents/events/$(eventId)/teams/$(id);
+      }
+
+      match /counters/teams {
+        allow read: if request.auth != null;
+        allow create: if true;
+        allow update: if request.resource.data.next > resource.data.next;
       }
 
       match /orgs/{orgId} {
