@@ -72,7 +72,7 @@ const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }
 
   const rows = students.map((x) => {
     const team = teamsById[x.team?.id];
-    const org = orgsById[x.org.id];
+    const org = orgsById[x.org?.id];
 
     return {
       id: x.id,
@@ -80,7 +80,7 @@ const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }
       name: `${x.fname} ${x.lname}`,
       email: x.email,
       grade: x.grade,
-      org: org.name,
+      org: org?.name,
       team: team?.name ?? "",
       waiver: x.waiver,
       notes: x.notes ?? "",

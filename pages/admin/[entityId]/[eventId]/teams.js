@@ -47,7 +47,7 @@ const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
     id: x.id,
     number: x.number ?? "",
     name: x.name,
-    org: orgsById[x.org.id]?.name,
+    org: orgsById[x.org?.id]?.name,
     numStudents: studentsByTeam[x.id]?.length ?? 0,
     scoreReport: x.scoreReport,
     notes: x.notes ?? "",

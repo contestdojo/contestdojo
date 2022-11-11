@@ -96,8 +96,8 @@ const OrgsTab = () => {
   const studentsRef = eventRef.collection("students");
   const { data: students } = useFirestoreCollectionData(studentsRef, { idField: "id" });
   const studentsByOrg = students.reduce((acc, obj) => {
-    if (!acc[obj.org.id]) acc[obj.org.id] = [];
-    acc[obj.org.id].push(obj);
+    if (!acc[obj.org?.id]) acc[obj.org?.id] = [];
+    acc[obj.org?.id].push(obj);
     return acc;
   }, {});
 
