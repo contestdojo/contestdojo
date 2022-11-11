@@ -201,7 +201,7 @@ const LoginSection = () => {
 
         <Stack spacing={4}>
           <Text>
-            New coach?{" "}
+            Don&apos;t have an account?{" "}
             <NextLink href="/register" passHref>
               <Link color="blue.500">Register here</Link>
             </NextLink>

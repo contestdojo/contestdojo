@@ -4,7 +4,19 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Alert, AlertIcon, Button, Center, Heading, Link, Spinner, Stack } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Button,
+  Center,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Heading,
+  Link,
+  Spinner,
+  Stack,
+} from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
@@ -13,10 +25,13 @@ import { useForm } from "react-hook-form";
 import { useAuth, useFirestore } from "reactfire";
 import * as yup from "yup";
 
+import RadioToggle from "../components/RadioToggle";
+
 import FormField from "~/components/FormField";
 import { delay } from "~/helpers/utils";
 
 const schema = yup.object({
+  type: yup.string().typeError("Account Type is required").oneOf(["coach", "student"]).required().label("Account Type"),
   fname: yup.string().required().label("First Name"),
   lname: yup.string().required().label("Last Name"),
   email: yup.string().email().required().label("Email Address"),
@@ -35,7 +50,7 @@ const schema = yup.object({
 });
 
 const RegistrationForm = ({ onSubmit, isLoading, error }) => {
-  const { register, handleSubmit, errors } = useForm({
+  const { register, handleSubmit, errors, control } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
   });
@@ -49,6 +64,12 @@ const RegistrationForm = ({ onSubmit, isLoading, error }) => {
             {error.message}
           </Alert>
         )}
+
+        <FormControl id="type" isInvalid={errors.type} isRequired>
+          <FormLabel>Account Type</FormLabel>
+          <RadioToggle name="type" options={["coach", "student"]} inputRef={register} />
+          <FormErrorMessage>{errors.type?.message}</FormErrorMessage>
+        </FormControl>
 
         <FormField
           ref={register}
@@ -107,7 +128,7 @@ const RegisterPage = () => {
 
   const firestore = useFirestore();
 
-  const handleSubmit = async ({ fname, lname, email, password }) => {
+  const handleSubmit = async ({ type, fname, lname, email, password }) => {
     setLoading(true);
     await delay(300);
 
@@ -118,7 +139,7 @@ const RegisterPage = () => {
         fname,
         lname,
         email,
-        type: "coach",
+        type,
       });
     } catch (err) {
       setError(err);
@@ -129,10 +150,10 @@ const RegisterPage = () => {
 
   return (
     <Stack spacing={6} m={6} flexShrink={1} flexBasis={400}>
-      <Heading textAlign="center">Coach Registration</Heading>
+      <Heading textAlign="center">Create Account</Heading>
       <RegistrationForm onSubmit={handleSubmit} error={error} isLoading={loading} />
       <p>
-        Not a coach, or already have an account?{" "}
+        Already have an account?{" "}
         <NextLink href="/login" passHref>
           <Link color="blue.500">Login here</Link>
         </NextLink>
