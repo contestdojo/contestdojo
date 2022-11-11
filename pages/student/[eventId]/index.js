@@ -45,6 +45,7 @@ import AddStudentForm from "../../../components/forms/AddStudentForm";
 import AddTeamModal from "~/components/AddTeamModal";
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
+import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import WaiverRequestForm from "~/components/forms/WaiverRequestForm";
 import JoinTeamModal from "~/components/JoinTeamModal";
@@ -197,6 +198,7 @@ const CreateOrJoinTeam = () => {
 const Event = () => {
   const auth = useAuth();
   const firestore = useFirestore();
+  const [openDialog] = useDialog();
 
   const { ref: eventRef, data: event } = useEvent();
   const { data: user } = useUser();
@@ -241,9 +243,20 @@ const Event = () => {
     onOpen();
   });
 
-  if (!student) return <NotRegistered event={event} />;
+  const handleUnregister = () => {
+    openDialog({
+      type: "confirm",
+      title: "Are you sure?",
+      description: "If you are in a team, you will be removed from the team. This action is irreversible.",
+      onConfirm: async () => {
+        await studentRef.delete();
+      },
+    });
+  };
 
+  if (!student) return <NotRegistered event={event} />;
   if (student.team && !team) return null;
+  if (student.org && !org) return null;
 
   return (
     <Stack spacing={6} flexBasis={600}>
@@ -360,6 +373,11 @@ const Event = () => {
         {...formState}
         defaultValues={student}
       />
+      {!student.org && (
+        <Button colorScheme="red" onClick={handleUnregister}>
+          Unregister
+        </Button>
+      )}
     </Stack>
   );
 };
