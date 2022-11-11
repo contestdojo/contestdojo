@@ -50,7 +50,7 @@ import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
 
-const StudentCard = ({ id, fname, lname, email, waiver, onEdit }) => {
+const StudentCard = ({ id, fname, lname, email, waiver, onEdit, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
   const props = transform
     ? { cursor: "grabbing", shadow: "xl", transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
@@ -83,7 +83,7 @@ const StudentCard = ({ id, fname, lname, email, waiver, onEdit }) => {
       <Box>
         <Divider orientation="vertical" />
       </Box>
-      <Box>
+      <Stack spacing={0}>
         <IconButton
           icon={<Icon as={HiPencil} />}
           size="sm"
@@ -92,12 +92,33 @@ const StudentCard = ({ id, fname, lname, email, waiver, onEdit }) => {
           borderLeftRadius={0}
           onClick={onEdit}
         />
-      </Box>
+        <Divider />
+        <IconButton
+          icon={<Icon as={HiTrash} />}
+          size="sm"
+          variant="ghost"
+          h="full"
+          borderLeftRadius={0}
+          onClick={onDelete}
+        />
+      </Stack>
     </Card>
   );
 };
 
-const TeamCard = ({ event, id, name, number, students, onUpdate, onDelete, onEditStudent, needSeats, waiver }) => {
+const TeamCard = ({
+  event,
+  id,
+  name,
+  number,
+  students,
+  onUpdate,
+  onDelete,
+  onEditStudent,
+  needSeats,
+  waiver,
+  onDeleteStudent,
+}) => {
   const { isOver, setNodeRef } = useDroppable({ id });
   const props = { backgroundColor: isOver ? "gray.100" : undefined };
 
@@ -146,6 +167,7 @@ const TeamCard = ({ event, id, name, number, students, onUpdate, onDelete, onEdi
               {...x}
               waiver={waiver ? x.waiver || !!x.waiverSigned : undefined}
               onEdit={() => setEditing(i)}
+              onDelete={() => onDeleteStudent(x.id)}
             />
           ))}
           {students.length === 0 &&
@@ -168,6 +190,7 @@ const TeamCard = ({ event, id, name, number, students, onUpdate, onDelete, onEdi
                 {...x}
                 waiver={waiver ? x.waiver || !!x.waiverSigned : undefined}
                 onEdit={() => setEditing(i)}
+                onDelete={() => onDeleteStudent(x.id)}
               />
             </WrapItem>
           ))}
@@ -322,7 +345,7 @@ const Teams = ({
   );
 };
 
-const Students = ({ students, onAddStudent, onEditStudent, event, waiver, stripeAccount }) => {
+const Students = ({ students, onAddStudent, onEditStudent, event, waiver, onDeleteStudent, stripeAccount }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [editing, setEditing] = useState(null);
@@ -375,6 +398,7 @@ const Students = ({ students, onAddStudent, onEditStudent, event, waiver, stripe
               width={300}
               waiver={waiver ? x.waiver || !!x.waiverSigned : undefined}
               onEdit={() => setEditing(i)}
+              onDelete={() => onDeleteStudent(x.id)}
             />
           </WrapItem>
         ))}
@@ -521,6 +545,18 @@ const TeamsContent = () => {
     await studentRef.update(values);
   };
 
+  const handleDeleteStudent = (uid) => {
+    const studentRef = studentsRef.doc(uid);
+    openDialog({
+      type: "confirm",
+      title: "Are you sure?",
+      description: "This action is irreversible.",
+      onConfirm: async () => {
+        await studentRef.delete();
+      },
+    });
+  };
+
   const handleDragEnd = ({ active, over }) => {
     if (!over) return;
     if (!studentsById[active.id].team && event.costPerStudent && seatsRemaining <= 0) return;
@@ -573,6 +609,7 @@ const TeamsContent = () => {
           seatsRemaining={seatsRemaining}
           stripeAccount={entity.stripeAccountId}
           onEditStudent={handleEditStudent}
+          onDeleteStudent={handleDeleteStudent}
           waiver={event.waiver}
         />
         <Divider />
@@ -581,6 +618,7 @@ const TeamsContent = () => {
           students={studentsByTeam[null] ?? []}
           onAddStudent={handleAddStudent}
           onEditStudent={handleEditStudent}
+          onDeleteStudent={handleDeleteStudent}
           event={event}
           waiver={event.waiver}
           stripeAccount={entity.stripeAccountId}
