@@ -4,8 +4,9 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, Button, Heading, Stack } from "@chakra-ui/react";
+import { Box, Button, Heading, HStack, IconButton, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { HiTrash } from "react-icons/hi";
 import MathJax from "react-mathjax-preview";
 
 import Card from "~/components/Card";
@@ -13,7 +14,7 @@ import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import ResizingTextarea from "~/components/ResizingTextarea";
 import { useFormState } from "~/helpers/utils";
 
-const Problem = ({ text, idx, onUpdate, isLoading, error }) => {
+const Problem = ({ text, idx, onUpdate, isLoading, onDelete, error }) => {
   const [state, setState] = useState(text);
 
   useEffect(() => {
@@ -23,7 +24,10 @@ const Problem = ({ text, idx, onUpdate, isLoading, error }) => {
   return (
     <Stack spacing={4} direction="row">
       <Card as={Stack} p={4} spacing={4} flex={1}>
-        <Heading size="md">Problem {idx + 1}</Heading>
+        <HStack justifyContent="space-between">
+          <Heading size="md">Problem {idx + 1}</Heading>
+          <IconButton icon={<HiTrash />} variant="ghost" size="sm" rounded="full" onClick={onDelete} />
+        </HStack>
         <Box flex={1}>
           <ResizingTextarea value={state} onChange={(e) => setState(e.target.value)} fontFamily="mono" minH="100%" />
         </Box>
@@ -60,6 +64,11 @@ const Test = () => {
     problemsRef.set({ problems }, { merge: true });
   });
 
+  const handleDelete = wrapAction((idx) => {
+    problems.splice(idx, 1);
+    problemsRef.set({ problems }, { merge: true });
+  });
+
   return (
     <Stack spacing={4}>
       <Heading size="lg">{test.name}</Heading>
@@ -70,6 +79,7 @@ const Test = () => {
           idx={idx}
           onUpdate={(val) => handleUpdate(idx, val)}
           isLoading={isLoading === idx.toString()}
+          onDelete={() => handleDelete(idx)}
         />
       ))}
       <Button
