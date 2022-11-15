@@ -18,7 +18,7 @@ import {
   Th,
   Thead,
   Tr,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useFirestoreCollectionData } from "reactfire";
@@ -27,7 +27,7 @@ import EventProvider from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useTime } from "~/helpers/utils";
 
-const points = [3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 7, 7, 7];
+const points = [10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 16, 16, 16, 18, 18, 18, 20, 20, 20, 25, 25, 25];
 
 const TestContent = () => {
   const { ref: testRef, data: test } = useTest();
