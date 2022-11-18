@@ -21,7 +21,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { Suspense, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useAuth, useFirestore } from "reactfire";
 import * as yup from "yup";
 
@@ -53,6 +53,7 @@ const RegistrationForm = ({ onSubmit, isLoading, error }) => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({
     mode: "onTouched",
@@ -71,25 +72,21 @@ const RegistrationForm = ({ onSubmit, isLoading, error }) => {
 
         <FormControl id="type" isInvalid={errors.type} isRequired>
           <FormLabel>Account Type</FormLabel>
-          <RadioToggle name="type" options={["coach", "student"]} inputRef={register} />
+          <Controller
+            control={control}
+            name="type"
+            render={({ field }) => <RadioToggle options={["coach", "student"]} {...field} inputRef={field.ref} />}
+          />
           <FormErrorMessage>{errors.type?.message}</FormErrorMessage>
         </FormControl>
 
-        <FormField
-          ref={register}
-          name="fname"
-          label="First Name"
-          placeholder="Blaise"
-          error={errors.fname}
-          isRequired
-        />
+        <FormField {...register("fname")} label="First Name" placeholder="Blaise" error={errors.fname} isRequired />
 
-        <FormField ref={register} name="lname" label="Last Name" placeholder="Pascal" error={errors.lname} isRequired />
+        <FormField {...register("lname")} label="Last Name" placeholder="Pascal" error={errors.lname} isRequired />
 
         <FormField
-          ref={register}
           type="email"
-          name="email"
+          {...register("email")}
           label="Email Address"
           placeholder="blaise.pascal@gmail.com"
           error={errors.email}
@@ -97,9 +94,8 @@ const RegistrationForm = ({ onSubmit, isLoading, error }) => {
         />
 
         <FormField
-          ref={register}
           type="password"
-          name="password"
+          {...register("password")}
           label="Create Password"
           placeholder="Enter secure password..."
           error={errors.password}
@@ -107,9 +103,8 @@ const RegistrationForm = ({ onSubmit, isLoading, error }) => {
         />
 
         <FormField
-          ref={register}
           type="password"
-          name="passwordConfirm"
+          {...register("passwordConfirm")}
           label="Confirm Password"
           placeholder="Re-enter password..."
           error={errors.passwordConfirm}

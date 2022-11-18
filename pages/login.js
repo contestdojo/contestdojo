@@ -73,24 +73,20 @@ const LoginForm = ({ onSubmit, isLoading, error }) => {
         )}
 
         <FormField
-          ref={register}
           type="email"
-          name="email"
+          {...register('email')}
           label="Email Address"
           placeholder="blaise.pascal@gmail.com"
           error={errors.email}
-          isRequired
-        />
+          isRequired />
 
         <FormField
-          ref={register}
           type="password"
-          name="password"
+          {...register('password')}
           label="Password"
           placeholder="Enter password..."
           error={errors.password}
-          isRequired
-        />
+          isRequired />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
           Login

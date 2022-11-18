@@ -45,62 +45,50 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
         )}
 
         <FormField
-          ref={register}
-          name="name"
+          {...register('name')}
           label="Event Name"
           placeholder="Math High School"
           error={errors.name}
           maxW="md"
-          isRequired
-        />
+          isRequired />
 
         <FormField
-          ref={register}
           type="number"
-          name="studentsPerTeam"
+          {...register('studentsPerTeam')}
           label="# Students per Team"
           placeholder="8"
           error={errors.studentsPerTeam}
           maxW="md"
-          isRequired
-        />
+          isRequired />
 
         <FormField
-          ref={register}
           as={ResizingTextarea}
-          name="description"
+          {...register('description')}
           label="Description (markdown)"
           placeholder="Description"
-          error={errors.description}
-        />
+          error={errors.description} />
 
         <FormField
-          ref={register}
           type="number"
-          name="costPerStudent"
+          {...register('costPerStudent')}
           label="Cost per Student"
           placeholder="8"
           error={errors.costPerStudent}
-          maxW="md"
-        />
+          maxW="md" />
 
         <FormField
-          ref={register}
           as={ResizingTextarea}
-          name="costDescription"
+          {...register('costDescription')}
           label="Cost Description (markdown)"
           placeholder="Cost Description"
-          error={errors.costDescription}
-        />
+          error={errors.costDescription} />
 
         <FormField
-          ref={register}
           as={ResizingTextarea}
-          name="waiver"
+          {...register('waiver')}
           label="Waiver (markdown)"
           placeholder="Waiver"
-          error={errors.waiver}
-        />
+          error={errors.waiver} />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
           {buttonText ?? "Submit"}

@@ -58,10 +58,7 @@ const PurchaseSeatsModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => 
 
               <FormField
                 type="number"
-                ref={(e) => {
-                  register(e);
-                  ref.current = e;
-                }}
+                {...register("number")}
                 name="number"
                 label="Number of Seats"
                 placeholder="8"

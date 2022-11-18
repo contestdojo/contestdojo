@@ -48,30 +48,26 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
         )}
 
         <FormField
-          ref={register}
-          name="applyTeams"
+          {...register('applyTeams')}
           label="Number of Teams"
           placeholder="3"
           error={errors.applyTeams}
           helperText="You may be approved for up to this many teams."
           disabled={!open}
-          isRequired
-        />
+          isRequired />
 
         <FormField
-          ref={register}
-          name="expectedStudents"
+          {...register('expectedStudents')}
           label="Expected Number of Students"
           placeholder="24"
           error={errors.expectedStudents}
           helperText="The number of students is not binding, but please provide your best estimate."
           disabled={!open}
-          isRequired
-        />
+          isRequired />
 
         <FormControl id="confirmUS" isInvalid={errors.confirmUS} isRequired>
           <FormLabel>This organization is located in the United States.</FormLabel>
-          <Checkbox ref={register} name="confirmUS" disabled={!open}>
+          <Checkbox {...register('confirmUS')} disabled={!open}>
             I confirm
           </Checkbox>
           <FormErrorMessage>{errors.confirmUS?.message}</FormErrorMessage>

@@ -62,39 +62,38 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, confir
         )}
 
         <FormField
-          ref={register}
-          name="name"
+          {...register('name')}
           label="Organization Name"
           placeholder="Math High School"
           error={errors.name}
-          isRequired
-        />
+          isRequired />
 
         <FormField
-          ref={register}
-          name="address"
+          {...register('address')}
           label="Street Address"
           placeholder="1234 Main St"
           error={errors.address}
-          isRequired
-        />
+          isRequired />
 
         <Stack direction="row" spacing={4}>
-          <FormField ref={register} name="city" label="City" placeholder="Sacramento" error={errors.city} isRequired />
           <FormField
-            ref={register}
-            name="state"
+            {...register('city')}
+            label="City"
+            placeholder="Sacramento"
+            error={errors.city}
+            isRequired />
+          <FormField
+            {...register('state')}
             label="State/Province"
             placeholder="California"
             error={errors.state}
-            isRequired
-          />
+            isRequired />
         </Stack>
 
         <Stack direction="row" spacing={4}>
           <FormControl id="country" isInvalid={errors.country} isRequired>
             <FormLabel>Country</FormLabel>
-            <Select ref={register} name="country" placeholder="Select option">
+            <Select {...register('country')} placeholder="Select option">
               {countriesSorted.map(([code, { name }]) => (
                 <option key={code} value={code}>
                   {name}
@@ -103,7 +102,12 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, confir
             </Select>
             <FormErrorMessage>{errors.country?.message}</FormErrorMessage>
           </FormControl>
-          <FormField ref={register} name="zip" label="Postal Code" placeholder="12345" error={errors.zip} isRequired />
+          <FormField
+            {...register('zip')}
+            label="Postal Code"
+            placeholder="12345"
+            error={errors.zip}
+            isRequired />
         </Stack>
 
         {confirmOrg && (
@@ -113,7 +117,7 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, confir
               for events on their behalf. By continuing, I give my consent for tournament organizers to contact the
               organization for verification purposes.
             </FormLabel>
-            <Checkbox ref={register} name="confirmOrg">
+            <Checkbox {...register('confirmOrg')}>
               I affirm
             </Checkbox>
             <FormErrorMessage>{errors.confirmOrg?.message}</FormErrorMessage>

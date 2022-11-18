@@ -37,13 +37,11 @@ const EntityForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =
         )}
 
         <FormField
-          ref={register}
-          name="name"
+          {...register('name')}
           label="Entity Name"
           placeholder="Stanford University"
           error={errors.name}
-          isRequired
-        />
+          isRequired />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
           {buttonText ?? "Submit"}

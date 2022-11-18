@@ -55,27 +55,23 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
         )}
 
         <FormField
-          ref={register}
-          name="name"
+          {...register('name')}
           label="Name"
           placeholder="Individual Round"
           error={errors.name}
-          isRequired
-        />
+          isRequired />
 
         <FormField
-          ref={register}
           type="number"
-          name="duration"
+          {...register('duration')}
           label="Total Duration (seconds)"
           placeholder="300"
           error={errors.duration}
-          isRequired
-        />
+          isRequired />
 
         <FormControl id="type" isInvalid={errors.type} isRequired>
           <FormLabel>Type</FormLabel>
-          <Select ref={register} name="type" placeholder="Select option">
+          <Select {...register('type')} placeholder="Select option">
             <option value="standard">Standard</option>
             <option value="guts">Guts</option>
             <option value="target">Target</option>
@@ -85,31 +81,27 @@ const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
 
         {watch("type") === "guts" && (
           <FormField
-            ref={register}
             type="number"
-            name="numPerSet"
+            {...register('numPerSet')}
             label="# Problems Per Set"
             placeholder="4"
             error={errors.numPerSet}
-            isRequired
-          />
+            isRequired />
         )}
 
         {watch("type") === "target" && (
           <FormField
-            ref={register}
             type="number"
-            name="numPerSet"
+            {...register('numPerSet')}
             label="# Problems Per Set"
             placeholder="4"
             error={errors.numPerSet}
-            isRequired
-          />
+            isRequired />
         )}
 
         <FormControl id="team" isInvalid={errors.team}>
           <FormLabel>Team</FormLabel>
-          <Checkbox ref={register} name="team">
+          <Checkbox {...register('team')}>
             This is a team round
           </Checkbox>
           <FormErrorMessage>{errors.team?.message}</FormErrorMessage>

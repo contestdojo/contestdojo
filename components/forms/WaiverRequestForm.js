@@ -37,13 +37,11 @@ const WaiverRequestForm = ({ onSubmit, isLoading, error, buttonText, defaultValu
         )}
 
         <FormField
-          ref={register}
-          name="parentEmail"
+          {...register('parentEmail')}
           label="Parent Email Address"
           placeholder="john.doe@gmail.com"
           error={errors.parentEmail}
-          isRequired
-        />
+          isRequired />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
           {buttonText ?? "Request Waiver"}

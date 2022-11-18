@@ -58,10 +58,7 @@ const JoinTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
 
               <FormField
                 type="text"
-                ref={(e) => {
-                  register(e);
-                  ref.current = e;
-                }}
+                {...register("code")}
                 name="code"
                 label="Join Code"
                 placeholder="abcd"

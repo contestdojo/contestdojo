@@ -68,10 +68,7 @@ const AddStudentForm = ({
         )}
 
         <FormField
-          ref={(e) => {
-            register(e);
-            if (initialFocusRef) initialFocusRef.current = e;
-          }}
+          {...register("fname")}
           name="fname"
           label="First Name"
           placeholder="Blaise"
@@ -79,12 +76,11 @@ const AddStudentForm = ({
           isRequired
         />
 
-        <FormField ref={register} name="lname" label="Last Name" placeholder="Pascal" error={errors.lname} isRequired />
+        <FormField {...register("lname")} label="Last Name" placeholder="Pascal" error={errors.lname} isRequired />
 
         <FormField
-          ref={register}
           type="email"
-          name="email"
+          {...register("email")}
           label="Email Address"
           placeholder="blaise.pascal@gmail.com"
           error={errors.email}
@@ -94,9 +90,8 @@ const AddStudentForm = ({
 
         {!hasCustomGrade && (
           <FormField
-            ref={register}
             as={Select}
-            name="grade"
+            {...register("grade")}
             label="Grade"
             placeholder="Select Grade"
             error={errors.grade}
@@ -117,8 +112,7 @@ const AddStudentForm = ({
           .map((x) => (
             <FormField
               key={`customFields.${x.id}`}
-              ref={register}
-              name={`customFields.${x.id}`}
+              {...register(`customFields.${x.id}`)}
               label={x.label}
               error={errors[`customFields.${x.id}`]}
               isRequired={x.required}

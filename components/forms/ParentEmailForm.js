@@ -43,26 +43,22 @@ const ParentEmailForm = ({ onSubmit, isLoading, error, buttonText, defaultValues
         )}
 
         <FormField
-          ref={register}
-          name="birthdate"
+          {...register('birthdate')}
           label="Birthdate"
           placeholder="MM/DD/YYYY"
           error={errors.birthdate}
-          isRequired
-        />
+          isRequired />
 
         <FormField
-          ref={register}
-          name="parentEmail"
+          {...register('parentEmail')}
           label="Parent Email Address"
           placeholder="john.doe@gmail.com"
           error={errors.parentEmail}
-          isRequired
-        />
+          isRequired />
 
         <FormControl id="gender" isInvalid={errors.gender} isRequired>
           <FormLabel>Gender</FormLabel>
-          <Select ref={register} name="gender" placeholder="Select option">
+          <Select {...register('gender')} placeholder="Select option">
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>

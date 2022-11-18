@@ -57,10 +57,7 @@ const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
               )}
 
               <FormField
-                ref={(e) => {
-                  register(e);
-                  ref.current = e;
-                }}
+                {...register("name")}
                 name="name"
                 label="Team Name"
                 placeholder="New Team"
