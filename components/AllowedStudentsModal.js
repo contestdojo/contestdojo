@@ -31,7 +31,7 @@ import FormField from "~/components/FormField";
 const DEFAULT_FIELDS = [
   { id: "id", label: "ID" },
   { id: "number", label: "Number" },
-  { id: "name", label: "First Name" },
+  { id: "fname", label: "First Name" },
   { id: "lname", label: "Last Name" },
   { id: "grade", label: "Grade" },
   { id: "org.id", label: "Organization ID" },
@@ -140,8 +140,8 @@ const AllowedStudentsModal = ({ customFields, defaultValues, isOpen, onClose, on
                     >
                       <option value="=">Equals</option>
                       <option value="!=">Does not equal</option>
-                      <option value="=~">Matches regex</option>
-                      <option value="!~">Does not match regex</option>
+                      <option value="=~">Contains regex</option>
+                      <option value="!~">Does not contain regex</option>
                       <option value="in">One of</option>
                     </FormField>
 
