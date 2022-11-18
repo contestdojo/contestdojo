@@ -72,8 +72,6 @@ const AllowedStudentsButton = ({ customFields, authorization, testRef }) => {
       await testRef.update({ authorization: { mode, rules } });
     }
 
-    console.log(rules);
-
     onClose();
     // Hack for resetting default value
     await delay(500);

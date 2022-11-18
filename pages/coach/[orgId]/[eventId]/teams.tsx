@@ -472,8 +472,6 @@ const TeamsContent = () => {
   // Dialog
   const [openDialog] = useDialog();
 
-  console.log(eventOrg);
-
   useEffect(() => {
     (async () => {
       if (!eventOrg) {

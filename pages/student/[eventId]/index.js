@@ -142,8 +142,6 @@ const CreateOrJoinTeam = () => {
   });
 
   const handleJoinTeam = wrapAction(async ({ code }) => {
-    console.log("Test");
-
     const teamQuery = eventRef.collection("teams").where("code", "==", code).limit(1);
     const studentRef = eventRef.collection("students").doc(userRef.id);
     const teams = await teamQuery.get();

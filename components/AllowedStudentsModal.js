@@ -82,8 +82,6 @@ const AllowedStudentsModal = ({ customFields, defaultValues, isOpen, onClose, on
 
   const values = getValues();
 
-  console.log(fields);
-
   return (
     <Modal size="4xl" isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
