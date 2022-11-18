@@ -50,7 +50,11 @@ const schema = yup.object({
 });
 
 const RegistrationForm = ({ onSubmit, isLoading, error }) => {
-  const { register, handleSubmit, errors, control } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
   });

@@ -16,7 +16,11 @@ const schema = yup.object({
 });
 
 const EntityForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues,
     mode: "onTouched",
     resolver: yupResolver(schema),

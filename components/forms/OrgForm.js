@@ -38,7 +38,11 @@ const confirmSchema = schema.concat(
 );
 
 const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, confirmOrg }) => {
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues,
     mode: "onTouched",
     resolver: yupResolver(confirmOrg ? confirmSchema : schema),

@@ -29,7 +29,11 @@ const schema = yup.object({
 });
 
 const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
   });

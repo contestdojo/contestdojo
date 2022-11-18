@@ -23,7 +23,11 @@ const buildSchema = (maxTeams) => {
 };
 
 const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxTeams, open }) => {
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues,
     mode: "onTouched",
     resolver: yupResolver(buildSchema(maxTeams)),

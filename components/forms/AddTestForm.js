@@ -33,7 +33,12 @@ const schema = yup.object({
 });
 
 const OrgForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
-  const { register, handleSubmit, watch, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues,
     mode: "onTouched",
     resolver: yupResolver(schema),

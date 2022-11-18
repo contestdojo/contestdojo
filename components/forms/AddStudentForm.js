@@ -47,7 +47,11 @@ const AddStudentForm = ({
     [customFields, allowEditEmail]
   );
 
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
     defaultValues,

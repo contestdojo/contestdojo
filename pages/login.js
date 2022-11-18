@@ -53,7 +53,11 @@ const resetPasswordSchema = yup.object({
 });
 
 const LoginForm = ({ onSubmit, isLoading, error }) => {
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     mode: "onTouched",
     resolver: yupResolver(loginSchema),
   });
@@ -97,7 +101,11 @@ const LoginForm = ({ onSubmit, isLoading, error }) => {
 };
 
 const ResetPasswordModal = ({ isOpen, onClose }) => {
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     mode: "onTouched",
     resolver: yupResolver(resetPasswordSchema),
   });
