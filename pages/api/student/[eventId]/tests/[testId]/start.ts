@@ -7,6 +7,7 @@
 import admin from "firebase-admin";
 
 import { firestore, withFirebaseAuth } from "~/helpers/firebase";
+import { testAuthorization } from "~/helpers/rules";
 
 const handler = withFirebaseAuth(async (req, res, { uid }) => {
   if (req.method !== "POST") return res.status(405).end();
@@ -44,6 +45,10 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
     !testData.authorizedIds.includes(uid) &&
     !(studentData.number && testData.authorizedIds.includes(studentData.number))
   ) {
+    return res.status(400).send("You are not authorized to start this test.");
+  }
+
+  if (testData.authorization && !testAuthorization(testData.authorization, studentData)) {
     return res.status(400).send("You are not authorized to start this test.");
   }
 

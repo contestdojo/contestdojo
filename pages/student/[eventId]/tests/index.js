@@ -251,12 +251,14 @@ const Tests = () => {
   tests.sort((a, b) => a.name.localeCompare(b.name));
   const testsById = tests.reduce(toDict, {});
 
-  let displayTests = tests.filter(
-    (x) =>
-      !x.authorizedIds ||
-      x.authorizedIds.includes(student.id) ||
-      (student.number && x.authorizedIds.includes(student.number))
-  );
+  let displayTests = tests
+    .filter(
+      (x) =>
+        !x.authorizedIds ||
+        x.authorizedIds.includes(student.id) ||
+        (student.number && x.authorizedIds.includes(student.number))
+    )
+    .filter((x) => !x.authorization || testAuthorization(x.authorization, student));
 
   // Test Selection
 
