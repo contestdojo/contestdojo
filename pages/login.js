@@ -138,10 +138,7 @@ const ResetPasswordModal = ({ isOpen, onClose }) => {
             )}
 
             <FormField
-              ref={(ref) => {
-                initialRef.current = ref;
-                register(ref);
-              }}
+              {...register("email")}
               name="email"
               label="Email Address"
               placeholder="blaise.pascal@gmail.com"
