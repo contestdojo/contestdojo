@@ -31,6 +31,7 @@ import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
+import { testAuthorization } from "~/helpers/rules";
 import { toDict, useFormState, useTime } from "~/helpers/utils";
 
 dayjs.extend(relativeTime);
