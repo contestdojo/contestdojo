@@ -59,21 +59,21 @@ const TooltipLink = ({ label, href, children }) => (
   </Tooltip>
 );
 
-const AllowedStudentsButton = ({ isPrivate, authorizedIds, testRef }) => {
+const AllowedStudentsButton = ({ customFields, authorization, testRef }) => {
   const [formState, wrapAction] = useFormState();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [state, setState] = useState(false); // Hack for resetting default value
 
-  const handleSubmit = wrapAction(async ({ isPrivate, allowedStudents }) => {
-    const newIds = isPrivate
-      ? allowedStudents
-          .split("\n")
-          .map((x) => x.trim())
-          .filter(Boolean)
-      : firebase.firestore.FieldValue.delete();
+  const handleSubmit = wrapAction(async ({ isPrivate, mode, rules }) => {
+    if (!isPrivate) {
+      await testRef.update({ authorization: firebase.firestore.FieldValue.delete() });
+    } else {
+      await testRef.update({ authorization: { mode, rules } });
+    }
 
-    await testRef.update({ authorizedIds: newIds });
+    console.log(rules);
+
     onClose();
     // Hack for resetting default value
     await delay(500);
@@ -81,18 +81,19 @@ const AllowedStudentsButton = ({ isPrivate, authorizedIds, testRef }) => {
   });
 
   return (
-    <Tooltip label="Edit Allowed Students">
+    <Tooltip label="Edit Test Restrictions">
       <Box>
         <IconButton
           as="a"
-          colorScheme={authorizedIds ? "purple" : undefined}
-          icon={authorizedIds ? <HiLockClosed /> : <HiLockOpen />}
+          colorScheme={authorization ? "purple" : undefined}
+          icon={authorization ? <HiLockClosed /> : <HiLockOpen />}
           onClick={onOpen}
           cursor="pointer"
         />
         <AllowedStudentsModal
           key={state.toString()}
-          defaultValues={{ isPrivate: !!authorizedIds, allowedStudents: (authorizedIds ?? []).join("\n") }}
+          defaultValues={{ isPrivate: !!authorization, rules: authorization?.rules, mode: authorization?.mode }}
+          customFields={customFields}
           isOpen={isOpen}
           onClose={onClose}
           onSubmit={handleSubmit}
@@ -108,7 +109,12 @@ const schema = yup.object({
 });
 
 const OpenTestModal = ({ type, duration, isOpen, onClose, onSubmit }) => {
-  const { register, handleSubmit, watch, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues: { gracePeriod: type === "guts" ? 0 : 300 },
     mode: "onTouched",
     resolver: yupResolver(schema),
@@ -133,9 +139,8 @@ const OpenTestModal = ({ type, duration, isOpen, onClose, onSubmit }) => {
             >
               <Stack spacing={4}>
                 <FormField
-                  ref={register}
                   type="number"
-                  name="gracePeriod"
+                  {...register("gracePeriod")}
                   label="Grace Period (seconds)"
                   placeholder="5"
                   error={errors.gracePeriod}
@@ -168,7 +173,8 @@ const TestCard = ({
   name,
   team,
   duration,
-  authorizedIds,
+  authorization,
+  customFields,
   testRef,
   openTime: rawOpenTime,
   closeTime: rawCloseTime,
@@ -244,7 +250,7 @@ const TestCard = ({
         {open ? "Open" : openTime ? "Reopen Test" : "Open Test"}
       </Button>
 
-      <AllowedStudentsButton authorizedIds={authorizedIds} testRef={testRef} />
+      <AllowedStudentsButton customFields={customFields} authorization={authorization} testRef={testRef} />
 
       <IconButton icon={<HiTrash />} colorScheme="red" onClick={handleDelete} />
 
@@ -254,7 +260,7 @@ const TestCard = ({
 };
 
 const TestsTab = () => {
-  const { ref: eventRef } = useEvent();
+  const { data: event, ref: eventRef } = useEvent();
   const time = useTime();
 
   const testsRef = eventRef.collection("tests");
@@ -292,6 +298,7 @@ const TestsTab = () => {
         <TestCard
           key={x.id}
           {...x}
+          customFields={event.customFields ?? []}
           time={time}
           testRef={testsRef.doc(x.id)}
           onOpen={handleOpenTest(x)}
