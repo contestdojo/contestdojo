@@ -47,9 +47,11 @@ const handler = withFirebaseAuth(async (req, res) => {
       if (problem.hasOwnProperty(submission[`${idx}r`])) {
         graded[idx] = Number(problem[submission[`${idx}r`]]);
 
-        // Count freq
-        if (!answersFreq[_i][1][submission[`${idx}r`]]) answersFreq[_i][1][submission[`${idx}r`]] = 0;
-        answersFreq[_i][1][submission[`${idx}r`]]++;
+        if (graded[idx] == 1) {
+          // Count freq
+          if (!answersFreq[_i][1][submission[`${idx}r`]]) answersFreq[_i][1][submission[`${idx}r`]] = 0;
+          answersFreq[_i][1][submission[`${idx}r`]]++;
+        }
       } else {
         graded[idx] = null;
       }
