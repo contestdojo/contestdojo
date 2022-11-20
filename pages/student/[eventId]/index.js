@@ -193,6 +193,16 @@ const CreateOrJoinTeam = () => {
   );
 };
 
+const DownloadScoreReport = ({ scoreReport }) => {
+  const storage = useStorage();
+  const { data: scoreReportURL } = useStorageDownloadURL(storage.ref().child(scoreReport));
+  return (
+    <Button colorScheme="blue" size="sm" onClick={() => window.open(scoreReportURL, "_blank")}>
+      Download
+    </Button>
+  );
+};
+
 const Event = () => {
   const auth = useAuth();
   const firestore = useFirestore();
@@ -313,6 +323,28 @@ const Event = () => {
       >
         Click here to take your tests
       </ButtonLink>
+
+      {(student.scoreReport || team.scoreReport) && (
+        <>
+          <Divider />
+
+          <Heading size="lg">Score Reports</Heading>
+
+          {student.scoreReport && (
+            <Card p={4} as={HStack} justifyContent="space-between" spacing={4}>
+              <Heading size="md">Individual Score Report</Heading>
+              <DownloadScoreReport scoreReport={student.scoreReport}>Download</DownloadScoreReport>
+            </Card>
+          )}
+
+          {team.scoreReport && (
+            <Card p={4} as={HStack} justifyContent="space-between" spacing={4}>
+              <Heading size="md">Team Score Report</Heading>
+              <DownloadScoreReport scoreReport={team.scoreReport}>Download</DownloadScoreReport>
+            </Card>
+          )}
+        </>
+      )}
 
       {event.waiver && (
         <>
