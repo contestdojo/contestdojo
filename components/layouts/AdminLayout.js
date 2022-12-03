@@ -29,6 +29,8 @@ const Sidebar = () => {
   const eventsRef = firestore.collection("events").where("owner", "in", [...entityRefs, "0"]);
   const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
 
+  events.sort((a, b) => a.name.localeCompare(b.name));
+
   const activeStyle = {
     backgroundColor: "gray.100",
   };
