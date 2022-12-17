@@ -10,7 +10,7 @@ import * as yup from "yup";
 
 import FormField from "~/components/FormField";
 
-type CustomField = {
+export type CustomField = {
   id: string;
   label: string;
   required: boolean;

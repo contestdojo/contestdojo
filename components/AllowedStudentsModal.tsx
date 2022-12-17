@@ -4,13 +4,13 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
+// @ts-nocheck
+
 import {
   Alert,
   AlertIcon,
   Button,
   Checkbox,
-  HStack,
-  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -22,11 +22,11 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useFieldArray, useForm } from "react-hook-form";
-import { HiTrash } from "react-icons/hi";
+import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
 import FormField from "~/components/FormField";
+import { RenderRules, rulesSchema } from "~/components/forms/rules";
 
 const DEFAULT_FIELDS = [
   { id: "id", label: "ID" },
@@ -50,13 +50,7 @@ const VALUE_PLACEHOLDERS = {
 const schema = yup.object({
   isPrivate: yup.boolean(),
   mode: yup.string().oneOf(["any-allow", "all-allow", "any-deny", "all-deny"]).required(),
-  rules: yup.array(
-    yup.object({
-      field: yup.string().label("Fields").required(),
-      rule: yup.string().oneOf(["=", "!=", "=~", "!~", "in"]).required(),
-      value: yup.string().required(),
-    })
-  ),
+  rules: rulesSchema,
 });
 
 const AllowedStudentsModal = ({ customFields, defaultValues, isOpen, onClose, onSubmit, isLoading, error }) => {
@@ -74,12 +68,6 @@ const AllowedStudentsModal = ({ customFields, defaultValues, isOpen, onClose, on
   });
 
   const isPrivate = watch("isPrivate");
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "rules",
-  });
-
   const values = getValues();
 
   return (
@@ -109,59 +97,15 @@ const AllowedStudentsModal = ({ customFields, defaultValues, isOpen, onClose, on
                 </FormField>
               )}
 
-              {isPrivate &&
-                fields.map((item, index) => (
-                  <HStack key={item.id} alignItems="flex-end">
-                    <FormField
-                      as={Select}
-                      {...register(`rules.${index}.field`)}
-                      label="Field"
-                      error={errors[`rules.${index}.field`]}
-                    >
-                      {DEFAULT_FIELDS.map((x) => (
-                        <option key={x.id} value={x.id}>
-                          {x.label}
-                        </option>
-                      ))}
-                      {customFields.map((x) => (
-                        <option key={`customFields.${x.id}`} value={`customFields.${x.id}`}>
-                          [Custom] {x.label}
-                        </option>
-                      ))}
-                    </FormField>
-
-                    <FormField
-                      as={Select}
-                      {...register(`rules.${index}.rule`)}
-                      label="Rule"
-                      error={errors[`rules.${index}.rule`]}
-                    >
-                      <option value="=">Equals</option>
-                      <option value="!=">Does not equal</option>
-                      <option value="=~">Contains regex</option>
-                      <option value="!~">Does not contain regex</option>
-                      <option value="in">One of</option>
-                    </FormField>
-
-                    <FormField
-                      {...register(`rules.${index}.value`)}
-                      label="Value"
-                      error={errors[`rules.${index}.value`]}
-                      placeholder={VALUE_PLACEHOLDERS[values.rules?.[index]?.rule]}
-                    />
-
-                    <IconButton icon={<HiTrash />} onClick={() => remove(index)} />
-                  </HStack>
-                ))}
-
               {isPrivate && (
-                <Button
-                  type="button"
-                  alignSelf="flex-start"
-                  onClick={() => append({ field: "", rule: "=", value: "" })}
-                >
-                  Add Rule
-                </Button>
+                <RenderRules
+                  defaultFields={DEFAULT_FIELDS}
+                  customFields={customFields}
+                  control={control}
+                  values={values?.rules}
+                  register={register}
+                  errors={errors}
+                />
               )}
             </Stack>
           </form>
