@@ -38,32 +38,44 @@ const CostDetailsForm = z.object({
   costDescription: zfd.text(z.string().optional()),
 });
 
-const CustomFieldsForm = z.object({
-  customFields: zfd
-    .repeatableOfType(
-      z.object({
-        id: zfd.text(),
-        label: zfd.text(),
-        choices: zfd.text(z.string().optional()).transform((value) => {
-          if (!value) return null;
-          const items = value.split(",").map((x) => x.trim());
-          if (items.length === 0) return null;
-          return items;
-        }),
-        required: zfd.checkbox(),
-        hidden: zfd.checkbox(),
-      })
-    )
-    .superRefine((items, ctx) => {
-      const ids = items.map((x, index) => [x.id, index]).sort();
-      for (let i = 1; i < ids.length; i++) {
-        if (ids[i - 1][0] === ids[i][0]) {
-          ctx.addIssue({ ...UNIQUE_ERROR, path: [ids[i - 1][1], "id"] });
-          ctx.addIssue({ ...UNIQUE_ERROR, path: [ids[i][1], "id"] });
-        }
+const customFields = zfd
+  .repeatableOfType(
+    z.object({
+      id: zfd.text(),
+      label: zfd.text(),
+      choices: zfd.text(z.string().optional()).transform((value) => {
+        if (!value) return null;
+        const items = value.split(",").map((x) => x.trim());
+        if (items.length === 0) return null;
+        return items;
+      }),
+      required: zfd.checkbox(),
+      hidden: zfd.checkbox(),
+    })
+  )
+  .superRefine((items, ctx) => {
+    const ids = items.map((x, index) => [x.id, index]).sort();
+    for (let i = 1; i < ids.length; i++) {
+      if (ids[i - 1][0] === ids[i][0]) {
+        ctx.addIssue({ ...UNIQUE_ERROR, path: [ids[i - 1][1], "id"] });
+        ctx.addIssue({ ...UNIQUE_ERROR, path: [ids[i][1], "id"] });
       }
-    }),
-});
+    }
+  });
+
+const CustomFieldsForm = z.object({ customFields });
+const CustomOrgFieldsForm = z.object({ customOrgFields: customFields });
+const CustomTeamFieldsForm = z.object({ customTeamFields: customFields });
+
+const customFieldsFieldProps = {
+  elementClassName: "md:flex-row",
+  element: {
+    choices: {
+      label: "Choices (optional)",
+      placeholder: "Enter choices, comma-separated...",
+    },
+  },
+};
 
 const WaiverForm = z.object({
   waiver: zfd.text(z.string().optional()),
@@ -81,6 +93,8 @@ export const loader: LoaderFunction = async ({ params }) => {
     ...setFormDefaults("EventDetails", event),
     ...setFormDefaults("CostDetails", event),
     ...setFormDefaults("CustomFields", event),
+    ...setFormDefaults("CustomOrgFields", event),
+    ...setFormDefaults("CustomTeamFields", event),
     ...setFormDefaults("Waiver", event),
   });
 };
@@ -93,6 +107,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (formData.get("_form") === "EventDetails") validator = withZod(EventDetailsForm);
   if (formData.get("_form") === "CostDetails") validator = withZod(CostDetailsForm);
   if (formData.get("_form") === "CustomFields") validator = withZod(CustomFieldsForm);
+  if (formData.get("_form") === "CustomOrgFields") validator = withZod(CustomOrgFieldsForm);
+  if (formData.get("_form") === "CustomTeamFields") validator = withZod(CustomTeamFieldsForm);
   if (formData.get("_form") === "Waiver") validator = withZod(WaiverForm);
 
   if (validator) {
@@ -141,24 +157,36 @@ export default function SettingsRoute() {
         />
       </Section>
 
-      <Section title="Custom Fields" className="col-span-2">
+      <Section title="Custom Student Fields" className="col-span-2">
         <SchemaForm
           className="flex-1"
           id="CustomFields"
           method="post"
           schema={CustomFieldsForm}
           buttonLabel="Save"
-          fieldProps={{
-            customFields: {
-              elementClassName: "md:flex-row",
-              element: {
-                choices: {
-                  label: "Choices (optional)",
-                  placeholder: "Enter choices, comma-separated...",
-                },
-              },
-            },
-          }}
+          fieldProps={{ customFields: customFieldsFieldProps }}
+        />
+      </Section>
+
+      <Section title="Custom Organization Fields" className="col-span-2">
+        <SchemaForm
+          className="flex-1"
+          id="CustomOrgFields"
+          method="post"
+          schema={CustomOrgFieldsForm}
+          buttonLabel="Save"
+          fieldProps={{ customOrgFields: customFieldsFieldProps }}
+        />
+      </Section>
+
+      <Section title="Custom Team Fields" className="col-span-2">
+        <SchemaForm
+          className="flex-1"
+          id="CustomTeamFields"
+          method="post"
+          schema={CustomTeamFieldsForm}
+          buttonLabel="Save"
+          fieldProps={{ customTeamFields: customFieldsFieldProps }}
         />
       </Section>
 

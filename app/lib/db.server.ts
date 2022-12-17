@@ -76,6 +76,8 @@ const Event = zfb.firestoreObject(
     costDescription: z.string().optional(),
     waiver: z.string().optional(),
     customFields: z.array(EventCustomField).optional(),
+    customOrgFields: z.array(EventCustomField).optional(),
+    customTeamFields: z.array(EventCustomField).optional(),
   })
 );
 
@@ -84,6 +86,7 @@ const EventOrganization = zfb.firestoreObject(
     id: z.string(),
     maxStudents: z.number().optional(),
     notes: z.string().optional(),
+    customFields: z.any().optional(),
   })
 );
 
@@ -112,6 +115,7 @@ const EventTeam = zfb.firestoreObject(
     number: z.string().optional(),
     scoreReport: z.string().optional(),
     notes: z.string().optional(),
+    customFields: z.any().optional(),
   })
 );
 
