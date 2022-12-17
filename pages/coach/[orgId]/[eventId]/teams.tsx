@@ -32,6 +32,7 @@ import {
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
+import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { HiClipboardCheck, HiDotsHorizontal, HiExclamation, HiPencil, HiTrash } from "react-icons/hi";
@@ -45,6 +46,7 @@ import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
+import RegisterOrgForm from "~/components/forms/RegisterOrgForm";
 import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import StyledEditablePreview from "~/components/StyledEditablePreview";
@@ -469,22 +471,31 @@ const TeamsContent = () => {
   // Calculate seats remaining
   const seatsRemaining = (eventOrg?.maxStudents ?? 0) - students.length + (studentsByTeam[null]?.length ?? 0);
 
-  // Dialog
   const [openDialog] = useDialog();
+  const router = useRouter();
+  const formState = useFormState();
 
   useEffect(() => {
-    (async () => {
-      if (!eventOrg) {
-        // Create organization object
-        await eventOrgRef.set({}, { merge: true });
-      }
+    if (!eventOrg) {
+      router.replace(`/coach/${orgRef.id}/${eventRef.id}`);
+    }
 
-      if (!event.teamsEnabled && teams.length == 0) {
-        // Automatically create a team per organization for non-team events
-        await teamsRef.doc(orgRef.id).set({ name: org.name, org: orgRef }, { merge: true });
-      }
-    })();
+    if (!event.teamsEnabled && teams.length == 0) {
+      // Automatically create a team per organization for non-team events
+      teamsRef.doc(orgRef.id).set({ name: org.name, org: orgRef }, { merge: true });
+    }
   }, [event, eventOrg]);
+
+  if (!eventOrg) {
+    return null;
+  }
+
+  const handleEditRegistration = async ({ customFields }) => {
+    await eventOrgRef.update({
+      updateTime: firebase.firestore.FieldValue.serverTimestamp(),
+      ...(customFields ? { customFields } : undefined),
+    });
+  };
 
   const handleAddTeam = async ({ name }) => {
     await teamsRef.add({ name: name, org: orgRef });
@@ -610,6 +621,7 @@ const TeamsContent = () => {
           onDeleteStudent={handleDeleteStudent}
           waiver={event.waiver}
         />
+
         <Divider />
 
         <Students
@@ -621,6 +633,21 @@ const TeamsContent = () => {
           waiver={event.waiver}
           stripeAccount={entity.stripeAccountId}
         />
+
+        {event.customOrgFields && (
+          <>
+            <Divider />
+            <Heading size="lg">Edit Registration</Heading>
+            <Box maxW={600}>
+              <RegisterOrgForm
+                onSubmit={handleEditRegistration}
+                customFields={event.customOrgFields}
+                defaultValues={eventOrg}
+                {...formState}
+              />
+            </Box>
+          </>
+        )}
       </Stack>
     </DndContext>
   );

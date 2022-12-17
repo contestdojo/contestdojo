@@ -10,6 +10,8 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
+import { makeCustomFieldsSchema, renderCustomFields } from "./customFields";
+
 import FormField from "~/components/FormField";
 
 const AddStudentForm = ({
@@ -31,18 +33,7 @@ const AddStudentForm = ({
         lname: yup.string().required().label("Last Name"),
         ...(!hasCustomGrade ? { grade: yup.number().typeError("Invalid number").required().label("Grade") } : {}),
         ...(allowEditEmail ? { email: yup.string().email().required().label("Email Address") } : {}),
-        customFields: yup.object(
-          Object.fromEntries(
-            customFields
-              .filter((v) => !v.hidden)
-              .map((v) => {
-                let field = yup.string().label(v.label);
-                if (v.required) field = field.required();
-                if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
-                return [v.id, field];
-              })
-          )
-        ),
+        customFields: makeCustomFieldsSchema(customFields),
       }),
     [customFields, allowEditEmail]
   );
@@ -107,26 +98,7 @@ const AddStudentForm = ({
           </FormField>
         )}
 
-        {customFields
-          .filter((v) => !v.hidden)
-          .map((x) => (
-            <FormField
-              key={`customFields.${x.id}`}
-              {...register(`customFields.${x.id}`)}
-              label={x.label}
-              error={errors[`customFields.${x.id}`]}
-              isRequired={x.required}
-              as={x.choices ? Select : undefined}
-              placeholder={x.choices ? "Select..." : ""}
-            >
-              {x.choices &&
-                x.choices.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                ))}
-            </FormField>
-          ))}
+        {renderCustomFields(customFields, register, errors)}
 
         {showButton && (
           <Button isLoading={isLoading} type="submit" colorScheme="blue">
