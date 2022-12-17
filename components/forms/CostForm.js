@@ -13,13 +13,13 @@ import FormField from "~/components/FormField";
 import ResizingTextarea from "~/components/ResizingTextarea";
 
 const schema = yup.object({
-  name: yup.string().required().label("Event Name"),
-  studentsPerTeam: yup.number().required().label("# Students per Team"),
-  description: yup.string().label("Description"),
-  waiver: yup.string().label("Waiver"),
+  costPerStudent: yup.lazy((value) =>
+    value === "" ? yup.string().label("Base Cost per Student") : yup.number().label("Base Cost per Student")
+  ),
+  costDescription: yup.string().label("Cost Description"),
 });
 
-const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
+const CostForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
   const {
     register,
     handleSubmit,
@@ -32,6 +32,13 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      {error && (
+        <Alert status="error">
+          <AlertIcon />
+          {error.message}
+        </Alert>
+      )}
+
       <Stack spacing={4}>
         {error && (
           <Alert status="error">
@@ -41,38 +48,21 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
         )}
 
         <FormField
-          {...register("name")}
-          label="Event Name"
-          placeholder="Math High School"
-          error={errors.name}
-          maxW="md"
-          isRequired
-        />
-
-        <FormField
           type="number"
-          {...register("studentsPerTeam")}
-          label="# Students per Team"
+          {...register("costPerStudent")}
+          label="Base Cost per Student"
           placeholder="8"
-          error={errors.studentsPerTeam}
+          error={errors.costPerStudent}
+          helperText="Edit cost adjustments on the new admin panel."
           maxW="md"
-          isRequired
         />
 
         <FormField
           as={ResizingTextarea}
-          {...register("description")}
-          label="Description (markdown)"
-          placeholder="Description"
-          error={errors.description}
-        />
-
-        <FormField
-          as={ResizingTextarea}
-          {...register("waiver")}
-          label="Waiver (markdown)"
-          placeholder="Waiver"
-          error={errors.waiver}
+          {...register("costDescription")}
+          label="Cost Description (markdown)"
+          placeholder="Cost Description"
+          error={errors.costDescription}
         />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
@@ -83,4 +73,4 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
   );
 };
 
-export default EventForm;
+export default CostForm;

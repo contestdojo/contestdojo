@@ -4,9 +4,11 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Button, Heading, HStack, Stack, Switch, Text } from "@chakra-ui/react";
+import { Button, Grid, GridItem, Heading, HStack, Stack, Switch, Text } from "@chakra-ui/react";
 import firebase from "firebase";
 import { useAuth } from "reactfire";
+
+import CostForm from "../../../../components/forms/CostForm";
 
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
@@ -54,28 +56,46 @@ const EventDetails = () => {
   };
 
   return (
-    <>
-      <Card as={Stack} spacing={4} p={4} maxWidth="xl">
-        <Heading size="md">Roster</Heading>
-        <HStack>
-          <Switch isChecked={event.frozen} onChange={handleCheck} />
-          <Text>Freeze roster changes</Text>
-        </HStack>
-        <Button onClick={handleAssignNumbers} alignSelf="flex-start">
-          Assign Team/Student Numbers
-        </Button>
-      </Card>
-      <Card as={Stack} spacing={4} p={4}>
-        <Heading size="md">Event Details</Heading>
-        <EventForm
-          key={event.id}
-          onSubmit={handleSubmit}
-          buttonText="Update Event"
-          defaultValues={event}
-          {...formState}
-        />
-      </Card>
-    </>
+    <Grid templateColumns="1fr 1fr 1fr" gap={4}>
+      <GridItem colSpan={1}>
+        <Card as={Stack} spacing={4} p={4} h="full">
+          <Heading size="md">Roster</Heading>
+          <HStack>
+            <Switch isChecked={event.frozen} onChange={handleCheck} />
+            <Text>Freeze roster changes</Text>
+          </HStack>
+          <Button onClick={handleAssignNumbers} alignSelf="flex-start">
+            Assign Team/Student Numbers
+          </Button>
+        </Card>
+      </GridItem>
+
+      <GridItem colSpan={2}>
+        <Card as={Stack} spacing={4} p={4} h="full">
+          <Heading size="md">Cost Details</Heading>
+          <CostForm
+            key={event.id}
+            onSubmit={handleSubmit}
+            buttonText="Update Event"
+            defaultValues={event}
+            {...formState}
+          />
+        </Card>
+      </GridItem>
+
+      <GridItem colSpan={3}>
+        <Card as={Stack} spacing={4} p={4} h="full">
+          <Heading size="md">Event Details</Heading>
+          <EventForm
+            key={event.id}
+            onSubmit={handleSubmit}
+            buttonText="Update Event"
+            defaultValues={event}
+            {...formState}
+          />
+        </Card>
+      </GridItem>
+    </Grid>
   );
 };
 

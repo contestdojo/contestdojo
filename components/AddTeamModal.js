@@ -20,6 +20,7 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
 import * as yup from "yup";
 
 import { makeCustomFieldsSchema, renderCustomFields } from "./forms/customFields";
@@ -36,6 +37,8 @@ const AddTeamModal = ({
   defaultValues,
   customFields = [],
 }) => {
+  const formId = useMemo(uuidv4, []);
+
   const schema = useMemo(
     () =>
       yup.object({
@@ -64,7 +67,7 @@ const AddTeamModal = ({
         <ModalHeader>{heading}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <form id="add-team" onSubmit={handleSubmit(onSubmit)}>
+          <form id={formId} onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
               {error && (
                 <Alert status="error">
@@ -88,7 +91,7 @@ const AddTeamModal = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button type="submit" form="add-team" colorScheme="blue" mr={3} isLoading={isLoading}>
+          <Button type="submit" form={formId} colorScheme="blue" mr={3} isLoading={isLoading}>
             Save
           </Button>
           <Button onClick={onClose}>Cancel</Button>

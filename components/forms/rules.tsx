@@ -31,6 +31,7 @@ export const rulesSchema = yup.array(
 );
 
 type RenderRulesProps = {
+  name: string;
   defaultFields: Field[];
   customFields: CustomField[];
   control: Control<any, any>;
@@ -39,11 +40,16 @@ type RenderRulesProps = {
   errors: Partial<FieldErrorsImpl<any>>;
 };
 
-export const RenderRules = ({ defaultFields, customFields, control, values, register, errors }: RenderRulesProps) => {
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "rules",
-  });
+export const RenderRules = ({
+  name,
+  defaultFields,
+  customFields,
+  control,
+  values,
+  register,
+  errors,
+}: RenderRulesProps) => {
+  const { fields, append, remove } = useFieldArray({ control, name });
 
   return (
     <>
@@ -52,9 +58,9 @@ export const RenderRules = ({ defaultFields, customFields, control, values, regi
           {/* @ts-ignore */}
           <FormField
             as={Select}
-            {...register(`rules.${index}.field`)}
+            {...register(`${name}.${index}.field`)}
             label="Field"
-            error={errors[`rules.${index}.field`]}
+            error={errors[`${name}.${index}.field`]}
           >
             {defaultFields.map((x) => (
               <option key={x.id} value={x.id}>
@@ -71,9 +77,9 @@ export const RenderRules = ({ defaultFields, customFields, control, values, regi
           {/* @ts-ignore */}
           <FormField
             as={Select}
-            {...register(`rules.${index}.rule`)}
+            {...register(`${name}.${index}.rule`)}
             label="Rule"
-            error={errors[`rules.${index}.rule`]}
+            error={errors[`${name}.${index}.rule`]}
           >
             <option value="=">Equals</option>
             <option value="!=">Does not equal</option>
@@ -83,10 +89,10 @@ export const RenderRules = ({ defaultFields, customFields, control, values, regi
           </FormField>
 
           <FormField
-            {...register(`rules.${index}.value`)}
+            {...register(`${name}.${index}.value`)}
             // @ts-ignore
             label="Value"
-            error={errors[`rules.${index}.value`]}
+            error={errors[`${name}.${index}.value`]}
             // @ts-ignore
             placeholder={VALUE_PLACEHOLDERS[values?.[index]?.rule]}
           />

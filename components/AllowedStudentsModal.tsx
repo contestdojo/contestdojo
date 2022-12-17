@@ -99,6 +99,7 @@ const AllowedStudentsModal = ({ customFields, defaultValues, isOpen, onClose, on
 
               {isPrivate && (
                 <RenderRules
+                  name="rules"
                   defaultFields={DEFAULT_FIELDS}
                   customFields={customFields}
                   control={control}
