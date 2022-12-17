@@ -324,7 +324,7 @@ const Event = () => {
         Click here to take your tests
       </ButtonLink>
 
-      {(student.scoreReport || team.scoreReport) && (
+      {(student.scoreReport || team?.scoreReport) && (
         <>
           <Divider />
 
