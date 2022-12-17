@@ -41,7 +41,7 @@ const ApplyContent = () => {
       {
         startTime: firebase.firestore.FieldValue.serverTimestamp(),
         updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-        ...(customFields ? { customFields } : undefined),
+        customFields: customFields ?? {},
       },
       { merge: true }
     );

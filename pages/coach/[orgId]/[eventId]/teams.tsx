@@ -11,8 +11,6 @@ import {
   Button,
   ButtonGroup,
   Divider,
-  Editable,
-  EditableInput,
   Flex,
   Heading,
   HStack,
@@ -49,7 +47,6 @@ import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import RegisterOrgForm from "~/components/forms/RegisterOrgForm";
 import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
-import StyledEditablePreview from "~/components/StyledEditablePreview";
 import { toDict, useFormState } from "~/helpers/utils";
 
 const StudentCard = ({ id, fname, lname, email, waiver, onEdit, onDelete }) => {
@@ -108,24 +105,18 @@ const StudentCard = ({ id, fname, lname, email, waiver, onEdit, onDelete }) => {
   );
 };
 
-const TeamCard = ({
-  event,
-  id,
-  name,
-  number,
-  students,
-  onUpdate,
-  onDelete,
-  onEditStudent,
-  needSeats,
-  waiver,
-  onDeleteStudent,
-}) => {
-  const { isOver, setNodeRef } = useDroppable({ id });
+const TeamCard = ({ event, team, students, onUpdate, onDelete, onEditStudent, needSeats, waiver, onDeleteStudent }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOver, setNodeRef } = useDroppable({ id: team.id });
   const props = { backgroundColor: isOver ? "gray.100" : undefined };
 
   const [editing, setEditing] = useState(null);
   const [formState, wrapAction] = useFormState();
+
+  const handleEdit = wrapAction(async (values) => {
+    await onUpdate(values);
+    onClose();
+  });
 
   const handleEditStudent = wrapAction(async (values) => {
     await onEditStudent(students[editing].id, values);
@@ -143,17 +134,17 @@ const TeamCard = ({
       {...props}
     >
       <HStack px={2}>
-        {number && <Text color="gray.500">{number}</Text>}
+        {team.number && <Text color="gray.500">{team.number}</Text>}
         <Heading as="h4" size="md" position="relative" flex="1">
-          <Editable defaultValue={name} onSubmit={(name) => onUpdate({ name })}>
-            <StyledEditablePreview />
-            <EditableInput />
-          </Editable>
+          {team.name}
         </Heading>
 
         <Menu>
           <MenuButton as={IconButton} icon={<HiDotsHorizontal />} variant="ghost" rounded="full" mr={-2}></MenuButton>
           <MenuList>
+            <MenuItem icon={<HiTrash />} onClick={onOpen}>
+              Edit
+            </MenuItem>
             <MenuItem icon={<HiTrash />} color="red.500" onClick={onDelete}>
               Delete
             </MenuItem>
@@ -200,6 +191,16 @@ const TeamCard = ({
             (needSeats ? <BlankCard>More seats required</BlankCard> : <BlankCard>Drag students here</BlankCard>)}
         </Wrap>
       )}
+
+      <AddTeamModal
+        heading="Edit Team"
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handleEdit}
+        customFields={event.customTeamFields}
+        defaultValues={team}
+        {...formState}
+      />
 
       <AddStudentModal
         key={editing}
@@ -313,11 +314,11 @@ const Teams = ({
           {teams.map((x) => (
             <TeamCard
               key={x.id}
+              team={x}
               event={event}
               onEditStudent={onEditStudent}
               onUpdate={(update) => onUpdateTeam(x.id, update)}
               onDelete={() => onDeleteTeam(x.id)}
-              {...x}
               students={studentsByTeam[x.id] ?? []}
               needSeats={costPerStudent > 0 && seatsRemaining <= 0}
               waiver={waiver}
@@ -342,7 +343,13 @@ const Teams = ({
           ))}
         {costPerStudent > 0 && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
       </ButtonGroup>
-      <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleAddTeam} {...formState} />
+      <AddTeamModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handleAddTeam}
+        customFields={event.customTeamFields}
+        {...formState}
+      />
     </Stack>
   );
 };
@@ -473,7 +480,7 @@ const TeamsContent = () => {
 
   const [openDialog] = useDialog();
   const router = useRouter();
-  const formState = useFormState();
+  const [formState, wrapAction] = useFormState();
 
   useEffect(() => {
     if (!eventOrg) {
@@ -490,19 +497,19 @@ const TeamsContent = () => {
     return null;
   }
 
-  const handleEditRegistration = async ({ customFields }) => {
+  const handleEditRegistration = wrapAction(async ({ customFields }) => {
     await eventOrgRef.update({
       updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-      ...(customFields ? { customFields } : undefined),
+      customFields: customFields ?? {},
     });
+  });
+
+  const handleAddTeam = async ({ name, customFields }) => {
+    await teamsRef.add({ name, org: orgRef, customFields: customFields ?? {} });
   };
 
-  const handleAddTeam = async ({ name }) => {
-    await teamsRef.add({ name: name, org: orgRef });
-  };
-
-  const handleUpdateTeam = async (id, update) => {
-    await teamsRef.doc(id).update(update);
+  const handleUpdateTeam = async (id, { name, customFields }) => {
+    await teamsRef.doc(id).update({ name, customFields: customFields ?? {} });
   };
 
   const handleDeleteTeam = async (id) => {

@@ -7,12 +7,6 @@
 import {
   Alert,
   AlertDescription,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   AlertIcon,
   AlertTitle,
   Box,
@@ -116,7 +110,7 @@ const CreateOrJoinTeam = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2 } = useDisclosure();
 
-  const handleCreateTeam = wrapAction(async ({ name }) => {
+  const handleCreateTeam = wrapAction(async ({ name, customFields }) => {
     const hashids = new Hashids(eventRef.id, 4);
 
     const batch = async (transaction) => {
@@ -132,6 +126,7 @@ const CreateOrJoinTeam = () => {
         name,
         org: null,
         code: hashids.encode(next),
+        customFields: customFields ?? {},
       });
       transaction.update(studentRef, { team: teamRef });
     };
@@ -185,7 +180,13 @@ const CreateOrJoinTeam = () => {
         </Button>
       </ButtonGroup>
 
-      <AddTeamModal isOpen={isOpen} onClose={onClose} onSubmit={handleCreateTeam} {...formState} />
+      <AddTeamModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handleCreateTeam}
+        customFields={event.customTeamFields}
+        {...formState}
+      />
       <JoinTeamModal isOpen={isOpen2} onClose={onClose2} onSubmit={handleJoinTeam} {...formState} />
 
       {formState.error && <Text>{formState.error.message}</Text>}
@@ -228,6 +229,12 @@ const Event = () => {
   const [formState, wrapAction] = useFormState();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const handleUpdateTeam = wrapAction(async ({ name, customFields }) => {
+    if (student.org) return;
+    await teamRef.update({ name, customFields: customFields ?? {} });
+    onClose();
+  });
+
   const handleLeaveTeam = wrapAction(async () => {
     if (student.org) return;
     await studentRef.update({ team: null });
@@ -248,7 +255,12 @@ const Event = () => {
       body: JSON.stringify({ studentId: student.id, eventId, parentEmail }),
     });
     if (!resp.ok) throw new Error(await resp.text());
-    onOpen();
+    openDialog({
+      type: "alert",
+      title: "Waiver Request Sent",
+      description:
+        "A waiver signature request has been sent to your parent/guardian. Please have them check their email to continue the process.",
+    });
   });
 
   const handleUnregister = () => {
@@ -306,9 +318,24 @@ const Event = () => {
           )}
 
           {!student.org && (
-            <Button size="sm" onClick={handleLeaveTeam} isLoading={formState.isLoading}>
-              Leave Team
-            </Button>
+            <ButtonGroup>
+              <Button flex="1" size="sm" onClick={onOpen}>
+                Edit Team
+              </Button>
+
+              <Button flex="1" size="sm" onClick={handleLeaveTeam} isLoading={formState.isLoading}>
+                Leave Team
+              </Button>
+
+              <AddTeamModal
+                isOpen={isOpen}
+                onClose={onClose}
+                onSubmit={handleUpdateTeam}
+                customFields={event.customTeamFields}
+                defaultValues={team}
+                {...formState}
+              />
+            </ButtonGroup>
           )}
         </Card>
       )}
@@ -370,24 +397,6 @@ const Event = () => {
                 Please enter their email address below:
               </Text>
               <WaiverRequestForm onSubmit={handleSubmitWaiver} {...formStateWaiver} />
-              <AlertDialog isOpen={isOpen} onClose={onClose}>
-                <AlertDialogOverlay>
-                  <AlertDialogContent>
-                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                      Waiver Request Sent
-                    </AlertDialogHeader>
-                    <AlertDialogBody>
-                      A waiver signature request has been sent to your parent/guardian. Please have them check their
-                      email to continue the process.
-                    </AlertDialogBody>
-                    <AlertDialogFooter>
-                      <Button colorScheme="blue" onClick={onClose}>
-                        OK
-                      </Button>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialogOverlay>
-              </AlertDialog>
             </>
           )}
         </>

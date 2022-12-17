@@ -18,17 +18,33 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
+import { makeCustomFieldsSchema, renderCustomFields } from "./forms/customFields";
+
 import FormField from "~/components/FormField";
 
-const schema = yup.object({
-  name: yup.string().required().label("Team Name"),
-});
+const AddTeamModal = ({
+  heading = "Create Team",
+  isOpen,
+  onClose,
+  onSubmit,
+  isLoading,
+  error,
+  defaultValues,
+  customFields = [],
+}) => {
+  const schema = useMemo(
+    () =>
+      yup.object({
+        name: yup.string().required().label("Team Name"),
+        customFields: makeCustomFieldsSchema(customFields),
+      }),
+    [customFields]
+  );
 
-const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
   const {
     register,
     handleSubmit,
@@ -36,6 +52,7 @@ const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
   } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
+    defaultValues,
   });
 
   const ref = useRef();
@@ -44,7 +61,7 @@ const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
     <Modal isOpen={isOpen} initialFocusRef={ref} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create Team</ModalHeader>
+        <ModalHeader>{heading}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
           <form id="add-team" onSubmit={handleSubmit(onSubmit)}>
@@ -64,6 +81,8 @@ const AddTeamModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
                 error={errors.name}
                 isRequired
               />
+
+              {renderCustomFields(customFields, register, errors)}
             </Stack>
           </form>
         </ModalBody>
