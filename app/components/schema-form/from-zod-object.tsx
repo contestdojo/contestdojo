@@ -9,10 +9,16 @@
 import type { ZodObject, ZodRawShape } from "zod";
 import type { FieldProps, FromZodProps } from "./from-zod";
 
+import { twMerge } from "tailwind-merge";
+
+import { Label } from "../ui";
 import { FromZod } from "./from-zod";
 
 export type ZodObjectFieldProps<T extends ZodObject<ZodRawShape>> = {
   [key in keyof T["shape"]]?: FieldProps<T["shape"][key]>;
+} & {
+  __label?: string;
+  __className?: string;
 };
 
 export function FromZodObject<T extends ZodObject<ZodRawShape>>({
@@ -22,8 +28,9 @@ export function FromZodObject<T extends ZodObject<ZodRawShape>>({
 }: Omit<FromZodProps<T>, "name"> & { name?: string }) {
   const items = Object.entries(type.shape);
 
-  return (
+  const elements = (
     <>
+      {fieldProps?.__label && <Label>{fieldProps.__label}</Label>}
       {items.map(([itemName, itemType]) => {
         return (
           <FromZod
@@ -36,4 +43,10 @@ export function FromZodObject<T extends ZodObject<ZodRawShape>>({
       })}
     </>
   );
+
+  if (fieldProps?.__className) {
+    return <div className={twMerge("flex flex-col gap-5", fieldProps.__className)}>{elements}</div>;
+  }
+
+  return elements;
 }

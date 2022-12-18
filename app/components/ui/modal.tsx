@@ -9,7 +9,6 @@
 import type { PropsWithChildren } from "react";
 
 import { Dialog, Transition } from "@headlessui/react";
-import clsx from "clsx";
 import { Fragment } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -48,7 +47,8 @@ export function Modal({ open, setOpen, className, children }: ModalProps) {
             >
               <Dialog.Panel
                 className={twMerge(
-                  clsx`relative w-full max-w-sm transform rounded-lg bg-white p-6 text-left shadow-xl transition-all ${className}`
+                  "relative w-full max-w-sm transform rounded-lg bg-white p-6 text-left shadow-xl transition-all",
+                  className
                 )}
               >
                 {children}

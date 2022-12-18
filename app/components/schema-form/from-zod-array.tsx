@@ -55,7 +55,7 @@ function ArrayItem<T extends ZodTypeAny>({
 
   return (
     <div className={clsx`flex gap-5 ${isDragging && "z-10"}`} style={style} ref={setNodeRef}>
-      <div className={twMerge(clsx`flex flex-1 flex-col gap-5 ${className}`)}>
+      <div className={twMerge("flex flex-1 flex-col gap-5", className)}>
         <FromZod {...props} />
       </div>
 

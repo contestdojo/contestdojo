@@ -9,7 +9,6 @@
 import type { PropsWithAs } from "~/lib/utils/props-with-as";
 
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
-import clsx from "clsx";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -40,7 +39,7 @@ export function FormControl<T extends React.ElementType = typeof Input>({
   const labelElement = label && <Label htmlFor={name}>{label}</Label>;
 
   return (
-    <div className={twMerge(clsx`flex flex-col gap-2 ${className}`)}>
+    <div className={twMerge("flex flex-col gap-2", className)}>
       {!labelInside && labelElement}
 
       <div className="flex flex-1 flex-col gap-2">

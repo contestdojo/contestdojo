@@ -12,6 +12,7 @@ import type { FormDefaults, Validator } from "remix-validated-form";
 import type { Event } from "~/lib/db.server";
 
 import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import clsx from "clsx";
 import { setFormDefaults, validationError } from "remix-validated-form";
@@ -33,10 +34,24 @@ const EventDetailsForm = z.object({
   description: zfd.text(),
 });
 
-const CostDetailsForm = z.object({
-  costPerStudent: zfd.numeric(z.number().optional()),
-  costDescription: zfd.text(z.string().optional()),
-});
+const CostDetailsForm = (event: Event) => {
+  const choices = event.customOrgFields?.map((x) => `customFields.${x.id}`) ?? [];
+
+  return z.object({
+    costPerStudent: zfd.numeric(z.number().optional()),
+    costDescription: zfd.text(z.string().optional()),
+    costAdjustments: zfd.repeatableOfType(
+      z.object({
+        rule: z.object({
+          field: zfd.text(z.enum(["id", "name", ...choices])),
+          rule: zfd.text(z.enum(["=", "!=", "=~", "!~", "in"])),
+          value: zfd.text(),
+        }),
+        adjustment: zfd.numeric(),
+      })
+    ),
+  });
+};
 
 const customFields = zfd
   .repeatableOfType(
@@ -81,15 +96,20 @@ const WaiverForm = z.object({
   waiver: zfd.text(z.string().optional()),
 });
 
+type LoaderData = {
+  event: Event;
+};
+
 export const loader: LoaderFunction = async ({ params }) => {
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
-
   const eventSnap = await db.event(params.eventId).get();
   const event = eventSnap.data();
-
   if (!event) throw new Response("Event not found.", { status: 404 });
 
-  return json<FormDefaults>({
+  console.log(event);
+
+  return json<LoaderData & FormDefaults>({
+    event,
     ...setFormDefaults("EventDetails", event),
     ...setFormDefaults("CostDetails", event),
     ...setFormDefaults("CustomFields", event),
@@ -101,11 +121,15 @@ export const loader: LoaderFunction = async ({ params }) => {
 
 export const action: ActionFunction = async ({ request, params }) => {
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
+  const eventSnap = await db.event(params.eventId).get();
+  const event = eventSnap.data();
+  if (!event) throw new Response("Event not found.", { status: 404 });
+
   const formData = await request.formData();
 
   let validator: Validator<Partial<Event>> | undefined;
   if (formData.get("_form") === "EventDetails") validator = withZod(EventDetailsForm);
-  if (formData.get("_form") === "CostDetails") validator = withZod(CostDetailsForm);
+  if (formData.get("_form") === "CostDetails") validator = withZod(CostDetailsForm(event));
   if (formData.get("_form") === "CustomFields") validator = withZod(CustomFieldsForm);
   if (formData.get("_form") === "CustomOrgFields") validator = withZod(CustomOrgFieldsForm);
   if (formData.get("_form") === "CustomTeamFields") validator = withZod(CustomTeamFieldsForm);
@@ -133,6 +157,8 @@ function Section({ title, className, children }: SectionProps) {
 }
 
 export default function SettingsRoute() {
+  const { event } = useLoaderData<LoaderData>();
+
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <Section title="Event Details">
@@ -142,7 +168,7 @@ export default function SettingsRoute() {
           method="post"
           schema={EventDetailsForm}
           buttonLabel="Save"
-          fieldProps={{ name: { label: "Event Name" }, description: { multiline: true, rows: 10 } }}
+          fieldProps={{ name: { label: "Event Name" }, description: { multiline: true, rows: 20 } }}
         />
       </Section>
 
@@ -151,9 +177,23 @@ export default function SettingsRoute() {
           className="flex-1"
           id="CostDetails"
           method="post"
-          schema={CostDetailsForm}
+          schema={CostDetailsForm(event)}
           buttonLabel="Save"
-          fieldProps={{ costDescription: { multiline: true, rows: 10 } }}
+          fieldProps={{
+            costPerStudent: { label: "Base Cost Per Student" },
+            costDescription: { multiline: true, rows: 6 },
+            costAdjustments: {
+              label: "Cost Adjustments",
+              elementClassName: "rounded-lg border border-gray-300 p-4 shadow-sm",
+              element: {
+                rule: {
+                  __className: "md:flex-row",
+                  rule: { className: "grow-0" },
+                },
+                adjustment: { label: "Additional Cost Per Student" },
+              },
+            },
+          }}
         />
       </Section>
 
