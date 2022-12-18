@@ -17,8 +17,8 @@ export type Authorization = {
   rules: Rule[];
 };
 
-export const testRule = (rule: Rule, student: any) => {
-  const value = getNestedPath(student, rule.field).toString().trim();
+export const testRule = (rule: Rule, object: any) => {
+  const value = getNestedPath(object, rule.field).toString().trim();
 
   if (rule.rule === "=") return rule.value == value;
   if (rule.rule === "!=") return rule.value != value;
@@ -32,8 +32,8 @@ export const testRule = (rule: Rule, student: any) => {
       .includes(value);
 };
 
-export const testAuthorization = (authorization: Authorization, student: any) => {
-  const tr = (x: Rule) => testRule(x, student);
+export const testAuthorization = (authorization: Authorization, object: any) => {
+  const tr = (x: Rule) => testRule(x, object);
   if (authorization.mode === "any-allow") return authorization.rules.some(tr);
   if (authorization.mode === "all-allow") return authorization.rules.every(tr);
   if (authorization.mode === "any-deny") return !authorization.rules.some(tr);

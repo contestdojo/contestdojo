@@ -26,13 +26,13 @@ import {
   Tooltip,
   useDisclosure,
   Wrap,
-  WrapItem,
+  WrapItem
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
 import firebase from "firebase";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HiClipboardCheck, HiDotsHorizontal, HiExclamation, HiPencil, HiTrash } from "react-icons/hi";
 import { useAuth, useFirestore, useFirestoreCollectionData, useFirestoreDocData, useUser } from "reactfire";
 
@@ -47,6 +47,7 @@ import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import RegisterOrgForm from "~/components/forms/RegisterOrgForm";
 import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
+import { testRule } from "~/helpers/rules";
 import { toDict, useFormState } from "~/helpers/utils";
 
 const StudentCard = ({ id, fname, lname, email, waiver, onEdit, onDelete }) => {
@@ -259,6 +260,7 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
 
 const Teams = ({
   maxTeams,
+  eventOrg,
   teams,
   waiver,
   onAddTeam,
@@ -266,6 +268,7 @@ const Teams = ({
   onDeleteTeam,
   studentsByTeam,
   costPerStudent,
+  costAdjustments,
   onEditStudent,
   maxStudents,
   seatsRemaining,
@@ -274,6 +277,16 @@ const Teams = ({
   const { data: event } = useEvent();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
+
+  let effectiveCostPerStudent = useMemo(() => {
+    let value = costPerStudent;
+    for (const adjustment of costAdjustments) {
+      if (testRule(adjustment.rule, eventOrg)) {
+        value += adjustment.adjustment;
+      }
+    }
+    return value;
+  }, [eventOrg, costPerStudent, costAdjustments]);
 
   const handleAddTeam = wrapAction(async (values) => {
     await onAddTeam(values);
@@ -294,16 +307,16 @@ const Teams = ({
       {event.teamsEnabled && (
         <p>
           Click the &ldquo;Add Team&rdquo; button to create a new team.
-          {costPerStudent > 0 && (
+          {effectiveCostPerStudent > 0 && (
             <>
               {" "}
               Before you can add students to teams, you must purchase seats. Each seat currently costs{" "}
-              <b>${costPerStudent} USD</b>. {event.costDescription ?? ""}
+              <b>${effectiveCostPerStudent} USD</b>. {event.costDescription ?? ""}
             </>
           )}
         </p>
       )}
-      {costPerStudent > 0 && (
+      {effectiveCostPerStudent > 0 && (
         <p>
           You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> seats remaining. Seats
           are not associated with any particular student, and unassigned students do not use a seat.
@@ -320,7 +333,7 @@ const Teams = ({
               onUpdate={(update) => onUpdateTeam(x.id, update)}
               onDelete={() => onDeleteTeam(x.id)}
               students={studentsByTeam[x.id] ?? []}
-              needSeats={costPerStudent > 0 && seatsRemaining <= 0}
+              needSeats={effectiveCostPerStudent > 0 && seatsRemaining <= 0}
               waiver={waiver}
             />
           ))}
@@ -341,7 +354,7 @@ const Teams = ({
               </Box>
             </Tooltip>
           ))}
-        {costPerStudent > 0 && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
+        {effectiveCostPerStudent > 0 && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
       </ButtonGroup>
       <AddTeamModal
         isOpen={isOpen}
@@ -454,7 +467,7 @@ const TeamsContent = () => {
 
   // Get students
   const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
-  const { data: eventOrg } = useFirestoreDocData(eventOrgRef);
+  const { data: eventOrg } = useFirestoreDocData(eventOrgRef, { idField: "id" });
 
   // Get teams
   const teamsRef = eventRef.collection("teams");
@@ -615,12 +628,14 @@ const TeamsContent = () => {
         <Teams
           event={event}
           teams={teams}
+          eventOrg={eventOrg}
           maxTeams={event.maxTeams}
           studentsByTeam={studentsByTeam}
           onAddTeam={handleAddTeam}
           onUpdateTeam={handleUpdateTeam}
           onDeleteTeam={handleDeleteTeam}
           costPerStudent={event.costPerStudent}
+          costAdjustments={event.costAdjustments}
           maxStudents={eventOrg?.maxStudents ?? 0}
           seatsRemaining={seatsRemaining}
           stripeAccount={entity.stripeAccountId}
