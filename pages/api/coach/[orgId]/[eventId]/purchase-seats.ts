@@ -67,7 +67,7 @@ const handler = withFirebaseAuth(async (req, res) => {
   const metadata = { orgId, eventId, numSeats: number };
 
   const amount = effectiveCostPerStudent * 100;
-  const application_fee_amount = (eventData.fee ?? (eventData.feeFactor ?? 0.2) * amount) * number;
+  const application_fee_amount = (eventData.fee ?? (eventData.feeFactor ?? 0) * amount) * number;
 
   const session = await stripe.checkout.sessions.create(
     {
