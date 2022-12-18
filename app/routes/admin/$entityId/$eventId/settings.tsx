@@ -64,8 +64,11 @@ const customFields = zfd
         if (items.length === 0) return null;
         return items;
       }),
-      required: zfd.checkbox(),
-      hidden: zfd.checkbox(),
+      flags: z.object({
+        required: zfd.checkbox(),
+        editable: zfd.checkbox(),
+        hidden: zfd.checkbox(),
+      }),
     })
   )
   .superRefine((items, ctx) => {
@@ -88,6 +91,12 @@ const customFieldsFieldProps = {
     choices: {
       label: "Choices (optional)",
       placeholder: "Enter choices, comma-separated...",
+    },
+    flags: {
+      __className: "flex-col gap-0.5",
+      required: { labelInside: true },
+      editable: { labelInside: true },
+      hidden: { labelInside: true },
     },
   },
 };

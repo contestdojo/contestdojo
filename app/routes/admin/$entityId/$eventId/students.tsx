@@ -53,7 +53,7 @@ const StudentUpdateForm = (eventId: Event["id"], customFields: Event["customFiel
         let field;
         if (x.choices && isNotEmpty(x.choices)) field = z.enum(x.choices);
         else field = z.string();
-        if (!x.required) field = field.optional();
+        if (!x.flags.required) field = field.optional();
         return [x.id, zfd.text(field)];
       })
     );

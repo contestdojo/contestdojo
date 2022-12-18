@@ -55,9 +55,12 @@ const Entity = zfb.firestoreObject(
 const EventCustomField = z.object({
   id: z.string(),
   label: z.string(),
-  required: z.boolean(),
   choices: z.array(z.string()).optional().nullable(),
-  hidden: z.boolean().optional(),
+  flags: z.object({
+    required: z.boolean().optional(),
+    editable: z.boolean().optional(),
+    hidden: z.boolean().optional(),
+  }),
 });
 
 const Event = zfb.firestoreObject(
