@@ -43,7 +43,7 @@ const CostDetailsForm = (event: Event) => {
     costAdjustments: zfd.repeatableOfType(
       z.object({
         rule: z.object({
-          field: zfd.text(z.enum(["id", "name", ...choices])),
+          field: zfd.text(z.enum(["id", ...choices])),
           rule: zfd.text(z.enum(["=", "!=", "=~", "!~", "in"])),
           value: zfd.text(),
         }),
