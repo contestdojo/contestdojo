@@ -26,7 +26,7 @@ import {
   Tooltip,
   useDisclosure,
   Wrap,
-  WrapItem
+  WrapItem,
 } from "@chakra-ui/react";
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
@@ -357,6 +357,7 @@ const Teams = ({
         {effectiveCostPerStudent > 0 && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
       </ButtonGroup>
       <AddTeamModal
+        initial
         isOpen={isOpen}
         onClose={onClose}
         onSubmit={handleAddTeam}
@@ -432,6 +433,7 @@ const Students = ({ students, onAddStudent, onEditStudent, event, waiver, onDele
         Invite Student
       </Button>
       <AddStudentModal
+        initial
         isOpen={isOpen}
         onClose={onClose}
         onSubmit={handleAddStudent}

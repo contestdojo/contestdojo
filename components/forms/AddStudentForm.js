@@ -15,6 +15,7 @@ import { makeCustomFieldsSchema, renderCustomFields } from "./customFields";
 import FormField from "~/components/FormField";
 
 const AddStudentForm = ({
+  initial = false,
   initialFocusRef,
   onSubmit,
   error,
@@ -33,7 +34,7 @@ const AddStudentForm = ({
         lname: yup.string().required().label("Last Name"),
         ...(!hasCustomGrade ? { grade: yup.number().typeError("Invalid number").required().label("Grade") } : {}),
         ...(allowEditEmail ? { email: yup.string().email().required().label("Email Address") } : {}),
-        customFields: makeCustomFieldsSchema(customFields),
+        customFields: makeCustomFieldsSchema(initial, customFields),
       }),
     [customFields, allowEditEmail]
   );
@@ -98,7 +99,7 @@ const AddStudentForm = ({
           </FormField>
         )}
 
-        {renderCustomFields(customFields, register, errors)}
+        {renderCustomFields(initial, customFields, register, errors)}
 
         {showButton && (
           <Button isLoading={isLoading} type="submit" colorScheme="blue">

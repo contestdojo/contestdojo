@@ -181,6 +181,7 @@ const CreateOrJoinTeam = () => {
       </ButtonGroup>
 
       <AddTeamModal
+        initial
         isOpen={isOpen}
         onClose={onClose}
         onSubmit={handleCreateTeam}

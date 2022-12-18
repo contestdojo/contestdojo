@@ -12,11 +12,19 @@ import * as yup from "yup";
 
 import { makeCustomFieldsSchema, renderCustomFields } from "./customFields";
 
-const RegisterOrgForm = ({ onSubmit, error, customFields = [], isLoading, buttonText, defaultValues }) => {
+const RegisterOrgForm = ({
+  initial = false,
+  onSubmit,
+  error,
+  customFields = [],
+  isLoading,
+  buttonText,
+  defaultValues,
+}) => {
   const schema = useMemo(
     () =>
       yup.object({
-        customFields: makeCustomFieldsSchema(customFields),
+        customFields: makeCustomFieldsSchema(initial, customFields),
       }),
     [customFields]
   );
@@ -41,7 +49,7 @@ const RegisterOrgForm = ({ onSubmit, error, customFields = [], isLoading, button
           </Alert>
         )}
 
-        {renderCustomFields(customFields, register, errors)}
+        {renderCustomFields(initial, customFields, register, errors)}
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
           {buttonText ?? "Submit"}

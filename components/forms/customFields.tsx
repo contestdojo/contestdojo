@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Select } from "@chakra-ui/react";
+import { Box, Select, Tooltip } from "@chakra-ui/react";
 import { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import * as yup from "yup";
 
@@ -21,14 +21,14 @@ export type CustomField = {
   };
 };
 
-export const makeCustomFieldsSchema = (customFields: CustomField[]) =>
+export const makeCustomFieldsSchema = (initial: boolean, customFields: CustomField[]) =>
   yup.object(
     Object.fromEntries(
       customFields
         .filter((v) => !v.flags.hidden)
         .map((v) => {
           let field = yup.string().label(v.label);
-          if (v.flags.required) field = field.required();
+          if (v.flags.required && (v.flags.editable || initial)) field = field.required();
           if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
           return [v.id, field];
         })
@@ -36,28 +36,42 @@ export const makeCustomFieldsSchema = (customFields: CustomField[]) =>
   );
 
 export const renderCustomFields = (
+  initial: boolean,
   customFields: CustomField[],
   register: UseFormRegister<any>,
   errors: Partial<FieldErrorsImpl<any>>
 ) =>
   customFields
     .filter((v) => !v.flags.hidden)
-    .map((x) => (
-      // @ts-ignore
-      <FormField
-        key={`customFields.${x.id}`}
-        {...register(`customFields.${x.id}`)}
-        label={x.label}
-        error={errors[`customFields.${x.id}`]}
-        isRequired={x.flags.required}
-        as={x.choices ? Select : undefined}
-        placeholder={x.choices ? "Select..." : ""}
-      >
-        {x.choices &&
-          x.choices.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-      </FormField>
-    ));
+    .map((x) => {
+      const field = (
+        // @ts-ignore
+        <FormField
+          key={`customFields.${x.id}`}
+          {...register(`customFields.${x.id}`)}
+          label={x.label}
+          error={errors[`customFields.${x.id}`]}
+          isRequired={x.flags.required && (x.flags.editable || initial)}
+          as={x.choices ? Select : undefined}
+          placeholder={x.choices ? "Select..." : ""}
+          isDisabled={!x.flags.editable && !initial}
+        >
+          {x.choices &&
+            x.choices.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+        </FormField>
+      );
+
+      if (!x.flags.editable && !initial) {
+        return (
+          <Tooltip label="This field may not be edited. Please contact the tournament organizer if you have any questions or concerns.">
+            <Box>{field}</Box>
+          </Tooltip>
+        );
+      }
+
+      return field;
+    });

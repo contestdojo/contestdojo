@@ -76,6 +76,7 @@ const ApplyContent = () => {
 
       <Stack spacing={4}>
         <RegisterOrgForm
+          initial
           onSubmit={handleSubmit}
           customFields={event.customOrgFields}
           buttonText="Begin Registration"

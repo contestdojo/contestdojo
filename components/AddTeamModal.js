@@ -28,6 +28,7 @@ import { makeCustomFieldsSchema, renderCustomFields } from "./forms/customFields
 import FormField from "~/components/FormField";
 
 const AddTeamModal = ({
+  initial = false,
   heading = "Create Team",
   isOpen,
   onClose,
@@ -43,7 +44,7 @@ const AddTeamModal = ({
     () =>
       yup.object({
         name: yup.string().required().label("Team Name"),
-        customFields: makeCustomFieldsSchema(customFields),
+        customFields: makeCustomFieldsSchema(initial, customFields),
       }),
     [customFields]
   );
@@ -85,7 +86,7 @@ const AddTeamModal = ({
                 isRequired
               />
 
-              {renderCustomFields(customFields, register, errors)}
+              {renderCustomFields(initial, customFields, register, errors)}
             </Stack>
           </form>
         </ModalBody>
