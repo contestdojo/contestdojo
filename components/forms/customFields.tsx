@@ -13,19 +13,22 @@ import FormField from "~/components/FormField";
 export type CustomField = {
   id: string;
   label: string;
-  required: boolean;
   choices?: string[];
-  hidden?: boolean;
+  flags: {
+    required?: boolean;
+    editable?: boolean;
+    hidden?: boolean;
+  };
 };
 
 export const makeCustomFieldsSchema = (customFields: CustomField[]) =>
   yup.object(
     Object.fromEntries(
       customFields
-        .filter((v) => !v.hidden)
+        .filter((v) => !v.flags.hidden)
         .map((v) => {
           let field = yup.string().label(v.label);
-          if (v.required) field = field.required();
+          if (v.flags.required) field = field.required();
           if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
           return [v.id, field];
         })
@@ -38,7 +41,7 @@ export const renderCustomFields = (
   errors: Partial<FieldErrorsImpl<any>>
 ) =>
   customFields
-    .filter((v) => !v.hidden)
+    .filter((v) => !v.flags.hidden)
     .map((x) => (
       // @ts-ignore
       <FormField
@@ -46,7 +49,7 @@ export const renderCustomFields = (
         {...register(`customFields.${x.id}`)}
         label={x.label}
         error={errors[`customFields.${x.id}`]}
-        isRequired={x.required}
+        isRequired={x.flags.required}
         as={x.choices ? Select : undefined}
         placeholder={x.choices ? "Select..." : ""}
       >
