@@ -8,23 +8,20 @@ import sendgrid from "@sendgrid/mail";
 import absoluteUrl from "next-absolute-url";
 
 import { firestore, withFirebaseAuth } from "~/helpers/firebase";
-import { testRule } from "~/helpers/rules";
 import stripe from "~/helpers/stripe";
 
 sendgrid.setApiKey(process.env.SENDGRID_KEY as string);
 
-const handler = withFirebaseAuth(async (req, res) => {
+const handler = withFirebaseAuth(async (req, res, { uid }) => {
   if (req.method !== "POST") return res.status(405).end();
 
   // Validate query & body
 
-  const { orgId, eventId } = req.query;
-  if (typeof orgId !== "string") return res.status(400).end();
+  const { eventId } = req.query;
   if (typeof eventId !== "string") return res.status(400).end();
 
-  const { email, number } = req.body;
+  const { email } = req.body;
   if (typeof email !== "string") return res.status(400).end();
-  if (typeof number !== "number") return res.status(400).end();
 
   // Get connected account
 
@@ -39,20 +36,6 @@ const handler = withFirebaseAuth(async (req, res) => {
   if (!entityData) return res.status(404).end();
   if (!entityData.stripeAccountId) return res.status(400).end("The event organizer has not yet configured payments.");
 
-  // Calculate effective cost
-
-  const eventOrgRef = eventRef.collection("orgs").doc(orgId);
-  const eventOrg = await eventOrgRef.get();
-  const eventOrgData = eventOrg.data();
-  if (!eventOrgData) return res.status(400).end();
-
-  let effectiveCostPerStudent = eventData.costPerStudent;
-  for (const adjustment of eventData.costAdjustments) {
-    if (testRule(adjustment.rule, eventOrgData)) {
-      effectiveCostPerStudent += adjustment.adjustment;
-    }
-  }
-
   // Do payment
 
   const customers = await stripe.customers.list({ email, limit: 1 }, { stripeAccount: entityData.stripeAccountId });
@@ -64,10 +47,10 @@ const handler = withFirebaseAuth(async (req, res) => {
   }
 
   const { origin } = absoluteUrl(req);
-  const metadata = { registrationType: "org", orgId, eventId, numSeats: number };
+  const metadata = { registrationType: "student", eventId, studentId: uid };
 
-  const amount = effectiveCostPerStudent * 100;
-  const application_fee_amount = (eventData.fee ?? (eventData.feeFactor ?? 0) * amount) * number;
+  const amount = eventData.costPerStudent * 100;
+  const application_fee_amount = eventData.fee ?? (eventData.feeFactor ?? 0) * amount;
 
   const session = await stripe.checkout.sessions.create(
     {
@@ -80,11 +63,11 @@ const handler = withFirebaseAuth(async (req, res) => {
           name: `Student Seat for ${eventData.name}`,
           currency: "usd",
           amount,
-          quantity: number,
+          quantity: 1,
         },
       ],
-      success_url: `${origin}/coach/${orgId}/${eventId}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/coach/${orgId}/${eventId}/teams`,
+      success_url: `${origin}/student/${eventId}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/student/${eventId}/teams`,
       allow_promotion_codes: true,
       ...customer,
     },
@@ -92,6 +75,6 @@ const handler = withFirebaseAuth(async (req, res) => {
   );
 
   res.status(200).json({ id: session.id });
-}, "coach");
+}, "student");
 
 export default handler;

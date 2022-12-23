@@ -17,17 +17,43 @@ const processCheckoutSessionCompleted = async (
   res: NextApiResponse,
   session: Stripe.Checkout.Session
 ) => {
-  let { numSeats, eventId, orgId } = session.metadata as any;
-  if (typeof numSeats !== "string" && typeof numSeats !== "number") return res.status(400).end("Missing num seats");
-  if (typeof eventId !== "string") return res.status(400).end("Missing event id");
-  if (typeof orgId !== "string") return res.status(400).end("Missing org id");
+  if (session.metadata?.registrationType === "org") {
+    let { numSeats, eventId, orgId } = session.metadata ?? {};
+    if (typeof numSeats !== "string" && typeof numSeats !== "number") return res.status(400).end("Missing num seats");
+    if (typeof eventId !== "string") return res.status(400).end("Missing event id");
+    if (typeof orgId !== "string") return res.status(400).end("Missing org id");
 
-  // Get event
+    // Get event
 
-  const eventOrgRef = firestore.collection("events").doc(eventId).collection("orgs").doc(orgId);
-  await eventOrgRef.set({ maxStudents: adminFirestore.FieldValue.increment(Number(numSeats)) }, { merge: true });
+    const eventOrgRef = firestore.collection("events").doc(eventId).collection("orgs").doc(orgId);
+    await eventOrgRef.set({ maxStudents: adminFirestore.FieldValue.increment(Number(numSeats)) }, { merge: true });
 
-  res.status(200).end();
+    return res.status(200).end();
+  }
+
+  if (session.metadata?.registrationType === "student") {
+    let { eventId, studentId } = session.metadata ?? {};
+    if (typeof eventId !== "string") return res.status(400).end("Missing event id");
+    if (typeof studentId !== "string") return res.status(400).end("Missing student id");
+
+    // Get event
+
+    const userRef = firestore.collection("users").doc(studentId);
+    const userSnap = await userRef.get();
+    const userData = userSnap.data();
+
+    if (!userData) return res.status(400).end("Unknown user");
+
+    const studentRef = firestore.collection("events").doc(eventId).collection("students").doc(studentId);
+    await studentRef.set(
+      { id: studentId, email: userData.email, user: userRef, org: null, stripeSessionId: session.id },
+      { merge: true }
+    );
+
+    return res.status(200).end();
+  }
+
+  res.status(400).end();
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {

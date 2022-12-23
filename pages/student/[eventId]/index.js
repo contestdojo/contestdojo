@@ -21,6 +21,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { loadStripe } from "@stripe/stripe-js";
 import Hashids from "hashids";
 import { useRouter } from "next/router";
 import { HiUser } from "react-icons/hi";
@@ -57,22 +58,44 @@ const DownloadWaiver = ({ waiver }) => {
 };
 
 const StudentRegistration = ({ event }) => {
+  const auth = useAuth();
+  const { data: entity } = useFirestoreDocData(event.owner);
   const { data: user, ref: userRef } = useUserData();
   const { ref: eventRef } = useEvent();
   const studentRef = eventRef.collection("students").doc(user.uid);
 
   const [formState, wrapAction] = useFormState();
 
-  const handleUpdate = wrapAction(async (_values) => {
-    const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
-    await studentRef.set(values, { merge: true });
+  const handleSubmit = wrapAction(async (_values) => {
+    if (event.costPerStudent) {
+      const authorization = await auth.currentUser.getIdToken();
+      const resp = await fetch(`/api/student/${eventRef.id}/pay`, {
+        method: "POST",
+        headers: { authorization, "content-type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+      });
+      if (!resp.ok) throw new Error(await resp.text());
+      const data = await resp.json();
+
+      const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY, { stripeAccount: entity.stripeAccountId });
+
+      const stripe = await stripePromise;
+      const result = await stripe.redirectToCheckout({
+        sessionId: data.id,
+      });
+
+      if (result.error) throw new Error(result.error.message);
+    } else {
+      const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
+      await studentRef.set(values, { merge: true });
+    }
   });
 
   return (
     <Stack spacing={4}>
       <Heading size="lg">Registration</Heading>
       <AddStudentForm
-        onSubmit={handleUpdate}
+        onSubmit={handleSubmit}
         customFields={event.customFields ?? []}
         allowEditEmail={false}
         defaultValues={{ fname: user.fname, lname: user.lname, email: user.email }}
@@ -157,7 +180,7 @@ const CreateOrJoinTeam = () => {
     <Alert
       as={Stack}
       spacing={4}
-      status="error"
+      status="warning"
       height="64"
       flexDir="column"
       textAlign="center"
@@ -268,7 +291,8 @@ const Event = () => {
     openDialog({
       type: "confirm",
       title: "Are you sure?",
-      description: "If you are in a team, you will be removed from the team. This action is irreversible.",
+      description:
+        'This action is irreversible and <b style="color: red">payments will not be refunded</b>. You most likely don\'t want to do this. Please contact the event organizer if you have any concerns.',
       onConfirm: async () => {
         await studentRef.delete();
       },
@@ -414,7 +438,7 @@ const Event = () => {
         defaultValues={student}
       />
       {!student.org && (
-        <Button colorScheme="red" onClick={handleUnregister}>
+        <Button colorScheme="red" variant="link" onClick={handleUnregister}>
           Unregister
         </Button>
       )}
