@@ -24,6 +24,7 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import Hashids from "hashids";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { HiUser } from "react-icons/hi";
 import {
   useAuth,
@@ -35,16 +36,17 @@ import {
   useUser,
 } from "reactfire";
 
-import AddStudentForm from "../../../components/forms/AddStudentForm";
-
 import AddTeamModal from "~/components/AddTeamModal";
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
+import FormField from "~/components/FormField";
+import AddStudentForm from "~/components/forms/AddStudentForm";
 import WaiverRequestForm from "~/components/forms/WaiverRequestForm";
 import JoinTeamModal from "~/components/JoinTeamModal";
 import Markdown from "~/components/Markdown";
+import RadioToggle from "~/components/RadioToggle";
 import { useFormState, useUserData } from "~/helpers/utils";
 
 const DownloadWaiver = ({ waiver }) => {
@@ -58,6 +60,9 @@ const DownloadWaiver = ({ waiver }) => {
 };
 
 const StudentRegistration = ({ event }) => {
+  const [registrationType, setRegistrationType] = useState(event.studentRegistrationEnabled ? "student" : "org");
+  const [orgJoinCode, setOrgJoinCode] = useState("");
+
   const auth = useAuth();
   const { data: entity } = useFirestoreDocData(event.owner);
   const { data: user, ref: userRef } = useUserData();
@@ -66,34 +71,70 @@ const StudentRegistration = ({ event }) => {
 
   const [formState, wrapAction] = useFormState();
 
+  const handleStudentPurchase = async () => {
+    const authorization = await auth.currentUser.getIdToken();
+    const resp = await fetch(`/api/student/${eventRef.id}/pay`, {
+      method: "POST",
+      headers: { authorization, "content-type": "application/json" },
+      body: JSON.stringify({ email: user.email }),
+    });
+    if (!resp.ok) throw new Error(await resp.text());
+    const data = await resp.json();
+
+    const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY, { stripeAccount: entity.stripeAccountId });
+
+    const stripe = await stripePromise;
+    const result = await stripe.redirectToCheckout({
+      sessionId: data.id,
+    });
+
+    if (result.error) throw new Error(result.error.message);
+  };
+
   const handleSubmit = wrapAction(async (_values) => {
-    if (event.costPerStudent) {
-      const authorization = await auth.currentUser.getIdToken();
-      const resp = await fetch(`/api/student/${eventRef.id}/pay`, {
-        method: "POST",
-        headers: { authorization, "content-type": "application/json" },
-        body: JSON.stringify({ email: user.email }),
-      });
-      if (!resp.ok) throw new Error(await resp.text());
-      const data = await resp.json();
+    if (registrationType === "org") {
+      const orgQuery = eventRef.collection("orgs").where("code", "==", orgJoinCode).limit(1);
+      const orgs = await orgQuery.get();
+      if (orgs.empty) throw new Error("There is no team with that code!");
 
-      const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY, { stripeAccount: entity.stripeAccountId });
-
-      const stripe = await stripePromise;
-      const result = await stripe.redirectToCheckout({
-        sessionId: data.id,
-      });
-
-      if (result.error) throw new Error(result.error.message);
-    } else {
-      const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
+      const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: orgs.docs[0].ref };
       await studentRef.set(values, { merge: true });
+    }
+
+    if (registrationType === "student") {
+      if (event.costPerStudent) {
+        await handleStudentPurchase();
+      } else {
+        const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
+        await studentRef.set(values, { merge: true });
+      }
     }
   });
 
   return (
     <Stack spacing={4}>
       <Heading size="lg">Registration</Heading>
+
+      <RadioToggle
+        options={[
+          ["Register as Independent Student", "student"],
+          ["Register with an Organization", "org"],
+        ]}
+        name="registrationType"
+        value={registrationType}
+        onChange={setRegistrationType}
+      />
+
+      {registrationType === "org" && (
+        <FormField
+          name="orgJoinCode"
+          label="Organization Join Code"
+          placeholder="abcd"
+          componentProps={{ value: orgJoinCode, onChange: (e) => setOrgJoinCode(e.target.value) }}
+          isRequired
+        />
+      )}
+
       <AddStudentForm
         onSubmit={handleSubmit}
         customFields={event.customFields ?? []}

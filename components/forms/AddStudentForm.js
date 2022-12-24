@@ -16,7 +16,6 @@ import FormField from "~/components/FormField";
 
 const AddStudentForm = ({
   initial = false,
-  initialFocusRef,
   onSubmit,
   error,
   customFields,

@@ -44,10 +44,17 @@ const RadioToggle = ({ name, inputRef, value, defaultValue, options, onChange })
   return (
     <HStack {...group}>
       {options.map((value) => {
+        let text = value;
+
+        if (Array.isArray(value)) {
+          text = value[0];
+          value = value[1];
+        }
+
         const radio = getRadioProps({ value });
         return (
           <RadioItem key={value} {...radio} inputRef={inputRef}>
-            {value}
+            {text}
           </RadioItem>
         );
       })}

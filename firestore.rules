@@ -91,7 +91,7 @@ service cloud.firestore {
 
       match /students/{studentId} {
         allow read: if true;
-        allow create: if isEventAdmin() || notFrozenAnd(isOrgAdminOf(request.resource.data.org));
+        allow create: if isEventAdmin() || notFrozenAnd(isOrgAdminOf(request.resource.data.org) || get(eventRef()).data.studentRegistrationEnabled == true);
         allow update, delete: if (
         isEventAdmin()
           || (
