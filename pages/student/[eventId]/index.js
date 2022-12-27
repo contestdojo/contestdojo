@@ -478,11 +478,9 @@ const Event = () => {
         {...formState}
         defaultValues={student}
       />
-      {!student.org && (
-        <Button colorScheme="red" variant="link" onClick={handleUnregister}>
-          Unregister
-        </Button>
-      )}
+      <Button colorScheme="red" variant="link" onClick={handleUnregister}>
+        Unregister
+      </Button>
     </Stack>
   );
 };
