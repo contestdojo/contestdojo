@@ -63,6 +63,7 @@ const StudentRegistration = ({ event }) => {
   const [registrationType, setRegistrationType] = useState(event.studentRegistrationEnabled ? "student" : "org");
   const [orgJoinCode, setOrgJoinCode] = useState("");
 
+  const firestore = useFirestore();
   const auth = useAuth();
   const { data: entity } = useFirestoreDocData(event.owner);
   const { data: user, ref: userRef } = useUserData();
@@ -97,7 +98,13 @@ const StudentRegistration = ({ event }) => {
       const orgs = await orgQuery.get();
       if (orgs.empty) throw new Error("There is no team with that code!");
 
-      const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: orgs.docs[0].ref };
+      const values = {
+        ..._values,
+        id: userRef.id,
+        email: user.email,
+        user: userRef,
+        org: firestore.collection("orgs").doc(orgs.docs[0].id),
+      };
       await studentRef.set(values, { merge: true });
     }
 
@@ -351,7 +358,7 @@ const Event = () => {
         {student.org && (
           <>
             {event.teamsEnabled && student.team && `Your coach at ${org.name} has assigned you to Team ${team.name}. `}
-            {event.teamsEnabled && !student.team && `You have yet to be assigned a team by your coach. `}
+            {event.teamsEnabled && !student.team && `You have yet to be assigned a team by your coach at ${org.name}. `}
           </>
         )}
       </p>
