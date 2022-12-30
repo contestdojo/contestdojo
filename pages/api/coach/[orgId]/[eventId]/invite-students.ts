@@ -37,8 +37,6 @@ const handler = withFirebaseAuth(async (req, res) => {
   const eventOrgData = eventOrg.data();
   if (!eventOrgData) return res.status(400).end();
 
-  console.log(emails);
-
   await sendgrid.send({
     to: emails,
     isMultiple: true,

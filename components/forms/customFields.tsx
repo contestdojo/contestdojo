@@ -33,7 +33,6 @@ export const makeCustomFieldsSchema = (initial: boolean, customFields: CustomFie
           if (v.flags.required && (v.flags.editable || initial)) field = field.required();
           if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
           if (v.validationRegex) field = field.matches(new RegExp(v.validationRegex));
-          console.log(v.validationRegex);
           return [v.id, field];
         })
     )
