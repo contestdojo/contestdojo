@@ -560,13 +560,13 @@ const TeamsContent = () => {
   };
 
   const handleInviteStudents = async ({ emails }) => {
-    const batch = firestore.batch();
-    for (const email of emails) {
-      batch.set(eventOrgRef.collection("invites").doc(email), {
-        invited: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-    }
-    await batch.commit();
+    const authorization = await auth.currentUser.getIdToken();
+    const resp = await fetch(`/api/coach/${orgRef.id}/${eventRef.id}/invite-students`, {
+      method: "POST",
+      headers: { authorization, "content-type": "application/json" },
+      body: JSON.stringify({ emails }),
+    });
+    if (!resp.ok) throw new Error(await resp.text());
   };
 
   const handleAddStudent = async (values) => {
