@@ -56,6 +56,8 @@ const EventCustomField = z.object({
   id: z.string(),
   label: z.string(),
   choices: z.array(z.string()).optional().nullable(),
+  helpText: z.string().optional().nullable(),
+  validationRegex: z.string().optional().nullable(),
   flags: z.object({
     required: z.boolean().optional(),
     editable: z.boolean().optional(),

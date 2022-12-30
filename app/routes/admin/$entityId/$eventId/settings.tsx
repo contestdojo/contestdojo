@@ -64,6 +64,8 @@ const customFields = zfd
         if (items.length === 0) return null;
         return items;
       }),
+      helpText: zfd.text(z.string().optional()).transform((x) => x ?? null),
+      validationRegex: zfd.text(z.string().optional()).transform((x) => x ?? null),
       flags: z.object({
         required: zfd.checkbox(),
         editable: zfd.checkbox(),
@@ -97,6 +99,10 @@ const customFieldsFieldProps = {
       required: { labelInside: true },
       editable: { labelInside: true },
       hidden: { labelInside: true },
+    },
+    validationRegex: {
+      label: "Validation Regex (contains)",
+      placeholder: "^[A-Za-z]+$",
     },
   },
 };
