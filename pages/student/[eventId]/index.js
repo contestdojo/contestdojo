@@ -24,7 +24,7 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import Hashids from "hashids";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiUser } from "react-icons/hi";
 import {
   useAuth,
@@ -62,6 +62,8 @@ const DownloadWaiver = ({ waiver }) => {
 const StudentRegistration = ({ event }) => {
   const [registrationType, setRegistrationType] = useState(event.studentRegistrationEnabled ? "student" : "org");
   const [orgJoinCode, setOrgJoinCode] = useState("");
+  const [invitedOrg, setInvitedOrg] = useState(null);
+  const [invitedOrgCode, setInvitedOrgCode] = useState(null);
 
   const firestore = useFirestore();
   const auth = useAuth();
@@ -71,6 +73,21 @@ const StudentRegistration = ({ event }) => {
   const studentRef = eventRef.collection("students").doc(user.uid);
 
   const [formState, wrapAction] = useFormState();
+  const { query } = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      if (query.invite) {
+        const org = await firestore.collection("orgs").doc(query.invite).get();
+        const eventOrg = await eventRef.collection("orgs").doc(query.invite).get();
+        const { code } = eventOrg.data();
+        setRegistrationType("org");
+        setOrgJoinCode(code);
+        setInvitedOrgCode(code);
+        setInvitedOrg(org.data().name);
+      }
+    })();
+  }, [query]);
 
   const handleStudentPurchase = async () => {
     const authorization = await auth.currentUser.getIdToken();
@@ -131,6 +148,15 @@ const StudentRegistration = ({ event }) => {
         value={registrationType}
         onChange={setRegistrationType}
       />
+
+      {registrationType === "org" && invitedOrg && invitedOrgCode && (
+        <Alert status="info">
+          <AlertIcon />
+          <Text>
+            Use code <strong>{invitedOrgCode}</strong> to join <strong>{invitedOrg}</strong>.
+          </Text>
+        </Alert>
+      )}
 
       {registrationType === "org" && (
         <FormField
