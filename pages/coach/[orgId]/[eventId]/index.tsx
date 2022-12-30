@@ -8,9 +8,10 @@
 
 import { Box, Divider, Heading, Stack } from "@chakra-ui/react";
 import firebase from "firebase";
+import Hashids from "hashids";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useFirestoreDocData } from "reactfire";
+import { useFirestore, useFirestoreDocData } from "reactfire";
 
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
@@ -20,6 +21,7 @@ import { useFormState } from "~/helpers/utils";
 
 const ApplyContent = () => {
   const router = useRouter();
+  const firestore = useFirestore();
 
   const { ref: orgRef, data: org } = useOrg();
   const { ref: eventRef, data: event } = useEvent();
@@ -37,14 +39,25 @@ const ApplyContent = () => {
   const [formState, wrapAction] = useFormState();
 
   const handleSubmit = wrapAction(async ({ customFields }) => {
-    await eventOrgRef.set(
-      {
-        startTime: firebase.firestore.FieldValue.serverTimestamp(),
-        updateTime: firebase.firestore.FieldValue.serverTimestamp(),
-        customFields: customFields ?? {},
-      },
-      { merge: true }
-    );
+    const hashids = new Hashids(`${eventRef.id}/orgs`, 4);
+
+    await firestore.runTransaction(async (transaction) => {
+      const counterRef = eventRef.collection("counters").doc("orgs");
+      const counter = await transaction.get(counterRef);
+      const next = counter.data()?.next ?? 0;
+      transaction.set(counterRef, { next: next + 1 });
+
+      transaction.set(
+        eventOrgRef,
+        {
+          startTime: firebase.firestore.FieldValue.serverTimestamp(),
+          updateTime: firebase.firestore.FieldValue.serverTimestamp(),
+          customFields: customFields ?? {},
+          code: hashids.encode(next),
+        },
+        { merge: true }
+      );
+    });
   });
 
   if (eventOrg) {

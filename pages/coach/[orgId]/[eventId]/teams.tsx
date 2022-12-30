@@ -658,7 +658,7 @@ const TeamsContent = () => {
           stripeAccount={entity.stripeAccountId}
         />
 
-        {event.customOrgFields && (
+        {event.customOrgFields.some((x) => !x.hidden) && (
           <>
             <Divider />
             <Heading size="lg">Edit Registration</Heading>
