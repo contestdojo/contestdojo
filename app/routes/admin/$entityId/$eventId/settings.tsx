@@ -102,7 +102,7 @@ const customFieldsFieldProps = {
     },
     validationRegex: {
       label: "Validation Regex (contains)",
-      placeholder: "^[A-Za-z]+$",
+      placeholder: "e.g. ^[A-Za-z]+$",
     },
   },
 };
