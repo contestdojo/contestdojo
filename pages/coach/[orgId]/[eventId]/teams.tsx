@@ -372,6 +372,7 @@ const Teams = ({
 };
 
 const Students = ({
+  eventOrg,
   invites,
   students,
   onInviteStudents,
@@ -459,16 +460,22 @@ const Students = ({
         </Button>
       </ButtonGroup>
 
-      <Stack spacing={2}>
-        <Heading size="md">Pending Invites</Heading>
-        <Box>
-          <UnorderedList>
-            {displayInvites.map((x) => (
-              <ListItem key={x.email}>{x.email}</ListItem>
-            ))}
-          </UnorderedList>
-        </Box>
-      </Stack>
+      <Text>
+        Students can also use the code <strong>{eventOrg.code}</strong> to join your organization.
+      </Text>
+
+      {displayInvites.length > 0 && (
+        <Stack spacing={2}>
+          <Heading size="md">Pending Invites</Heading>
+          <Box>
+            <UnorderedList>
+              {displayInvites.map((x) => (
+                <ListItem key={x.email}>{x.email}</ListItem>
+              ))}
+            </UnorderedList>
+          </Box>
+        </Stack>
+      )}
 
       <InviteStudentModal isOpen={isOpen2} onClose={onClose2} onSubmit={handleInviteStudents} {...formState} />
       <AddStudentModal
@@ -701,6 +708,7 @@ const TeamsContent = () => {
         <Divider />
 
         <Students
+          eventOrg={eventOrg}
           invites={invites}
           students={studentsByTeam[null] ?? []}
           onInviteStudents={handleInviteStudents}
