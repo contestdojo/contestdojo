@@ -71,7 +71,7 @@ service cloud.firestore {
         return /databases/$(database)/documents/events/$(eventId)/teams/$(id);
       }
 
-      match /counters/teams {
+      match /counters/{counterId} {
         allow read: if request.auth != null;
         allow create: if true;
         allow update: if request.resource.data.next > resource.data.next;
