@@ -11,6 +11,10 @@ const FormField = forwardRef(
   ({ type, name, label, placeholder, helperText, error, as, children, disabled, componentProps, ...props }, ref) => {
     const Component = as ?? Input;
 
+    if (error && !Array.isArray(error)) {
+      error = [error];
+    }
+
     return (
       <FormControl id={name} isInvalid={error} {...props}>
         <FormLabel>{label}</FormLabel>
@@ -25,7 +29,9 @@ const FormField = forwardRef(
           {children}
         </Component>
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
-        <FormErrorMessage>{error?.message}</FormErrorMessage>
+        {error?.map((x) => (
+          <FormErrorMessage key={x}>{x.message}</FormErrorMessage>
+        ))}
       </FormControl>
     );
   }

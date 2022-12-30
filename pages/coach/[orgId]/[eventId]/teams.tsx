@@ -45,6 +45,7 @@ import { useDialog } from "~/components/contexts/DialogProvider";
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import RegisterOrgForm from "~/components/forms/RegisterOrgForm";
+import InviteStudentModal from "~/components/InviteStudentModal";
 import Markdown from "~/components/Markdown";
 import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import { testRule } from "~/helpers/rules";
@@ -368,11 +369,26 @@ const Teams = ({
   );
 };
 
-const Students = ({ students, onAddStudent, onEditStudent, event, waiver, onDeleteStudent, stripeAccount }) => {
+const Students = ({
+  students,
+  onInviteStudents,
+  onAddStudent,
+  onEditStudent,
+  event,
+  waiver,
+  onDeleteStudent,
+  stripeAccount,
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpen2, onOpen: onOpen2, onClose: onClose2 } = useDisclosure();
 
   const [editing, setEditing] = useState(null);
   const [formState, wrapAction] = useFormState();
+
+  const handleInviteStudents = wrapAction(async (values) => {
+    await onInviteStudents(values);
+    onClose2();
+  });
 
   const handleAddStudent = wrapAction(async (values) => {
     await onAddStudent(values);
@@ -429,9 +445,16 @@ const Students = ({ students, onAddStudent, onEditStudent, event, waiver, onDele
         {!event.teamsEnabled && students.length === 0 && <BlankCard>No students added</BlankCard>}
       </Wrap>
 
-      <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
-        Invite Student
-      </Button>
+      <ButtonGroup>
+        <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen2} disabled={!!event.frozen}>
+          Invite Students
+        </Button>
+        <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
+          Manually Add Student
+        </Button>
+      </ButtonGroup>
+
+      <InviteStudentModal isOpen={isOpen2} onClose={onClose2} onSubmit={handleInviteStudents} {...formState} />
       <AddStudentModal
         initial
         isOpen={isOpen}
@@ -533,6 +556,16 @@ const TeamsContent = () => {
       batch.update(studentsRef.doc(student.id), { team: null });
     }
     batch.delete(teamsRef.doc(id));
+    await batch.commit();
+  };
+
+  const handleInviteStudents = async ({ emails }) => {
+    const batch = firestore.batch();
+    for (const email of emails) {
+      batch.set(eventOrgRef.collection("invites").doc(email), {
+        invited: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    }
     await batch.commit();
   };
 
@@ -650,6 +683,7 @@ const TeamsContent = () => {
 
         <Students
           students={studentsByTeam[null] ?? []}
+          onInviteStudents={handleInviteStudents}
           onAddStudent={handleAddStudent}
           onEditStudent={handleEditStudent}
           onDeleteStudent={handleDeleteStudent}
