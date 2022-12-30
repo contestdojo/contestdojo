@@ -44,7 +44,7 @@ const handler = withFirebaseAuth(async (req, res) => {
     isMultiple: true,
     from: "noreply@contestdojo.com",
     templateId: "d-243c5262c9844474a5281430b8deb946",
-    dynamicTemplateData: { orgId, eventId, event: eventData.name, org: orgData.name, orgCode: eventOrgData.code },
+    dynamicTemplateData: { eventId, event: eventData.name, org: orgData.name, orgCode: eventOrgData.code },
   });
 
   const batch = firestore.batch();

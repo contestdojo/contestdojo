@@ -78,12 +78,12 @@ const StudentRegistration = ({ event }) => {
   useEffect(() => {
     (async () => {
       if (query.invite) {
-        const org = await firestore.collection("orgs").doc(query.invite).get();
-        const eventOrg = await eventRef.collection("orgs").doc(query.invite).get();
-        const { code } = eventOrg.data();
+        const eventOrg = await eventRef.collection("orgs").where("code", "==", query.invite).get();
+        if (eventOrg.size < 1) return;
+        const org = await firestore.collection("orgs").doc(eventOrg.docs[0].id).get();
         setRegistrationType("org");
-        setOrgJoinCode(code);
-        setInvitedOrgCode(code);
+        setOrgJoinCode(query.invite);
+        setInvitedOrgCode(query.invite);
         setInvitedOrg(org.data().name);
       }
     })();
