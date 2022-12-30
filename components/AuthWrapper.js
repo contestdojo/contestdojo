@@ -11,7 +11,8 @@ import { useUserData } from "~/helpers/utils";
 
 const RedirectLogin = () => {
   const router = useRouter();
-  router.replace("/login");
+  const params = new URLSearchParams({ next: router.asPath });
+  router.replace(`/login?${params}`);
   return null;
 };
 

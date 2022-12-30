@@ -74,19 +74,21 @@ const LoginForm = ({ onSubmit, isLoading, error }) => {
 
         <FormField
           type="email"
-          {...register('email')}
+          {...register("email")}
           label="Email Address"
           placeholder="blaise.pascal@gmail.com"
           error={errors.email}
-          isRequired />
+          isRequired
+        />
 
         <FormField
           type="password"
-          {...register('password')}
+          {...register("password")}
           label="Password"
           placeholder="Enter password..."
           error={errors.password}
-          isRequired />
+          isRequired
+        />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
           Login
@@ -287,7 +289,7 @@ const Wrapper = () => {
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       if (user) {
-        router.replace("/");
+        router.replace(router.query.next ?? "/");
       } else {
         setReady(true);
       }
