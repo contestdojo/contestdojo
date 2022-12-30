@@ -16,6 +16,7 @@ import {
   HStack,
   Icon,
   IconButton,
+  ListItem,
   Menu,
   MenuButton,
   MenuItem,
@@ -24,6 +25,7 @@ import {
   Stack,
   Text,
   Tooltip,
+  UnorderedList,
   useDisclosure,
   Wrap,
   WrapItem,
@@ -370,6 +372,7 @@ const Teams = ({
 };
 
 const Students = ({
+  invites,
   students,
   onInviteStudents,
   onAddStudent,
@@ -405,6 +408,8 @@ const Students = ({
   const props = {
     backgroundColor: isOver ? "gray.100" : undefined,
   };
+
+  const displayInvites = invites.filter((x) => !students.some((y) => y.email == x.email));
 
   return (
     <Stack spacing={4}>
@@ -454,6 +459,17 @@ const Students = ({
         </Button>
       </ButtonGroup>
 
+      <Stack spacing={2}>
+        <Heading size="md">Pending Invites</Heading>
+        <Box>
+          <UnorderedList>
+            {displayInvites.map((x) => (
+              <ListItem key={x.email}>{x.email}</ListItem>
+            ))}
+          </UnorderedList>
+        </Box>
+      </Stack>
+
       <InviteStudentModal isOpen={isOpen2} onClose={onClose2} onSubmit={handleInviteStudents} {...formState} />
       <AddStudentModal
         initial
@@ -493,6 +509,9 @@ const TeamsContent = () => {
   // Get students
   const eventOrgRef = eventRef.collection("orgs").doc(orgRef.id);
   const { data: eventOrg } = useFirestoreDocData(eventOrgRef, { idField: "id" });
+
+  const invitesRef = eventOrgRef.collection("invites");
+  const { data: invites } = useFirestoreCollectionData(invitesRef, { idField: "email" });
 
   // Get teams
   const teamsRef = eventRef.collection("teams");
@@ -682,6 +701,7 @@ const TeamsContent = () => {
         <Divider />
 
         <Students
+          invites={invites}
           students={studentsByTeam[null] ?? []}
           onInviteStudents={handleInviteStudents}
           onAddStudent={handleAddStudent}
