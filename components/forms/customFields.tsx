@@ -19,6 +19,8 @@ export type CustomField = {
     editable?: boolean;
     hidden?: boolean;
   };
+  helpText?: string;
+  validationRegex?: string;
 };
 
 export const makeCustomFieldsSchema = (initial: boolean, customFields: CustomField[]) =>
@@ -30,6 +32,8 @@ export const makeCustomFieldsSchema = (initial: boolean, customFields: CustomFie
           let field = yup.string().label(v.label);
           if (v.flags.required && (v.flags.editable || initial)) field = field.required();
           if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
+          if (v.validationRegex) field = field.matches(new RegExp(v.validationRegex));
+          console.log(v.validationRegex);
           return [v.id, field];
         })
     )
@@ -50,11 +54,13 @@ export const renderCustomFields = (
           key={`customFields.${x.id}`}
           {...register(`customFields.${x.id}`)}
           label={x.label}
-          error={errors[`customFields.${x.id}`]}
+          // @ts-ignore
+          error={errors.customFields?.[x.id]}
           isRequired={x.flags.required && (x.flags.editable || initial)}
           as={x.choices ? Select : undefined}
           placeholder={x.choices ? "Select..." : ""}
           isDisabled={!x.flags.editable && !initial}
+          helperText={x.helpText}
         >
           {x.choices &&
             x.choices.map((v) => (
