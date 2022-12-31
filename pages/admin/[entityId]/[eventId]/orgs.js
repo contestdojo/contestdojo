@@ -11,7 +11,7 @@ import AdminTableView, { addRemoveRenderer, sumReducer, updateRenderer } from "~
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useImpersonate } from "~/helpers/utils";
 
-const OrgsTable = ({ event, orgs, studentsByOrg, onUpdate }) => {
+const OrgsTable = ({ event, orgs, customFields, studentsByOrg, onUpdate }) => {
   const impersonate = useImpersonate();
 
   const cols = [
@@ -56,6 +56,11 @@ const OrgsTable = ({ event, orgs, studentsByOrg, onUpdate }) => {
       hideInCsv: true,
       hideByDefault: true,
     },
+    ...customFields.map((x) => ({
+      label: `[Custom] ${x.label}`,
+      key: `custom_${x.id}`,
+      hideByDefault: true,
+    })),
   ];
 
   const rows = orgs.map((x) => ({
@@ -69,6 +74,7 @@ const OrgsTable = ({ event, orgs, studentsByOrg, onUpdate }) => {
     numStudents: studentsByOrg[x.id]?.length ?? 0,
     numStudentsAssigned: studentsByOrg[x.id]?.filter((x) => x.team)?.length ?? 0,
     notes: x.notes ?? "",
+    ...Object.fromEntries(customFields.map((f) => [`custom_${f.id}`, x.customFields?.[f.id]])),
   }));
 
   return (
@@ -106,7 +112,13 @@ const OrgsTab = () => {
   };
 
   return (
-    <OrgsTable event={event} orgs={Object.values(orgsById)} studentsByOrg={studentsByOrg} onUpdate={handleOrgUpdate} />
+    <OrgsTable
+      event={event}
+      orgs={Object.values(orgsById)}
+      customFields={event.customOrgFields ?? []}
+      studentsByOrg={studentsByOrg}
+      onUpdate={handleOrgUpdate}
+    />
   );
 };
 

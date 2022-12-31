@@ -21,7 +21,7 @@ const toDict = (obj, x) => {
   return obj;
 };
 
-const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
+const TeamsTable = ({ teams, customFields, orgsById, studentsByTeam, onUpdate }) => {
   const storage = useStorage();
   const root = storage.ref();
 
@@ -41,6 +41,11 @@ const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
       hideInCsv: true,
     },
     { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
+    ...customFields.map((x) => ({
+      label: `[Custom] ${x.label}`,
+      key: `custom_${x.id}`,
+      hideByDefault: true,
+    })),
   ];
 
   const rows = teams.map((x) => ({
@@ -51,6 +56,7 @@ const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
     numStudents: studentsByTeam[x.id]?.length ?? 0,
     scoreReport: x.scoreReport,
     notes: x.notes ?? "",
+    ...Object.fromEntries(customFields.map((f) => [`custom_${f.id}`, x.customFields?.[f.id]])),
   }));
 
   return <AdminTableView cols={cols} rows={rows} defaultSortKey="number" filename="teams.csv" />;
@@ -58,7 +64,7 @@ const TeamsTable = ({ teams, orgsById, studentsByTeam, onUpdate }) => {
 
 const TeamsTab = () => {
   const firestore = useFirestore();
-  const { ref: eventRef } = useEvent();
+  const { data: event, ref: eventRef } = useEvent();
 
   // Get orgs
 
@@ -90,7 +96,15 @@ const TeamsTab = () => {
     await teamsRef.doc(id).update(update);
   };
 
-  return <TeamsTable teams={teams} orgsById={orgsById} studentsByTeam={studentsByTeam} onUpdate={handleTeamUpdate} />;
+  return (
+    <TeamsTable
+      teams={teams}
+      customFields={event.customTeamFields ?? []}
+      orgsById={orgsById}
+      studentsByTeam={studentsByTeam}
+      onUpdate={handleTeamUpdate}
+    />
+  );
 };
 
 export default TeamsTab;
