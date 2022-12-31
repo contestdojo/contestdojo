@@ -273,6 +273,7 @@ const Teams = ({
   costPerStudent,
   costAdjustments,
   onEditStudent,
+  onDeleteStudent,
   maxStudents,
   seatsRemaining,
   stripeAccount,
@@ -333,6 +334,7 @@ const Teams = ({
               team={x}
               event={event}
               onEditStudent={onEditStudent}
+              onDeleteStudent={onDeleteStudent}
               onUpdate={(update) => onUpdateTeam(x.id, update)}
               onDelete={() => onDeleteTeam(x.id)}
               students={studentsByTeam[x.id] ?? []}
