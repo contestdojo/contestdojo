@@ -5,9 +5,15 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { Button, HStack, Text } from "@chakra-ui/react";
+import dayjs from "dayjs";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 
-import AdminTableView, { addRemoveRenderer, sumReducer, updateRenderer } from "~/components/AdminTableView";
+import AdminTableView, {
+  addRemoveRenderer,
+  dayjsRenderer,
+  sumReducer,
+  updateRenderer,
+} from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
 import { toDict, useImpersonate } from "~/helpers/utils";
 
@@ -45,6 +51,8 @@ const OrgsTable = ({ event, orgs, customFields, studentsByOrg, onUpdate }) => {
       reducer: sumReducer,
     },
     { label: "Notes", key: "notes", renderer: updateRenderer(onUpdate, "notes") },
+    { label: "Start Time", key: "startTime", renderer: dayjsRenderer },
+    { label: "Update Time", key: "updateTime", renderer: dayjsRenderer },
     {
       label: "Impersonate",
       key: "impersonate",
@@ -74,6 +82,8 @@ const OrgsTable = ({ event, orgs, customFields, studentsByOrg, onUpdate }) => {
     numStudents: studentsByOrg[x.id]?.length ?? 0,
     numStudentsAssigned: studentsByOrg[x.id]?.filter((x) => x.team)?.length ?? 0,
     notes: x.notes ?? "",
+    startTime: x.startTime && dayjs.unix(x.startTime.seconds),
+    updateTime: x.updateTime && dayjs.unix(x.updateTime.seconds),
     ...Object.fromEntries(customFields.map((f) => [`custom_${f.id}`, x.customFields?.[f.id]])),
   }));
 

@@ -21,11 +21,12 @@ import {
   Table,
   Tbody,
   Td,
+  Text,
   Tfoot,
   Th,
   Thead,
   Tooltip,
-  Tr
+  Tr,
 } from "@chakra-ui/react";
 import { Fragment, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
@@ -33,10 +34,13 @@ import { HiChevronDown, HiMinus, HiPlus } from "react-icons/hi";
 
 import StyledEditablePreview from "~/components/StyledEditablePreview";
 
-
 export const sumReducer = (arr) => arr.reduce((a, b) => a + b, 0);
 export const countReducer = (arr) => arr.filter(Boolean).length;
-export const dayjsRenderer = (val) => val.format("M/DD/YYYY");
+export const dayjsRenderer = (val) => (
+  <Tooltip label={val?.format("M/DD/YYYY h:mm:ss A")}>
+    <Text>{val?.format("M/DD/YYYY")}</Text>
+  </Tooltip>
+);
 
 export const updateRenderer =
   (onUpdate, updater) =>
@@ -79,7 +83,9 @@ export const addRemoveRenderer =
     );
 
 export const iconButtonRenderer = (Icon, condition, onClick) => (val) =>
-  condition(val) ? <IconButton variant="ghost" my={-2} rounded="full" icon={<Icon />} onClick={() => onClick(val)} /> : null;
+  condition(val) ? (
+    <IconButton variant="ghost" my={-2} rounded="full" icon={<Icon />} onClick={() => onClick(val)} />
+  ) : null;
 
 const AdminTableView = ({ cols, rows, filename, defaultSortKey, defaultSortOrder, extraButtons, tableProps = {} }) => {
   const [showCols, setShowCols] = useState(cols.filter((x) => !x.hideByDefault).map((x) => x.key));
