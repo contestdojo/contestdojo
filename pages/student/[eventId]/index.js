@@ -89,12 +89,12 @@ const StudentRegistration = ({ event }) => {
     })();
   }, [query]);
 
-  const handleStudentPurchase = async () => {
+  const handleStudentPurchase = async (values) => {
     const authorization = await auth.currentUser.getIdToken();
     const resp = await fetch(`/api/student/${eventRef.id}/pay`, {
       method: "POST",
       headers: { authorization, "content-type": "application/json" },
-      body: JSON.stringify({ email: user.email }),
+      body: JSON.stringify({ email: user.email, registrationData: values }),
     });
     if (!resp.ok) throw new Error(await resp.text());
     const data = await resp.json();
@@ -127,7 +127,7 @@ const StudentRegistration = ({ event }) => {
 
     if (registrationType === "student") {
       if (event.costPerStudent) {
-        await handleStudentPurchase();
+        await handleStudentPurchase(_values);
       } else {
         const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
         await studentRef.set(values, { merge: true });

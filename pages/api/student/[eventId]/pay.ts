@@ -20,8 +20,9 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   const { eventId } = req.query;
   if (typeof eventId !== "string") return res.status(400).end();
 
-  const { email } = req.body;
+  const { email, registrationData } = req.body;
   if (typeof email !== "string") return res.status(400).end();
+  if (!registrationData) return res.status(400).end();
 
   // Get connected account
 
@@ -47,7 +48,12 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   }
 
   const { origin } = absoluteUrl(req);
-  const metadata = { registrationType: "student", eventId, studentId: uid };
+  const metadata = {
+    registrationType: "student",
+    registrationData: JSON.stringify(registrationData),
+    eventId,
+    studentId: uid,
+  };
 
   const amount = eventData.costPerStudent * 100;
   const application_fee_amount = eventData.fee ?? (eventData.feeFactor ?? 0) * amount;

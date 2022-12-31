@@ -32,9 +32,10 @@ const processCheckoutSessionCompleted = async (
   }
 
   if (session.metadata?.registrationType === "student") {
-    let { eventId, studentId } = session.metadata ?? {};
+    let { eventId, studentId, registrationData } = session.metadata ?? {};
     if (typeof eventId !== "string") return res.status(400).end("Missing event id");
     if (typeof studentId !== "string") return res.status(400).end("Missing student id");
+    if (typeof registrationData !== "string") return res.status(400).end("Missing registration data");
 
     // Get event
 
@@ -46,7 +47,14 @@ const processCheckoutSessionCompleted = async (
 
     const studentRef = firestore.collection("events").doc(eventId).collection("students").doc(studentId);
     await studentRef.set(
-      { id: studentId, email: userData.email, user: userRef, org: null, stripeSessionId: session.id },
+      {
+        ...JSON.parse(registrationData),
+        id: studentId,
+        email: userData.email,
+        user: userRef,
+        org: null,
+        stripeSessionId: session.id,
+      },
       { merge: true }
     );
 
