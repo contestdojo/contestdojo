@@ -23,7 +23,7 @@ export const Input = forwardRef(function Input(
     <input
       className={clsx`block w-full rounded-md border-gray-300 placeholder-gray-300 shadow-sm invalid:border-red-300 invalid:text-red-900 invalid:placeholder-red-300 focus:border-blue-500 focus:ring-blue-500 invalid:focus:border-red-500 invalid:focus:ring-red-500 sm:text-sm ${
         invalid &&
-        "focus:ring-red-500Z border-red-300 text-red-900 placeholder-red-300 focus:border-red-500"
+        "border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
       } ${className}`}
       ref={ref}
       {...props}
