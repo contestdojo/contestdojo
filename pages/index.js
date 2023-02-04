@@ -13,11 +13,11 @@ const HomePage = () => {
   const router = useRouter();
   const { data: user } = useUserData();
 
-  if (user.type == "coach") {
+  if (user?.type == "coach") {
     router.replace("/coach");
-  } else if (user.type == "student") {
+  } else if (user?.type == "student") {
     router.replace("/student");
-  } else if (user.type == "admin") {
+  } else if (user?.type == "admin") {
     router.replace("/admin");
   }
 
@@ -31,4 +31,3 @@ const Home = () => (
 );
 
 export default Home;
-

@@ -64,6 +64,7 @@ const StudentRegistration = ({ event }) => {
   const [orgJoinCode, setOrgJoinCode] = useState("");
   const [invitedOrg, setInvitedOrg] = useState(null);
   const [invitedOrgCode, setInvitedOrgCode] = useState(null);
+  const [openDialog] = useDialog();
 
   const firestore = useFirestore();
   const auth = useAuth();
@@ -110,6 +111,14 @@ const StudentRegistration = ({ event }) => {
   };
 
   const handleSubmit = wrapAction(async (_values) => {
+    if (!auth.currentUser.emailVerified) {
+      return openDialog({
+        type: "alert",
+        title: "Unable to Register",
+        description: "You must verify your email before registering for an event.",
+      });
+    }
+
     if (registrationType === "org") {
       const orgQuery = eventRef.collection("orgs").where("code", "==", orgJoinCode).limit(1);
       const orgs = await orgQuery.get();
