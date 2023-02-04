@@ -47,7 +47,7 @@ const handler = withFirebaseAuth(async (req, res) => {
   if (!eventOrgData) return res.status(400).end();
 
   let effectiveCostPerStudent = eventData.costPerStudent;
-  for (const adjustment of eventData.costAdjustments) {
+  for (const adjustment of eventData.costAdjustments ?? []) {
     if (testRule(adjustment.rule, eventOrgData)) {
       effectiveCostPerStudent += adjustment.adjustment;
     }

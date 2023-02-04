@@ -284,7 +284,7 @@ const Teams = ({
 
   let effectiveCostPerStudent = useMemo(() => {
     let value = costPerStudent;
-    for (const adjustment of costAdjustments) {
+    for (const adjustment of costAdjustments ?? []) {
       if (testRule(adjustment.rule, eventOrg)) {
         value += adjustment.adjustment;
       }
@@ -722,7 +722,7 @@ const TeamsContent = () => {
           stripeAccount={entity.stripeAccountId}
         />
 
-        {event.customOrgFields.some((x) => !x.hidden) && (
+        {event.customOrgFields?.some((x) => !x.hidden) && (
           <>
             <Divider />
             <Heading size="lg">Edit Registration</Heading>
