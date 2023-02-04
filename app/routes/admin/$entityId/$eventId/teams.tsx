@@ -8,7 +8,7 @@
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
-import type { EventOrganization, EventTeam, Organization } from "~/lib/db.server";
+import type { Event, EventOrganization, EventTeam, Organization } from "~/lib/db.server";
 
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import { json } from "@remix-run/node";
@@ -22,6 +22,7 @@ import { db } from "~/lib/db.server";
 import { reduceToMap } from "~/lib/utils/misc";
 
 type LoaderData = {
+  event: Event;
   teams: EventTeam[];
   orgs: (Organization & EventOrganization)[];
 };
@@ -47,7 +48,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const teamsSnap = await db.eventTeams(params.eventId).get();
   const teams = teamsSnap.docs.map((x) => x.data());
 
-  return json<LoaderData>({ teams, orgs });
+  return json<LoaderData>({ event, teams, orgs });
 };
 
 const columnHelper = createColumnHelper<EventTeam>();
@@ -59,8 +60,15 @@ const initialState: Partial<TableState> = {
 };
 
 export default function TeamsRoute() {
-  const { teams, orgs } = useLoaderData<LoaderData>();
+  const { event, teams, orgs } = useLoaderData<LoaderData>();
   const orgsById = reduceToMap(orgs);
+
+  const customColumns = event.customTeamFields?.map((field) =>
+    columnHelper.accessor((x) => x.customFields?.[field.id], {
+      id: `customFields.${field.id}`,
+      header: field.label.length <= 20 ? `[Custom] ${field.label}` : `[Custom] ${field.id}`,
+    })
+  );
 
   const columns = [
     columnHelper.accessor("id", { header: "ID" }),
@@ -87,6 +95,7 @@ export default function TeamsRoute() {
         ) : null;
       },
     }),
+    ...(customColumns ?? []),
   ];
 
   return <DataTable name="teams" data={teams} columns={columns} initialState={initialState} />;

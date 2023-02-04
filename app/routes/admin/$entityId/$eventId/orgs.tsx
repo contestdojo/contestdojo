@@ -8,7 +8,7 @@
 
 import type { LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
-import type { EventOrganization, Organization } from "~/lib/db.server";
+import type { Event, EventOrganization, Organization } from "~/lib/db.server";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -18,6 +18,7 @@ import { DataTable } from "~/components/data-table";
 import { db } from "~/lib/db.server";
 
 type LoaderData = {
+  event: Event;
   orgs: (Organization & EventOrganization)[];
 };
 
@@ -39,7 +40,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     return { ...eventOrg, ...x.data() };
   });
 
-  return json<LoaderData>({ orgs });
+  return json<LoaderData>({ event, orgs });
 };
 
 const columnHelper = createColumnHelper<Organization & EventOrganization>();
@@ -70,10 +71,22 @@ const initialState: Partial<TableState> = {
 };
 
 export default function OrgsRoute() {
-  const loaderData = useLoaderData<LoaderData>();
+  const { event, orgs } = useLoaderData<LoaderData>();
+
+  const customColumns = event.customOrgFields?.map((field) =>
+    columnHelper.accessor((x) => x.customFields?.[field.id], {
+      id: `customFields.${field.id}`,
+      header: field.label.length <= 20 ? `[Custom] ${field.label}` : `[Custom] ${field.id}`,
+    })
+  );
 
   return (
-    <DataTable name="orgs" data={loaderData.orgs} columns={columns} initialState={initialState} />
+    <DataTable
+      name="orgs"
+      data={orgs}
+      columns={[...columns, ...(customColumns ?? [])]}
+      initialState={initialState}
+    />
   );
 }
 
