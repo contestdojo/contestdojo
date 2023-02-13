@@ -18,7 +18,7 @@ export type Authorization = {
 };
 
 export const testRule = (rule: Rule, object: any) => {
-  const value = getNestedPath(object, rule.field).toString().trim();
+  const value = getNestedPath(object, rule.field)?.toString()?.trim();
 
   if (rule.rule === "=") return rule.value == value;
   if (rule.rule === "!=") return rule.value != value;
