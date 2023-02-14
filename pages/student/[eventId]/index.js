@@ -184,6 +184,7 @@ const StudentRegistration = ({ event }) => {
         defaultValues={{ fname: user.fname, lname: user.lname, email: user.email }}
         {...formState}
         buttonText="Submit Registration"
+        initial
       />
     </Stack>
   );
