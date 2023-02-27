@@ -32,6 +32,7 @@ const EventDetailsForm = z.object({
   name: zfd.text(),
   studentsPerTeam: zfd.numeric(),
   description: zfd.text(),
+  hide: zfd.checkbox(),
 });
 
 const CostDetailsForm = (event: Event) => {
@@ -183,7 +184,11 @@ export default function SettingsRoute() {
           method="post"
           schema={EventDetailsForm}
           buttonLabel="Save"
-          fieldProps={{ name: { label: "Event Name" }, description: { multiline: true, rows: 20 } }}
+          fieldProps={{
+            name: { label: "Event Name" },
+            description: { multiline: true, rows: 20 },
+            hide: { label: "Hidden to Public?" },
+          }}
         />
       </Section>
 
