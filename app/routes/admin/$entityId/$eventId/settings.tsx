@@ -33,6 +33,7 @@ const EventDetailsForm = z.object({
   studentsPerTeam: zfd.numeric(),
   description: zfd.text(),
   hide: zfd.checkbox(),
+  studentRegistrationEnabled: zfd.checkbox(),
 });
 
 const CostDetailsForm = (event: Event) => {
