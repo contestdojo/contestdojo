@@ -189,6 +189,7 @@ export default function SettingsRoute() {
             name: { label: "Event Name" },
             description: { multiline: true, rows: 20 },
             hide: { label: "Hidden to Public?" },
+            studentRegistrationEnabled: { label: "Student Registration Enabled?" },
           }}
         />
       </Section>

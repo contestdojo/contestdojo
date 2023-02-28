@@ -95,6 +95,7 @@ const Event = zfb.firestoreObject(
     customFields: z.array(EventCustomField).optional(),
     customOrgFields: z.array(EventCustomField).optional(),
     customTeamFields: z.array(EventCustomField).optional(),
+    studentRegistrationEnabled: z.boolean().optional(),
   })
 );
 
