@@ -30,6 +30,9 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   const event = await eventRef.get();
   const eventData = event.data();
   if (!eventData) return res.status(404).end();
+  if (!eventData.studentRegistrationEnabled) {
+    return res.status(403).send("Student registration is not enabled for this event.");
+  }
 
   const entity = await eventData.owner.get();
   const entityData = entity.data();

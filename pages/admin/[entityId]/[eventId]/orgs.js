@@ -107,7 +107,7 @@ const OrgsTab = () => {
 
   const rootOrgsRef = firestore.collection("orgs");
   const { data: rootOrgs } = useFirestoreCollectionData(rootOrgsRef, { idField: "id" });
-  orgsById = rootOrgs.filter((x) => orgsById.hasOwnProperty(x.id)).reduce(toDict, orgsById);
+  orgsById = rootOrgs.reduce(toDict, orgsById);
 
   const studentsRef = eventRef.collection("students");
   const { data: students } = useFirestoreCollectionData(studentsRef, { idField: "id" });

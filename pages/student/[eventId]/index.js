@@ -150,7 +150,7 @@ const StudentRegistration = ({ event }) => {
 
       <RadioToggle
         options={[
-          ["Register as Independent Student", "student"],
+          ["Register as Independent Student", "student", !event.studentRegistrationEnabled],
           ["Register with an Organization", "org"],
         ]}
         name="registrationType"
@@ -196,14 +196,7 @@ const NotRegistered = ({ event }) => (
       <Markdown>{event.description}</Markdown>
     </Box>
     <Divider />
-    {!event.studentRegistrationEnabled ? (
-      <Text>
-        This event only offers coach-based registration. Please have your school&apos;s math team coach register you for
-        the event.
-      </Text>
-    ) : (
-      <StudentRegistration event={event} />
-    )}
+    <StudentRegistration event={event} />
   </Stack>
 );
 

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-import { Box, Button, Divider, Heading, HStack, Stack, Tooltip } from "@chakra-ui/react";
+import { Box, Divider, Heading, HStack, Stack } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useFirestore, useFirestoreCollection, useFirestoreCollectionData } from "reactfire";
 
@@ -27,16 +27,10 @@ const EventCard = ({ id, name, studentRegistrationEnabled, date: { seconds }, mi
         <ButtonLink href={`/student/${id}`} mt={2} colorScheme="blue" size="sm">
           Go to Event
         </ButtonLink>
-      ) : studentRegistrationEnabled ? (
+      ) : (
         <ButtonLink href={`/student/${id}`} mt={2} colorScheme="blue" size="sm">
           Register
         </ButtonLink>
-      ) : (
-        <Tooltip label="Please have your school's math coach register you for this event." shouldWrapChildren>
-          <Button mt={2} colorScheme="blue" size="sm" isDisabled>
-            Coach Only
-          </Button>
-        </Tooltip>
       )}
     </Card>
   );
