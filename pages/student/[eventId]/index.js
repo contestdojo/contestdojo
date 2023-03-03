@@ -124,14 +124,22 @@ const StudentRegistration = ({ event }) => {
       const orgs = await orgQuery.get();
       if (orgs.empty) throw new Error("There is no team with that code!");
 
+      const org = firestore.collection("orgs").doc(orgs.docs[0].id);
+      const orgData = await org.get();
+
       const values = {
         ..._values,
         id: userRef.id,
         email: user.email,
         user: userRef,
-        org: firestore.collection("orgs").doc(orgs.docs[0].id),
+        org,
       };
       await studentRef.set(values, { merge: true });
+      openDialog({
+        type: "alert",
+        title: "Success",
+        description: `You have joined the organization <strong>${orgData.data().name}</strong>.`,
+      });
     }
 
     if (registrationType === "student") {
@@ -140,6 +148,12 @@ const StudentRegistration = ({ event }) => {
       } else {
         const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
         await studentRef.set(values, { merge: true });
+        openDialog({
+          type: "alert",
+          title: "Success",
+          description:
+            "You have registered as an independent student. Note that you must create or join a team for your registration to be complete.",
+        });
       }
     }
   });
@@ -372,6 +386,11 @@ const Event = () => {
         'This action is irreversible and <b style="color: red">payments will not be refunded</b>. You most likely don\'t want to do this. Please contact the event organizer if you have any concerns.',
       onConfirm: async () => {
         await studentRef.delete();
+        openDialog({
+          type: "alert",
+          title: "Registration Withdrawn",
+          description: "You have unregistered for this event.",
+        });
       },
     });
   };
