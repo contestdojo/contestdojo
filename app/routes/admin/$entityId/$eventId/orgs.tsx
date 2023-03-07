@@ -6,16 +6,24 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
+import type { BulkUpdateActionData } from "~/components/bulk-updates";
 import type { Event, EventOrganization, Organization } from "~/lib/db.server";
 
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useActionData, useLoaderData } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
 import { createColumnHelper } from "@tanstack/react-table";
+import { useState } from "react";
+import { validationError } from "remix-validated-form";
 
+import { BulkUpdateForm, BulkUpdateModal, runBulkUpdate } from "~/components/bulk-updates";
 import { DataTable } from "~/components/data-table";
+import { EventOrganizationReferenceEmbed } from "~/components/reference-embed";
+import { Dropdown } from "~/components/ui";
 import { db } from "~/lib/db.server";
+import { reduceToMap } from "~/lib/utils/misc";
 
 type LoaderData = {
   event: Event;
@@ -41,6 +49,25 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   });
 
   return json<LoaderData>({ event, orgs });
+};
+
+type ActionData = BulkUpdateActionData<EventOrganization>;
+
+export const action: ActionFunction = async ({ request, params }) => {
+  if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
+  const eventSnap = await db.event(params.eventId).get();
+  const event = eventSnap.data();
+  if (!event) throw new Response("Event not found.", { status: 404 });
+
+  const formData = await request.formData();
+
+  if (formData.get("_form") === "BulkUpdate") {
+    const result = await withZod(BulkUpdateForm(event.customOrgFields)).validate(formData);
+    if (result.error) return validationError(result.error);
+
+    const results = await runBulkUpdate(db.eventOrgs(event.id), result.data.csv);
+    return json<ActionData>({ _form: "BulkUpdate", result: results });
+  }
 };
 
 const columnHelper = createColumnHelper<Organization & EventOrganization>();
@@ -72,6 +99,9 @@ const initialState: Partial<TableState> = {
 
 export default function OrgsRoute() {
   const { event, orgs } = useLoaderData<LoaderData>();
+  const actionData = useActionData<ActionData>();
+
+  const orgsById = reduceToMap(orgs);
 
   const customColumns = event.customOrgFields?.map((field) =>
     columnHelper.accessor((x) => x.customFields?.[field.id], {
@@ -80,13 +110,34 @@ export default function OrgsRoute() {
     })
   );
 
+  const [open, setOpen] = useState(false);
+
   return (
     <DataTable
       name="orgs"
       data={orgs}
       columns={[...columns, ...(customColumns ?? [])]}
       initialState={initialState}
-    />
+    >
+      <Dropdown>
+        <Dropdown.Button>Actions</Dropdown.Button>
+        <Dropdown.Items>
+          <Dropdown.Item onClick={() => setOpen(true)}>Bulk Update</Dropdown.Item>
+        </Dropdown.Items>
+      </Dropdown>
+
+      <BulkUpdateModal
+        customFields={event.customOrgFields ?? []}
+        RowHeader={({ data }) => {
+          const org = orgsById.get(data.id);
+          if (!org) return <>data.id</>;
+          return <EventOrganizationReferenceEmbed org={{ ...org, ...data }} />;
+        }}
+        result={actionData?._form === "BulkUpdate" ? actionData.result : undefined}
+        open={open}
+        setOpen={setOpen}
+      />
+    </DataTable>
   );
 }
 
