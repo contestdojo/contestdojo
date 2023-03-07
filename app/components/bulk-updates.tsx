@@ -185,8 +185,8 @@ export function BulkUpdateModal<S extends z.ZodRawShape, T extends z.ZodObject<S
   ];
 
   const optionalFields = [
-    ...customFields.map((x) => `customFields.${x.id}`),
     ...Object.keys(filterValues(baseSchema.shape, guardType.ZodOptional)),
+    ...customFields.map((x) => `customFields.${x.id}`),
   ];
 
   return (
