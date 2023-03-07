@@ -104,6 +104,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json<LoaderData>({ event, students, orgs, teams });
 };
 
+const baseSchema = z.object({
+  number: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 type ActionData =
   | BulkUpdateActionData<EventStudent>
   | {
@@ -138,7 +143,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 
   if (formData.get("_form") === "BulkUpdate") {
-    const result = await withZod(BulkUpdateForm(event.customFields)).validate(formData);
+    const result = await withZod(BulkUpdateForm(baseSchema, event.customFields)).validate(formData);
     if (result.error) return validationError(result.error);
 
     const results = await runBulkUpdate(db.eventStudents(event.id), result.data.csv);
@@ -275,6 +280,7 @@ export default function StudentsRoute() {
       </Dropdown>
 
       <BulkUpdateModal
+        baseSchema={baseSchema}
         customFields={event.customFields ?? []}
         RowHeader={({ data }) => <EventStudentReferenceEmbed student={data} />}
         result={actionData?._form === "BulkUpdate" ? actionData.result : undefined}

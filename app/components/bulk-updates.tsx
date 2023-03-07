@@ -6,19 +6,21 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { CollectionReference } from "firebase-admin/firestore";
+import type { CollectionReference, UpdateData } from "firebase-admin/firestore";
 import type { EventCustomField } from "~/lib/db.server";
 
 import { Dialog } from "@headlessui/react";
 import { ArrowUpTrayIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { parse } from "csv/browser/esm";
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import { z } from "zod";
 
 import { SchemaForm } from "~/components/schema-form";
 import { Modal, Table, Tbody, Td, Th, Thead, Tr } from "~/components/ui";
 import { firestore } from "~/lib/firebase.server";
-import { filterEntries, getNestedPath } from "~/lib/utils/object-utils";
+import { filterEntries, filterValues, getNestedPath } from "~/lib/utils/object-utils";
+
+import { guardType } from "./schema-form/guards";
 
 function parseCsv(val: unknown) {
   return new Promise((resolve, reject) => {
@@ -53,13 +55,16 @@ function transformWithSchema<T>(schema: z.ZodSchema<T>) {
     });
 }
 
-export function BulkUpdateForm(customFields?: EventCustomField[]) {
+export function BulkUpdateForm<S extends z.ZodRawShape, T extends z.ZodObject<S>>(
+  baseSchema: T,
+  customFields: EventCustomField[] | undefined
+) {
   const customFieldsShape: { [k in `customFields.${string}`]: z.ZodOptional<z.ZodString> } = {};
   for (const x of customFields ?? []) {
     customFieldsShape[`customFields.${x.id}`] = z.string().optional();
   }
 
-  const rowSchema = z.object(customFieldsShape).setKey("id", z.string()).strict();
+  const rowSchema = z.object(customFieldsShape).merge(baseSchema).setKey("id", z.string()).strict();
 
   return z.object({
     csv: z
@@ -71,7 +76,7 @@ export function BulkUpdateForm(customFields?: EventCustomField[]) {
 
 export function runBulkUpdate<T>(
   collectionRef: CollectionReference<T>,
-  rows: { id: string; [key: string]: string | undefined }[]
+  rows: { id: string; [key: string]: any }[]
 ) {
   return firestore.runTransaction((t) =>
     Promise.all(
@@ -79,7 +84,7 @@ export function runBulkUpdate<T>(
         const ref = collectionRef.doc(id);
         const doc = await t.get(ref);
         const update = filterEntries(row, (x) => x !== undefined);
-        if (doc.exists) t.update(ref, update as any);
+        if (doc.exists) t.update(ref, update as UpdateData<T>);
         return { id, update, data: doc.data() };
       })
     )
@@ -97,22 +102,24 @@ export type BulkUpdateActionData<T> = {
   result: BulkActionResult<T>;
 };
 
-export type BulkUpdateModalProps<T> = {
+export type BulkUpdateModalProps<S extends z.ZodRawShape, T extends z.ZodObject<S>, U> = {
+  baseSchema: T;
   customFields: EventCustomField[];
-  result?: BulkActionResult<T>;
-  RowHeader: (props: { data: T }) => JSX.Element;
+  result?: BulkActionResult<U>;
+  RowHeader: (props: { data: U }) => JSX.Element;
   open: boolean;
   setOpen: (open: boolean) => void;
 };
 
-export function BulkUpdateModal<T>({
+export function BulkUpdateModal<S extends z.ZodRawShape, T extends z.ZodObject<S>, U>({
+  baseSchema,
   customFields,
   result,
   RowHeader,
   open,
   setOpen,
-}: BulkUpdateModalProps<T>) {
-  const form = useMemo(() => BulkUpdateForm(customFields), [customFields]);
+}: BulkUpdateModalProps<S, T, U>) {
+  const form = useMemo(() => BulkUpdateForm(baseSchema, customFields), [baseSchema, customFields]);
 
   if (result) {
     return (
@@ -172,6 +179,16 @@ export function BulkUpdateModal<T>({
     );
   }
 
+  const requiredFields = [
+    "id",
+    ...Object.keys(filterValues(baseSchema.shape, (x) => !guardType.ZodOptional(x))),
+  ];
+
+  const optionalFields = [
+    ...customFields.map((x) => `customFields.${x.id}`),
+    ...Object.keys(filterValues(baseSchema.shape, guardType.ZodOptional)),
+  ];
+
   return (
     <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
@@ -183,17 +200,21 @@ export function BulkUpdateModal<T>({
           Bulk Update
         </Dialog.Title>
 
-        <p className="text-center text-sm text-gray-500">
-          Required fields: <span className="font-mono">id</span>
+        <p className="flex flex-row items-center gap-2 text-sm text-gray-500">
+          <span>Required fields:</span>
+          {requiredFields.map((x) => (
+            <span key={x} className="rounded bg-gray-200 px-1 font-mono">
+              {x}
+            </span>
+          ))}
         </p>
 
-        <p className="text-center text-sm text-gray-500">
-          Accepted fields:{" "}
-          {customFields?.map((x, i) => (
-            <Fragment key={x.id}>
-              {i !== 0 && ", "}
-              <span className="font-mono">customFields.{x.id}</span>
-            </Fragment>
+        <p className="flex flex-row items-center gap-2 text-sm text-gray-500">
+          <span>Accepted fields:</span>
+          {optionalFields.map((x) => (
+            <span key={x} className="rounded bg-gray-200 px-1 font-mono">
+              {x}
+            </span>
           ))}
         </p>
       </div>

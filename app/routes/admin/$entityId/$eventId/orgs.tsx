@@ -17,6 +17,7 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useState } from "react";
 import { validationError } from "remix-validated-form";
+import { z } from "zod";
 
 import { BulkUpdateForm, BulkUpdateModal, runBulkUpdate } from "~/components/bulk-updates";
 import { DataTable } from "~/components/data-table";
@@ -53,6 +54,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 type ActionData = BulkUpdateActionData<EventOrganization>;
 
+const baseSchema = z.object({
+  maxStudents: z.coerce.number().optional(),
+  notes: z.string().optional(),
+});
+
 export const action: ActionFunction = async ({ request, params }) => {
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
   const eventSnap = await db.event(params.eventId).get();
@@ -62,7 +68,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
 
   if (formData.get("_form") === "BulkUpdate") {
-    const result = await withZod(BulkUpdateForm(event.customOrgFields)).validate(formData);
+    const result = await withZod(BulkUpdateForm(baseSchema, event.customOrgFields)).validate(
+      formData
+    );
     if (result.error) return validationError(result.error);
 
     const results = await runBulkUpdate(db.eventOrgs(event.id), result.data.csv);
@@ -127,6 +135,7 @@ export default function OrgsRoute() {
       </Dropdown>
 
       <BulkUpdateModal
+        baseSchema={baseSchema}
         customFields={event.customOrgFields ?? []}
         RowHeader={({ data }) => {
           const org = orgsById.get(data.id);
