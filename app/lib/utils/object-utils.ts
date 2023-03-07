@@ -53,12 +53,6 @@ export function filterValues<T>(
   return filterEntries(obj, (_, val) => func(val));
 }
 
-export type NestedPaths<T> = T extends object
-  ? {
-      [K in Extract<keyof T, string>]: K | `${K}.${NestedPaths<T[K]>}`;
-    }[Extract<keyof T, string>]
-  : never;
-
-export function getNestedPath<T>(obj: T, path: NestedPaths<T>) {
+export function getNestedPath<T>(obj: T, path: string) {
   return path.split(".").reduce((acc: any, curr) => acc && acc[curr], obj);
 }

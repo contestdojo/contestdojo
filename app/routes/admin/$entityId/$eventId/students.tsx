@@ -8,9 +8,9 @@
 
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { TableState } from "@tanstack/react-table";
+import type { BulkUpdateActionData } from "~/components/bulk-updates";
 import type {
   Event,
-  EventCustomField,
   EventOrganization,
   EventStudent,
   EventTeam,
@@ -19,17 +19,17 @@ import type {
 
 import { Dialog } from "@headlessui/react";
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
-import { ArrowUpTrayIcon, CheckIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { json } from "@remix-run/node";
 import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import { createColumnHelper } from "@tanstack/react-table";
-import { parse } from "csv/browser/esm";
-import { Fragment, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
+import { BulkUpdateForm, BulkUpdateModal, runBulkUpdate } from "~/components/bulk-updates";
 import { DataTable } from "~/components/data-table";
 import {
   EventOrganizationReferenceEmbed,
@@ -37,12 +37,10 @@ import {
   EventTeamReferenceEmbed,
 } from "~/components/reference-embed";
 import { SchemaForm } from "~/components/schema-form";
-import { Dropdown, IconButton, Modal, Table, Tbody, Td, Th, Thead, Tr } from "~/components/ui";
+import { Dropdown, IconButton, Modal } from "~/components/ui";
 import { db } from "~/lib/db.server";
-import { firestore } from "~/lib/firebase.server";
 import { isNotEmpty } from "~/lib/utils/array-utils";
 import { reduceToMap } from "~/lib/utils/misc";
-import { mapKeys } from "~/lib/utils/object-utils";
 import { UnifiedDocumentReference } from "~/lib/zfb";
 
 const StudentUpdateForm = (eventId: Event["id"], customFields: Event["customFields"]) => {
@@ -70,50 +68,6 @@ const StudentUpdateForm = (eventId: Event["id"], customFields: Event["customFiel
     number: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional()),
     ...(customFieldsSchema && { customFields: z.object(customFieldsSchema) }),
-  });
-};
-
-const BulkUpdateForm = (customFields: Event["customFields"]) => {
-  const customFieldIds = customFields?.map((x) => x.id) ?? [];
-
-  const verifyKeys = (item: Record<string, string>) => {
-    for (const key in item) {
-      if (key !== "id" && !customFieldIds.includes(key)) {
-        throw new Error(`Invalid field ${key}`);
-      }
-    }
-  };
-
-  const transformCsv = async (val: string) => {
-    const items = await new Promise((resolve, reject) => {
-      parse(val, { columns: true }, (err, data) => {
-        if (err) reject(err);
-        resolve(data);
-      });
-    });
-
-    if (!Array.isArray(items)) throw new Error("Must be an array");
-    if (items.length === 0) throw new Error("Cannot be empty");
-
-    return new Map<string, Record<string, string>>(
-      items.map(({ id, ...item }) => {
-        if (!id) throw new Error("Missing field id");
-        verifyKeys(item);
-        return [id, item];
-      })
-    );
-  };
-
-  return z.object({
-    csv: zfd.text().transform((val, ctx) => {
-      return transformCsv(val).catch((err) => {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: err.message,
-        });
-        return z.NEVER;
-      });
-    }),
   });
 };
 
@@ -151,14 +105,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 type ActionData =
-  | {
-      _form: "BulkUpdate";
-      result: {
-        id: string;
-        update: Record<string, string>;
-        data: EventStudent | undefined;
-      }[];
-    }
+  | BulkUpdateActionData<EventStudent>
   | {
       _form: "StudentUpdate";
     };
@@ -194,17 +141,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const result = await withZod(BulkUpdateForm(event.customFields)).validate(formData);
     if (result.error) return validationError(result.error);
 
-    const results = await firestore.runTransaction((t) => {
-      return Promise.all(
-        [...result.data.csv].map(async ([id, update]) => {
-          const nestedUpdate = mapKeys(update, (key) => `customFields.${key}`);
-          const ref = db.eventStudent(event.id, id);
-          const doc = await t.get(ref);
-          if (doc.exists) t.update(ref, nestedUpdate);
-          return { id, update, data: doc.data() };
-        })
-      );
-    });
+    const results = await runBulkUpdate(db.eventStudents(event.id), result.data.csv);
     return json<ActionData>({ _form: "BulkUpdate", result: results });
   }
 };
@@ -217,119 +154,6 @@ const initialState: Partial<TableState> = {
     email: false,
   },
 };
-
-type BulkUpdateModalProps = {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-};
-
-function BulkUpdateModal({ open, setOpen }: BulkUpdateModalProps) {
-  const { event } = useLoaderData<LoaderData>();
-  const form = useMemo(() => BulkUpdateForm(event.customFields), [event]);
-  const actionData = useActionData<ActionData>();
-  const customFieldsById = event.customFields?.reduce<Map<string, EventCustomField>>(
-    (acc, curr) => acc.set(curr.id, curr),
-    new Map()
-  );
-
-  const result = actionData?._form === "BulkUpdate" && actionData.result;
-
-  if (result) {
-    return (
-      <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-          <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
-        </div>
-
-        <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
-          Bulk update successful
-        </Dialog.Title>
-
-        <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Student</Th>
-                {Object.keys(result[0].update).map((x) => (
-                  <Th key={x}>{customFieldsById?.get(x)?.label ?? x}</Th>
-                ))}
-              </Tr>
-            </Thead>
-            <Tbody>
-              {result.map(({ id, update, data }) => (
-                <Tr key={id}>
-                  <Td>{data ? <EventStudentReferenceEmbed student={data} /> : id}</Td>
-                  {data ? (
-                    Object.entries(update).map(([k, v]) => (
-                      <Td key={k}>
-                        <div className="flex items-center gap-2">
-                          {data.customFields[k] === v ? (
-                            v
-                          ) : (
-                            <>
-                              {data.customFields[k] && (
-                                <span className="text-red-300 line-through">
-                                  {data.customFields[k]}
-                                </span>
-                              )}
-                              <span className="text-green-500">{v}</span>
-                            </>
-                          )}
-                        </div>
-                      </Td>
-                    ))
-                  ) : (
-                    <Td className="font-medium text-red-500" colSpan={Object.keys(update).length}>
-                      Student Not Found
-                    </Td>
-                  )}
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </div>
-      </Modal>
-    );
-  }
-
-  return (
-    <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-        <ArrowUpTrayIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
-          Bulk Update Custom Fields
-        </Dialog.Title>
-
-        <p className="text-center text-sm text-gray-500">
-          Required fields: <span className="font-mono">id</span>
-        </p>
-
-        <p className="text-center text-sm text-gray-500">
-          Accepted fields:{" "}
-          {event.customFields?.map((x, i) => (
-            <Fragment key={x.id}>
-              {i !== 0 && ", "}
-              <span className="font-mono">{x.id}</span>
-            </Fragment>
-          ))}
-        </p>
-      </div>
-
-      <SchemaForm
-        id="BulkUpdate"
-        method="post"
-        schema={form}
-        buttonLabel="Update"
-        fieldProps={{ csv: { label: "CSV Text", multiline: true } }}
-      />
-    </Modal>
-  );
-}
-
-// TODO: Refactor this file.
 
 type StudentUpdateModalProps = {
   student: EventStudent;
@@ -375,6 +199,7 @@ function StudentUpdateModal({ student, open, setOpen }: StudentUpdateModalProps)
 }
 export default function StudentsRoute() {
   const { event, students, orgs, teams } = useLoaderData<LoaderData>();
+  const actionData = useActionData<ActionData>();
   const orgsById = reduceToMap(orgs);
   const teamsById = reduceToMap(teams);
 
@@ -448,7 +273,14 @@ export default function StudentsRoute() {
           <Dropdown.Item onClick={() => setOpen(true)}>Bulk Update</Dropdown.Item>
         </Dropdown.Items>
       </Dropdown>
-      <BulkUpdateModal open={open} setOpen={setOpen} />
+
+      <BulkUpdateModal
+        customFields={event.customFields ?? []}
+        RowHeader={({ data }) => <EventStudentReferenceEmbed student={data} />}
+        result={actionData?._form === "BulkUpdate" ? actionData.result : undefined}
+        open={open}
+        setOpen={setOpen}
+      />
     </DataTable>
   );
 }
