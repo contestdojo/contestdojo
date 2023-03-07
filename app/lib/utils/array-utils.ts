@@ -22,3 +22,7 @@ export function* chunk<T>(arr: T[], chunk_size: number) {
 export function isNotEmpty<T>(arr: T[]): arr is [T, ...T[]] {
   return arr.length > 0;
 }
+
+export function mapToObject<T, U>(arr: T[], func: (entry: T) => [string, U]) {
+  return Object.fromEntries(arr.map(func));
+}

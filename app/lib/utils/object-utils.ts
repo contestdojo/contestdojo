@@ -10,43 +10,47 @@ export function makePartial<T>(obj: T | undefined): Partial<T> {
   return obj ?? {};
 }
 
+export function mapToArray<T, U>(obj: Record<string, T>, func: (key: string, val: T) => U): U[] {
+  return Object.entries(obj).map(([key, val]) => func(key, val));
+}
+
 export function mapEntries<T, U>(
   obj: Record<string, T>,
-  func: (entry: [string, T]) => [string, U]
+  func: (key: string, val: T) => [string, U]
 ): Record<string, U> {
-  return Object.fromEntries(Object.entries(obj).map(func));
+  return Object.fromEntries(mapToArray(obj, func));
 }
 
 export function mapKeys<T>(
   obj: Record<string, T>,
   func: (key: string) => string
 ): Record<string, T> {
-  return mapEntries(obj, ([key, val]) => [func(key), val]);
+  return mapEntries(obj, (key, val) => [func(key), val]);
 }
 
 export function mapValues<T, U>(obj: Record<string, T>, func: (val: T) => U): Record<string, U> {
-  return mapEntries(obj, ([key, val]) => [key, func(val)]);
+  return mapEntries(obj, (key, val) => [key, func(val)]);
 }
 
 export function filterEntries<T>(
   obj: Record<string, T>,
-  func: (entry: [string, T]) => unknown
+  func: (key: string, val: T) => unknown
 ): Record<string, T> {
-  return Object.fromEntries(Object.entries(obj).filter(func));
+  return Object.fromEntries(Object.entries(obj).filter(([key, val]) => func(key, val)));
 }
 
 export function filterKeys<T>(
   obj: Record<string, T>,
   func: (key: string) => unknown
 ): Record<string, T> {
-  return filterEntries(obj, ([key, val]) => func(key));
+  return filterEntries(obj, (key, _) => func(key));
 }
 
 export function filterValues<T>(
   obj: Record<string, T>,
   func: (val: T) => unknown
 ): Record<string, T> {
-  return filterEntries(obj, ([key, val]) => func(val));
+  return filterEntries(obj, (_, val) => func(val));
 }
 
 export type NestedPaths<T> = T extends object

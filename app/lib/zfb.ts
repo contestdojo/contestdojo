@@ -7,14 +7,11 @@
  */
 
 import type { FirestoreDataConverter, QueryDocumentSnapshot } from "firebase-admin/firestore";
-import type { extendShape, ZodObject, ZodRawShape, ZodString } from "zod";
+import type { ZodObject, ZodRawShape, ZodString } from "zod";
 
 import { z } from "zod";
 
-export const firestoreObject = <
-  T extends extendShape<ZodRawShape, { id: ZodString }>,
-  S extends ZodObject<T>
->(
+export const firestoreObject = <T extends ZodRawShape & { id: ZodString }, S extends ZodObject<T>>(
   schema: S
 ): S & { converter: FirestoreDataConverter<z.infer<S>> } => {
   return {
