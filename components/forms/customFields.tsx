@@ -62,8 +62,8 @@ export const renderCustomFields = (
           helperText={x.helpText}
         >
           {x.choices &&
-            x.choices.map((v) => (
-              <option key={v} value={v}>
+            x.choices.map((v, i) => (
+              <option key={i} value={v}>
                 {v}
               </option>
             ))}
