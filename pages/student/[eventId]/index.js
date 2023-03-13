@@ -527,6 +527,7 @@ const Event = () => {
 
       <Heading size="lg">Student Information</Heading>
       <AddStudentForm
+        key={student}
         onSubmit={handleUpdate}
         customFields={event.customFields ?? []}
         allowEditEmail={false}
