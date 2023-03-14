@@ -33,6 +33,7 @@ import {
 import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { loadStripe } from "@stripe/stripe-js";
 import firebase from "firebase";
+import Hashids from "hashids";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { HiClipboardCheck, HiDotsHorizontal, HiExclamation, HiPencil, HiTrash } from "react-icons/hi";
@@ -375,12 +376,14 @@ const Teams = ({
 
 const Students = ({
   eventOrg,
+  eventOrgRef,
   invites,
   students,
   onInviteStudents,
   onAddStudent,
   onEditStudent,
   event,
+  eventRef,
   waiver,
   onDeleteStudent,
   stripeAccount,
@@ -413,6 +416,22 @@ const Students = ({
   };
 
   const displayInvites = invites.filter((x) => !students.some((y) => y.email == x.email));
+
+  const firestore = useFirestore();
+
+  useEffect(() => {
+    if (eventOrg.code) return;
+
+    const hashids = new Hashids(`${eventRef.id}/orgs`, 4);
+
+    firestore.runTransaction(async (transaction) => {
+      const counterRef = eventRef.collection("counters").doc("orgs");
+      const counter = await transaction.get(counterRef);
+      const next = counter.data()?.next ?? 0;
+      transaction.set(counterRef, { next: next + 1 });
+      transaction.set(eventOrgRef, { code: hashids.encode(next) }, { merge: true });
+    });
+  }, [eventOrg.code]);
 
   return (
     <Stack spacing={4}>
@@ -711,6 +730,7 @@ const TeamsContent = () => {
 
         <Students
           eventOrg={eventOrg}
+          eventOrgRef={eventOrgRef}
           invites={invites}
           students={studentsByTeam[null] ?? []}
           onInviteStudents={handleInviteStudents}
@@ -718,6 +738,7 @@ const TeamsContent = () => {
           onEditStudent={handleEditStudent}
           onDeleteStudent={handleDeleteStudent}
           event={event}
+          eventRef={eventRef}
           waiver={event.waiver}
           stripeAccount={entity.stripeAccountId}
         />
