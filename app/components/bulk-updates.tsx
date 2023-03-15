@@ -18,9 +18,8 @@ import { z } from "zod";
 import { SchemaForm } from "~/components/schema-form";
 import { Modal, Table, Tbody, Td, Th, Thead, Tr } from "~/components/ui";
 import { firestore } from "~/lib/firebase.server";
-import { filterEntries, filterValues, getNestedPath } from "~/lib/utils/object-utils";
-
-import { guardType } from "./schema-form/guards";
+import { isObject } from "~/lib/utils/misc";
+import { filterEntries, getNestedPath } from "~/lib/utils/object-utils";
 
 function parseCsv(val: unknown) {
   return new Promise((resolve, reject) => {
@@ -102,6 +101,126 @@ export type BulkUpdateActionData<T> = {
   result: BulkActionResult<T>;
 };
 
+const renderValue = (value: any): React.ReactNode => {
+  if (isObject(value)) {
+    return JSON.stringify(value);
+  }
+  return value;
+};
+
+type BulkUpdateSuccessModalTableCellProps<U> = {
+  data: U | undefined;
+  updateKey: string;
+  updateValue: string | undefined;
+};
+
+function BulkUpdateSuccessModalTableCellContent<U>({
+  data,
+  updateKey,
+  updateValue,
+}: BulkUpdateSuccessModalTableCellProps<U>) {
+  const oldValue = getNestedPath(data, updateKey);
+
+  if (oldValue === updateValue) return updateValue;
+
+  return (
+    <>
+      {oldValue && <span className="text-red-300 line-through">{renderValue(oldValue)}</span>}
+      <span className="text-green-500">{updateValue && renderValue(updateValue)}</span>
+    </>
+  );
+}
+
+type BulkUpdateSuccessModalTableRowProps<U> = {
+  id: string;
+  update: Record<string, string | undefined>;
+  data: U | undefined;
+  RowHeader: (props: { data: U }) => JSX.Element;
+};
+
+export function BulkUpdateSuccessModalTableRow<U>({
+  id,
+  update,
+  data,
+  RowHeader,
+}: BulkUpdateSuccessModalTableRowProps<U>) {
+  return (
+    <Tr>
+      <Td>{data ? <RowHeader data={data} /> : id}</Td>
+
+      {data ? (
+        Object.entries(update).map(([k, v]) => (
+          <Td key={k}>
+            <div className="flex items-center gap-2">
+              <BulkUpdateSuccessModalTableCellContent
+                key={k}
+                data={data}
+                updateKey={k}
+                updateValue={v}
+              />
+            </div>
+          </Td>
+        ))
+      ) : (
+        <Td className="font-medium text-red-500" colSpan={Object.keys(update).length}>
+          Not Found
+        </Td>
+      )}
+    </Tr>
+  );
+}
+
+export type BulkUpdateSuccessModalProps<U> = {
+  result: BulkActionResult<U>;
+  RowHeader: (props: { data: U }) => JSX.Element;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};
+
+export function BulkUpdateSuccessModal<U>({
+  result,
+  RowHeader,
+  open,
+  setOpen,
+}: BulkUpdateSuccessModalProps<U>) {
+  return (
+    <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+        <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
+      </div>
+
+      <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
+        Bulk update successful
+      </Dialog.Title>
+
+      <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
+        <Table>
+          <Thead>
+            <Tr>
+              <Th>Entity</Th>
+              {Object.keys(result[0].update).map((x) => (
+                <Th key={x}>{x}</Th>
+              ))}
+            </Tr>
+          </Thead>
+
+          <Tbody>
+            {result.map(({ id, update, data }) => (
+              <BulkUpdateSuccessModalTableRow
+                key={id}
+                id={id}
+                update={update}
+                data={data}
+                RowHeader={RowHeader}
+              />
+            ))}
+          </Tbody>
+        </Table>
+      </div>
+    </Modal>
+  );
+}
+
 export type BulkUpdateModalProps<S extends z.ZodRawShape, T extends z.ZodObject<S>, U> = {
   baseSchema: T;
   customFields: EventCustomField[];
@@ -123,69 +242,13 @@ export function BulkUpdateModal<S extends z.ZodRawShape, T extends z.ZodObject<S
 
   if (result) {
     return (
-      <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-          <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
-        </div>
-
-        <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
-          Bulk update successful
-        </Dialog.Title>
-
-        <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Entity</Th>
-                {Object.keys(result[0].update).map((x) => (
-                  <Th key={x}>{x}</Th>
-                ))}
-              </Tr>
-            </Thead>
-            <Tbody>
-              {result.map(({ id, update, data }) => (
-                <Tr key={id}>
-                  <Td>{data ? <RowHeader data={data} /> : id}</Td>
-                  {data ? (
-                    Object.entries(update).map(([k, v]) => (
-                      <Td key={k}>
-                        <div className="flex items-center gap-2">
-                          {getNestedPath(data, k) === v ? (
-                            v
-                          ) : (
-                            <>
-                              {getNestedPath(data, k) && (
-                                <span className="text-red-300 line-through">
-                                  {getNestedPath(data, k)}
-                                </span>
-                              )}
-                              <span className="text-green-500">{v}</span>
-                            </>
-                          )}
-                        </div>
-                      </Td>
-                    ))
-                  ) : (
-                    <Td className="font-medium text-red-500" colSpan={Object.keys(update).length}>
-                      Not Found
-                    </Td>
-                  )}
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </div>
-      </Modal>
+      <BulkUpdateSuccessModal result={result} RowHeader={RowHeader} open={open} setOpen={setOpen} />
     );
   }
 
-  const requiredFields = [
+  const fields = [
     "id",
-    ...Object.keys(filterValues(baseSchema.shape, (x) => !guardType.ZodOptional(x))),
-  ];
-
-  const optionalFields = [
-    ...Object.keys(filterValues(baseSchema.shape, guardType.ZodOptional)),
+    ...Object.keys(baseSchema.shape),
     ...customFields.map((x) => `customFields.${x.id}`),
   ];
 
@@ -200,18 +263,9 @@ export function BulkUpdateModal<S extends z.ZodRawShape, T extends z.ZodObject<S
           Bulk Update
         </Dialog.Title>
 
-        <p className="flex flex-row items-center gap-2 text-sm text-gray-500">
-          <span>Required fields:</span>
-          {requiredFields.map((x) => (
-            <span key={x} className="rounded bg-gray-200 px-1 font-mono">
-              {x}
-            </span>
-          ))}
-        </p>
-
-        <p className="flex flex-row items-center gap-2 text-sm text-gray-500">
-          <span>Accepted fields:</span>
-          {optionalFields.map((x) => (
+        <p className="flex flex-row flex-wrap items-center gap-2 text-sm text-gray-500">
+          <span>Fields:</span>
+          {fields.map((x) => (
             <span key={x} className="rounded bg-gray-200 px-1 font-mono">
               {x}
             </span>

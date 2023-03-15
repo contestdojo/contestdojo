@@ -61,10 +61,22 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 const baseSchema = z.object({
+  org: z.string().optional(),
   name: z.string().optional(),
   number: z.string().optional(),
   notes: z.string().optional(),
 });
+
+const baseSchemaServer = (event: Event) =>
+  z.object({
+    org: z
+      .string()
+      .optional()
+      .transform((x) => x && db.org(x)),
+    name: z.string().optional(),
+    number: z.string().optional(),
+    notes: z.string().optional(),
+  });
 
 type ActionData = BulkUpdateActionData<EventTeam>;
 
@@ -77,9 +89,9 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
 
   if (formData.get("_form") === "BulkUpdate") {
-    const result = await withZod(BulkUpdateForm(baseSchema, event.customTeamFields)).validate(
-      formData
-    );
+    const result = await withZod(
+      BulkUpdateForm(baseSchemaServer(event), event.customTeamFields)
+    ).validate(formData);
     if (result.error) return validationError(result.error);
 
     const results = await runBulkUpdate(db.eventTeams(event.id), result.data.csv);
