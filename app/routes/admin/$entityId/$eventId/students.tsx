@@ -61,9 +61,11 @@ const StudentUpdateForm = (eventId: Event["id"], customFields: Event["customFiel
     fname: zfd.text(),
     lname: zfd.text(),
     grade: zfd.numeric(z.number().optional()),
-    org: zfd.text().transform((x) => new UnifiedDocumentReference(`orgs/${x}`)),
+    org: zfd
+      .text(z.string().optional())
+      .transform((x) => x && new UnifiedDocumentReference(`orgs/${x}`)),
     team: zfd
-      .text(z.string().optional().nullable())
+      .text(z.string().optional())
       .transform((x) => x && new UnifiedDocumentReference(`events/${eventId}/teams/${x}`)),
     number: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional()),
@@ -115,8 +117,7 @@ const baseSchemaServer = (event: Event) =>
   z.object({
     org: z
       .string()
-      .min(1)
-      .transform((x) => db.org(x))
+      .transform((x) => (x === "" ? null : db.org(x)))
       .optional(),
     team: z
       .string()
