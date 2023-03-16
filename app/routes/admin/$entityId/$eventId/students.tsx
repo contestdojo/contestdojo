@@ -116,13 +116,12 @@ const baseSchemaServer = (event: Event) =>
     org: z
       .string()
       .min(1)
-      .optional()
-      .transform((x) => x && db.org(x)),
+      .transform((x) => db.org(x))
+      .optional(),
     team: z
       .string()
-      .optional()
-      .transform((x) => (x === "" ? null : x))
-      .transform((x) => x && db.eventTeam(event.id, x)),
+      .transform((x) => (x === "" ? null : db.eventTeam(event.id, x)))
+      .optional(),
     number: z.string().optional(),
     notes: z.string().optional(),
   });

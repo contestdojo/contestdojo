@@ -71,9 +71,8 @@ const baseSchemaServer = (event: Event) =>
   z.object({
     org: z
       .string()
-      .optional()
-      .transform((x) => (x === "" ? null : x))
-      .transform((x) => x && db.org(x)),
+      .transform((x) => (x === "" ? null : db.org(x)))
+      .optional(),
     name: z.string().optional(),
     number: z.string().optional(),
     notes: z.string().optional(),
