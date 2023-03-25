@@ -400,6 +400,7 @@ const Students = ({
   });
 
   const handleAddStudent = wrapAction(async (values) => {
+    console.log("test");
     await onAddStudent(values);
     onClose();
   });
@@ -509,6 +510,7 @@ const Students = ({
       />
       <AddStudentModal
         key={editing}
+        id="edit-student"
         title="Edit Student"
         isOpen={editing != null}
         onClose={() => setEditing(null)}

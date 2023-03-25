@@ -40,7 +40,7 @@ const RegisterOrgForm = ({
   });
 
   return (
-    <form id="add-student" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
         {error && (
           <Alert status="error">

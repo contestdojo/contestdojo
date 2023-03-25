@@ -15,6 +15,7 @@ import { makeCustomFieldsSchema, renderCustomFields } from "./customFields";
 import FormField from "~/components/FormField";
 
 const AddStudentForm = ({
+  id = "add-student",
   initial = false,
   onSubmit,
   error,
@@ -49,7 +50,7 @@ const AddStudentForm = ({
   });
 
   return (
-    <form id="add-student" onSubmit={handleSubmit(onSubmit)}>
+    <form id={id} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={4}>
         {error && (
           <Alert status="error">

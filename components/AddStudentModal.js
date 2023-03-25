@@ -18,7 +18,7 @@ import { useRef } from "react";
 
 import AddStudentForm from "~/components/forms/AddStudentForm";
 
-const AddStudentModal = ({ isOpen, onClose, title, isLoading, ...props }) => {
+const AddStudentModal = ({ id = "add-student", isOpen, onClose, title, isLoading, ...props }) => {
   const initialFocusRef = useRef();
   return (
     <Modal isOpen={isOpen} initialFocusRef={initialFocusRef} onClose={onClose}>
@@ -27,11 +27,17 @@ const AddStudentModal = ({ isOpen, onClose, title, isLoading, ...props }) => {
         <ModalHeader>{title ?? "Invite Student"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <AddStudentForm initialFocusRef={initialFocusRef} showButton={false} isLoading={isLoading} {...props} />
+          <AddStudentForm
+            id={id}
+            initialFocusRef={initialFocusRef}
+            showButton={false}
+            isLoading={isLoading}
+            {...props}
+          />
         </ModalBody>
 
         <ModalFooter>
-          <Button type="submit" form="add-student" colorScheme="blue" mr={3} isLoading={isLoading}>
+          <Button type="submit" form={id} colorScheme="blue" mr={3} isLoading={isLoading}>
             Save
           </Button>
           <Button onClick={onClose}>Cancel</Button>
