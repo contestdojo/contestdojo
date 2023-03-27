@@ -122,7 +122,7 @@ export default function OrgsRoute() {
 
   return (
     <DataTable
-      name="orgs"
+      filename={`${new Date().toISOString()} - ${event.name} - orgs.csv`}
       data={orgs}
       columns={[...columns, ...(customColumns ?? [])]}
       initialState={initialState}

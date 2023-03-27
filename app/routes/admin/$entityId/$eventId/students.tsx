@@ -149,7 +149,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     const updateData = {
       ...result.data,
-      org: db.doc(result.data.org.path),
+      org: result.data.org && db.doc(result.data.org.path),
       team: result.data.team && db.doc(result.data.team.path),
     };
 
@@ -291,7 +291,12 @@ export default function StudentsRoute() {
   const [open, setOpen] = useState(false);
 
   return (
-    <DataTable name="students" data={students} columns={columns} initialState={initialState}>
+    <DataTable
+      filename={`${new Date().toISOString()} - ${event.name} - students.csv`}
+      data={students}
+      columns={columns}
+      initialState={initialState}
+    >
       <Dropdown>
         <Dropdown.Button>Actions</Dropdown.Button>
         <Dropdown.Items>

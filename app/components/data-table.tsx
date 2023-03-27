@@ -23,11 +23,11 @@ import { ClientOnly } from "remix-utils";
 import { Button, Dropdown, Table, Tbody, Td, Th, Thead, Tr } from "~/components/ui";
 
 type TableProps<T extends RowData> = PropsWithChildren<{
-  name: string;
+  filename: string;
   table: TanstackTable<T>;
 }>;
 
-function HeaderButtons<T extends RowData>({ name, table, children }: TableProps<T>) {
+function HeaderButtons<T extends RowData>({ filename, table, children }: TableProps<T>) {
   const csvData = useMemo(() => {
     const model = table.getCoreRowModel();
     return model.flatRows.map((row) =>
@@ -66,7 +66,7 @@ function HeaderButtons<T extends RowData>({ name, table, children }: TableProps<
       {/* Download Button */}
       <ClientOnly fallback={<Button disabled>Download CSV</Button>}>
         {() => (
-          <Button as={CSVLink} data={csvData} filename={`${name}.csv`}>
+          <Button as={CSVLink} data={csvData} filename={filename}>
             Download CSV
           </Button>
         )}
@@ -120,14 +120,14 @@ function Body<T extends RowData>({ table }: TableProps<T>) {
 }
 
 type DataTableProps<T extends RowData> = PropsWithChildren<{
-  name: string;
+  filename: string;
   data: T[];
   columns: ColumnDef<T, any>[];
   initialState?: Partial<TableState>;
 }>;
 
 export function DataTable<T extends RowData>({
-  name,
+  filename,
   data,
   columns,
   initialState,
@@ -143,12 +143,12 @@ export function DataTable<T extends RowData>({
 
   return (
     <div className="flex flex-col items-stretch gap-4">
-      <HeaderButtons name={name} table={table} children={children} />
+      <HeaderButtons filename={filename} table={table} children={children} />
 
       <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
         <Table>
-          <Headers name={name} table={table} />
-          <Body name={name} table={table} />
+          <Headers filename={filename} table={table} />
+          <Body filename={filename} table={table} />
         </Table>
       </div>
     </div>

@@ -150,7 +150,12 @@ export default function TeamsRoute() {
   const [open, setOpen] = useState(false);
 
   return (
-    <DataTable name="teams" data={teams} columns={columns} initialState={initialState}>
+    <DataTable
+      filename={`${new Date().toISOString()} - ${event.name} - teams.csv`}
+      data={teams}
+      columns={columns}
+      initialState={initialState}
+    >
       <Dropdown>
         <Dropdown.Button>Actions</Dropdown.Button>
         <Dropdown.Items>
