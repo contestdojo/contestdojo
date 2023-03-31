@@ -494,7 +494,7 @@ const Event = () => {
         </>
       )}
 
-      {event.waiver && (
+      {event.waiver && typeof event.waiver === "string" && (
         <>
           <Divider />
           <Heading size="lg">Waivers</Heading>
