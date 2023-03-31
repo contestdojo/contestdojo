@@ -527,7 +527,6 @@ const Event = () => {
 
       <Heading size="lg">Student Information</Heading>
       <AddStudentForm
-        key={student}
         onSubmit={handleUpdate}
         customFields={event.customFields ?? []}
         allowEditEmail={false}
@@ -542,3 +541,9 @@ const Event = () => {
 };
 
 export default Event;
+
+export async function getServerSideProps(context) {
+  return {
+    props: { key: context.query.eventId }, // will be passed to the page component as props
+  };
+}
