@@ -25,7 +25,7 @@ const EventLink = ({ id, students, activeStyle }) => {
   let number = students.find((s) => s.ref.parent.parent.id === event.id)?.data()?.number;
 
   return (
-    <NextLink href={`/student/${id}`}>
+    <NextLink href={`/student/${id}`} passHref>
       <Link {...(id == query.eventId && activeStyle)} _hover={activeStyle} borderRadius={4} px={3} py={2}>
         <HStack>
           <Text>{event.name}</Text>
@@ -57,7 +57,7 @@ const Sidebar = () => {
         {eventIds.map((x) => (
           <EventLink id={x} key={x} students={students} activeStyle={activeStyle} />
         ))}
-        <NextLink href={`/student`}>
+        <NextLink href={`/student`} passHref>
           <Link _hover={activeStyle} borderRadius={4} px={3} py={2}>
             <HStack>
               <HiPlus />

@@ -29,7 +29,7 @@ const Sidebar = () => {
       <Heading size={3}>Organizations</Heading>
       <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
         {orgs.map((x) => (
-          <NextLink href={`/coach/${x.id}`} key={x.id}>
+          <NextLink href={`/coach/${x.id}`} key={x.id} passHref>
             <Link {...(x.id == query.orgId && activeStyle)} _hover={activeStyle} borderRadius={4} px={3} py={2}>
               {x.name}
             </Link>

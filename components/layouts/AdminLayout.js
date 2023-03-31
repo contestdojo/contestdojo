@@ -41,7 +41,7 @@ const Sidebar = () => {
         <Heading size={3}>Organizing Entities</Heading>
         <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
           {entities.map((x) => (
-            <NextLink href={`/admin/${x.id}`} key={x.id}>
+            <NextLink href={`/admin/${x.id}`} key={x.id} passHref>
               <Link
                 {...(x.id == query.entityId && !query.eventId && activeStyle)}
                 _hover={activeStyle}
@@ -60,7 +60,7 @@ const Sidebar = () => {
         <Heading size={3}>Events</Heading>
         <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
           {events.map((x) => (
-            <NextLink href={`/admin/${x.owner.id}/${x.id}`} key={x.id}>
+            <NextLink href={`/admin/${x.owner.id}/${x.id}`} key={x.id} passHref>
               <Link {...(x.id == query.eventId && activeStyle)} _hover={activeStyle} borderRadius={4} px={3} py={2}>
                 {x.name}
               </Link>
