@@ -111,6 +111,7 @@ const baseSchema = z.object({
   team: z.string().optional().nullable(),
   number: z.string().optional(),
   notes: z.string().optional(),
+  waiver: z.enum(["", "true"]).transform(Boolean),
 });
 
 const baseSchemaServer = (event: Event) =>
@@ -125,6 +126,7 @@ const baseSchemaServer = (event: Event) =>
       .optional(),
     number: z.string().optional(),
     notes: z.string().optional(),
+    waiver: z.enum(["", "true"]).transform(Boolean),
   });
 
 type ActionData =

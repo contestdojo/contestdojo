@@ -119,7 +119,7 @@ const EventStudent = zfb.firestoreObject(
     org: zfb.documentReference().optional().nullable(),
     team: zfb.documentReference().optional().nullable(),
     number: z.string().optional(),
-    waiver: z.string().optional(),
+    waiver: z.boolean().or(z.string()).optional().nullable(),
     notes: z.string().optional(),
     customFields: z.any().optional(),
   })
