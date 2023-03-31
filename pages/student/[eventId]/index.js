@@ -504,7 +504,7 @@ const Event = () => {
                 <AlertIcon />
                 Your waiver has been signed.
               </Alert>
-              <DownloadWaiver waiver={student.waiver} />
+              {student.waiver !== true && <DownloadWaiver waiver={student.waiver} />}
             </>
           ) : (
             <>
