@@ -31,7 +31,7 @@ service cloud.firestore {
       // Make sure can't change type
       allow read: if request.auth.uid == userId;
       allow create: if request.auth.uid == userId && request.resource.data.type != "admin";
-      allow update: if request.auth.uid == userId && resource.data.type == request.resource.data.type
+      allow update: if request.auth.uid == userId && resource.data.type == request.resource.data.type || !resource.data.type;
     }
 
     match /events/{eventId} {

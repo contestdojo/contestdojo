@@ -5,21 +5,37 @@
 /* Copyright (c) 2021 Oliver Ni */
 
 import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { useUser } from "reactfire";
 
 import AuthWrapper from "~/components/AuthWrapper";
 import { useUserData } from "~/helpers/utils";
 
 const HomePage = () => {
   const router = useRouter();
-  const { data: user } = useUserData();
+  const { data: user } = useUser();
+  const { ref: userRef, data: userData } = useUserData();
 
-  if (user?.type == "coach") {
-    router.replace("/coach");
-  } else if (user?.type == "student") {
-    router.replace("/student");
-  } else if (user?.type == "admin") {
-    router.replace("/admin");
-  }
+  useEffect(() => {
+    if (userData?.type == "coach") {
+      router.replace("/coach");
+    } else if (userData?.type == "student") {
+      router.replace("/student");
+    } else if (userData?.type == "admin") {
+      router.replace("/admin");
+    } else {
+      const [fname, lname] = user.displayName.split(" ", 2);
+      userRef.set(
+        {
+          fname,
+          lname,
+          email: user.email,
+          type: "student",
+        },
+        { merge: true }
+      );
+    }
+  }, [userData]);
 
   return null;
 };
