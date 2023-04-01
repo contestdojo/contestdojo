@@ -512,12 +512,16 @@ const Event = () => {
                 <AlertIcon />
                 Your registration is not complete until your waiver is signed.
               </Alert>
-              <Text>
-                This tournament requires waivers to be completed before you may compete. Your parent or guardian must
-                complete this waiver. The waiver will be sent directly to your parent&apos;s email for them to complete.
-                Please enter their email address below:
-              </Text>
-              <WaiverRequestForm onSubmit={handleSubmitWaiver} {...formStateWaiver} />
+              {typeof event.waiver === "string" && (
+                <>
+                  <Text>
+                    This tournament requires waivers to be completed before you may compete. Your parent or guardian
+                    must complete this waiver. The waiver will be sent directly to your parent&apos;s email for them to
+                    complete. Please enter their email address below:
+                  </Text>
+                  <WaiverRequestForm onSubmit={handleSubmitWaiver} {...formStateWaiver} />
+                </>
+              )}
             </>
           )}
         </>
