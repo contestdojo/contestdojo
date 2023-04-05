@@ -132,6 +132,7 @@ export default function TeamsRoute() {
         return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue();
       },
     }),
+    columnHelper.accessor("code", { header: "Join Code" }),
     columnHelper.accessor("notes", { header: "Notes" }),
     columnHelper.accessor("scoreReport", {
       header: "Score Report",

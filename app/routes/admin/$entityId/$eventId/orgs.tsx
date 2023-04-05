@@ -94,6 +94,7 @@ const columns = [
   }),
   columnHelper.accessor("adminData.email", { id: "admin_email", header: "Contact Email" }),
   columnHelper.accessor("maxStudents", { header: "Seats Purchased" }),
+  columnHelper.accessor("code", { header: "Join Code" }),
   columnHelper.accessor("notes", { header: "Notes" }),
 ];
 

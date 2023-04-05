@@ -105,6 +105,7 @@ const EventOrganization = zfb.firestoreObject(
     maxStudents: z.number().optional(),
     notes: z.string().optional(),
     customFields: z.any().optional(),
+    code: z.string().optional(),
   })
 );
 
@@ -134,6 +135,7 @@ const EventTeam = zfb.firestoreObject(
     scoreReport: z.string().optional(),
     notes: z.string().optional(),
     customFields: z.any().optional(),
+    code: z.string().optional(),
   })
 );
 
