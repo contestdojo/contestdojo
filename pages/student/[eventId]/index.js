@@ -469,7 +469,7 @@ const Event = () => {
         size="lg"
         isDisabled={(event.waiver && !student.waiver && !student.waiverSigned) || (event.teamsEnabled && !student.team)}
       >
-        Click here to take your tests
+        Click here to take your tests (for online events only)
       </ButtonLink>
 
       {(student.scoreReport || team?.scoreReport) && (
