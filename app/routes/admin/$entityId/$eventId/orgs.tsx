@@ -100,7 +100,6 @@ const columns = [
 
 const initialState: Partial<TableState> = {
   columnVisibility: {
-    id: false,
     address: false,
     admin_id: false,
   },

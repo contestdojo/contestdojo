@@ -102,9 +102,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 const columnHelper = createColumnHelper<EventTeam>();
 
 const initialState: Partial<TableState> = {
-  columnVisibility: {
-    id: false,
-  },
+  columnVisibility: {},
 };
 
 export default function TeamsRoute() {

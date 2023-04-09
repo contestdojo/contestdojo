@@ -183,7 +183,6 @@ const columnHelper = createColumnHelper<EventStudent>();
 
 const initialState: Partial<TableState> = {
   columnVisibility: {
-    id: false,
     email: false,
   },
 };
