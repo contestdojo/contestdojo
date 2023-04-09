@@ -18,7 +18,7 @@ import {
   Th,
   Thead,
   Tr,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useFirestoreCollectionData } from "reactfire";
@@ -27,7 +27,11 @@ import EventProvider from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useTime } from "~/helpers/utils";
 
-const points = [10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 16, 16, 16, 18, 18, 18, 20, 20, 20, 25, 25, 25];
+const points = [
+  10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 16, 16, 16, 18, 18, 18, 21, 21, 21, 0, 0, 0,
+];
+
+const MAX_SET_SHOWN = 8;
 
 const TestContent = () => {
   const { ref: testRef, data: test } = useTest();
@@ -39,12 +43,12 @@ const TestContent = () => {
   }
 
   let displayGraded = graded
-    .map((x) => ({ ...x, gutsSet: Math.min(x.gutsSet, 7) })) // Limit to 7
+    .map((x) => ({ ...x, gutsSet: Math.min(x.gutsSet, MAX_SET_SHOWN) }))
     .map((x) => ({
       ...x,
       score: Object.entries(x)
         .filter((e) => Object.keys(points).includes(e[0]))
-        .filter((e) => Number(e[0]) < test.numPerSet * x.gutsSet, 7)
+        .filter((e) => Number(e[0]) < test.numPerSet * x.gutsSet, MAX_SET_SHOWN)
         .reduce((acc, [idx, val]) => acc + points[idx] * val, 0),
     }))
     .sort((a, b) => b.score - a.score);
