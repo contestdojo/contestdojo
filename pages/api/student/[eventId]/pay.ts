@@ -76,7 +76,7 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
         },
       ],
       success_url: `${origin}/student/${eventId}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/student/${eventId}/teams`,
+      cancel_url: `${origin}/student/${eventId}`,
       allow_promotion_codes: true,
       ...customer,
     },
