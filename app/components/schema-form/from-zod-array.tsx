@@ -74,7 +74,7 @@ function ArrayItem<T extends ZodTypeAny>({
 export type ArrayFieldProps<T extends ZodArray<ZodTypeAny>> = {
   label?: string;
   elementClassName?: string;
-  element: FieldProps<T["element"]>;
+  element?: FieldProps<T["element"]>;
 };
 
 export function FromZodArray<T extends ZodArray<ZodTypeAny>>({

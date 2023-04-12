@@ -65,6 +65,7 @@ const baseSchema = z.object({
   name: z.string().optional(),
   number: z.string().optional(),
   notes: z.string().optional(),
+  checkInPool: z.string().optional(),
 });
 
 const baseSchemaServer = (event: Event) =>
@@ -76,6 +77,7 @@ const baseSchemaServer = (event: Event) =>
     name: z.string().optional(),
     number: z.string().optional(),
     notes: z.string().optional(),
+    checkInPool: z.string().optional(),
   });
 
 type ActionData = BulkUpdateActionData<EventTeam>;
@@ -131,6 +133,7 @@ export default function TeamsRoute() {
       },
     }),
     columnHelper.accessor("code", { header: "Join Code" }),
+    columnHelper.accessor("checkInPool", { header: "Check-in Pool" }),
     columnHelper.accessor("notes", { header: "Notes" }),
     columnHelper.accessor("scoreReport", {
       header: "Score Report",

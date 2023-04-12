@@ -37,10 +37,10 @@ const ICON_COMPONENTS = {
 };
 
 const WRAPPER_CLASSES = {
-  [AlertStatus.Success]: "bg-green-50",
-  [AlertStatus.Warning]: "bg-yellow-50",
-  [AlertStatus.Error]: "bg-red-50",
-  [AlertStatus.Info]: "bg-blue-50",
+  [AlertStatus.Success]: "bg-green-50 border-green-400",
+  [AlertStatus.Warning]: "bg-yellow-50 border-yellow-400",
+  [AlertStatus.Error]: "bg-red-50 border-red-400",
+  [AlertStatus.Info]: "bg-blue-50 border-blue-400",
 };
 
 const ICON_CLASSES = {
@@ -68,16 +68,18 @@ export function Alert({ className, status, title, children }: AlertProps) {
   const Icon = ICON_COMPONENTS[status];
 
   return (
-    <div className={clsx`rounded-md p-4 ${WRAPPER_CLASSES[status]} ${className}`}>
+    <div className={clsx`rounded-md border p-4 ${WRAPPER_CLASSES[status]} ${className}`}>
       <div className="flex">
         <div className="flex-shrink-0">
           <Icon className={clsx`h-5 w-5 ${ICON_CLASSES[status]}`} aria-hidden="true" />
         </div>
         <div className="ml-3">
           <h3 className={clsx`text-sm font-medium ${TITLE_CLASSES[status]}`}>{title}</h3>
-          <div className={clsx`mt-2 text-sm text-yellow-700 ${DESCRIPTION_CLASSES[status]}`}>
-            {children}
-          </div>
+          {children && (
+            <div className={clsx`mt-2 text-sm text-yellow-700 ${DESCRIPTION_CLASSES[status]}`}>
+              {children}
+            </div>
+          )}
         </div>
       </div>
     </div>

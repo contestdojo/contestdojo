@@ -113,6 +113,15 @@ const WaiverForm = z.object({
   waiver: zfd.text(z.string().optional()),
 });
 
+const CheckInForm = z.object({
+  checkInPools: z.array(
+    z.object({
+      id: zfd.text(),
+      maxStudents: zfd.numeric(z.number().optional()),
+    })
+  ),
+});
+
 type LoaderData = {
   event: Event;
 };
@@ -123,8 +132,6 @@ export const loader: LoaderFunction = async ({ params }) => {
   const event = eventSnap.data();
   if (!event) throw new Response("Event not found.", { status: 404 });
 
-  console.log(event);
-
   return json<LoaderData & FormDefaults>({
     event,
     ...setFormDefaults("EventDetails", event),
@@ -133,6 +140,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     ...setFormDefaults("CustomOrgFields", event),
     ...setFormDefaults("CustomTeamFields", event),
     ...setFormDefaults("Waiver", event),
+    ...setFormDefaults("CheckIn", event),
   });
 };
 
@@ -151,6 +159,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (formData.get("_form") === "CustomOrgFields") validator = withZod(CustomOrgFieldsForm);
   if (formData.get("_form") === "CustomTeamFields") validator = withZod(CustomTeamFieldsForm);
   if (formData.get("_form") === "Waiver") validator = withZod(WaiverForm);
+  if (formData.get("_form") === "CheckIn") validator = withZod(CheckInForm);
 
   if (validator) {
     const result = await validator.validate(formData);
@@ -180,7 +189,6 @@ export default function SettingsRoute() {
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <Section title="Event Details">
         <SchemaForm
-          className="flex-1"
           id="EventDetails"
           method="post"
           schema={EventDetailsForm}
@@ -196,9 +204,9 @@ export default function SettingsRoute() {
 
       <Section title="Pricing Details">
         <SchemaForm
-          className="flex-1"
           id="CostDetails"
           method="post"
+          className="flex-1"
           schema={CostDetailsForm(event)}
           buttonLabel="Save"
           fieldProps={{
@@ -221,7 +229,6 @@ export default function SettingsRoute() {
 
       <Section title="Custom Student Fields" className="col-span-2">
         <SchemaForm
-          className="flex-1"
           id="CustomFields"
           method="post"
           schema={CustomFieldsForm}
@@ -232,7 +239,6 @@ export default function SettingsRoute() {
 
       <Section title="Custom Organization Fields" className="col-span-2">
         <SchemaForm
-          className="flex-1"
           id="CustomOrgFields"
           method="post"
           schema={CustomOrgFieldsForm}
@@ -243,7 +249,6 @@ export default function SettingsRoute() {
 
       <Section title="Custom Team Fields" className="col-span-2">
         <SchemaForm
-          className="flex-1"
           id="CustomTeamFields"
           method="post"
           schema={CustomTeamFieldsForm}
@@ -254,12 +259,25 @@ export default function SettingsRoute() {
 
       <Section title="Waiver" className="col-span-2">
         <SchemaForm
-          className="flex-1"
           id="Waiver"
           method="post"
           schema={WaiverForm}
           buttonLabel="Save"
           fieldProps={{ waiver: { multiline: true } }}
+        />
+      </Section>
+
+      <Section title="Check-in" className="col-span-2">
+        <SchemaForm
+          id="CheckIn"
+          method="post"
+          schema={CheckInForm}
+          buttonLabel="Save"
+          fieldProps={{
+            checkInPools: {
+              elementClassName: "md:flex-row",
+            },
+          }}
         />
       </Section>
     </div>

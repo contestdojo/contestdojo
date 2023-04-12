@@ -96,6 +96,15 @@ const Event = zfb.firestoreObject(
     customOrgFields: z.array(EventCustomField).optional(),
     customTeamFields: z.array(EventCustomField).optional(),
     studentRegistrationEnabled: z.boolean().optional(),
+    checkInPools: z
+      .array(
+        z.object({
+          id: z.string(),
+          maxStudents: z.number().optional(),
+          numStudents: z.number().optional(),
+        })
+      )
+      .optional(),
   })
 );
 
@@ -136,6 +145,7 @@ const EventTeam = zfb.firestoreObject(
     notes: z.string().optional(),
     customFields: z.any().optional(),
     code: z.string().optional(),
+    checkInPool: z.string().optional(),
   })
 );
 

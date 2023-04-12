@@ -7,7 +7,7 @@
  */
 
 import { initializeApp } from "firebase/app";
-import { getAuth, inMemoryPersistence, setPersistence } from "firebase/auth";
+import { browserLocalPersistence, getAuth, setPersistence } from "firebase/auth";
 
 export const app = initializeApp({
   apiKey: "AIzaSyAOOHi3dy5rYfJWiXJBEF4h_qJChyxIQLU",
@@ -20,4 +20,4 @@ export const app = initializeApp({
 
 export const auth = getAuth(app);
 
-setPersistence(auth, inMemoryPersistence);
+setPersistence(auth, browserLocalPersistence);
