@@ -174,6 +174,7 @@ type SelectOrgProps = {
 function SelectOrg({ orgs }: SelectOrgProps) {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
+  const transition = useTransition();
 
   return (
     <Form action="" className="col-span-full flex gap-4">
@@ -187,7 +188,12 @@ function SelectOrg({ orgs }: SelectOrgProps) {
           </option>
         ))}
       </Select>
-      <Button type="submit">View</Button>
+      <Button
+        type="submit"
+        disabled={transition.state !== "idle" && transition.type.startsWith("loader")}
+      >
+        View
+      </Button>
     </Form>
   );
 }
@@ -295,7 +301,9 @@ function Teams({ event, teams, students }: TeamsProps) {
           <Alert status={AlertStatus.Error} title={actionData.error} />
         )}
 
-        <Button disabled={transition.state !== "idle"}>Check In</Button>
+        <Button disabled={transition.state !== "idle" && transition.type.startsWith("action")}>
+          Check In
+        </Button>
       </Form>
     </>
   );
