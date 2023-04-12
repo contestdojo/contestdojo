@@ -115,6 +115,7 @@ const baseSchema = z.object({
     .enum(["", "false", "true"])
     .transform((x) => (x === "true" ? true : null))
     .optional(),
+  checkInPool: z.string().optional(),
 });
 
 const baseSchemaServer = (event: Event) =>
@@ -133,6 +134,7 @@ const baseSchemaServer = (event: Event) =>
       .enum(["", "false", "true"])
       .transform((x) => (x === "true" ? true : null))
       .optional(),
+    checkInPool: z.string().optional(),
   });
 
 type ActionData =
@@ -266,6 +268,7 @@ export default function StudentsRoute() {
         return team ? <EventTeamReferenceEmbed team={team} /> : id;
       },
     }),
+    columnHelper.accessor("checkInPool", { header: "Check-in Pool" }),
     columnHelper.accessor("notes", { header: "Notes" }),
     columnHelper.accessor("waiver", {
       header: "Waiver",

@@ -101,7 +101,6 @@ const Event = zfb.firestoreObject(
         z.object({
           id: z.string(),
           maxStudents: z.number().optional(),
-          numStudents: z.number().optional(),
         })
       )
       .optional(),
@@ -132,6 +131,7 @@ const EventStudent = zfb.firestoreObject(
     waiver: z.boolean().or(z.string()).optional().nullable(),
     notes: z.string().optional(),
     customFields: z.any().optional(),
+    checkInPool: z.string().optional(),
   })
 );
 

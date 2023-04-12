@@ -93,13 +93,17 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (!event) throw new Response("Event not found.", { status: 404 });
     if (!event.checkInPools) throw new Error("Event does not have check-in pools set up.");
 
-    const pools = event.checkInPools.map((x) => ({
-      id: x.id,
-      maxStudents: x.maxStudents ?? Infinity,
-      numStudents: x.numStudents ?? 0,
-    }));
+    const pools = await Promise.all(
+      event.checkInPools.map(async (x) => ({
+        id: x.id,
+        maxStudents: x.maxStudents ?? Infinity,
+        numStudents: (
+          await db.eventStudents(eventRef.id).where("checkInPool", "==", x.id).count().get()
+        ).data().count,
+      }))
+    );
 
-    let query = eventRef.collection("teams").where("number", "!=", "").orderBy("number", "desc");
+    let query = db.eventTeams(eventRef.id).where("number", "!=", "").orderBy("number", "desc");
     const teamsSnap = await query.get();
     let nextNumber = teamsSnap.docs.map((x) => Number(x.data().number)).find((x) => !isNaN(x)) ?? 0;
     nextNumber++;
@@ -147,7 +151,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
       for (const student of students.docs) {
         const letter = alphabet.find((x) => !taken.has(x));
-        t.update(student.ref, { number: `${number}${letter}` });
+        t.update(student.ref, { number: `${number}${letter}`, checkInPool: poolId });
         taken.add(letter);
       }
 
