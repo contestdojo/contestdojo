@@ -59,7 +59,11 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   };
 
   const amount = eventData.costPerStudent * 100;
-  const application_fee_amount = eventData.fee ?? (eventData.feeFactor ?? 0) * amount;
+  let application_fee_amount = eventData.fee ?? (eventData.feeFactor ?? 0) * amount;
+
+  if (entityData.stripeAccountId === "acct_1Jgga6Dxd6aLiWrR") {
+    application_fee_amount = undefined;
+  }
 
   const session = await stripe.checkout.sessions.create(
     {
