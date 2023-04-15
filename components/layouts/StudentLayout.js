@@ -22,19 +22,20 @@ const EventLink = ({ id, students, activeStyle }) => {
   const eventRef = firestore.collection("events").doc(id);
   const { data: event } = useFirestoreDocData(eventRef);
 
-  let number = students.find((s) => s.ref.parent.parent.id === event.id)?.data()?.number;
+  let teamData = students.find((s) => s.ref.parent.parent.id === event.id)?.data();
 
   return (
     <NextLink href={`/student/${id}`} passHref>
       <Link {...(id == query.eventId && activeStyle)} _hover={activeStyle} borderRadius={4} px={3} py={2}>
         <HStack>
           <Text>{event.name}</Text>
-          {number && (
+          {teamData?.number && (
             <Tag colorScheme="blue" size="sm">
-              {number}
+              {teamData?.number}
             </Tag>
           )}
         </HStack>
+        {teamData?.checkInPool && <Text color="gray.500">{teamData?.checkInPool}</Text>}
       </Link>
     </NextLink>
   );

@@ -35,6 +35,7 @@ const EventCard = ({ id, name, studentRegistrationEnabled, date: { seconds }, mi
     </Card>
   );
 };
+
 const Home = () => {
   const firestore = useFirestore();
   const { data: user, ref: userRef } = useUserData();

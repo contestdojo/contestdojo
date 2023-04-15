@@ -416,6 +416,7 @@ const Event = () => {
           <HStack>
             <Heading size="md">{team.name}</Heading>
             {team.number && <Tag size="sm">{team.number}</Tag>}
+            {team.checkInPool && <Tag size="sm">{team.checkInPool}</Tag>}
           </HStack>
 
           {teamMembers.map((x) => (
