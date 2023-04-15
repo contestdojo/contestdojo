@@ -6,11 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { cleanEnv, json, str } from "envalid";
+import sendgrid from "@sendgrid/mail";
 
-export const env = cleanEnv(process.env, {
-  SESSION_SECRET: str(),
-  FIREBASE_SERVICE_ACCOUNT: json(),
-  NODE_ENV: str({ choices: ["development", "production"] }),
-  SENDGRID_KEY: str(),
-});
+import { env } from "./env.server";
+
+sendgrid.setApiKey(env.SENDGRID_KEY);
+
+export default sendgrid;

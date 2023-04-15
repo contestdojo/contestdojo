@@ -28,6 +28,7 @@ import { z } from "zod";
 import { Alert, AlertStatus, Box, Button, Select } from "~/components/ui";
 import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
+import sendgrid from "~/lib/sendgrid.server";
 
 type LoaderData = {
   event: Event;
@@ -87,14 +88,15 @@ export const action: ActionFunction = async ({ request, params }) => {
   const result = await validator.validate(formData);
   if (result.error) return validationError(result.error);
 
-  const transactionFunc = async (t: Transaction) => {
-    const eventSnap = await t.get(eventRef);
-    const event = eventSnap.data();
-    if (!event) throw new Response("Event not found.", { status: 404 });
-    if (!event.checkInPools) throw new Error("Event does not have check-in pools set up.");
+  const eventSnap = await eventRef.get();
+  const event = eventSnap.data();
+  if (!event) throw new Response("Event not found.", { status: 404 });
+  if (!event.checkInPools) throw new Error("Event does not have check-in pools set up.");
+  const checkInPools = event.checkInPools;
 
+  const transactionFunc = async (t: Transaction) => {
     const pools = await Promise.all(
-      event.checkInPools.map(async (x) => ({
+      checkInPools.map(async (x) => ({
         id: x.id,
         maxStudents: x.maxStudents ?? Infinity,
         numStudents: (
@@ -159,12 +161,68 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
 
     t.update(eventRef, { checkInPools: pools });
+
+    return new Set(teamsSnap.docs.map((x) => x.data().org?.id).filter(Boolean) as string[]);
   };
 
-  return await firestore
-    .runTransaction(transactionFunc)
-    .then(() => json<ActionData>({ success: true }))
-    .catch((e) => json<ActionData>({ success: false, error: e.message }));
+  let orgIds: Set<string>;
+
+  try {
+    orgIds = await firestore.runTransaction(transactionFunc);
+  } catch (_e) {
+    const e = _e as Error;
+    return json<ActionData>({ success: false, error: e.message });
+  }
+
+  console.log(orgIds);
+
+  try {
+    await Promise.all(
+      [...orgIds].map(async (x) => {
+        const org = await db.org(x).get();
+        const orgData = org.data();
+        console.log(orgData);
+        if (!orgData) return;
+
+        const teams = await db.eventTeams(eventRef.id).where("org", "==", db.org(x)).get();
+        const students = await db.eventStudents(eventRef.id).where("org", "==", db.org(x)).get();
+
+        const teamsText = teams.docs
+          .map((x) => x.data())
+          .map((x) =>
+            x.checkInPool
+              ? `Team ${x.name} — ${x.number} — ${x.checkInPool}`
+              : `Team ${x.name} — Not Checked In`
+          )
+          .join("\n");
+
+        const studentsText = students.docs
+          .map((x) => x.data())
+          .map((x) =>
+            x.checkInPool
+              ? `Student ${x.fname} ${x.lname} — ${x.number} — ${x.checkInPool}`
+              : `Student ${x.fname} ${x.lname} — Not Checked In`
+          );
+
+        console.log(teamsText + "\n\n" + studentsText);
+
+        await sendgrid.send({
+          to: org.data()?.adminData.email,
+          from: "noreply@contestdojo.com",
+          templateId: "d-1d624e07ec5b4930824eecc1e28007e1",
+          dynamicTemplateData: {
+            event: event.name,
+            org: orgData.name,
+            text: teamsText + "\n\n" + studentsText,
+          },
+        });
+      })
+    );
+  } catch (e) {
+    console.error(e);
+  }
+
+  return json<ActionData>({ success: true });
 };
 
 type SelectOrgProps = {
@@ -324,7 +382,3 @@ export default function OrgsRoute() {
     </div>
   );
 }
-
-export const handle = {
-  navigationHeading: "Check In",
-};
