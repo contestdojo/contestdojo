@@ -54,7 +54,7 @@ import PurchaseSeatsModal from "~/components/PurchaseSeatsModal";
 import { testRule } from "~/helpers/rules";
 import { toDict, useFormState } from "~/helpers/utils";
 
-const StudentCard = ({ id, fname, lname, email, waiver, onEdit, onDelete }) => {
+const StudentCard = ({ id, fname, lname, email, waiver, number, onEdit, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
   const props = transform
     ? { cursor: "grabbing", shadow: "xl", transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
@@ -63,9 +63,12 @@ const StudentCard = ({ id, fname, lname, email, waiver, onEdit, onDelete }) => {
   return (
     <Card as={Stack} direction="row" my={1} mx={2} spacing={0} {...props} {...attributes}>
       <Stack flex={1} spacing={0} p={2} position="relative" ref={setNodeRef} {...listeners}>
-        <Heading as="h4" size="sm">
-          {fname} {lname}
-        </Heading>
+        <HStack spacing={2}>
+          {number && <Text color="gray.500" fontSize="sm">{number}</Text>}
+          <Heading as="h4" size="sm">
+            {fname} {lname}
+          </Heading>
+        </HStack>
         <Text fontSize="sm">{email}</Text>
         <Box position="absolute" top={2} right={2} lineHeight={1}>
           {waiver !== undefined &&
@@ -140,6 +143,7 @@ const TeamCard = ({ event, team, students, onUpdate, onDelete, onEditStudent, ne
     >
       <HStack px={2}>
         {team.number && <Text color="gray.500">{team.number}</Text>}
+        {team.checkInPool && <Text color="gray.500">{team.checkInPool}</Text>}
         <Heading as="h4" size="md" position="relative" flex="1">
           {team.name}
         </Heading>
