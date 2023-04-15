@@ -117,6 +117,9 @@ export const action: ActionFunction = async ({ request, params }) => {
       )
     );
 
+    const _orgIds = await Promise.all(entries.map(([id]) => t.get(db.eventTeam(eventRef.id, id))));
+    const orgIds = _orgIds.map((x) => x.data()?.org?.id).filter(Boolean);
+
     const zipped = entries.map(([id, poolId], i) => ({
       id,
       poolId,
@@ -162,7 +165,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     t.update(eventRef, { checkInPools: pools });
 
-    return new Set(teamsSnap.docs.map((x) => x.data().org?.id).filter(Boolean) as string[]);
+    return new Set(orgIds as string[]);
   };
 
   let orgIds: Set<string>;
