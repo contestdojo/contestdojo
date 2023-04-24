@@ -32,8 +32,8 @@ import { delay } from "~/helpers/utils";
 
 const schema = yup.object({
   type: yup.string().typeError("Account Type is required").oneOf(["coach", "student"]).required().label("Account Type"),
-  fname: yup.string().required().label("First Name"),
-  lname: yup.string().required().label("Last Name"),
+  fname: yup.string().required().label("First Name").trim(),
+  lname: yup.string().required().label("Last Name").trim(),
   email: yup.string().email().required().label("Email Address"),
   password: yup
     .string()

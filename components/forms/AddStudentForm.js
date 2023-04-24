@@ -30,8 +30,8 @@ const AddStudentForm = ({
   const schema = useMemo(
     () =>
       yup.object({
-        fname: yup.string().required().label("First Name"),
-        lname: yup.string().required().label("Last Name"),
+        fname: yup.string().required().label("First Name").trim(),
+        lname: yup.string().required().label("Last Name").trim(),
         ...(!hasCustomGrade ? { grade: yup.number().typeError("Invalid number").required().label("Grade") } : {}),
         ...(allowEditEmail ? { email: yup.string().email().required().label("Email Address") } : {}),
         customFields: makeCustomFieldsSchema(initial, customFields),
