@@ -209,19 +209,19 @@ exports.updateGradedInfo = functions.firestore
       const team = teamSnapshot.data();
       name = team.name;
       number = team.number;
-      orgId = team.org.id;
+      orgId = team.org?.id;
     } else {
       const studentSnapshot = await eventRef.collection("students").doc(submissionId).get();
       const student = studentSnapshot.data();
       name = student.fname + " " + student.lname;
       number = student.number;
-      orgId = student.org.id;
+      orgId = student.org?.id;
     }
 
-    const orgSnapshot = await db.collection("orgs").doc(orgId).get();
-    const org = orgSnapshot.data();
+    const orgSnapshot = orgId && (await db.collection("orgs").doc(orgId).get());
+    const org = orgSnapshot?.data();
 
-    await snap.ref.update({ name, number, orgName: org.name });
+    await snap.ref.update({ name, number, orgName: org?.name });
   });
 
 exports.updateGutsSet = functions.firestore
