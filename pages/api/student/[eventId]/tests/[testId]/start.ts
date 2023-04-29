@@ -48,12 +48,23 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
     return res.status(400).send("You are not authorized to start this test.");
   }
 
-  if (testData.authorization && !testAuthorization(testData.authorization, studentData)) {
-    return res.status(400).send("You are not authorized to start this test.");
-  }
-
   if (!studentData.team) {
     return res.status(400).send("You must be placed on a team before starting a test.");
+  }
+
+  const teamRef = studentData.team;
+  const teamSnapshot = await teamRef.get();
+  const teamData = teamSnapshot.data();
+
+  const orgRef = eventRef.collection("orgs").doc(studentData.org);
+  const orgSnapshot = await orgRef.get();
+  const orgData = orgSnapshot.data();
+
+  if (
+    testData.authorization &&
+    !testAuthorization(testData.authorization, { ...studentData, team: teamData, org: orgData })
+  ) {
+    return res.status(400).send("You are not authorized to start this test.");
   }
 
   const submissionId = testData.team ? studentData.team.id : uid;

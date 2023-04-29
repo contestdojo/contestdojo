@@ -246,6 +246,8 @@ const Tests = () => {
 
   const studentRef = eventRef.collection("students").doc(user.uid);
   const { data: student } = useFirestoreDocData(studentRef, { idField: "id" });
+  const { data: team } = useFirestoreDocData(student.team, { idField: "id" });
+  const { data: org } = useFirestoreDocData(eventRef.collection("orgs").doc(team.org.id), { idField: "id" });
 
   const testsRef = eventRef.collection("tests");
   const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
@@ -259,7 +261,7 @@ const Tests = () => {
         x.authorizedIds.includes(student.id) ||
         (student.number && x.authorizedIds.includes(student.number))
     )
-    .filter((x) => !x.authorization || testAuthorization(x.authorization, student));
+    .filter((x) => !x.authorization || testAuthorization(x.authorization, { ...student, team, org }));
 
   // Test Selection
 

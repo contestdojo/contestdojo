@@ -33,7 +33,11 @@ export const rulesSchema = yup.array(
 type RenderRulesProps = {
   name: string;
   defaultFields: Field[];
-  customFields: CustomField[];
+  customFields: {
+    pathPrefix?: string;
+    labelPrefix?: string;
+    fields: CustomField[];
+  }[];
   control: Control<any, any>;
   values: any;
   register: UseFormRegister<any>;
@@ -67,11 +71,17 @@ export const RenderRules = ({
                 {x.label}
               </option>
             ))}
-            {customFields.map((x) => (
-              <option key={`customFields.${x.id}`} value={`customFields.${x.id}`}>
-                [Custom] {x.label}
-              </option>
-            ))}
+            {customFields.map((r) =>
+              r.fields.map((x) => (
+                <option
+                  key={`${r.pathPrefix ?? ""}customFields.${x.id}`}
+                  value={`${r.pathPrefix ?? ""}customFields.${x.id}`}
+                >
+                  [Custom] {r.labelPrefix ?? ""}
+                  {x.label}
+                </option>
+              ))
+            )}
           </FormField>
 
           {/* @ts-ignore */}

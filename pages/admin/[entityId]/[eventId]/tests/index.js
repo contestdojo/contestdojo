@@ -59,7 +59,7 @@ const TooltipLink = ({ label, href, children }) => (
   </Tooltip>
 );
 
-const AllowedStudentsButton = ({ customFields, authorization, testRef }) => {
+const AllowedStudentsButton = ({ customFields, customTeamFields, customOrgFields, authorization, testRef }) => {
   const [formState, wrapAction] = useFormState();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -92,6 +92,8 @@ const AllowedStudentsButton = ({ customFields, authorization, testRef }) => {
           key={state.toString()}
           defaultValues={{ isPrivate: !!authorization, rules: authorization?.rules, mode: authorization?.mode }}
           customFields={customFields}
+          customTeamFields={customTeamFields}
+          customOrgFields={customOrgFields}
           isOpen={isOpen}
           onClose={onClose}
           onSubmit={handleSubmit}
@@ -173,6 +175,8 @@ const TestCard = ({
   duration,
   authorization,
   customFields,
+  customTeamFields,
+  customOrgFields,
   testRef,
   openTime: rawOpenTime,
   closeTime: rawCloseTime,
@@ -248,7 +252,13 @@ const TestCard = ({
         {open ? "Open" : openTime ? "Reopen Test" : "Open Test"}
       </Button>
 
-      <AllowedStudentsButton customFields={customFields} authorization={authorization} testRef={testRef} />
+      <AllowedStudentsButton
+        customFields={customFields}
+        customTeamFields={customTeamFields}
+        customOrgFields={customOrgFields}
+        authorization={authorization}
+        testRef={testRef}
+      />
 
       <IconButton icon={<HiTrash />} colorScheme="red" onClick={handleDelete} />
 
@@ -297,6 +307,8 @@ const TestsTab = () => {
           key={x.id}
           {...x}
           customFields={event.customFields ?? []}
+          customTeamFields={event.customTeamFields ?? []}
+          customOrgFields={event.customOrgFields ?? []}
           time={time}
           testRef={testsRef.doc(x.id)}
           onOpen={handleOpenTest(x)}

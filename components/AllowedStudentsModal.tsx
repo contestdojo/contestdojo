@@ -34,18 +34,11 @@ const DEFAULT_FIELDS = [
   { id: "fname", label: "First Name" },
   { id: "lname", label: "Last Name" },
   { id: "grade", label: "Grade" },
-  { id: "org.id", label: "Organization ID" },
-  { id: "team.id", label: "Team ID" },
   { id: "notes", label: "Notes" },
+  { id: "team.id", label: "Team — ID" },
+  { id: "team.name", label: "Team — Name" },
+  { id: "org.id", label: "Organization — ID" },
 ];
-
-const VALUE_PLACEHOLDERS = {
-  "=": "Enter value",
-  "!=": "Enter value",
-  "=~": "Enter regex",
-  "!~": "Enter regex",
-  in: "Enter values, comma-separated",
-};
 
 const schema = yup.object({
   isPrivate: yup.boolean(),
@@ -53,7 +46,17 @@ const schema = yup.object({
   rules: rulesSchema,
 });
 
-const AllowedStudentsModal = ({ customFields, defaultValues, isOpen, onClose, onSubmit, isLoading, error }) => {
+const AllowedStudentsModal = ({
+  customFields,
+  customTeamFields,
+  customOrgFields,
+  defaultValues,
+  isOpen,
+  onClose,
+  onSubmit,
+  isLoading,
+  error,
+}) => {
   const {
     register,
     handleSubmit,
@@ -101,7 +104,11 @@ const AllowedStudentsModal = ({ customFields, defaultValues, isOpen, onClose, on
                 <RenderRules
                   name="rules"
                   defaultFields={DEFAULT_FIELDS}
-                  customFields={customFields}
+                  customFields={[
+                    { fields: customFields },
+                    { pathPrefix: "team.", labelPrefix: "Team — ", fields: customTeamFields },
+                    { pathPrefix: "org.", labelPrefix: "Organization — ", fields: customOrgFields },
+                  ]}
                   control={control}
                   values={values?.rules}
                   register={register}
