@@ -247,7 +247,9 @@ const Tests = () => {
   const studentRef = eventRef.collection("students").doc(user.uid);
   const { data: student } = useFirestoreDocData(studentRef, { idField: "id" });
   const { data: team } = useFirestoreDocData(student.team, { idField: "id" });
-  const { data: org } = useFirestoreDocData(eventRef.collection("orgs").doc(team.org.id), { idField: "id" });
+  const { data: org } = useFirestoreDocData(eventRef.collection("orgs").doc(student.org?.id ?? "_"), {
+    idField: "id",
+  });
 
   const testsRef = eventRef.collection("tests");
   const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });

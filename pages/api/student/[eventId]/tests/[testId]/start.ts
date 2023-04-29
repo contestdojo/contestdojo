@@ -56,9 +56,12 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   const teamSnapshot = await teamRef.get();
   const teamData = teamSnapshot.data();
 
-  const orgRef = eventRef.collection("orgs").doc(studentData.org);
-  const orgSnapshot = await orgRef.get();
-  const orgData = orgSnapshot.data();
+  let orgData: any = {};
+  if (studentData.org) {
+    const orgRef = eventRef.collection("orgs").doc(studentData.org);
+    const orgSnapshot = await orgRef.get();
+    orgData = orgSnapshot.data();
+  }
 
   if (
     testData.authorization &&
