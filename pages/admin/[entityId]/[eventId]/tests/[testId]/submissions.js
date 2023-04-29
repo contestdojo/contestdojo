@@ -125,7 +125,7 @@ const Submissions = () => {
     return {
       id: s.id,
       number: (test.team ? teamsById[s.id] : studentsById[s.id])?.number,
-      name: test.team ? teamsById[s.id]?.name : `${studentsById[s.id].fname} ${studentsById[s.id].lname}`,
+      name: test.team ? teamsById[s.id]?.name : `${studentsById[s.id]?.fname} ${studentsById[s.id]?.lname}`,
       score: total,
       startTime: startTime.format("M/D/YYYY h:mm A"),
       ...Object.fromEntries(answers),
