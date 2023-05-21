@@ -64,7 +64,7 @@ const handler = withFirebaseAuth(async (req, res) => {
   }
 
   const { origin } = absoluteUrl(req);
-  const metadata = { registrationType: "org", orgId, eventId, numSeats: number };
+  const metadata = { __contestdojo__: true, registrationType: "org", orgId, eventId, numSeats: number };
 
   const amount = effectiveCostPerStudent * 100;
   const application_fee_amount = (eventData.fee ?? (eventData.feeFactor ?? 0) * amount) * number;

@@ -52,6 +52,7 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
 
   const { origin } = absoluteUrl(req);
   const metadata = {
+    __contestdojo__: true,
     registrationType: "student",
     registrationData: JSON.stringify(registrationData),
     eventId,

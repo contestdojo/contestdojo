@@ -17,6 +17,8 @@ const processCheckoutSessionCompleted = async (
   res: NextApiResponse,
   session: Stripe.Checkout.Session
 ) => {
+  if (!session.metadata?.__contestdojo__) return res.status(200).end("Not ContestDojo, ignoring");
+
   if (session.metadata?.registrationType === "org") {
     let { numSeats, eventId, orgId } = session.metadata ?? {};
     if (typeof numSeats !== "string" && typeof numSeats !== "number") return res.status(400).end("Missing num seats");
