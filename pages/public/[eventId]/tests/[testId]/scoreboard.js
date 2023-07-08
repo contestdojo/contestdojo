@@ -53,6 +53,8 @@ const TestContent = () => {
     }))
     .sort((a, b) => b.score - a.score);
 
+  console.log(displayGraded);
+
   let timer;
 
   if (test.closeTime) {
