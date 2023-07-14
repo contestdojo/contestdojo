@@ -8,25 +8,20 @@ import { Heading, HStack, Link, Stack, Tag, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { HiPlus } from "react-icons/hi";
-import { useFirestore, useFirestoreCollection, useFirestoreDocData } from "reactfire";
+import { useFirestore, useFirestoreCollection, useFirestoreCollectionData } from "reactfire";
 
 import MainLayout from "./MainLayout";
 
 import AuthWrapper from "~/components/AuthWrapper";
 import { useUserRef } from "~/helpers/utils";
 
-const EventLink = ({ id, students, activeStyle }) => {
+const EventLink = ({ event, students, activeStyle }) => {
   const { query } = useRouter();
-
-  const firestore = useFirestore();
-  const eventRef = firestore.collection("events").doc(id);
-  const { data: event } = useFirestoreDocData(eventRef);
-
   let teamData = students.find((s) => s.ref.parent.parent.id === event.id)?.data();
 
   return (
-    <NextLink href={`/student/${id}`} passHref>
-      <Link {...(id == query.eventId && activeStyle)} _hover={activeStyle} borderRadius={4} px={3} py={2}>
+    <NextLink href={`/student/${event.id}`} passHref>
+      <Link {...(event.id === query.eventId && activeStyle)} _hover={activeStyle} borderRadius={4} px={3} py={2}>
         <HStack>
           <Text>{event.name}</Text>
           {teamData?.number && (
@@ -45,18 +40,30 @@ const Sidebar = () => {
   const firestore = useFirestore();
   const userRef = useUserRef();
 
+  // Get events
+  const eventsRef = firestore.collection("events");
+  const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
+
+  // Get registered events
+
   const studentsQuery = firestore.collectionGroup("students").where("user", "==", userRef);
   const students = useFirestoreCollection(studentsQuery, { idField: "id" }).data.docs;
-  const eventIds = students.map((x) => x.ref.parent.parent.id);
+  const myEventIds = students.map((x) => x.ref.parent.parent.id);
+
+  const now = new Date();
+
+  const myEvents = events.filter((x) => (!x.hide || x.date.toDate() > now) && myEventIds.includes(x.id));
+  const pastEvents = events.filter((x) => x.hide && x.date.toDate() <= now && myEventIds.includes(x.id));
+  pastEvents.sort((a, b) => b.date.toDate() - a.date.toDate());
 
   const activeStyle = { backgroundColor: "gray.100" };
 
   return (
     <Stack spacing={3}>
-      <Heading size={3}>Events</Heading>
+      <Heading size={3}>My Events</Heading>
       <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
-        {eventIds.map((x) => (
-          <EventLink id={x} key={x} students={students} activeStyle={activeStyle} />
+        {myEvents.map((x) => (
+          <EventLink key={x} event={x} students={students} activeStyle={activeStyle} />
         ))}
         <NextLink href={`/student`} passHref>
           <Link _hover={activeStyle} borderRadius={4} px={3} py={2}>
@@ -66,6 +73,15 @@ const Sidebar = () => {
             </HStack>
           </Link>
         </NextLink>
+      </Stack>
+
+      <div />
+
+      <Heading size={3}>Past Events</Heading>
+      <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
+        {pastEvents.map((x) => (
+          <EventLink key={x} event={x} students={students} activeStyle={activeStyle} />
+        ))}
       </Stack>
     </Stack>
   );
