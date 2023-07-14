@@ -50,9 +50,11 @@ const Home = () => {
   const students = useFirestoreCollection(studentsQuery, { idField: "id" }).data.docs;
   const myEventIds = students.map((x) => x.ref.parent.parent.id);
 
-  const myEvents = events.filter((x) => !x.hide && myEventIds.includes(x.id));
+  const now = new Date();
+
+  const myEvents = events.filter((x) => (!x.hide || x.date.toDate() > now) && myEventIds.includes(x.id));
   const otherEvents = events.filter((x) => !x.hide && !myEventIds.includes(x.id));
-  const pastEvents = events.filter((x) => x.hide && myEventIds.includes(x.id));
+  const pastEvents = events.filter((x) => x.hide && x.date.toDate() <= now && myEventIds.includes(x.id));
 
   return (
     <Stack spacing={6} maxW={600} mx="auto">
