@@ -193,7 +193,7 @@ exports.gradeTests = functions.https.onCall(
 
 exports.updateGradedInfo = functions.firestore
   .document("/events/{eventId}/tests/{testId}/graded/{submissionId}")
-  .onCreate(async (snap, context) => {
+  .onUpdate(async ({ after: snap }, context) => {
     const { eventId, testId, submissionId } = context.params;
     const eventRef = db.collection("events").doc(eventId);
 
@@ -221,7 +221,7 @@ exports.updateGradedInfo = functions.firestore
     const orgSnapshot = orgId && (await db.collection("orgs").doc(orgId).get());
     const org = orgSnapshot?.data();
 
-    await snap.ref.update({ name, number, orgName: org?.name });
+    await snap.ref.update({ name, number, orgName: org?.name ?? null });
   });
 
 exports.updateGutsSet = functions.firestore
