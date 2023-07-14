@@ -462,7 +462,7 @@ const Event = () => {
         </Card>
       )}
 
-      {!student.org && !student.team && <CreateOrJoinTeam />}
+      {!student.org && event.teamsEnabled && !student.team && <CreateOrJoinTeam />}
 
       <ButtonLink
         href={event.waiver && !student.waiver && !student.waiverSigned ? "#" : `/student/${eventId}/tests`}
