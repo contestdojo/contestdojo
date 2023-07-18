@@ -246,10 +246,12 @@ const Tests = () => {
 
   const studentRef = eventRef.collection("students").doc(user.uid);
   const { data: student } = useFirestoreDocData(studentRef, { idField: "id" });
-  const { data: team } = useFirestoreDocData(student.team, { idField: "id" });
   const { data: org } = useFirestoreDocData(eventRef.collection("orgs").doc(student.org?.id ?? "_"), {
     idField: "id",
   });
+
+  const teamRef = student?.team ?? eventRef.collection("teams").doc("_"); // Hack for conditionals
+  const { data: team } = useFirestoreDocData(teamRef, { idField: "id" });
 
   const testsRef = eventRef.collection("tests");
   const { data: tests } = useFirestoreCollectionData(testsRef, { idField: "id" });
@@ -315,7 +317,7 @@ const Tests = () => {
   });
 
   // Waiver
-  if (!student.team) {
+  if (event.teamsEnabled && !student.team) {
     return (
       <>
         <Alert status="error">
