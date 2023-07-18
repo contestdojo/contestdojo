@@ -546,9 +546,3 @@ const Event = () => {
 };
 
 export default Event;
-
-export async function getServerSideProps(context) {
-  return {
-    props: { key: context.query.eventId }, // will be passed to the page component as props
-  };
-}

@@ -6,7 +6,7 @@
 
 import { Alert, AlertIcon, Button, Select, Stack } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -42,12 +42,17 @@ const AddStudentForm = ({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
     defaultValues,
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues]);
 
   return (
     <form id={id} onSubmit={handleSubmit(onSubmit)}>

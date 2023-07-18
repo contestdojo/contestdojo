@@ -63,7 +63,7 @@ const Sidebar = () => {
       <Heading size={3}>My Events</Heading>
       <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
         {myEvents.map((x) => (
-          <EventLink key={x} event={x} students={students} activeStyle={activeStyle} />
+          <EventLink key={x.id} event={x} students={students} activeStyle={activeStyle} />
         ))}
         <NextLink href={`/student`} passHref>
           <Link _hover={activeStyle} borderRadius={4} px={3} py={2}>
@@ -80,7 +80,7 @@ const Sidebar = () => {
       <Heading size={3}>Past Events</Heading>
       <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
         {pastEvents.map((x) => (
-          <EventLink key={x} event={x} students={students} activeStyle={activeStyle} />
+          <EventLink key={x.id} event={x} students={students} activeStyle={activeStyle} />
         ))}
       </Stack>
     </Stack>
