@@ -30,13 +30,15 @@ const UNIQUE_ERROR = {
 
 const EventDetailsForm = z.object({
   name: zfd.text(),
+  date: z.coerce.date(),
   studentsPerTeam: zfd.numeric(),
   description: zfd.text(),
   hide: zfd.checkbox(),
   studentRegistrationEnabled: zfd.checkbox(),
 });
 
-const CostDetailsForm = (event: Event) => {
+// FIXME: hack to get around `date` being serialized as string
+const CostDetailsForm = (event: Omit<Event, "date">) => {
   const choices = event.customOrgFields?.map((x) => `customFields.${x.id}`) ?? [];
 
   return z.object({
@@ -195,6 +197,7 @@ export default function SettingsRoute() {
           buttonLabel="Save"
           fieldProps={{
             name: { label: "Event Name" },
+            date: { help: "In your local timezone" },
             description: { multiline: true, rows: 20 },
             hide: { label: "Hidden to Public?" },
             studentRegistrationEnabled: { label: "Student Registration Enabled?" },

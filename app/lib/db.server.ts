@@ -69,7 +69,7 @@ const Event = zfb.firestoreObject(
   z.object({
     id: z.string(),
     name: z.string(),
-    // TODO: date: zfb.timestamp(),
+    date: zfb.timestamp(),
     owner: zfb.documentReference(),
     frozen: z.boolean(),
     hide: z.boolean().optional(),

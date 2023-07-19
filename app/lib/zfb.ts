@@ -6,9 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { FirestoreDataConverter, QueryDocumentSnapshot } from "firebase-admin/firestore";
 import type { ZodObject, ZodRawShape, ZodString } from "zod";
 
+import {
+  Timestamp,
+  type FirestoreDataConverter,
+  type QueryDocumentSnapshot,
+} from "firebase-admin/firestore";
 import { z } from "zod";
 
 export const firestoreObject = <T extends ZodRawShape & { id: ZodString }, S extends ZodObject<T>>(
@@ -47,3 +51,8 @@ export const documentReference = () =>
     if (hasPath(x) && typeof x.path === "string") return new UnifiedDocumentReference(x.path);
     if (typeof x === "string") return new UnifiedDocumentReference(x);
   }, z.instanceof(UnifiedDocumentReference));
+
+export const timestamp = () =>
+  z.preprocess((x) => {
+    if (x instanceof Timestamp) return x.toDate();
+  }, z.date());

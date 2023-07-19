@@ -323,7 +323,8 @@ function Team({ event, team, students }: TeamProps) {
 }
 
 type TeamsProps = {
-  event: Event;
+  // FIXME: hack to get around `date` being serialized as string
+  event: Omit<Event, "date">;
   teams: EventTeam[];
   students: EventStudent[];
 };
