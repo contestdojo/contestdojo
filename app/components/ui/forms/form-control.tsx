@@ -19,6 +19,7 @@ export type FormControlProps<T extends React.ElementType> = PropsWithAs<
     name: string;
     label?: string;
     labelInside?: boolean;
+    help?: string;
     error?: string;
     className?: string;
   },
@@ -30,6 +31,7 @@ export function FormControl<T extends React.ElementType = typeof Input>({
   name,
   label,
   labelInside = false,
+  help,
   error,
   className,
   ...props
@@ -55,6 +57,7 @@ export function FormControl<T extends React.ElementType = typeof Input>({
           )}
         </div>
 
+        {help && <div className="text-sm text-gray-400">{help}</div>}
         {error && <div className="text-sm text-red-600">{error}</div>}
       </div>
     </div>
