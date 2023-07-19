@@ -9,6 +9,7 @@
 import type { ComponentPropsWithRef } from "react";
 import type { FormControlProps, Input } from "~/components/ui";
 
+import { format, parseISO } from "date-fns";
 import React from "react";
 import { useControlField, useField } from "remix-validated-form";
 
@@ -41,6 +42,9 @@ export function Field<T extends React.ElementType = typeof Input>({
   if (type === "checkbox") {
     allProps.checked = value;
     allProps.onChange = (e) => setValue(e.target.checked);
+  } else if (type === "datetime-local") {
+    allProps.value = format(parseISO(value), "yyyy-MM-dd'T'HH:mm:ss.SSS");
+    allProps.onChange = (e) => setValue(e.target.value);
   } else {
     allProps.value = value ?? "";
     allProps.onChange = (e) => setValue(e.target.value);
