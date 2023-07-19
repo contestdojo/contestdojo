@@ -64,7 +64,11 @@ const StudentCard = ({ id, fname, lname, email, waiver, number, onEdit, onDelete
     <Card as={Stack} direction="row" my={1} mx={2} spacing={0} {...props} {...attributes}>
       <Stack flex={1} spacing={0} p={2} position="relative" ref={setNodeRef} {...listeners}>
         <HStack spacing={2}>
-          {number && <Text color="gray.500" fontSize="sm">{number}</Text>}
+          {number && (
+            <Text color="gray.500" fontSize="sm">
+              {number}
+            </Text>
+          )}
           <Heading as="h4" size="sm">
             {fname} {lname}
           </Heading>
@@ -586,6 +590,10 @@ const TeamsContent = () => {
 
   if (!eventOrg) {
     return null;
+  }
+
+  if (event.coachRegistrationDisabled) {
+    return "Coach-based registration is disabled for this event. Students can register independently with their accounts.";
   }
 
   const handleEditRegistration = wrapAction(async ({ customFields }) => {

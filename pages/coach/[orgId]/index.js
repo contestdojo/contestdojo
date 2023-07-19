@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, Divider, Heading, HStack, Stack } from "@chakra-ui/react";
+import { Box, Button, Divider, Heading, HStack, Stack, Tooltip } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
@@ -15,7 +15,8 @@ import OrgProvider, { useOrg } from "~/components/contexts/OrgProvider";
 import OrgForm from "~/components/forms/OrgForm";
 import { useFormState } from "~/helpers/utils";
 
-const EventCard = ({ id, name, date: { seconds } }) => {
+const EventCard = ({ id, name, date: { seconds }, coachRegistrationDisabled }) => {
+  console.log(coachRegistrationDisabled);
   const router = useRouter();
   const { orgId } = router.query;
   const date = dayjs.unix(seconds);
@@ -29,9 +30,19 @@ const EventCard = ({ id, name, date: { seconds } }) => {
           {date.format("MMMM D, YYYY")}
         </Box>
       </Box>
-      <ButtonLink href={`/coach/${orgId}/${id}`} mt={2} colorScheme="blue" size="sm">
-        Register
-      </ButtonLink>
+      {coachRegistrationDisabled ? (
+        <Tooltip label="Coach-based registration is disabled for this event. Students can register independently with their accounts.">
+          <Box>
+            <Button isDisabled mt={2} colorScheme="blue" size="sm">
+              Student-only
+            </Button>
+          </Box>
+        </Tooltip>
+      ) : (
+        <ButtonLink href={`/coach/${orgId}/${id}`} mt={2} colorScheme="blue" size="sm">
+          Register
+        </ButtonLink>
+      )}
     </Card>
   );
 };
