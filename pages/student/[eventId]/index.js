@@ -148,11 +148,13 @@ const StudentRegistration = ({ event }) => {
       } else {
         const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
         await studentRef.set(values, { merge: true });
+        const description = event.teamsEnabled
+          ? "You have registered as an independent student. Note that you must create or join a team for your registration to be complete."
+          : "You have registered as an independent student.";
         openDialog({
           type: "alert",
           title: "Success",
-          description:
-            "You have registered as an independent student. Note that you must create or join a team for your registration to be complete.",
+          description,
         });
       }
     }
