@@ -72,6 +72,7 @@ const Rule = z.object({
 });
 
 const EventAddOn = z.object({
+  id: z.string(),
   name: z.string(),
   cost: z.number(),
   enabled: z.boolean(),
