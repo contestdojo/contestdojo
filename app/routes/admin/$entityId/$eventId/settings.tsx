@@ -127,7 +127,7 @@ const CheckInForm = z.object({
 const AddOnsForm = z.object({
   addOns: zfd.repeatableOfType(
     z.object({
-      id: zfd.text(),
+      id: zfd.text().refine((x) => !x.includes(".")),
       name: zfd.text(),
       cost: zfd.numeric(),
       enabled: zfd.checkbox(),
