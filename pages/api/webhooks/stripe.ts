@@ -20,15 +20,22 @@ const processCheckoutSessionCompleted = async (
   if (!session.metadata?.__contestdojo__) return res.status(200).end("Not ContestDojo, ignoring");
 
   if (session.metadata?.registrationType === "org") {
-    let { numSeats, eventId, orgId } = session.metadata ?? {};
-    if (typeof numSeats !== "string" && typeof numSeats !== "number") return res.status(400).end("Missing num seats");
+    let { number, addonId, eventId, orgId } = session.metadata ?? {};
+    if (typeof number !== "string" && typeof number !== "number") return res.status(400).end("Missing num seats");
     if (typeof eventId !== "string") return res.status(400).end("Missing event id");
     if (typeof orgId !== "string") return res.status(400).end("Missing org id");
 
     // Get event
 
     const eventOrgRef = firestore.collection("events").doc(eventId).collection("orgs").doc(orgId);
-    await eventOrgRef.set({ maxStudents: adminFirestore.FieldValue.increment(Number(numSeats)) }, { merge: true });
+    if (addonId) {
+      await eventOrgRef.update(
+        new adminFirestore.FieldPath("addOns", addonId),
+        adminFirestore.FieldValue.increment(Number(number))
+      );
+    } else {
+      await eventOrgRef.set({ maxStudents: adminFirestore.FieldValue.increment(Number(number)) }, { merge: true });
+    }
 
     return res.status(200).end();
   }

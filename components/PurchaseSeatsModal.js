@@ -25,10 +25,10 @@ import * as yup from "yup";
 import FormField from "~/components/FormField";
 
 const schema = yup.object({
-  number: yup.number().typeError("Invalid number").required().label("Number of Seats"),
+  number: yup.number().typeError("Invalid number").required().label("Quantity"),
 });
 
-const PurchaseSeatsModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => {
+const PurchaseSeatsModal = ({ title = "Seats", isOpen, onClose, onSubmit, isLoading, error }) => {
   const {
     register,
     handleSubmit,
@@ -44,7 +44,7 @@ const PurchaseSeatsModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => 
     <Modal isOpen={isOpen} initialFocusRef={ref} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Purchase Seats</ModalHeader>
+        <ModalHeader>Purchase {title}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
           <form id="purchase-seats" onSubmit={handleSubmit(onSubmit)}>
@@ -60,7 +60,7 @@ const PurchaseSeatsModal = ({ isOpen, onClose, onSubmit, isLoading, error }) => 
                 type="number"
                 {...register("number")}
                 name="number"
-                label="Number of Seats"
+                label="Qty"
                 placeholder="8"
                 error={errors.number}
                 isRequired

@@ -43,7 +43,7 @@ const CheckoutSuccess = ({ session }: CheckoutSuccessProps) => {
           been emailed to <b>{session.customer_details?.email}</b>.
         </p>
         <p>
-          Your purchased seats have been added to <b>{org.name}</b> for <b>{event.name}</b>.
+          Your purchase has been added to <b>{org.name}</b> for <b>{event.name}</b>.
         </p>
         <p>For any questions or concerns, please contact the event organizer.</p>
       </Stack>

@@ -22,7 +22,7 @@ const handler = withFirebaseAuth(async (req, res) => {
   if (typeof orgId !== "string") return res.status(400).end();
   if (typeof eventId !== "string") return res.status(400).end();
 
-  const { email, number } = req.body;
+  const { email, addonId, number } = req.body;
   if (typeof email !== "string") return res.status(400).end();
   if (typeof number !== "number") return res.status(400).end();
 
@@ -32,6 +32,9 @@ const handler = withFirebaseAuth(async (req, res) => {
   const event = await eventRef.get();
   const eventData = event.data();
   if (!eventData) return res.status(404).end();
+
+  const addon = addonId && eventData.addOns?.find((x: any) => x.id === addonId);
+  if (addonId && !addon) return res.status(400).end();
 
   const entity = await eventData.owner.get();
   const entityData = entity.data();
@@ -64,9 +67,9 @@ const handler = withFirebaseAuth(async (req, res) => {
   }
 
   const { origin } = absoluteUrl(req);
-  const metadata = { __contestdojo__: true, registrationType: "org", orgId, eventId, numSeats: number };
+  const metadata = { __contestdojo__: true, registrationType: "org", orgId, eventId, addonId, number };
 
-  const amount = effectiveCostPerStudent * 100;
+  const amount = (addon ? addon.cost : effectiveCostPerStudent) * 100;
   const application_fee_amount = (eventData.fee ?? (eventData.feeFactor ?? 0) * amount) * number;
 
   const session = await stripe.checkout.sessions.create(
@@ -77,7 +80,7 @@ const handler = withFirebaseAuth(async (req, res) => {
       metadata,
       line_items: [
         {
-          name: `Student Seat for ${eventData.name}`,
+          name: addon ? `${addon.name} for ${eventData.name}` : `Student Seat for ${eventData.name}`,
           currency: "usd",
           amount,
           quantity: number,

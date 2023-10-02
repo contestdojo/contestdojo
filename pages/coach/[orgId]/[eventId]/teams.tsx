@@ -532,6 +532,93 @@ const Students = ({
   );
 };
 
+type AddOnProps = {
+  eventOrg: string;
+  stripeAccount: string;
+  id: string;
+  name: string;
+  cost: number;
+};
+
+const AddOn = ({ eventOrg, stripeAccount, id, name, cost }: AddOnProps) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [formState, wrapAction] = useFormState();
+  const auth = useAuth();
+  const { orgId, eventId } = useRouter().query;
+  const { data: user } = useUser();
+
+  const handlePurchaseSeats = wrapAction(async (values) => {
+    const number = Number(values.number);
+    const authorization = await auth.currentUser.getIdToken();
+    const resp = await fetch(`/api/coach/${orgId}/${eventId}/purchase-seats`, {
+      method: "POST",
+      headers: { authorization, "content-type": "application/json" },
+      body: JSON.stringify({ email: user.email, number, addonId: id }),
+    });
+    if (!resp.ok) throw new Error(await resp.text());
+    const data = await resp.json();
+
+    const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY, { stripeAccount });
+
+    const stripe = await stripePromise;
+    const result = await stripe.redirectToCheckout({
+      sessionId: data.id,
+    });
+
+    if (result.error) throw new Error(result.error.message);
+
+    onClose();
+  });
+
+  return (
+    <Card as={Stack} p={4}>
+      <Box>
+        <Heading size="sm">{name}</Heading>
+        <Text color="gray.500">${cost} / unit</Text>
+      </Box>
+
+      <Text>
+        Purchased: <strong>{eventOrg.addOns[id] ?? 0}</strong>
+      </Text>
+
+      <Button colorScheme="blue" size="sm" onClick={onOpen}>
+        Purchase{(eventOrg.addOns[id] ?? 0) > 0 ? " More" : ""}
+      </Button>
+
+      <PurchaseSeatsModal
+        title={name}
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handlePurchaseSeats}
+        {...formState}
+      />
+    </Card>
+  );
+};
+
+type AddOnsProps = {
+  eventOrg: any;
+  stripeAccount: string;
+};
+
+const AddOns = ({ eventOrg, stripeAccount }: AddOnsProps) => {
+  const { data: event } = useEvent();
+
+  return (
+    <Stack spacing={4}>
+      <Heading size="lg">Add-ons</Heading>
+      <p>Purchase additional add-ons for your organization here.</p>
+      <Wrap>
+        {event.addOns?.map((x) => (
+          <WrapItem key={x.id}>
+            <AddOn eventOrg={eventOrg} stripeAccount={stripeAccount} {...x} />
+          </WrapItem>
+        ))}
+      </Wrap>
+    </Stack>
+  );
+};
+
 const TeamsContent = () => {
   // Functions
   const firestore = useFirestore();
@@ -756,6 +843,10 @@ const TeamsContent = () => {
           waiver={event.waiver}
           stripeAccount={entity.stripeAccountId}
         />
+
+        <Divider />
+
+        <AddOns eventOrg={eventOrg} stripeAccount={entity.stripeAccountId} />
 
         {event.customOrgFields?.some((x) => !x.hidden) && (
           <>
