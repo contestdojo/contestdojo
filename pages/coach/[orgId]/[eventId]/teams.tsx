@@ -844,9 +844,12 @@ const TeamsContent = () => {
           stripeAccount={entity.stripeAccountId}
         />
 
-        <Divider />
-
-        <AddOns eventOrg={eventOrg} stripeAccount={entity.stripeAccountId} />
+        {event.addOns && (
+          <>
+            <Divider />
+            <AddOns eventOrg={eventOrg} stripeAccount={entity.stripeAccountId} />
+          </>
+        )}
 
         {event.customOrgFields?.some((x) => !x.hidden) && (
           <>
