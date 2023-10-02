@@ -34,7 +34,8 @@ const handler = withFirebaseAuth(async (req, res) => {
   if (!eventData) return res.status(404).end();
 
   const addon = addonId && eventData.addOns?.find((x: any) => x.id === addonId);
-  if (addonId && !addon) return res.status(400).end();
+  if (addonId && !addon) return res.status(400).end("Add-on not found");
+  if (addon && !addon.enabled) return res.status(400).end("Add-on is not enabled");
 
   const entity = await eventData.owner.get();
   const entityData = entity.data();

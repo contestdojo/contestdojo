@@ -538,9 +538,10 @@ type AddOnProps = {
   id: string;
   name: string;
   cost: number;
+  enabled: boolean;
 };
 
-const AddOn = ({ eventOrg, stripeAccount, id, name, cost }: AddOnProps) => {
+const AddOn = ({ eventOrg, stripeAccount, id, name, cost, enabled }: AddOnProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
   const auth = useAuth();
@@ -581,7 +582,7 @@ const AddOn = ({ eventOrg, stripeAccount, id, name, cost }: AddOnProps) => {
         Purchased: <strong>{eventOrg.addOns[id] ?? 0}</strong>
       </Text>
 
-      <Button colorScheme="blue" size="sm" onClick={onOpen}>
+      <Button colorScheme="blue" size="sm" onClick={onOpen} isDisabled={!enabled}>
         Purchase{(eventOrg.addOns[id] ?? 0) > 0 ? " More" : ""}
       </Button>
 
