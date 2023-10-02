@@ -124,6 +124,16 @@ const CheckInForm = z.object({
   ),
 });
 
+const AddOnsForm = z.object({
+  addOns: zfd.repeatableOfType(
+    z.object({
+      name: zfd.text(),
+      cost: zfd.numeric(),
+      enabled: zfd.checkbox(),
+    })
+  ),
+});
+
 type LoaderData = {
   event: Event;
 };
@@ -143,6 +153,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     ...setFormDefaults("CustomTeamFields", event),
     ...setFormDefaults("Waiver", event),
     ...setFormDefaults("CheckIn", event),
+    ...setFormDefaults("AddOns", event),
   });
 };
 
@@ -162,6 +173,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (formData.get("_form") === "CustomTeamFields") validator = withZod(CustomTeamFieldsForm);
   if (formData.get("_form") === "Waiver") validator = withZod(WaiverForm);
   if (formData.get("_form") === "CheckIn") validator = withZod(CheckInForm);
+  if (formData.get("_form") === "AddOns") validator = withZod(AddOnsForm);
 
   if (validator) {
     const result = await validator.validate(formData);
@@ -225,6 +237,20 @@ export default function SettingsRoute() {
                 },
                 adjustment: { label: "Additional Cost Per Student" },
               },
+            },
+          }}
+        />
+      </Section>
+
+      <Section title="Add-ons" className="col-span-2">
+        <SchemaForm
+          id="AddOns"
+          method="post"
+          schema={AddOnsForm}
+          buttonLabel="Save"
+          fieldProps={{
+            addOns: {
+              elementClassName: "md:flex-row",
             },
           }}
         />

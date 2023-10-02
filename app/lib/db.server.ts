@@ -65,6 +65,18 @@ const EventCustomField = z.object({
   }),
 });
 
+const Rule = z.object({
+  field: z.string(),
+  rule: z.enum(["=", "!=", "=~", "!~", "in"]),
+  value: z.string(),
+});
+
+const EventAddOn = z.object({
+  name: z.string(),
+  cost: z.number(),
+  enabled: z.boolean(),
+});
+
 const Event = zfb.firestoreObject(
   z.object({
     id: z.string(),
@@ -74,18 +86,7 @@ const Event = zfb.firestoreObject(
     frozen: z.boolean(),
     hide: z.boolean().optional(),
     costPerStudent: z.number().optional(),
-    costAdjustments: z
-      .array(
-        z.object({
-          rule: z.object({
-            field: z.string(),
-            rule: z.enum(["=", "!=", "=~", "!~", "in"]),
-            value: z.string(),
-          }),
-          adjustment: z.number(),
-        })
-      )
-      .optional(),
+    costAdjustments: z.array(z.object({ rule: Rule, adjustment: z.number() })).optional(),
     studentsPerTeam: z.number(),
     maxTeams: z.number().optional(),
     scoreReportsAvailable: z.boolean().optional(),
@@ -97,13 +98,9 @@ const Event = zfb.firestoreObject(
     customTeamFields: z.array(EventCustomField).optional(),
     studentRegistrationEnabled: z.boolean().optional(),
     checkInPools: z
-      .array(
-        z.object({
-          id: z.string(),
-          maxStudents: z.number().optional(),
-        })
-      )
+      .array(z.object({ id: z.string(), maxStudents: z.number().optional() }))
       .optional(),
+    addOns: z.array(EventAddOn).optional(),
   })
 );
 
