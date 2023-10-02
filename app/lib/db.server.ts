@@ -110,6 +110,7 @@ const EventOrganization = zfb.firestoreObject(
     id: z.string(),
     maxStudents: z.number().optional(),
     notes: z.string().optional(),
+    addOns: z.any().optional(),
     customFields: z.any().optional(),
     code: z.string().optional(),
   })

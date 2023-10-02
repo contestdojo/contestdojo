@@ -105,16 +105,27 @@ const initialState: Partial<TableState> = {
   },
 };
 
+function idOrName(prefix: string, id: string, name: string) {
+  return name.length <= 20 ? `${prefix}${name}` : `${prefix}{id}`;
+}
+
 export default function OrgsRoute() {
   const { event, orgs } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
 
   const orgsById = reduceToMap(orgs);
 
+  const addOnColumns = event.addOns?.map((addOn) =>
+    columnHelper.accessor((x) => x.addOns?.[addOn.id], {
+      id: `addOns.${addOn.id}`,
+      header: idOrName("[Add-on] ", addOn.id, addOn.name),
+    })
+  );
+
   const customColumns = event.customOrgFields?.map((field) =>
     columnHelper.accessor((x) => x.customFields?.[field.id], {
       id: `customFields.${field.id}`,
-      header: field.label.length <= 20 ? `[Custom] ${field.label}` : `[Custom] ${field.id}`,
+      header: idOrName("[Custom] ", field.id, field.label),
     })
   );
 
@@ -124,7 +135,7 @@ export default function OrgsRoute() {
     <DataTable
       filename={`${new Date().toISOString()} - ${event.name} - orgs.csv`}
       data={orgs}
-      columns={[...columns, ...(customColumns ?? [])]}
+      columns={[...columns, ...(addOnColumns ?? []), ...(customColumns ?? [])]}
       initialState={initialState}
     >
       <Dropdown>
