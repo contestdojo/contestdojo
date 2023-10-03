@@ -579,11 +579,11 @@ const AddOn = ({ eventOrg, stripeAccount, id, name, cost, enabled }: AddOnProps)
       </Box>
 
       <Text>
-        Purchased: <strong>{eventOrg.addOns[id] ?? 0}</strong>
+        Purchased: <strong>{eventOrg.addOns?.[id] ?? 0}</strong>
       </Text>
 
       <Button colorScheme="blue" size="sm" onClick={onOpen} isDisabled={!enabled}>
-        Purchase{(eventOrg.addOns[id] ?? 0) > 0 ? " More" : ""}
+        Purchase{(eventOrg.addOns?.[id] ?? 0) > 0 ? " More" : ""}
       </Button>
 
       <PurchaseSeatsModal
