@@ -318,22 +318,21 @@ const Teams = ({
       )}
       <Heading size="lg">{event.teamsEnabled ? "Teams" : "Participating Students"}</Heading>
       {event.teamsEnabled && (
-        <p>
-          Click the &ldquo;Add Team&rdquo; button to create a new team.
-          {effectiveCostPerStudent > 0 && (
-            <>
-              {" "}
-              Before you can add students to teams, you must purchase seats. Each seat currently costs{" "}
-              <b>${effectiveCostPerStudent} USD</b>. {event.costDescription ?? ""}
-            </>
-          )}
-        </p>
-      )}
-      {effectiveCostPerStudent > 0 && (
-        <p>
-          You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> seats remaining. Seats
-          are not associated with any particular student, and unassigned students do not use a seat.
-        </p>
+        <>
+          <p>
+            Click the &ldquo;Add Team&rdquo; button to create a new team.
+            {effectiveCostPerStudent > 0 && (
+              <>
+                {" "}
+                Before you can add students to teams, you must purchase seats. Each seat currently costs{" "}
+                <b>${effectiveCostPerStudent} USD</b>. You have currently paid for <b>{maxStudents}</b> seats, with{" "}
+                <b>{seatsRemaining}</b> remaining. Seats are not associated with any particular student, and unassigned
+                students do not use a seat.
+              </>
+            )}
+          </p>
+          <Markdown>{event.costDescription ?? ""}</Markdown>
+        </>
       )}
       {teams.length > 0 && (
         <SimpleGrid columns={event.teamsEnabled ? { sm: 1, lg: 2, xl: 3 } : 1} spacing={4}>
