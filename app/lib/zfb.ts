@@ -8,11 +8,7 @@
 
 import type { ZodObject, ZodRawShape, ZodString } from "zod";
 
-import {
-  Timestamp,
-  type FirestoreDataConverter,
-  type QueryDocumentSnapshot,
-} from "firebase-admin/firestore";
+import { type FirestoreDataConverter, type QueryDocumentSnapshot } from "firebase-admin/firestore";
 import { z } from "zod";
 
 export const firestoreObject = <T extends ZodRawShape & { id: ZodString }, S extends ZodObject<T>>(
@@ -54,5 +50,9 @@ export const documentReference = () =>
 
 export const timestamp = () =>
   z.preprocess((x) => {
-    if (x instanceof Timestamp) return x.toDate();
+    if (typeof x === "object" && x != null && "toDate" in x) {
+      // @ts-ignore
+      // FIXME
+      return x.toDate();
+    }
   }, z.date());
