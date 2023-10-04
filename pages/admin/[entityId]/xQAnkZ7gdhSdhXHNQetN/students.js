@@ -4,12 +4,11 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Button, Checkbox } from "@chakra-ui/react";
+import { Checkbox } from "@chakra-ui/react";
 import { useFirestore, useFirestoreCollectionData, useStorage } from "reactfire";
 
 import AdminTableView, { sumReducer, updateRenderer } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
-import { useImpersonate } from "~/helpers/utils";
 
 const toDict = (obj, x) => {
   obj[x.id] = { ...x, ...obj[x.id] };
@@ -17,7 +16,6 @@ const toDict = (obj, x) => {
 };
 
 const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
-  const impersonate = useImpersonate();
   const storage = useStorage();
   const root = storage.ref();
 
@@ -56,17 +54,6 @@ const StudentsTable = ({ students, teamsById, orgsById, onUpdate }) => {
       reducer: sumReducer,
     },
     { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
-    {
-      label: "Impersonate",
-      key: "impersonate",
-      renderer: (_, row) => (
-        <Button variant="outline" size="xs" onClick={() => impersonate(row.id)}>
-          Impersonate
-        </Button>
-      ),
-      hideInCsv: true,
-      hideByDefault: true,
-    },
   ];
 
   const rows = students.map((x) => {
