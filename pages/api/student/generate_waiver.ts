@@ -6,7 +6,7 @@
 
 // @ts-nocheck
 
-import chromium from "chrome-aws-lambda";
+import Api2Pdf from "api2pdf";
 import { NextApiRequest, NextApiResponse } from "next";
 import rehypeFilter from "react-markdown/lib/rehype-filter";
 import rehypeStringify from "rehype-stringify";
@@ -18,10 +18,12 @@ import { unified } from "unified";
 
 import { renderDirectives } from "~/components/WaiverEditor/processDirectives";
 
-const css = `<style>
+const prelude = `
+<style>
+@import url("https://rsms.me/inter/inter.css");
 html {
-  font-size: 12pt;
-  font-family: sans-serif;
+  font-size: 11pt;
+  font-family: 'Inter', sans-serif;
 }
 p {
   line-height: 150%;
@@ -30,13 +32,17 @@ li + li {
   margin-top: 5px;
 }
 .cd-field,
-.cd-field-inline, 
+.cd-field-inline,
 .cd-signature {
-  background-color: #FCF3CF;
-  border: 1px solid black;
+  background-color: #F7FAFC;
+  border: 1px solid #CBD5E0;
+  border-radius: 2px;
   padding: 2px 5px;
 }
-</style>`;
+</style>
+`;
+
+const a2pClient = new Api2Pdf(process.env.API2PDF_KEY);
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") res.status(405).end();
@@ -56,26 +62,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   res.setHeader("Content-Type", "application/pdf");
 
-  const browser = await chromium.puppeteer.launch(
-    process.env.AWS_LAMBDA_FUNCTION_VERSION
-      ? {
-          args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
-          defaultViewport: chromium.defaultViewport,
-          executablePath: await chromium.executablePath,
-          headless: true,
-        }
-      : { headless: true }
-  );
-  const page = await browser.newPage();
-  await page.setContent(`${css}${html.value}`);
-  const pdf = await page.pdf({
-    format: "Letter",
-    margin: { top: "0.5in", left: "0.5in", bottom: "0.5in", right: "0.5in" },
-    printBackground: true,
-  });
-  await browser.close();
+  const result = await a2pClient.chromeHtmlToPdf(`${prelude}${html.value}`);
+  const resp = await fetch(result.FileUrl);
+  const pdf = await resp.arrayBuffer();
 
-  res.send(pdf);
+  res.send(Buffer.from(pdf));
 };
 
 export default handler;
