@@ -10,10 +10,11 @@ import { useRouter } from "next/router";
 import { HiPlus } from "react-icons/hi";
 import { useFirestore, useFirestoreCollection, useFirestoreCollectionData } from "reactfire";
 
-import MainLayout from "./MainLayout";
 
 import AuthWrapper from "~/components/AuthWrapper";
 import { useUserRef } from "~/helpers/utils";
+
+import MainLayout from "./MainLayout";
 
 const EventLink = ({ event, students, activeStyle }) => {
   const { query } = useRouter();

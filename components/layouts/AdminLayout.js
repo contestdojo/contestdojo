@@ -9,10 +9,11 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 
-import MainLayout from "./MainLayout";
 
 import AuthWrapper from "~/components/AuthWrapper";
 import { useUserRef } from "~/helpers/utils";
+
+import MainLayout from "./MainLayout";
 
 const Sidebar = () => {
   const { query } = useRouter();

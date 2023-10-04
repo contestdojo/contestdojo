@@ -51,7 +51,6 @@ export const renderCustomFields = (
       const field = (
         // @ts-ignore
         <FormField
-          key={`customFields.${x.id}`}
           {...register(`customFields.${x.id}`)}
           label={x.label}
           // @ts-ignore
@@ -73,7 +72,10 @@ export const renderCustomFields = (
 
       if (!x.flags.editable && !initial) {
         return (
-          <Tooltip label="This field may not be edited. Please contact the tournament organizer if you have any questions or concerns.">
+          <Tooltip
+            key={`customFields.${x.id}`}
+            label="This field may not be edited. Please contact the tournament organizer if you have any questions or concerns."
+          >
             <Box>{field}</Box>
           </Tooltip>
         );

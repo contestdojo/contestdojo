@@ -25,10 +25,11 @@ import { Controller, useForm } from "react-hook-form";
 import { useAuth, useFirestore } from "reactfire";
 import * as yup from "yup";
 
-import RadioToggle from "../components/RadioToggle";
 
 import FormField from "~/components/FormField";
 import { delay } from "~/helpers/utils";
+
+import RadioToggle from "../components/RadioToggle";
 
 const schema = yup.object({
   type: yup.string().typeError("Account Type is required").oneOf(["coach", "student"]).required().label("Account Type"),

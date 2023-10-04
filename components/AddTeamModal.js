@@ -23,9 +23,10 @@ import { useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import * as yup from "yup";
 
+import FormField from "~/components/FormField";
+
 import { makeCustomFieldsSchema, renderCustomFields } from "./forms/customFields";
 
-import FormField from "~/components/FormField";
 
 const AddTeamModal = ({
   initial = false,

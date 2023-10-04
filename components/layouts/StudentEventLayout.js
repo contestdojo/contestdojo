@@ -6,9 +6,10 @@
 
 import { Divider, Heading, Stack } from "@chakra-ui/react";
 
+import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
+
 import StudentLayout from "./StudentLayout";
 
-import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 
 const StudentEventLayoutContent = ({ children, maxW = 600, ...props }) => {
   const { data: event } = useEvent();

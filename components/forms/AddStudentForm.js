@@ -10,9 +10,10 @@ import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
+import FormField from "~/components/FormField";
+
 import { makeCustomFieldsSchema, renderCustomFields } from "./customFields";
 
-import FormField from "~/components/FormField";
 
 const AddStudentForm = ({
   id = "add-student",

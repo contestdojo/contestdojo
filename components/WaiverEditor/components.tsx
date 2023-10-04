@@ -24,11 +24,12 @@ import {
 import { Component, useEffect, useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
-import { useWaiverState } from "./WaiverProvider";
 
 import BlankCard from "~/components/BlankCard";
 import Card from "~/components/Card";
 import { components as defaultComponents } from "~/components/Markdown";
+
+import { useWaiverState } from "./WaiverProvider";
 
 const MissingID = () => (
   <Alert status="error" mb={4} maxW={500}>

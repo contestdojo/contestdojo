@@ -8,13 +8,14 @@ import { Button, Grid, GridItem, Heading, HStack, Stack, Switch, Text } from "@c
 import firebase from "firebase";
 import { useAuth } from "reactfire";
 
-import CostForm from "../../../../components/forms/CostForm";
 
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";
 import EventForm from "~/components/forms/EventForm";
 import { useFormState } from "~/helpers/utils";
+
+import CostForm from "../../../../components/forms/CostForm";
 
 const EventDetails = () => {
   const { ref: eventRef, data: event } = useEvent();

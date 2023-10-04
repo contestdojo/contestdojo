@@ -7,6 +7,8 @@
 import { HiDownload } from "react-icons/hi";
 import { useFirestore, useFirestoreCollectionData, useStorage } from "reactfire";
 
+import { useEvent } from "~/components/contexts/EventProvider";
+
 import AdminTableView, {
   countReducer,
   iconButtonRenderer,
@@ -14,7 +16,6 @@ import AdminTableView, {
   updateRenderer,
 } from "../../../../components/AdminTableView";
 
-import { useEvent } from "~/components/contexts/EventProvider";
 
 const toDict = (obj, x) => {
   obj[x.id] = { ...x, ...obj[x.id] };

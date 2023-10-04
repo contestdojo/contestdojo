@@ -7,9 +7,10 @@
 import { Heading, Stack, Tab, TabList, Tabs } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
+import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
+
 import AdminLayout from "./AdminLayout";
 
-import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 
 const tabs = [
   { name: "Organizations", route: "orgs" },
