@@ -43,6 +43,16 @@ const handler = withFirebaseAuth(async (req, res) => {
   if (!entityData) return res.status(404).end();
   if (!entityData.stripeAccountId) return res.status(400).end("The event organizer has not yet configured payments.");
 
+  // Calculate number of students
+
+  if (!addon && eventData.maxStudents) {
+    const eventOrgs = await eventRef.collection("orgs").get();
+    const numStudents = eventOrgs.docs.reduce((acc, cur) => acc + (cur.data().maxStudents ?? 0), 0);
+    const remainingSeats = eventData.maxStudents - numStudents;
+    if (remainingSeats < 0) return res.status(400).end("This event is no longer accepting registrations.");
+    if (number > remainingSeats) return res.status(400).end(`There are only ${remainingSeats} seats remaining.`);
+  }
+
   // Calculate effective cost
 
   const eventOrgRef = eventRef.collection("orgs").doc(orgId);
