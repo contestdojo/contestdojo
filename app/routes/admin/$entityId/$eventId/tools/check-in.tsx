@@ -26,6 +26,7 @@ import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
 import { Alert, AlertStatus, Box, Button, Select } from "~/components/ui";
+import { requireAdmin } from "~/lib/auth.server";
 import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
 import sendgrid from "~/lib/sendgrid.server";
@@ -79,6 +80,7 @@ const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 type ActionData = { success: false; error: string } | { success: true };
 
 export const action: ActionFunction = async ({ request, params }) => {
+  const user = await requireAdmin(request);
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
   const eventRef = db.event(params.eventId);
 
@@ -119,6 +121,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     const _orgIds = await Promise.all(entries.map(([id]) => t.get(db.eventTeam(eventRef.id, id))));
     const orgIds = _orgIds.map((x) => x.data()?.org?.id).filter(Boolean);
+    const teamIds = entries.map(([id]) => id);
 
     const zipped = entries.map(([id, poolId], i) => ({
       id,
@@ -165,19 +168,18 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     t.update(eventRef, { checkInPools: pools });
 
-    return new Set(orgIds as string[]);
+    return [new Set(orgIds as string[]), new Set(teamIds as string[])];
   };
 
   let orgIds: Set<string>;
+  let teamIds: Set<string>;
 
   try {
-    orgIds = await firestore.runTransaction(transactionFunc);
+    [orgIds, teamIds] = await firestore.runTransaction(transactionFunc);
   } catch (_e) {
     const e = _e as Error;
     return json<ActionData>({ success: false, error: e.message });
   }
-
-  console.log(orgIds);
 
   try {
     await Promise.all(
@@ -190,12 +192,32 @@ export const action: ActionFunction = async ({ request, params }) => {
         const teams = await db.eventTeams(eventRef.id).where("org", "==", db.org(x)).get();
         const students = await db.eventStudents(eventRef.id).where("org", "==", db.org(x)).get();
 
+        const teamsCheckedIn = teams.docs.filter((x) => teamIds.has(x.id));
+
+        if (event.checkInWebhookUrl) {
+          const numbers = teamsCheckedIn.map((x) => x.data().number).join(", ");
+          await fetch(event.checkInWebhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              embeds: [
+                {
+                  author: { name: user.displayName },
+                  title: "Checked In Teams",
+                  fields: [{ name: orgData.name, value: numbers }],
+                  color: 0xf40808,
+                },
+              ],
+            }),
+          });
+        }
+
         const teamsText = teams.docs
           .map((x) => x.data())
           .map((x) =>
             x.checkInPool
-              ? `Team ${x.name} — ${x.number} — ${x.checkInPool}`
-              : `Team ${x.name} — Not Checked In`
+              ? `[${x.number}] ${x.name} — ${x.checkInPool}`
+              : `${x.name} — Not Checked In`
           )
           .join("\n");
 
@@ -203,11 +225,10 @@ export const action: ActionFunction = async ({ request, params }) => {
           .map((x) => x.data())
           .map((x) =>
             x.checkInPool
-              ? `Student ${x.fname} ${x.lname} — ${x.number} — ${x.checkInPool}`
-              : `Student ${x.fname} ${x.lname} — Not Checked In`
-          );
-
-        console.log(teamsText + "\n\n" + studentsText);
+              ? `[${x.number}] ${x.fname} ${x.lname} — ${x.checkInPool}`
+              : `${x.fname} ${x.lname} — Not Checked In`
+          )
+          .join("\n");
 
         await sendgrid.send({
           to: org.data()?.adminData.email,
@@ -216,7 +237,7 @@ export const action: ActionFunction = async ({ request, params }) => {
           dynamicTemplateData: {
             event: event.name,
             org: orgData.name,
-            text: teamsText + "\n\n" + studentsText,
+            text: "Teams:\n\n" + teamsText + "\n\nStudents:\n\n" + studentsText,
           },
         });
       })

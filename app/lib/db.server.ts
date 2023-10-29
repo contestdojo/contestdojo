@@ -101,6 +101,7 @@ const Event = zfb.firestoreObject(
     checkInPools: z
       .array(z.object({ id: z.string(), maxStudents: z.number().optional() }))
       .optional(),
+    checkInWebhookUrl: z.string().optional(),
     addOns: z.array(EventAddOn).optional(),
   })
 );

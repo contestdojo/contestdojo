@@ -116,6 +116,7 @@ const WaiverForm = z.object({
 });
 
 const CheckInForm = z.object({
+  checkInWebhookUrl: zfd.text(z.string().optional()),
   checkInPools: z.array(
     z.object({
       id: zfd.text(),
@@ -304,9 +305,8 @@ export default function SettingsRoute() {
           schema={CheckInForm}
           buttonLabel="Save"
           fieldProps={{
-            checkInPools: {
-              elementClassName: "md:flex-row",
-            },
+            checkInWebhookUrl: { label: "Discord Webhook URL" },
+            checkInPools: { elementClassName: "md:flex-row" },
           }}
         />
       </Section>
