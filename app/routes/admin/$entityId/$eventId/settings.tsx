@@ -30,7 +30,7 @@ const UNIQUE_ERROR = {
 
 const EventDetailsForm = z.object({
   name: zfd.text(),
-  date: z.coerce.date(),
+  // date: z.coerce.date(),
   studentsPerTeam: zfd.numeric(),
   description: zfd.text(),
   hide: zfd.checkbox(),
