@@ -7,7 +7,7 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { useEffect, useState } from "react";
-import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
+import { useAuth, useFirestore, useFirestoreDocData, useUser } from "reactfire";
 
 dayjs.extend(duration);
 
@@ -91,4 +91,24 @@ export const useLocalStorage = (key, initialValue) => {
 export const toDict = (obj, x) => {
   obj[x.id] = { ...x, ...obj[x.id] };
   return obj;
+};
+
+export const useImpersonate = () => {
+  const auth = useAuth();
+
+  const impersonate = async (uid) => {
+    const authorization = await auth.currentUser.getIdToken();
+    const resp = await fetch(`/api/admin/impersonate`, {
+      method: "POST",
+      headers: { authorization, "Content-Type": "application/json" },
+      body: JSON.stringify({ uid }),
+    });
+    if (resp.ok) {
+      const token = await resp.text();
+      await auth.signInWithCustomToken(token);
+      window.location.reload();
+    }
+  };
+
+  return impersonate;
 };

@@ -4,10 +4,12 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
+import { Button } from "@chakra-ui/react";
 import { HiDownload } from "react-icons/hi";
 import { useFirestore, useFirestoreCollectionData, useStorage } from "reactfire";
 
 import { useEvent } from "~/components/contexts/EventProvider";
+import { useImpersonate } from "~/helpers/utils";
 
 import AdminTableView, {
   countReducer,
@@ -15,13 +17,13 @@ import AdminTableView, {
   updateRenderer,
 } from "../../../../components/AdminTableView";
 
-
 const toDict = (obj, x) => {
   obj[x.id] = { ...x, ...obj[x.id] };
   return obj;
 };
 
 const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }) => {
+  const impersonate = useImpersonate();
   const storage = useStorage();
   const root = storage.ref();
 
@@ -50,6 +52,17 @@ const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }
       hideInCsv: true,
     },
     { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
+    {
+      label: "Impersonate",
+      key: "impersonate",
+      renderer: (_, row) => (
+        <Button variant="outline" size="xs" onClick={() => impersonate(row.id)}>
+          Impersonate
+        </Button>
+      ),
+      hideInCsv: true,
+      hideByDefault: true,
+    },
     ...customFields.map((x) => ({
       label: `[Custom] ${x.label}`,
       key: `custom_${x.id}`,

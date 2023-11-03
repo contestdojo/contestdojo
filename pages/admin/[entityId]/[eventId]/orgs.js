@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { HStack, Text } from "@chakra-ui/react";
+import { Button, HStack, Text } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 
@@ -15,9 +15,11 @@ import AdminTableView, {
   updateRenderer,
 } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
-import { toDict } from "~/helpers/utils";
+import { toDict, useImpersonate } from "~/helpers/utils";
 
 const OrgsTable = ({ event, orgs, customFields, studentsByOrg, onUpdate }) => {
+  const impersonate = useImpersonate();
+
   const cols = [
     { label: "ID", key: "id", hideByDefault: true },
     { label: "Name", key: "name", renderer: updateRenderer(onUpdate, "name") },
@@ -51,6 +53,17 @@ const OrgsTable = ({ event, orgs, customFields, studentsByOrg, onUpdate }) => {
     { label: "Notes", key: "notes", renderer: updateRenderer(onUpdate, "notes") },
     { label: "Start Time", key: "startTime", renderer: dayjsRenderer },
     { label: "Update Time", key: "updateTime", renderer: dayjsRenderer },
+    {
+      label: "Impersonate",
+      key: "impersonate",
+      renderer: (_, row) => (
+        <Button variant="outline" size="xs" onClick={() => impersonate(row.adminId)}>
+          Impersonate
+        </Button>
+      ),
+      hideInCsv: true,
+      hideByDefault: true,
+    },
     ...customFields.map((x) => ({
       label: `[Custom] ${x.label}`,
       key: `custom_${x.id}`,
