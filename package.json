@@ -41,7 +41,7 @@
     "react-hook-form": "^7.39.4",
     "react-icons": "^4.3.1",
     "react-markdown": "^7.1.0",
-    "react-mathjax-preview": "^2.2.6",
+    "react-mathjax-preview": "github:oliver-ni/react-mathjax-preview",
     "react-no-ssr": "^1.1.0",
     "react-signature-canvas": "^1.0.3",
     "react-sticky": "^6.0.3",
