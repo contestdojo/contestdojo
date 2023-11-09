@@ -26,7 +26,7 @@ import {
   Th,
   Thead,
   Tooltip,
-  Tr,
+  Tr
 } from "@chakra-ui/react";
 import { Fragment, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
@@ -44,23 +44,23 @@ export const dayjsRenderer = (val) => (
 
 export const updateRenderer =
   (onUpdate, updater) =>
-  (val, { id }) => {
-    if (typeof updater === "string") {
-      const key = updater;
-      updater = (newVal) => ({ [key]: newVal });
-    }
+    (val, { id }) => {
+      if (typeof updater === "string") {
+        const key = updater;
+        updater = (newVal) => ({ [key]: newVal });
+      }
 
-    return (
-      <Editable defaultValue={val} onSubmit={(newVal) => onUpdate(id, updater(newVal))}>
-        <StyledEditablePreview />
-        <EditableInput />
-      </Editable>
-    );
-  };
+      return (
+        <Editable defaultValue={val} onSubmit={(newVal) => onUpdate(id, updater(newVal))}>
+          <StyledEditablePreview />
+          <EditableInput />
+        </Editable>
+      );
+    };
 
 export const addRemoveRenderer =
   (onUpdate, label) =>
-  (val, { id }, key) =>
+    (val, { id }, key) =>
     (
       <HStack spacing={2}>
         <IconButton
@@ -68,7 +68,7 @@ export const addRemoveRenderer =
           aria-label={`Remove ${label}`}
           icon={<HiMinus />}
           onClick={() => onUpdate(id, { [key]: val - 1 })}
-          disabled={val <= 0}
+          isDisabled={val <= 0}
         />
         <Box minW={5} textAlign="center">
           {val}

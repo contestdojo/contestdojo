@@ -20,7 +20,7 @@ import {
   Tag,
   Text,
   Tooltip,
-  useDisclosure,
+  useDisclosure
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import dayjs from "dayjs";
@@ -36,7 +36,7 @@ import {
   HiPencilAlt,
   HiSpeakerphone,
   HiTable,
-  HiTrash,
+  HiTrash
 } from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
 import * as yup from "yup";
@@ -248,7 +248,7 @@ const TestCard = ({
         <IconButton as="a" icon={<HiTable />} />
       </TooltipLink>
 
-      <Button colorScheme="blue" onClick={handleOpen} minW={150} disabled={open}>
+      <Button colorScheme="blue" onClick={handleOpen} minW={150} isDisabled={open}>
         {open ? "Open" : openTime ? "Reopen Test" : "Open Test"}
       </Button>
 

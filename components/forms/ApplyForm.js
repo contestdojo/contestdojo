@@ -35,7 +35,7 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
 
   // TODO: Number Input
 
-  if (!open) onSubmit = () => {};
+  if (!open) onSubmit = () => { };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -73,7 +73,7 @@ const ApplyForm = ({ onSubmit, isLoading, error, buttonText, defaultValues, maxT
           <FormErrorMessage>{errors.confirmUS?.message}</FormErrorMessage>
         </FormControl>
 
-        <Button isLoading={isLoading} type="submit" colorScheme="blue" disabled={!open}>
+        <Button isLoading={isLoading} type="submit" colorScheme="blue" isDisabled={!open}>
           {!open ? "Registration Closed" : buttonText ?? "Submit"}
         </Button>
       </Stack>

@@ -262,7 +262,7 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
 
   return (
     <>
-      <Button colorScheme="blue" onClick={onOpen} disabled={!!event.frozen}>
+      <Button colorScheme="blue" onClick={onOpen} isDisabled={!!event.frozen}>
         Purchase Seats
       </Button>
       <PurchaseSeatsModal isOpen={isOpen} onClose={onClose} onSubmit={handlePurchaseSeats} {...formState} />
@@ -355,7 +355,7 @@ const Teams = ({
       <ButtonGroup>
         {event.teamsEnabled &&
           (teams.length < (maxTeams ?? 100) ? (
-            <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
+            <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} isDisabled={!!event.frozen}>
               Add Team
             </Button>
           ) : (
@@ -481,10 +481,10 @@ const Students = ({
       </Wrap>
 
       <ButtonGroup>
-        <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen2} disabled={!!event.frozen}>
+        <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen2} isDisabled={!!event.frozen}>
           Invite Students
         </Button>
-        <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} disabled={!!event.frozen}>
+        <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} isDisabled={!!event.frozen}>
           Manually Add Student
         </Button>
       </ButtonGroup>

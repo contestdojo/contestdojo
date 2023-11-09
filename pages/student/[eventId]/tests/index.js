@@ -16,7 +16,7 @@ import {
   HStack,
   Icon,
   Stack,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
