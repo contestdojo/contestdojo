@@ -21,21 +21,15 @@ const handler = withFirebaseAuth(async (req, res) => {
   const batches = [firestore.batch()];
 
   if (eventData.teamsEnabled) {
-    // Fetch orgs
-    const orgsRef = firestore.collection("orgs");
-    const orgs = await orgsRef.get();
-    const orgsById = orgs.docs.reduce((acc, x) => acc.set(x.id, x.data()), new Map<string, any>());
-
-    // Fetch teams (that have orgs)
+    // Fetch teams
     const teamsRef = eventRef.collection("teams");
     let { docs: teams } = await teamsRef.get();
-    teams = teams.filter((x) => orgsById.get(x.data().org.id));
 
-    // Sort teams by org name & put non-empty numbers in front
+    // Sort teams by name & put non-empty numbers in front
     teams.sort((a, b) => {
       if (!a.data().number) return 1;
       if (!b.data().number) return -1;
-      return orgsById.get(a.data().org.id).name.localeCompare(orgsById.get(b.data().org.id).name);
+      return a.data().name.localeCompare(b.data().name);
     });
 
     // Store to number students later
