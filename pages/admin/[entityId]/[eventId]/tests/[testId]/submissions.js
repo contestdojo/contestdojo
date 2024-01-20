@@ -8,9 +8,9 @@ import { Button, Heading, Icon, Stack, Td } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { HiCheck, HiMinus, HiX } from "react-icons/hi";
-import MathJax from "react-mathjax-preview";
 import { useAuth, useFirestoreCollectionData } from "reactfire";
 
+import MathJax from "~/components/MathJax";
 import AdminTableView, { sumReducer } from "~/components/AdminTableView";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useEvent } from "~/components/contexts/EventProvider";

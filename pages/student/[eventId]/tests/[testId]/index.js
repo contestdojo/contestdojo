@@ -27,10 +27,10 @@ import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { HiCheckCircle } from "react-icons/hi";
-import MathJax from "react-mathjax-preview";
 import { Sticky } from "react-sticky";
 import { useFirestoreDocData, useUser } from "reactfire";
 
+import MathJax from "~/components/MathJax";
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useDialog } from "~/components/contexts/DialogProvider";

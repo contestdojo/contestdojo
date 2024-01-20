@@ -6,8 +6,8 @@
 
 import { Box, Button, Heading, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import MathJax from "react-mathjax-preview";
 
+import MathJax from "~/components/MathJax";
 import Card from "~/components/Card";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import ResizingTextarea from "~/components/ResizingTextarea";

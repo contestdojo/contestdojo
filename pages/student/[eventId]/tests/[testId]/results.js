@@ -6,10 +6,10 @@
 
 import { Alert, AlertIcon, Box, chakra, Collapse, Heading, Stack, Text, useDisclosure } from "@chakra-ui/react";
 import TeX from "@matejmazur/react-katex";
-import MathJax from "react-mathjax-preview";
 import { Sticky } from "react-sticky";
 import { useFirestoreDocData, useUser } from "reactfire";
 
+import MathJax from "~/components/MathJax";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";

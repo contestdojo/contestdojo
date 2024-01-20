@@ -30,9 +30,9 @@ import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { HiCheck, HiX } from "react-icons/hi";
-import MathJax from "react-mathjax-preview";
 import { useAuth, useFirestoreCollectionData, useFirestoreDocData } from "reactfire";
 
+import MathJax from "~/components/MathJax";
 import BlankCard from "~/components/BlankCard";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
