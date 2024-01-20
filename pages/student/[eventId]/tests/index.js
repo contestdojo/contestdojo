@@ -126,14 +126,14 @@ const TestCard = ({
   } else if (waiting) {
     order = -50;
     children = (
-      <Button size="sm" disabled>
+      <Button size="sm" isDisabled>
         Waiting
       </Button>
     );
   } else if (!open) {
     order = 50;
     children = (
-      <Button size="sm" disabled>
+      <Button size="sm" isDisabled>
         Not Open
       </Button>
     );
