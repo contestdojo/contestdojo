@@ -27,7 +27,9 @@ import EventProvider from "~/components/contexts/EventProvider";
 import TestProvider, { useTest } from "~/components/contexts/TestProvider";
 import { useTime } from "~/helpers/utils";
 
-const points = [3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 10, 10, 10];
+const points = [
+  10, 10, 10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 14, 14, 14, 16, 16, 16, 18, 18, 18, 21, 21, 21, 25, 25, 25,
+];
 
 const MAX_SET_SHOWN = 7;
 
