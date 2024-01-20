@@ -20,7 +20,7 @@ import {
   Tag,
   Text,
   Tooltip,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import dayjs from "dayjs";
@@ -36,7 +36,7 @@ import {
   HiPencilAlt,
   HiSpeakerphone,
   HiTable,
-  HiTrash
+  HiTrash,
 } from "react-icons/hi";
 import { useFirestoreCollectionData } from "reactfire";
 import * as yup from "yup";
@@ -183,6 +183,7 @@ const TestCard = ({
   time,
   onOpen,
   onDelete,
+  onCloseTest,
 }) => {
   const router = useRouter();
   const { entityId, eventId } = router.query;
@@ -201,6 +202,15 @@ const TestCard = ({
       title: "Are you sure?",
       description: "This action cannot be undone.",
       onConfirm: onDelete,
+    });
+  };
+
+  const handleClose = () => {
+    openDialog({
+      type: "confirm",
+      title: "Are you sure?",
+      description: "This will prevent tests from being started, but will not kick out students who are already in.",
+      onConfirm: onCloseTest,
     });
   };
 
@@ -248,9 +258,15 @@ const TestCard = ({
         <IconButton as="a" icon={<HiTable />} />
       </TooltipLink>
 
-      <Button colorScheme="blue" onClick={handleOpen} minW={150} isDisabled={open}>
-        {open ? "Open" : openTime ? "Reopen Test" : "Open Test"}
-      </Button>
+      {open ? (
+        <Button colorScheme="teal" onClick={handleClose} minW={150}>
+          Close Test
+        </Button>
+      ) : (
+        <Button colorScheme="blue" onClick={handleOpen} minW={150}>
+          {openTime ? "Reopen Test" : "Open Test"}
+        </Button>
+      )}
 
       <AllowedStudentsButton
         customFields={customFields}
@@ -286,6 +302,13 @@ const TestsTab = () => {
     });
   };
 
+  const handleCloseTest = (test) => async (values) => {
+    const now = dayjs();
+    await testsRef.doc(test.id).update({
+      closeTime: firebase.firestore.Timestamp.fromDate(now.toDate()),
+    });
+  };
+
   const handleDeleteTest = (test) => async () => {
     await testsRef.doc(test.id).delete();
   };
@@ -313,6 +336,7 @@ const TestsTab = () => {
           testRef={testsRef.doc(x.id)}
           onOpen={handleOpenTest(x)}
           onDelete={handleDeleteTest(x)}
+          onCloseTest={handleCloseTest(x)}
         />
       ))}
       <Card as={Stack} spacing={4} p={4} maxW="md">

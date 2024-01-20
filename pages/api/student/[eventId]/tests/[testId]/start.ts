@@ -36,10 +36,6 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   const closeTime = testData.closeTime?.toDate();
   const now = new Date();
 
-  if (!openTime || !closeTime || now < openTime || now > closeTime) {
-    return res.status(400).send("This test is not open.");
-  }
-
   if (
     testData.authorizedIds &&
     !testData.authorizedIds.includes(uid) &&
@@ -74,6 +70,10 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   const submissionSnapshot = await submissionRef.get();
 
   if (!submissionSnapshot.exists) {
+    if (!openTime || !closeTime || now < openTime || now > closeTime) {
+      return res.status(400).send("This test is not open.");
+    }
+
     if (studentData.nextSelectedStart && now < studentData.nextSelectedStart.toDate()) {
       return res.status(400).send("You already have another selected event in progress.");
     }
