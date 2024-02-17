@@ -43,7 +43,7 @@ export type FieldProps<T extends ZodTypeAny> =
   : T extends ZodArray<ZodTypeAny>   ? ArrayFieldProps<T>
   : T extends ZodEffects<infer U>    ? FieldProps<U>
   : T extends ZodOptional<infer U>   ? FieldProps<U>
-  : T extends ZodString              ? BaseFieldProps & { multiline?: boolean }
+  : T extends ZodString              ? BaseFieldProps & { hide?: boolean; multiline?: boolean }
   : BaseFieldProps
 
 export type FromZodProps<T extends ZodTypeAny> = {

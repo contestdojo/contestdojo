@@ -14,6 +14,8 @@ import { Input, TextArea } from "~/components/ui";
 import { Field } from "./field";
 
 export function FromZodString({ name, fieldProps: _fieldProps }: FromZodProps<ZodString>) {
+  if (_fieldProps?.hide) return null;
+
   const { multiline, ...fieldProps } = _fieldProps ?? {};
 
   if (multiline) {

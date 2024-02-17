@@ -15,6 +15,8 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import clsx from "clsx";
+import { zonedTimeToUtc } from "date-fns-tz";
+import { useHydrated } from "remix-utils";
 import { setFormDefaults, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
@@ -30,11 +32,12 @@ const UNIQUE_ERROR = {
 
 const EventDetailsForm = z.object({
   name: zfd.text(),
-  // date: z.coerce.date(),
+  date: z.coerce.date(),
   studentsPerTeam: zfd.numeric(),
   description: zfd.text(),
   hide: zfd.checkbox(),
   studentRegistrationEnabled: zfd.checkbox(),
+  _tz: zfd.text(),
 });
 
 // FIXME: hack to get around `date` being serialized as string
@@ -138,6 +141,7 @@ const AddOnsForm = z.object({
 
 type LoaderData = {
   event: Event;
+  serverTz: string;
 };
 
 export const loader: LoaderFunction = async ({ params }) => {
@@ -148,6 +152,7 @@ export const loader: LoaderFunction = async ({ params }) => {
 
   return json<LoaderData & FormDefaults>({
     event,
+    serverTz: Intl.DateTimeFormat().resolvedOptions().timeZone,
     ...setFormDefaults("EventDetails", event),
     ...setFormDefaults("CostDetails", event),
     ...setFormDefaults("CustomFields", event),
@@ -168,7 +173,13 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
 
   let validator: Validator<Partial<Event>> | undefined;
-  if (formData.get("_form") === "EventDetails") validator = withZod(EventDetailsForm);
+  if (formData.get("_form") === "EventDetails")
+    validator = withZod(
+      EventDetailsForm.transform(({ date, ...data }) => ({
+        date: zonedTimeToUtc(date, data._tz),
+        ...data,
+      }))
+    );
   if (formData.get("_form") === "CostDetails") validator = withZod(CostDetailsForm(event));
   if (formData.get("_form") === "CustomFields") validator = withZod(CustomFieldsForm);
   if (formData.get("_form") === "CustomOrgFields") validator = withZod(CustomOrgFieldsForm);
@@ -199,7 +210,13 @@ function Section({ title, className, children }: SectionProps) {
 }
 
 export default function SettingsRoute() {
-  const { event } = useLoaderData<LoaderData>();
+  const { event, serverTz } = useLoaderData<LoaderData>();
+
+  const hydrated = useHydrated();
+  const tz = hydrated ? Intl.DateTimeFormat().resolvedOptions().timeZone : serverTz;
+  const tzHelp = hydrated
+    ? `In your local timezone (${tz})`
+    : `In the server timezone (${serverTz})`;
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -211,12 +228,15 @@ export default function SettingsRoute() {
           buttonLabel="Save"
           fieldProps={{
             name: { label: "Event Name" },
-            date: { help: "In your local timezone" },
+            date: { help: tzHelp },
             description: { multiline: true, rows: 20 },
             hide: { label: "Hidden to Public?" },
             studentRegistrationEnabled: { label: "Student Registration Enabled?" },
+            _tz: { hide: true },
           }}
-        />
+        >
+          <input type="hidden" name="_tz" value={tz} />
+        </SchemaForm>
       </Section>
 
       <Section title="Pricing Details">
