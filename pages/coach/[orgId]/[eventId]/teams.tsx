@@ -334,10 +334,14 @@ const Teams = ({
             {effectiveCostPerStudent > 0 && (
               <>
                 {" "}
-                Before you can add students to teams, you must purchase seats. Each seat currently costs{" "}
-                <b>${effectiveCostPerStudent} USD</b>. You have currently paid for <b>{maxStudents}</b> seats, with{" "}
-                <b>{seatsRemaining}</b> remaining. Seats are not associated with any particular student, and unassigned
-                students do not use a seat.
+                Before you can add students to teams, you must purchase seats.{" "}
+                {event.purchaseSeatsEnabled && !event.purchaseSeats && (
+                  <>
+                    Each seat currently costs <b>${effectiveCostPerStudent} USD</b>.{" "}
+                  </>
+                )}
+                You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> remaining. Seats
+                are not associated with any particular student, and unassigned students do not use a seat.
               </>
             )}
           </p>
