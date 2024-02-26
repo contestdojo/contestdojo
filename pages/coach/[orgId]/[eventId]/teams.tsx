@@ -260,7 +260,17 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
     onClose();
   });
 
-  return (
+  return event.frozen || !event.purchaseSeatsEnabled ? (
+    <Tooltip label="This event has disabled purchasing seats.">
+      <Button colorScheme="blue" isDisabled={true}>
+        Purchase Seats
+      </Button>
+    </Tooltip>
+  ) : event.purchaseSeats ? (
+    <ButtonLink href={event.purchaseSeats} colorScheme="blue" isDisabled={!!event.frozen}>
+      Purchase Seats
+    </ButtonLink>
+  ) : (
     <>
       <Button colorScheme="blue" onClick={onOpen} isDisabled={!!event.frozen}>
         Purchase Seats
