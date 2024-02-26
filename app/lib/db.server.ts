@@ -86,6 +86,8 @@ const Event = zfb.firestoreObject(
     owner: zfb.documentReference(),
     frozen: z.boolean(),
     hide: z.boolean().optional(),
+    purchaseSeats: z.string().optional(),
+    purchaseSeatsEnabled: z.boolean().optional(),
     costPerStudent: z.number().optional(),
     costAdjustments: z.array(z.object({ rule: Rule, adjustment: z.number() })).optional(),
     studentsPerTeam: z.number(),

@@ -36,6 +36,8 @@ const EventDetailsForm = z.object({
   studentsPerTeam: zfd.numeric(),
   description: zfd.text(),
   hide: zfd.checkbox(),
+  purchaseSeatsEnabled: zfd.checkbox(),
+  purchaseSeats: zfd.text(z.string().optional()),
   studentRegistrationEnabled: zfd.checkbox(),
   _tz: zfd.text(),
 });
@@ -231,6 +233,7 @@ export default function SettingsRoute() {
             date: { help: tzHelp },
             description: { multiline: true, rows: 20 },
             hide: { label: "Hidden to Public?" },
+            purchaseSeats: { label: "Custom Seats Purchase URL" },
             studentRegistrationEnabled: { label: "Student Registration Enabled?" },
             _tz: { hide: true },
           }}
