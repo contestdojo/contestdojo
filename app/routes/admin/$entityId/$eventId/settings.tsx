@@ -22,7 +22,7 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 
 import { SchemaForm } from "~/components/schema-form";
-import { Box } from "~/components/ui";
+import { Alert, AlertStatus, Box } from "~/components/ui";
 import { db } from "~/lib/db.server";
 
 const UNIQUE_ERROR = {
@@ -312,13 +312,19 @@ export default function SettingsRoute() {
       </Section>
 
       <Section title="Waiver" className="col-span-2">
-        <SchemaForm
-          id="Waiver"
-          method="post"
-          schema={WaiverForm}
-          buttonLabel="Save"
-          fieldProps={{ waiver: { multiline: true } }}
-        />
+        {event.waiver === true ? (
+          <Alert status={AlertStatus.Info} title="External Waiver">
+            This event is using an external waiver. Please contact Oliver to change this.
+          </Alert>
+        ) : (
+          <SchemaForm
+            id="Waiver"
+            method="post"
+            schema={WaiverForm}
+            buttonLabel="Save"
+            fieldProps={{ waiver: { multiline: true } }}
+          />
+        )}
       </Section>
 
       <Section title="Check-in" className="col-span-2">
