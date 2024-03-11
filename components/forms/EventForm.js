@@ -16,7 +16,6 @@ const schema = yup.object({
   name: yup.string().required().label("Event Name"),
   studentsPerTeam: yup.number().required().label("# Students per Team"),
   description: yup.string().label("Description"),
-  waiver: yup.string().label("Waiver"),
 });
 
 const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) => {
@@ -65,14 +64,6 @@ const EventForm = ({ onSubmit, isLoading, error, buttonText, defaultValues }) =>
           label="Description (markdown)"
           placeholder="Description"
           error={errors.description}
-        />
-
-        <FormField
-          as={ResizingTextarea}
-          {...register("waiver")}
-          label="Waiver (markdown)"
-          placeholder="Waiver"
-          error={errors.waiver}
         />
 
         <Button isLoading={isLoading} type="submit" colorScheme="blue">
