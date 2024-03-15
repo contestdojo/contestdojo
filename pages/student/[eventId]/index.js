@@ -515,6 +515,7 @@ const Event = () => {
                 <AlertIcon />
                 Your registration is not complete until your waiver is signed.
               </Alert>
+              {event.waiverDescription && <Markdown>{event.waiverDescription}</Markdown>}
               {typeof event.waiver === "string" && (
                 <>
                   <Text>
