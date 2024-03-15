@@ -116,9 +116,12 @@ const customFieldsFieldProps = {
   },
 };
 
-const WaiverForm = z.object({
-  waiver: zfd.text(z.string().optional()),
-});
+// FIXME: hack to get around `date` being serialized as string
+const WaiverForm = (event: Omit<Event, "date">) => {
+  const result = z.object({ waiverDescription: zfd.text(z.string().optional()) });
+  if (event.waiver === true) return result;
+  return result.extend({ waiver: zfd.text(z.string().optional()) });
+};
 
 const CheckInForm = z.object({
   checkInWebhookUrl: zfd.text(z.string().optional()),
@@ -186,7 +189,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (formData.get("_form") === "CustomFields") validator = withZod(CustomFieldsForm);
   if (formData.get("_form") === "CustomOrgFields") validator = withZod(CustomOrgFieldsForm);
   if (formData.get("_form") === "CustomTeamFields") validator = withZod(CustomTeamFieldsForm);
-  if (formData.get("_form") === "Waiver") validator = withZod(WaiverForm);
+  if (formData.get("_form") === "Waiver") validator = withZod(WaiverForm(event));
   if (formData.get("_form") === "CheckIn") validator = withZod(CheckInForm);
   if (formData.get("_form") === "AddOns") validator = withZod(AddOnsForm);
 
@@ -312,19 +315,26 @@ export default function SettingsRoute() {
       </Section>
 
       <Section title="Waiver" className="col-span-2">
-        {event.waiver === true ? (
+        {event.waiver === true && (
           <Alert status={AlertStatus.Info} title="External Waiver">
             This event is using an external waiver. Please contact Oliver to change this.
           </Alert>
-        ) : (
-          <SchemaForm
-            id="Waiver"
-            method="post"
-            schema={WaiverForm}
-            buttonLabel="Save"
-            fieldProps={{ waiver: { multiline: true } }}
-          />
         )}
+
+        <SchemaForm
+          id="Waiver"
+          method="post"
+          schema={WaiverForm(event)}
+          buttonLabel="Save"
+          fieldProps={{
+            // @ts-ignore
+            waiver: { multiline: true },
+            waiverDescription: {
+              help: "Instructions displayed with the waiver, when the student has not yet signed.",
+              multiline: true,
+            },
+          }}
+        />
       </Section>
 
       <Section title="Check-in" className="col-span-2">

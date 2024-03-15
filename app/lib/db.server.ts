@@ -95,6 +95,7 @@ const Event = zfb.firestoreObject(
     scoreReportsAvailable: z.boolean().optional(),
     description: z.string().optional(),
     costDescription: z.string().optional(),
+    waiverDescription: z.string().optional(),
     waiver: z.boolean().or(z.string()).optional(),
     customFields: z.array(EventCustomField).optional(),
     customOrgFields: z.array(EventCustomField).optional(),
