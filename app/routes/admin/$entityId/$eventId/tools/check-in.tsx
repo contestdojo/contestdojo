@@ -16,16 +16,15 @@ import type {
   Organization,
 } from "~/lib/db.server";
 
-import { CheckIcon, ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useLoaderData, useLocation, useNavigation } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
-import clsx from "clsx";
 import { useMemo } from "react";
 import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
-import { Alert, AlertStatus, Box, Button, Select } from "~/components/ui";
+import { TeamsGrid } from "~/components/check-in";
+import { Alert, AlertStatus, Button, Select } from "~/components/ui";
 import { requireUserType } from "~/lib/auth.server";
 import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
@@ -277,100 +276,43 @@ function SelectOrg({ orgs }: SelectOrgProps) {
   );
 }
 
-type TeamProps = {
-  event: Omit<Event, "date">;
-  team: EventTeam;
-  students: EventStudent[];
-};
-
-function Team({ event, team, students }: TeamProps) {
-  const allReady = students.length === students.filter((x) => x.waiver).length;
-
-  return (
-    <Box
-      className={clsx`flex flex-col gap-4 p-4 ${
-        !team.checkInPool &&
-        (allReady
-          ? "border-transparent ring-2 ring-green-500"
-          : "border-transparent ring-2 ring-red-500")
-      }`}
-    >
-      <h3 className="flex flex-row items-center gap-2">
-        <span className="font-medium">{team.name}</span>
-        {team.number && (
-          <span className="rounded-lg bg-gray-100 px-2 text-sm text-gray-500">{team.number}</span>
-        )}
-        {team.checkInPool && <span className="text-sm text-gray-500">{team.checkInPool}</span>}
-      </h3>
-
-      <div className="flex flex-1 flex-col gap-2 text-sm">
-        {students.map((x) => (
-          <div
-            key={x.id}
-            className={clsx`flex items-center gap-2 ${
-              x.waiver ? (x.number ? "text-gray-500" : "text-green-500") : "text-red-500"
-            }`}
-          >
-            {x.waiver ? (
-              <CheckIcon className="h-4 w-4" />
-            ) : (
-              <ExclamationTriangleIcon className="h-4 w-4" />
-            )}
-            {x.number && <span className="rounded-lg bg-gray-100 px-2">{x.number}</span>}
-            {x.fname} {x.lname}
-            {!x.waiver && <span className="rounded-lg bg-red-100 px-2">No Waiver</span>}
-          </div>
-        ))}
-      </div>
-
-      {team.checkInPool ? (
-        <p className="text-center text-sm">Already checked in</p>
-      ) : (
-        <Select name={team.id} form="check-in" defaultValue={allReady ? "__auto__" : "__skip__"}>
-          <option value="__auto__">Check In: Automatically Assign Pool</option>
-          <option value="__skip__">Do Not Check In</option>
-          {event.checkInPools?.map((x) => (
-            <option key={x.id} value={x.id}>
-              Check In: {x.id}
-            </option>
-          ))}
-        </Select>
-      )}
-    </Box>
-  );
-}
-
-type TeamsProps = {
-  // FIXME: hack to get around `date` being serialized as string
-  event: Omit<Event, "date">;
-  teams: EventTeam[];
-  students: EventStudent[];
-};
-
-function Teams({ event, teams, students }: TeamsProps) {
+export default function OrgsRoute() {
+  const { event, orgs, selectedOrg } = useLoaderData<LoaderData>();
   const transition = useNavigation();
   const actionData = useActionData<ActionData>();
 
-  const studentsByTeam = useMemo(
-    () =>
-      students.reduce<Map<string, EventStudent[]>>((acc, curr) => {
-        if (curr.team) {
-          const team = acc.get(curr.team.id);
-          if (!team) acc.set(curr.team.id, [curr]);
-          else team.push(curr);
-        }
-        return acc;
-      }, new Map()),
-    [students]
+  const orgsAlphabetical = useMemo(
+    () => [...orgs].sort((a, b) => a.name.localeCompare(b.name)),
+    [orgs]
   );
 
   return (
-    <>
-      {teams.map((x) => (
-        <Team key={x.id} event={event} team={x} students={studentsByTeam.get(x.id) ?? []} />
-      ))}
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <SelectOrg orgs={orgsAlphabetical} />
 
-      <div className="hidden lg:block" />
+      {selectedOrg && (
+        <TeamsGrid {...selectedOrg}>
+          {(team, _, allReady) =>
+            team.checkInPool ? (
+              <p className="text-center text-sm">Already checked in</p>
+            ) : (
+              <Select
+                name={team.id}
+                form="check-in"
+                defaultValue={allReady ? "__auto__" : "__skip__"}
+              >
+                <option value="__auto__">Check In: Automatically Assign Pool</option>
+                <option value="__skip__">Do Not Check In</option>
+                {event.checkInPools?.map((x) => (
+                  <option key={x.id} value={x.id}>
+                    Check In: {x.id}
+                  </option>
+                ))}
+              </Select>
+            )
+          }
+        </TeamsGrid>
+      )}
 
       <Form
         id="check-in"
@@ -383,22 +325,6 @@ function Teams({ event, teams, students }: TeamsProps) {
 
         <Button disabled={transition.state !== "idle"}>Check In</Button>
       </Form>
-    </>
-  );
-}
-
-export default function OrgsRoute() {
-  const { event, orgs, selectedOrg } = useLoaderData<LoaderData>();
-
-  const orgsAlphabetical = useMemo(
-    () => [...orgs].sort((a, b) => a.name.localeCompare(b.name)),
-    [orgs]
-  );
-
-  return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <SelectOrg orgs={orgsAlphabetical} />
-      {selectedOrg && <Teams event={event} {...selectedOrg} />}
     </div>
   );
 }
