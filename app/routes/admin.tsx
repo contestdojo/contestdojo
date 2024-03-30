@@ -21,7 +21,7 @@ import { Form, Link, NavLink, Outlet, useLoaderData, useMatches } from "@remix-r
 import clsx from "clsx";
 
 import { Dropdown } from "~/components/ui";
-import { requireAdmin } from "~/lib/auth.server";
+import { requireUserType } from "~/lib/auth.server";
 import { db } from "~/lib/db.server";
 import { chunk } from "~/lib/utils/array-utils";
 import { makePartial } from "~/lib/utils/object-utils";
@@ -34,7 +34,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await requireAdmin(request);
+  const user = await requireUserType(request, "admin");
   const entitiesSnap = await db.entities.where("admins", "array-contains", db.user(user.uid)).get();
   const entities = entitiesSnap.docs.map((x) => x.data());
 

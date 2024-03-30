@@ -13,7 +13,7 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
 import { Box } from "~/components/ui";
-import { requireAdmin } from "~/lib/auth.server";
+import { requireUserType } from "~/lib/auth.server";
 import { db } from "~/lib/db.server";
 
 type LoaderData = {
@@ -21,7 +21,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const user = await requireAdmin(request);
+  const user = await requireUserType(request, "admin");
   const entitiesSnap = await db.entities.where("admins", "array-contains", db.user(user.uid)).get();
   const entities = entitiesSnap.docs.map((x) => x.data());
   return json<LoaderData>({ entities });

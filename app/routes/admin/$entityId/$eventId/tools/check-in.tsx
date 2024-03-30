@@ -26,7 +26,7 @@ import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
 import { Alert, AlertStatus, Box, Button, Select } from "~/components/ui";
-import { requireAdmin } from "~/lib/auth.server";
+import { requireUserType } from "~/lib/auth.server";
 import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
 import sendgrid from "~/lib/sendgrid.server";
@@ -80,7 +80,7 @@ const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 type ActionData = { success: false; error: string } | { success: true };
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const user = await requireAdmin(request);
+  const user = await requireUserType(request, "admin");
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
   const eventRef = db.event(params.eventId);
 

@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { createCookie, redirect, Response } from "@remix-run/node";
+import { createCookie, redirect } from "@remix-run/node";
 import { fromUnixTime, isBefore, subMinutes } from "date-fns";
 
 import { auth, firestore } from "~/lib/firebase.server";
@@ -16,7 +16,7 @@ export type User = {
   email?: string;
   displayName?: string;
   photoUrl: string;
-  isAdmin: boolean;
+  type: string;
 };
 
 const session = createCookie("session", {
@@ -35,9 +35,7 @@ async function migrateLegacyProfile(uid: string) {
     await auth.updateUser(uid, { displayName: `${profile.fname} ${profile.lname}` });
   }
 
-  if (profile.type === "admin" && !user.customClaims?.admin) {
-    await auth.setCustomUserClaims(uid, { admin: true });
-  }
+  await auth.setCustomUserClaims(uid, { type: profile.type });
 }
 
 export const loginWithIdToken = async (idToken: string) => {
@@ -86,14 +84,14 @@ export async function requireSession(request: Request): Promise<User> {
     email: user.email,
     displayName: user.displayName,
     photoUrl: user.photoURL ?? `https://source.boringavatars.com/beam/512/${user.uid}`,
-    isAdmin: user.customClaims?.admin === true,
+    type: user.customClaims?.type,
   };
 }
 
-export async function requireAdmin(request: Request) {
+export async function requireUserType(request: Request, type: "admin" | "coach" | "student") {
   const user = await requireSession(request);
-  if (!user.isAdmin) {
-    throw new Response("You must be an admin to view this page.", { status: 401 });
+  if (user.type !== type) {
+    throw new Response(`Your account must be of type ${type} to view this page.`, { status: 401 });
   }
   return user;
 }
