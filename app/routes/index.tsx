@@ -13,6 +13,13 @@ import { redirect } from "@remix-run/node";
 import { requireSession } from "~/lib/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  await requireSession(request);
-  return redirect("/admin");
+  let user = await requireSession(request);
+  console.log(user);
+  if (user.type === "admin") return redirect("/admin");
+  if (user.type === "coach") return redirect("/coach");
+  return new Error("Invalid user type");
 };
+
+export default function IndexRoute() {
+  return null;
+}

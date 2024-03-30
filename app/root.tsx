@@ -81,7 +81,7 @@ export function ErrorBoundary() {
     description = error.data;
   } else if (error instanceof Error) {
     title = error.name;
-    description = error.message;
+    description = error.stack;
   }
 
   return (

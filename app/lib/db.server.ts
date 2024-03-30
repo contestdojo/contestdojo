@@ -168,6 +168,9 @@ export namespace db {
   export const orgs = firestore.collection("orgs").withConverter(Organization.converter);
   export const entities = firestore.collection("entities").withConverter(Entity.converter);
   export const events = firestore.collection("events").withConverter(Event.converter);
+  export const orgsGroup = firestore
+    .collectionGroup("orgs")
+    .withConverter(EventOrganization.converter);
 
   export function doc(path: string) {
     return firestore.doc(path);
