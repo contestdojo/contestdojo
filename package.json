@@ -1,9 +1,10 @@
 {
   "private": true,
   "sideEffects": false,
+  "type": "module",
   "scripts": {
-    "build": "remix build",
-    "dev": "remix dev",
+    "build": "remix vite:build",
+    "dev": "remix vite:dev",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -36,13 +37,14 @@
     "remix-validated-form": "^5.1.5",
     "tailwind-merge": "^1.14.0",
     "uuid": "^9.0.1",
+    "vite-env-only": "^2.2.1",
     "zod": "^3.22.4",
     "zod-form-data": "^2.0.2"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.19.3",
-    "@remix-run/eslint-config": "^1.19.3",
-    "@remix-run/serve": "^1.19.3",
+    "@remix-run/dev": "^2.8.1",
+    "@remix-run/eslint-config": "^2.8.1",
+    "@remix-run/serve": "^2.8.1",
     "@types/nprogress": "^0.2.3",
     "@types/react": "^18.2.73",
     "@types/react-csv": "^1.1.10",
@@ -57,7 +59,9 @@
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.1.13",
     "tailwindcss": "^3.4.3",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.3",
+    "vite": "^5.2.7",
+    "vite-tsconfig-paths": "^4.3.2"
   },
   "engines": {
     "node": ">=18"

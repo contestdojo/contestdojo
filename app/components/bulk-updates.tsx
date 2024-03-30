@@ -13,6 +13,7 @@ import { Dialog } from "@headlessui/react";
 import { ArrowUpTrayIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { parse } from "csv/browser/esm";
 import { useMemo } from "react";
+import { serverOnly$ } from "vite-env-only";
 import { z } from "zod";
 
 import { SchemaForm } from "~/components/schema-form";
@@ -74,22 +75,21 @@ export function BulkUpdateForm<S extends z.ZodRawShape, T extends z.ZodObject<S>
   });
 }
 
-export function runBulkUpdate<T>(
-  collectionRef: CollectionReference<T>,
-  rows: { id: string; [key: string]: any }[]
-) {
-  return firestore.runTransaction((t) =>
-    Promise.all(
-      rows.map(async ({ id, ...row }) => {
-        const ref = collectionRef.doc(id);
-        const doc = await t.get(ref);
-        const update = filterEntries(row, (x) => x !== undefined);
-        if (doc.exists) t.update(ref, update as UpdateData<T>);
-        return { id, update, data: doc.data() };
-      })
-    )
-  );
-}
+export const runBulkUpdate = serverOnly$(
+  <T,>(collectionRef: CollectionReference<T>, rows: { id: string; [key: string]: any }[]) => {
+    return firestore.runTransaction((t) =>
+      Promise.all(
+        rows.map(async ({ id, ...row }) => {
+          const ref = collectionRef.doc(id);
+          const doc = await t.get(ref);
+          const update = filterEntries(row, (x) => x !== undefined);
+          if (doc.exists) t.update(ref, update as UpdateData<T>);
+          return { id, update, data: doc.data() };
+        })
+      )
+    );
+  }
+);
 
 export type BulkActionResult<T> = {
   id: string;

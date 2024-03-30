@@ -12,7 +12,6 @@ import type { PropsWithChildren } from "react";
 import {
   Link,
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -25,8 +24,8 @@ import clsx from "clsx";
 import nProgress from "nprogress";
 import { useEffect } from "react";
 
-import nProgressStyles from "~/nprogress.css";
-import styles from "~/tailwind.css";
+import nProgressStyles from "~/nprogress.css?url";
+import styles from "~/tailwind.css?url";
 
 import { Alert, AlertStatus, Button } from "./components/ui";
 
@@ -64,7 +63,6 @@ function Wrapper({ className, children }: WrapperProps) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   );
@@ -81,7 +79,7 @@ export function ErrorBoundary() {
     description = error.data;
   } else if (error instanceof Error) {
     title = error.name;
-    description = error.stack;
+    description = error.stack ?? error.message;
   }
 
   return (
