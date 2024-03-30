@@ -30,7 +30,7 @@ import { useMatchData } from "~/lib/utils/route-utils";
 type LoaderData = {
   user: User;
   entities: Entity[];
-  events?: Event[];
+  events?: Omit<Event, "date">[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
