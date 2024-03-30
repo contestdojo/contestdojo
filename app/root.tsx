@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import type { LinksFunction, V2_MetaFunction } from "@remix-run/node";
 
 import {
   Links,
@@ -15,7 +15,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 import nProgress from "nprogress";
 import { useEffect } from "react";
@@ -23,13 +23,13 @@ import { useEffect } from "react";
 import nProgressStyles from "~/nprogress.css";
 import styles from "~/tailwind.css";
 
-export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "ContestDojo",
-  viewport: "width=device-width,initial-scale=1",
-  "msapplication-TileColor": "#f40808",
-  "theme-color": "#ffffff",
-});
+export const meta: V2_MetaFunction = () => [
+  { name: "charset", content: "utf-8" },
+  { name: "title", content: "ContestDojo" },
+  { name: "viewport", content: "width=device-width,initial-scale=1" },
+  { name: "msapplication-TileColor", content: "#f40808" },
+  { name: "theme-color", content: "#ffffff" },
+];
 
 export const links: LinksFunction = () => [
   { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
@@ -43,15 +43,15 @@ export const links: LinksFunction = () => [
 ];
 
 export default function App() {
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    if (transition.state === "loading" || transition.state === "submitting") {
+    if (navigation.state === "loading" || navigation.state === "submitting") {
       nProgress.start();
     } else {
       nProgress.done();
     }
-  }, [transition.state]);
+  }, [navigation.state]);
 
   return (
     <html lang="en" className="h-full bg-gray-100">
