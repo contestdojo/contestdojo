@@ -125,12 +125,15 @@ const WaiverForm = (event: Omit<Event, "date">) => {
 
 const CheckInForm = z.object({
   checkInWebhookUrl: zfd.text(z.string().optional()),
-  checkInPools: z.array(
-    z.object({
-      id: zfd.text(),
-      maxStudents: zfd.numeric(z.number().optional()),
-    })
-  ),
+  checkInInstructions: zfd.text(z.string().optional()),
+  checkInPools: z
+    .array(
+      z.object({
+        id: zfd.text(),
+        maxStudents: zfd.numeric(z.number().optional()),
+      })
+    )
+    .optional(),
 });
 
 const AddOnsForm = z.object({
@@ -208,7 +211,7 @@ type SectionProps = PropsWithChildren<{
 function Section({ title, className, children }: SectionProps) {
   return (
     <Box className={clsx`flex flex-col gap-4 p-4 ${className}`}>
-      {title && <h2 className="text-lg font-medium text-gray-900">{title}</h2>}
+      {title && <h2 className="text-lg font-semibold text-gray-900">{title}</h2>}
       {children}
     </Box>
   );
@@ -345,7 +348,8 @@ export default function SettingsRoute() {
           buttonLabel="Save"
           fieldProps={{
             checkInWebhookUrl: { label: "Discord Webhook URL" },
-            checkInPools: { elementClassName: "md:flex-row" },
+            checkInInstructions: { multiline: true },
+            checkInPools: { label: "Check In Pools", elementClassName: "md:flex-row" },
           }}
         />
       </Section>

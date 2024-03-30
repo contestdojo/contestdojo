@@ -185,7 +185,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       [...orgIds].map(async (x) => {
         const org = await db.org(x).get();
         const orgData = org.data();
-        console.log(orgData);
         if (!orgData) return;
 
         const teams = await db.eventTeams(eventRef.id).where("org", "==", db.org(x)).get();

@@ -17,7 +17,7 @@ import { Box } from "~/components/ui";
 type TeamProps = {
   team: EventTeam;
   students: EventStudent[];
-  children: (team: EventTeam, students: EventStudent[], allReady: boolean) => JSX.Element;
+  children?: (team: EventTeam, students: EventStudent[], allReady: boolean) => JSX.Element;
 };
 
 function Team({ team, students, children }: TeamProps) {
@@ -60,7 +60,7 @@ function Team({ team, students, children }: TeamProps) {
         ))}
       </div>
 
-      {children(team, students, allReady)}
+      {children?.(team, students, allReady)}
     </Box>
   );
 }
@@ -68,7 +68,7 @@ function Team({ team, students, children }: TeamProps) {
 type TeamsProps = {
   teams: EventTeam[];
   students: EventStudent[];
-  children: TeamProps["children"];
+  children?: TeamProps["children"];
 };
 
 export function TeamsGrid({ teams, students, children }: TeamsProps) {

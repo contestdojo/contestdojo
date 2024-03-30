@@ -14,7 +14,6 @@ import { requireSession } from "~/lib/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let user = await requireSession(request);
-  console.log(user);
   if (user.type === "admin") return redirect("/admin");
   if (user.type === "coach") return redirect("/coach");
   return new Error("Invalid user type");

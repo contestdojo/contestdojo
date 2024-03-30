@@ -6,9 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { FieldValue, UpdateData } from "firebase-admin/firestore";
+import type { UpdateData } from "firebase-admin/firestore";
 
-import * as firebase from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
 
 import { firestore } from "~/lib/firebase.server";
@@ -101,6 +101,7 @@ const Event = zfb.firestoreObject(
     customOrgFields: z.array(EventCustomField).optional(),
     customTeamFields: z.array(EventCustomField).optional(),
     studentRegistrationEnabled: z.boolean().optional(),
+    checkInInstructions: z.string().optional(),
     checkInPools: z
       .array(z.object({ id: z.string(), maxStudents: z.number().optional() }))
       .optional(),
@@ -226,7 +227,7 @@ export namespace db {
     export function mapUndefinedToDelete<T extends {}>(update: Stupid<T>): Stupid<T> {
       for (const key in update) {
         if (update[key] === undefined) {
-          update[key] = firebase.firestore.FieldValue.delete();
+          update[key] = FieldValue.delete();
         }
       }
       return update;

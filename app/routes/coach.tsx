@@ -156,8 +156,6 @@ export default function CoachRoute() {
 
   let { user, orgs, events } = useLoaderData<typeof loader>();
 
-  console.log(event);
-
   const titles = matches.map((x) => (x.handle as any)?.navigationHeading).filter(Boolean);
   const title = titles.length > 0 ? titles[titles.length - 1] : "Coach";
 
