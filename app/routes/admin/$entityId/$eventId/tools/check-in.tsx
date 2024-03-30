@@ -18,7 +18,7 @@ import type {
 
 import { CheckIcon, ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import { json } from "@remix-run/node";
-import { Form, useActionData, useLoaderData, useLocation, useTransition } from "@remix-run/react";
+import { Form, useActionData, useLoaderData, useLocation, useNavigation } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import clsx from "clsx";
 import { useMemo } from "react";
@@ -256,7 +256,7 @@ type SelectOrgProps = {
 function SelectOrg({ orgs }: SelectOrgProps) {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
-  const transition = useTransition();
+  const transition = useNavigation();
 
   return (
     <Form action="" className="col-span-full flex gap-4">
@@ -270,10 +270,7 @@ function SelectOrg({ orgs }: SelectOrgProps) {
           </option>
         ))}
       </Select>
-      <Button
-        type="submit"
-        disabled={transition.state !== "idle" && transition.type.startsWith("loader")}
-      >
+      <Button type="submit" disabled={transition.state !== "idle"}>
         View
       </Button>
     </Form>
@@ -281,7 +278,7 @@ function SelectOrg({ orgs }: SelectOrgProps) {
 }
 
 type TeamProps = {
-  event: Event;
+  event: Omit<Event, "date">;
   team: EventTeam;
   students: EventStudent[];
 };
@@ -351,7 +348,7 @@ type TeamsProps = {
 };
 
 function Teams({ event, teams, students }: TeamsProps) {
-  const transition = useTransition();
+  const transition = useNavigation();
   const actionData = useActionData<ActionData>();
 
   const studentsByTeam = useMemo(
@@ -384,9 +381,7 @@ function Teams({ event, teams, students }: TeamsProps) {
           <Alert status={AlertStatus.Error} title={actionData.error} />
         )}
 
-        <Button disabled={transition.state !== "idle" && transition.type.startsWith("action")}>
-          Check In
-        </Button>
+        <Button disabled={transition.state !== "idle"}>Check In</Button>
       </Form>
     </>
   );

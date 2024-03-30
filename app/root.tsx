@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { LinksFunction, V2_MetaFunction } from "@remix-run/node";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 
 import {
   Links,
@@ -23,7 +23,7 @@ import { useEffect } from "react";
 import nProgressStyles from "~/nprogress.css";
 import styles from "~/tailwind.css";
 
-export const meta: V2_MetaFunction = () => [
+export const meta: MetaFunction = () => [
   { name: "charset", content: "utf-8" },
   { name: "title", content: "ContestDojo" },
   { name: "viewport", content: "width=device-width,initial-scale=1" },

@@ -10,7 +10,7 @@ const { createRoutesFromFolders } = require("@remix-run/v1-route-convention");
 
 /** @type {import('@remix-run/dev').AppConfig} */
 module.exports = {
-  serverDependenciesToBundle: ["csv/browser/esm"],
+  serverDependenciesToBundle: ["csv/browser/esm", /^remix-utils.*/],
   serverModuleFormat: "cjs",
   future: {
     v2_dev: true,
@@ -20,6 +20,8 @@ module.exports = {
     v2_errorBoundary: true,
     v2_routeConvention: true,
   },
+
+  tailwind: true,
 
   ignoredRouteFiles: ["**/*"],
   routes(defineRoutes) {

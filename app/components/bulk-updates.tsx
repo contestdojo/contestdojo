@@ -69,6 +69,7 @@ export function BulkUpdateForm<S extends z.ZodRawShape, T extends z.ZodObject<S>
     csv: z
       .string()
       .transform(transformCsv)
+      // @ts-ignore TODO
       .transform(transformWithSchema(z.array(rowSchema))),
   });
 }

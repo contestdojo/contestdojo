@@ -146,7 +146,7 @@ export default function AdminRoute() {
   let { user, entities, events } = useLoaderData<LoaderData>();
   events = entity && events?.filter((x) => x.owner.id === entity?.id);
 
-  const titles = matches.map((x) => x.handle?.navigationHeading).filter(Boolean);
+  const titles = matches.map((x) => (x.handle as any)?.navigationHeading).filter(Boolean);
   const title = titles.length > 0 ? titles[titles.length - 1] : "Admin";
 
   return (
@@ -306,7 +306,7 @@ export default function AdminRoute() {
       </Disclosure>
 
       <header className="z-10 bg-white shadow">
-        <div className="mx-auto max-w-7xl py-4 px-6">
+        <div className="mx-auto max-w-7xl px-6 py-4">
           <h1 className="text-lg font-semibold leading-none">{title}</h1>
         </div>
       </header>

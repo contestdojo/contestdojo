@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { ColumnDef, RowData, Table as TanstackTable, TableState } from "@tanstack/react-table";
+import type { ColumnDef, RowData, TableState, Table as TanstackTable } from "@tanstack/react-table";
 import type { PropsWithChildren } from "react";
 
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid";
@@ -18,7 +18,7 @@ import {
 } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { CSVLink } from "react-csv";
-import { ClientOnly } from "remix-utils";
+import { ClientOnly } from "remix-utils/client-only";
 
 import { Button, Dropdown, Table, Tbody, Td, Th, Thead, Tr } from "~/components/ui";
 

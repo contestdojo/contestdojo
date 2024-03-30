@@ -16,7 +16,7 @@ import { useLoaderData } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import clsx from "clsx";
 import { zonedTimeToUtc } from "date-fns-tz";
-import { useHydrated } from "remix-utils";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { setFormDefaults, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
