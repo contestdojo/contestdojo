@@ -76,9 +76,7 @@ export function Alert({ className, status, title, children }: AlertProps) {
         <div className="ml-3">
           <h3 className={clsx`text-sm font-medium ${TITLE_CLASSES[status]}`}>{title}</h3>
           {children && (
-            <div className={clsx`mt-2 text-sm text-yellow-700 ${DESCRIPTION_CLASSES[status]}`}>
-              {children}
-            </div>
+            <div className={clsx`mt-2 text-sm ${DESCRIPTION_CLASSES[status]}`}>{children}</div>
           )}
         </div>
       </div>
