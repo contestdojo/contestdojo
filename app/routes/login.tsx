@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 
 import { redirect } from "@remix-run/node";
 import { useSubmit } from "@remix-run/react";
@@ -17,7 +17,7 @@ import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
 import { SchemaForm } from "~/components/schema-form";
-import { loginWithIdToken } from "~/lib/auth.server";
+import { loginWithIdToken, requireSession } from "~/lib/auth.server";
 import { auth as clientAuth } from "~/lib/firebase.client";
 
 const LoginValidator = withZod(
@@ -30,6 +30,14 @@ const LoginForm = z.object({
   email: z.string().min(1, "Required").email(),
   password: z.string().min(1, "Required"),
 });
+
+export const loader: LoaderFunction = async ({ request }) => {
+  try {
+    const user = await requireSession(request);
+    if (user) return redirect("/");
+  } catch (error) {}
+  return null;
+};
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await LoginValidator.validate(await request.formData());
