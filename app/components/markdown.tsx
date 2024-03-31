@@ -15,7 +15,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "./ui";
 
 export const components: Components = {
   // eslint-disable-next-line jsx-a11y/anchor-has-content
-  a: ({ node, ...props }) => <a className="text-blue-500" {...props} />,
+  a: ({ node, ...props }) => <a className="text-blue-500 hover:underline" {...props} />,
   blockquote: ({ node, ...props }) => <blockquote className="border-l-4 pl-3" {...props} />,
   pre: ({ node, ...props }) => (
     <pre className="rounded-lg border bg-gray-50 px-3 py-2" {...props} />

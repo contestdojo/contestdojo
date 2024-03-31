@@ -102,6 +102,7 @@ const Event = zfb.firestoreObject(
     customTeamFields: z.array(EventCustomField).optional(),
     studentRegistrationEnabled: z.boolean().optional(),
     checkInInstructions: z.string().optional(),
+    checkInFields: z.array(EventCustomField).optional(),
     checkInPools: z
       .array(z.object({ id: z.string(), maxStudents: z.number().optional() }))
       .optional(),
@@ -115,8 +116,9 @@ const EventOrganization = zfb.firestoreObject(
     id: z.string(),
     maxStudents: z.number().optional(),
     notes: z.string().optional(),
-    addOns: z.any().optional(),
-    customFields: z.any().optional(),
+    addOns: z.record(z.number()).optional(),
+    customFields: z.record(z.string()).optional(),
+    checkInFields: z.record(z.string()).optional(),
     code: z.string().optional(),
   })
 );
@@ -134,7 +136,7 @@ const EventStudent = zfb.firestoreObject(
     number: z.string().optional(),
     waiver: z.boolean().or(z.string()).optional().nullable(),
     notes: z.string().optional(),
-    customFields: z.any().optional(),
+    customFields: z.record(z.string()).optional(),
     checkInPool: z.string().optional(),
   })
 );
@@ -147,7 +149,7 @@ const EventTeam = zfb.firestoreObject(
     number: z.string().optional(),
     scoreReport: z.string().optional(),
     notes: z.string().optional(),
-    customFields: z.any().optional(),
+    customFields: z.record(z.string()).optional(),
     code: z.string().optional(),
     checkInPool: z.string().optional(),
   })

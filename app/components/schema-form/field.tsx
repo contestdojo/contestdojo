@@ -69,7 +69,7 @@ export function Field<T extends React.ElementType = typeof Input>({
     return (
       <Tooltip label="This field is read-only." className="opacity-70">
         {control}
-        {!allProps.disabled && <input type="hidden" name={name} value={value} />}
+        {!allProps.disabled && <input type="hidden" name={name} value={allProps.value} />}
       </Tooltip>
     );
   }

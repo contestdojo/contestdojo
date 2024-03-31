@@ -19,7 +19,7 @@ export default function UnderConstruction() {
         <p className="text-lg text-gray-500">This site is currently under construction.</p>
         <p className="text-lg text-gray-500">
           Visit this page on the{" "}
-          <a className="text-blue-500" href={oldUrl.toString()}>
+          <a className="text-blue-500 hover:underline" href={oldUrl.toString()}>
             current website?
           </a>
         </p>

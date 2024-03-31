@@ -11,6 +11,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 
+import { requireUserType } from "~/lib/auth.server";
 import { db } from "~/lib/db.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -19,6 +20,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const orgSnap = await db.org(params.orgId).get();
   const org = orgSnap.data();
   if (!org) throw new Response("Organization not found.", { status: 404 });
+
+  const user = await requireUserType(request, "coach");
+  if (org.admin.id !== user.uid)
+    throw new Response("You are not an admin of this organization.", { status: 403 });
 
   return json({ org });
 }

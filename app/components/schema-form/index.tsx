@@ -6,6 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import type { FetcherWithComponents } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
 import type { FormProps } from "remix-validated-form";
 import type { z, ZodObject, ZodRawShape } from "zod";
@@ -20,17 +21,23 @@ import { Button } from "~/components/ui";
 
 import { FromZodObject } from "./from-zod-object";
 
-function SubmitButton({ children }: PropsWithChildren<{}>) {
-  const isSubmitting = useIsSubmitting();
+type SubmitButtonProps = PropsWithChildren<{
+  formId?: string;
+  className?: string;
+}>;
+
+export function SubmitButton({ formId, className, children }: SubmitButtonProps) {
+  const isSubmitting = useIsSubmitting(formId);
 
   return (
-    <Button type="submit" disabled={isSubmitting}>
+    <Button type="submit" form={formId} disabled={isSubmitting} className={className}>
       {children ?? "Submit"}
     </Button>
   );
 }
 
 type SchemaFormOwnProps<S extends ZodRawShape, T extends ZodObject<S>> = {
+  fetcher?: FetcherWithComponents<unknown>;
   id: string;
   schema: T;
   buttonLabel?: string;
@@ -42,6 +49,7 @@ type SchemaFormProps<S extends ZodRawShape, T extends ZodObject<S>> = SchemaForm
   Omit<FormProps<z.infer<T>>, "validator">;
 
 export function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
+  fetcher,
   id,
   schema,
   buttonLabel,
@@ -58,6 +66,7 @@ export function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
       className={clsx`flex flex-col gap-5 ${className}`}
       id={id}
       validator={validator}
+      fetcher={fetcher}
       {...props}
     >
       <div className="flex flex-col gap-5">
