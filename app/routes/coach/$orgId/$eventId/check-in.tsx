@@ -81,7 +81,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const event = eventSnap.data();
   if (!event) throw new Response("Event not found.", { status: 404 });
   if (!event.enableCoachCheckIn)
-    throw new Response("Online check-in is not enabled for this event.", { status: 404 });
+    throw new Response("Online check-in is not enabled for this event.", { status: 400 });
 
   // Fetch org
   const eventOrgSnap = await db.eventOrg(params.eventId, params.orgId).get();
@@ -201,8 +201,8 @@ function ConfirmDetails({ setIndex }: StepProps) {
             fetcher={fetcher}
             id="CheckIn"
             method="post"
-            schema={CheckInForm(event, eventOrg)}
-            fieldProps={checkInFieldProps(event, eventOrg)}
+            schema={CheckInForm(event, { ...eventOrg, checkInFields: {} })}
+            fieldProps={checkInFieldProps(event, { ...eventOrg, checkInFields: {} })}
             showButton={false}
           />
         </Box>
@@ -283,8 +283,6 @@ function FinalizeCheckIn(_: StepProps) {
     }
   }, [fetcher, fetcher.data, revalidator]);
 
-  console.log(fetcher.data);
-
   return (
     <>
       <Box className="flex flex-col gap-4">
@@ -317,21 +315,44 @@ function FinalizeCheckIn(_: StepProps) {
 }
 
 export default function CheckInRoute() {
-  const { teams, students } = useLoaderData<typeof loader>();
+  const { event, eventOrg, teams, students } = useLoaderData<typeof loader>();
   const teamsUrl = new URL("teams", new URL(useLocation().pathname, "https://contestdojo.com/"));
 
   if (teams.some((x) => x.checkInPool)) {
     return (
       <div className="flex flex-col gap-4">
-        <Alert
-          status={AlertStatus.Success}
-          title="You have already checked in for this event. Your teams are displayed below, with their IDs and room assignments."
-          className="p-4"
-        />
+        {teams.some((x) => !x.checkInPool) ? (
+          <Alert status={AlertStatus.Warning} title="Partially Checked In" className="p-4">
+            Some teams have not been checked in yet. This likely means you added additional teams
+            after checking in. Please contact the tournament for guidance.
+          </Alert>
+        ) : (
+          <Alert status={AlertStatus.Success} title="Checked In" className="p-4">
+            You have checked in for this event. Your teams are displayed below, with their IDs and
+            room assignments.
+          </Alert>
+        )}
 
         <div className="grid grid-cols-1 gap-4 transition-opacity md:grid-cols-2 lg:grid-cols-3">
-          <TeamsGrid teams={teams} students={students} />
+          <TeamsGrid teams={teams} students={students}>
+            {(team) =>
+              !team.checkInPool ? (
+                <p className="text-center text-sm font-medium text-red-500">Not checked in</p>
+              ) : null
+            }
+          </TeamsGrid>
         </div>
+
+        {event.checkInFields && (
+          <Box className="flex flex-col gap-4">
+            <SchemaForm
+              id="CheckIn"
+              method="post"
+              schema={CheckInForm(event, eventOrg)}
+              fieldProps={checkInFieldProps(event, eventOrg)}
+            />
+          </Box>
+        )}
 
         <Button as={Link} to={teamsUrl.toString()} className="self-center">
           Return to Teams Portal

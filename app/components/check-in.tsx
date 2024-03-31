@@ -10,14 +10,14 @@ import type { EventStudent, EventTeam } from "~/lib/db.server";
 
 import { CheckIcon, ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 
 import { Box } from "~/components/ui";
 
 type TeamProps = {
   team: EventTeam;
   students: EventStudent[];
-  children?: (team: EventTeam, students: EventStudent[], allReady: boolean) => JSX.Element;
+  children?: (team: EventTeam, students: EventStudent[], allReady: boolean) => React.ReactNode;
 };
 
 function Team({ team, students, children }: TeamProps) {
@@ -27,6 +27,7 @@ function Team({ team, students, children }: TeamProps) {
     <Box
       className={clsx`flex flex-col gap-4 p-4 ${
         !team.checkInPool &&
+        students.length > 0 &&
         (allReady
           ? "border-transparent ring-2 ring-green-500"
           : "border-transparent ring-2 ring-red-500")

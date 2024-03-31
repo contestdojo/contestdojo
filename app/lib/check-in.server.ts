@@ -68,7 +68,7 @@ export async function checkIn(
     }));
 
     for (let { id, poolId, students } of zipped) {
-      if (poolId === "__skip__") continue;
+      if (poolId === "__skip__" || students.docs.length === 0) continue;
 
       if (poolId === "__auto__") {
         // Choose either the pool with the most capacity left, or one that matches exactly
