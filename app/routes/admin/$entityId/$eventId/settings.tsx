@@ -125,6 +125,7 @@ const WaiverForm = (event: Omit<Event, "date">) => {
 
 const CheckInForm = z.object({
   checkInWebhookUrl: zfd.text(z.string().optional()),
+  enableCoachCheckIn: zfd.checkbox(),
   checkInInstructions: zfd.text(z.string().optional()),
   checkInFields: customFields,
   checkInPools: z

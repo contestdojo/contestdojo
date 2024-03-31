@@ -80,8 +80,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const eventSnap = await db.event(params.eventId).get();
   const event = eventSnap.data();
   if (!event) throw new Response("Event not found.", { status: 404 });
-  if (!event.checkInPools?.length || !event.checkInFields?.length)
-    throw new Response("Check-in is not enabled for this event.", { status: 404 });
+  if (!event.enableCoachCheckIn)
+    throw new Response("Online check-in is not enabled for this event.", { status: 404 });
 
   // Fetch org
   const eventOrgSnap = await db.eventOrg(params.eventId, params.orgId).get();
