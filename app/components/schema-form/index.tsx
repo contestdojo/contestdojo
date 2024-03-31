@@ -34,6 +34,7 @@ type SchemaFormOwnProps<S extends ZodRawShape, T extends ZodObject<S>> = {
   id: string;
   schema: T;
   buttonLabel?: string;
+  showButton?: boolean;
   fieldProps?: FieldProps<T>;
 };
 
@@ -44,6 +45,7 @@ export function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
   id,
   schema,
   buttonLabel,
+  showButton = true,
   fieldProps,
   className,
   children,
@@ -63,9 +65,11 @@ export function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
         <input type="hidden" name="_form" value={id} />
         {children}
       </div>
-      <div className="flex flex-1 flex-col items-stretch justify-end">
-        <SubmitButton>{buttonLabel}</SubmitButton>
-      </div>
+      {showButton && (
+        <div className="flex flex-1 flex-col items-stretch justify-end">
+          <SubmitButton>{buttonLabel}</SubmitButton>
+        </div>
+      )}
     </ValidatedForm>
   );
 }

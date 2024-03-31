@@ -15,6 +15,8 @@ import { useControlField, useField } from "remix-validated-form";
 
 import { FormControl } from "~/components/ui";
 
+import Tooltip from "../ui/tooltip";
+
 function getDefaultProps(name: string) {
   const ownName = name.split(".").pop() ?? name;
   const label = ownName.charAt(0).toUpperCase() + ownName.replace(/([A-Z])/g, " $1").slice(1);
@@ -51,6 +53,26 @@ export function Field<T extends React.ElementType = typeof Input>({
   }
 
   const { defaultChecked, ...rvfProps } = getInputProps(allProps as ComponentPropsWithRef<T>);
+  const control = (
+    <FormControl {...allProps} {...rvfProps} disabled={allProps.disabled || allProps.readOnly} />
+  );
 
-  return <FormControl {...allProps} {...rvfProps} />;
+  if (allProps.disabled) {
+    return (
+      <Tooltip label="This field is disabled." className="opacity-70">
+        {control}
+      </Tooltip>
+    );
+  }
+
+  if (allProps.readOnly) {
+    return (
+      <Tooltip label="This field is read-only." className="opacity-70">
+        {control}
+        {!allProps.disabled && <input type="hidden" name={name} value={value} />}
+      </Tooltip>
+    );
+  }
+
+  return control;
 }

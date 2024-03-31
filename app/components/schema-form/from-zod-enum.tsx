@@ -20,6 +20,7 @@ export function FromZodEnum({
 }: FromZodProps<ZodEnum<[string, ...string[]]>>) {
   return (
     <Field className="flex-1" as={Select} name={name} {...fieldProps}>
+      <option value="">Select...</option>
       {type.options.map((x) => (
         <option key={x} value={x}>
           {x}
