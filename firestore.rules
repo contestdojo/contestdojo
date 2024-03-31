@@ -90,8 +90,15 @@ service cloud.firestore {
       match /teams/{teamId} {
         allow read: if request.auth != null;
         allow create: if isEventAdmin() || notFrozenAnd(isOrgAdminOf(request.resource.data.org));
-        allow update: if isEventAdmin() || notFrozenAnd(isOrgAdminOf(resource.data.org) && isOrgAdminOf(request.resource.data.org));
-        allow delete: if isEventAdmin() || notFrozenAnd(isOrgAdminOf(resource.data.org));
+        allow update: if isEventAdmin() || notFrozenAnd(
+          isOrgAdminOf(resource.data.org)
+          && isOrgAdminOf(request.resource.data.org)
+          && !("checkInPool" in resource.data)
+        );
+        allow delete: if isEventAdmin() || notFrozenAnd(
+          isOrgAdminOf(resource.data.org)
+          && !("checkInPool" in resource.data)
+        );
       }
 
       match /students/{studentId} {
@@ -100,6 +107,8 @@ service cloud.firestore {
         allow update, delete: if isEventAdmin() || (
           (isOrgAdminOf(resource.data.org) || userRef() == resource.data.user)
           && notFrozenOr(resource.data.team == request.resource.data.team)
+          && !("checkInPool" in resource.data)
+          && !(request.resource.data.team != null && "checkInPool" in get(request.resource.data.team).data)
         );
       }
 
