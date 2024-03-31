@@ -10,11 +10,18 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import type { Event, EventOrganization } from "~/lib/db.server";
 
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import { useFetcher, useLoaderData, useLocation, useRevalidator } from "@remix-run/react";
+import {
+  Link,
+  json,
+  useFetcher,
+  useLoaderData,
+  useLocation,
+  useRevalidator,
+} from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import clsx from "clsx";
 import { useEffect } from "react";
-import { setFormDefaults, validationError, type Validator } from "remix-validated-form";
+import { setFormDefaults, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
@@ -23,8 +30,11 @@ import Markdown from "~/components/markdown";
 import { SchemaForm, SubmitButton } from "~/components/schema-form";
 import { Alert, AlertStatus, Box, Button, IconButton } from "~/components/ui";
 import Steps from "~/components/ui/steps";
+import { requireUserType } from "~/lib/auth.server";
+import { checkIn } from "~/lib/check-in.server";
 import { customFieldsFieldProps, customFieldsSchema } from "~/lib/custom-fields";
 import { db } from "~/lib/db.server";
+import { mapToObject } from "~/lib/utils/array-utils";
 
 const CheckInForm = (event: Omit<Event, "date">, eventOrg: EventOrganization) => {
   if (!event.checkInFields) return z.object({});
@@ -105,20 +115,49 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!event) throw new Response("Event not found.", { status: 404 });
 
   // Fetch org
+  const orgSnap = await db.org(params.orgId).get();
+  const org = orgSnap.data();
+  if (!org) throw new Response("Organization not found.", { status: 404 });
+
+  const user = await requireUserType(request, "coach");
+  if (org.admin.id !== user.uid)
+    throw new Response("You are not an admin of this organization.", { status: 403 });
+
+  // Fetch event org
   const eventOrgSnap = await db.eventOrg(params.eventId, params.orgId).get();
   const eventOrg = eventOrgSnap.data();
   if (!eventOrg) throw new Response("Organization not found.", { status: 404 });
 
   const formData = await request.formData();
 
-  let validator: Validator<Partial<Event>> | undefined;
-  if (formData.get("_form") === "CheckIn" && event.checkInFields)
-    validator = withZod(CheckInForm(event, eventOrg));
-
-  if (validator) {
+  if (formData.get("_form") === "CheckIn" && event.checkInFields) {
+    const validator = withZod(CheckInForm(event, eventOrg));
     const validated = await validator.validate(formData);
     if (validated.error) return validationError(validated.error);
     return await eventOrgSnap.ref.update(db.util.mapUndefinedToDelete(validated.data));
+  }
+
+  if (formData.get("_form") === "Finalize") {
+    const validator = withZod(FinalizeForm);
+    const validated = await validator.validate(formData);
+    if (validated.error) return validationError(validated.error);
+
+    const validator2 = CheckInForm(event, eventOrg);
+    const validated2 = await validator2.safeParse(eventOrg);
+    if (!validated2.success)
+      return { success: false, error: "Incomplete check-in form. See Step 1." };
+
+    const teamsSnap = await db.eventTeams(params.eventId).where("org", "==", orgSnap.ref).get();
+    const teams = mapToObject(teamsSnap.docs, (x) => [x.id, "__auto__"]);
+
+    try {
+      await checkIn(user, params.eventId, teams, false);
+    } catch (_e) {
+      let e = _e as Error;
+      return json({ success: false, error: e.message });
+    }
+
+    return { success: true, error: null };
   }
 
   return null;
@@ -235,6 +274,16 @@ function ConfirmRoster({ setIndex }: StepProps) {
 
 function FinalizeCheckIn(_: StepProps) {
   const { event } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher<typeof action>();
+  const revalidator = useRevalidator();
+
+  useEffect(() => {
+    if (fetcher.data && "success" in fetcher.data && fetcher.data.success) {
+      revalidator.revalidate();
+    }
+  }, [fetcher, fetcher.data, revalidator]);
+
+  console.log(fetcher.data);
 
   return (
     <>
@@ -248,18 +297,49 @@ function FinalizeCheckIn(_: StepProps) {
       <Box className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold">Final Confirmation</h2>
         <SchemaForm
+          fetcher={fetcher}
           id="Finalize"
           method="post"
           schema={FinalizeForm}
           fieldProps={finalizeFieldProps}
           buttonLabel={`Check Into ${event.name}`}
-        />
+        >
+          {fetcher.data && "success" in fetcher.data && !fetcher.data.success && (
+            <Alert
+              status={AlertStatus.Error}
+              title={fetcher.data.error ?? "An unexpected error occurred."}
+            />
+          )}
+        </SchemaForm>
       </Box>
     </>
   );
 }
 
 export default function CheckInRoute() {
+  const { teams, students } = useLoaderData<typeof loader>();
+  const teamsUrl = new URL("teams", new URL(useLocation().pathname, "https://contestdojo.com/"));
+
+  if (teams.some((x) => x.checkInPool)) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Alert
+          status={AlertStatus.Success}
+          title="You have already checked in for this event. Your teams are displayed below, with their IDs and room assignments."
+          className="p-4"
+        />
+
+        <div className="grid grid-cols-1 gap-4 transition-opacity md:grid-cols-2 lg:grid-cols-3">
+          <TeamsGrid teams={teams} students={students} />
+        </div>
+
+        <Button as={Link} to={teamsUrl.toString()} className="self-center">
+          Return to Teams Portal
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <Steps labels={["Confirm Details", "Confirm Roster", "Check In"]} canChangeStep={() => true}>
       {(steps, index, setIndex) => (
