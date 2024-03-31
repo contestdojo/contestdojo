@@ -9,14 +9,15 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 
 import { redirect } from "@remix-run/node";
-import { useSubmit } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
-import React from "react";
+import React, { useState } from "react";
 import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
 import { SchemaForm } from "~/components/schema-form";
+import { Alert, AlertStatus } from "~/components/ui";
 import { loginWithIdToken, requireSession } from "~/lib/auth.server";
 import { auth as clientAuth } from "~/lib/firebase.client";
 
@@ -41,7 +42,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await LoginValidator.validate(await request.formData());
-  if (result.error) throw validationError(result.error);
+  if (result.error) return validationError(result.error);
 
   const url = new URL(request.url);
   const next = url.searchParams.get("next") ?? "/";
@@ -50,17 +51,22 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function LoginRoute() {
-  const submit = useSubmit();
+  const fetcher = useFetcher();
+  const [error, setError] = useState<Error | null>(null);
 
   const handleSubmit = async (
     data: z.infer<typeof LoginForm>,
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
-    const { user } = await signInWithEmailAndPassword(clientAuth, data.email, data.password);
-    const idToken = await user.getIdToken();
-    submit({ idToken }, { method: "post" });
-    await signOut(clientAuth);
+    try {
+      const { user } = await signInWithEmailAndPassword(clientAuth, data.email, data.password);
+      const idToken = await user.getIdToken();
+      fetcher.submit({ idToken }, { method: "post" });
+      await signOut(clientAuth);
+    } catch (e) {
+      setError(e as Error);
+    }
   };
 
   return (
@@ -70,6 +76,7 @@ export default function LoginRoute() {
       <img className="mx-auto h-16 w-auto" src="/assets/logo.png" alt="" />
 
       <SchemaForm
+        fetcher={fetcher}
         id="Login"
         className="w-full bg-white p-8 shadow sm:max-w-md sm:rounded-lg"
         schema={LoginForm}
@@ -79,7 +86,13 @@ export default function LoginRoute() {
           password: { type: "password" },
         }}
         buttonLabel="Sign in"
-      />
+      >
+        {error && (
+          <Alert status={AlertStatus.Error} title={error.name}>
+            {error.message}
+          </Alert>
+        )}
+      </SchemaForm>
     </div>
   );
 }
