@@ -28,6 +28,7 @@ import nProgressStyles from "~/nprogress.css?url";
 import styles from "~/tailwind.css?url";
 
 import { Alert, AlertStatus, Button } from "./components/ui";
+import * as Tooltip from "./components/ui/tooltip";
 
 export const meta: MetaFunction = () => [
   { name: "charset", content: "utf-8" },
@@ -54,17 +55,19 @@ type WrapperProps = PropsWithChildren<{
 
 function Wrapper({ className, children }: WrapperProps) {
   return (
-    <html lang="en" className="h-full bg-gray-100">
-      <head>
-        <Meta />
-        <Links />
-      </head>
-      <body className={clsx`h-full ${className}`}>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+    <Tooltip.Provider delayDuration={100}>
+      <html lang="en" className="h-full bg-gray-100">
+        <head>
+          <Meta />
+          <Links />
+        </head>
+        <body className={clsx`h-full ${className}`}>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </body>
+      </html>
+    </Tooltip.Provider>
   );
 }
 

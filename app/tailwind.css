@@ -1,3 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.TooltipContent {
+    animation-duration: 0.2s;
+    animation-timing-function: ease;
+}
+
+.TooltipContent[data-side='top'] {
+    animation-name: slideUp;
+}
+
+.TooltipContent[data-side='bottom'] {
+    animation-name: slideDown;
+}
+
+.TooltipContent[data-side='left'] {
+    animation-name: slideLeft;
+}
+
+.TooltipContent[data-side='right'] {
+    animation-name: slideRight;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-0.25rem);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(0.25rem);
+    }
+}
+
+@keyframes slideLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-0.25rem);
+    }
+}
+
+@keyframes slideRight {
+    from {
+        opacity: 0;
+        transform: translateX(0.25rem);
+    }
+}
