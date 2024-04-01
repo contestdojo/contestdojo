@@ -93,11 +93,11 @@ service cloud.firestore {
         allow update: if isEventAdmin() || notFrozenAnd(
           isOrgAdminOf(resource.data.org)
           && isOrgAdminOf(request.resource.data.org)
-          && !("checkInPool" in resource.data)
+          && !("checkInPool" in resource.data && resource.data.checkInPool != null && resource.data.checkInPool != "")
         );
         allow delete: if isEventAdmin() || notFrozenAnd(
           isOrgAdminOf(resource.data.org)
-          && !("checkInPool" in resource.data)
+          && !("checkInPool" in resource.data && resource.data.checkInPool != null && resource.data.checkInPool != "")
         );
       }
 
@@ -107,8 +107,8 @@ service cloud.firestore {
         allow update, delete: if isEventAdmin() || (
           (isOrgAdminOf(resource.data.org) || userRef() == resource.data.user)
           && notFrozenOr(resource.data.team == request.resource.data.team)
-          && !("checkInPool" in resource.data)
-          && !(request.resource.data.team != null && "checkInPool" in get(request.resource.data.team).data)
+          && !("checkInPool" in resource.data && resource.data.checkInPool != null && resource.data.checkInPool != "")
+          && !(request.resource.data.team != null && "checkInPool" in get(request.resource.data.team).data && get(request.resource.data.team).data.checkInPool != null && get(request.resource.data.team).data.checkInPool != "")
         );
       }
 
