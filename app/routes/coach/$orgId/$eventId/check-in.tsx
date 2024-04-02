@@ -350,6 +350,7 @@ export default function CheckInRoute() {
               method="post"
               schema={CheckInForm(event, eventOrg)}
               fieldProps={checkInFieldProps(event, eventOrg)}
+              buttonLabel="Update Details"
             />
           </Box>
         )}
