@@ -808,6 +808,25 @@ const TeamsContent = () => {
 
         <Divider />
 
+        {event.enableCoachCheckIn && (
+          <>
+            <Card p={4} maxW="md">
+              <Stack spacing={4} alignItems="flex-start">
+                <Heading size="md">Check-in Available</Heading>
+                <Text>Ready to check in your teams? Click the button below to go to the online check-in system.</Text>
+                <ButtonLink
+                  href={`https://new.contestdojo.com/coach/${orgRef.id}/${eventRef.id}/check-in`}
+                  colorScheme="blue"
+                  size="sm"
+                >
+                  Go to Check-in
+                </ButtonLink>
+              </Stack>
+            </Card>
+            <Divider />
+          </>
+        )}
+
         {event.scoreReportsAvailable && (
           <>
             <Card p={4} maxW="md">
