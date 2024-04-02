@@ -21,6 +21,7 @@ export const Checkbox = forwardRef(function Checkbox(
 ) {
   return (
     <input
+      type="checkbox"
       ref={ref}
       {...props}
       className={clsx`h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 ${

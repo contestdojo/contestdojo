@@ -6,8 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { Transaction } from "firebase-admin/firestore";
 import type { User } from "./auth.server";
+
+import { FieldValue, type Transaction } from "firebase-admin/firestore";
 
 import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
@@ -45,12 +46,14 @@ export async function checkIn(
     );
 
     let query = db.eventTeams(eventRef.id).where("number", "!=", "").orderBy("number", "desc");
-    const allTeams = await t.get(query).then((x) => x.docs.map((y) => y.data()));
-    const allTeamsById = mapToObject(allTeams, (x) => [x.id, x]);
-    let nextNumber = allTeams.map((x) => Number(x.number)).find((x) => !isNaN(x)) ?? 0;
+    const allCheckedInTeams = await t.get(query).then((x) => x.docs.map((y) => y.data()));
+    const allCheckedInTeamsById = mapToObject(allCheckedInTeams, (x) => [x.id, x]);
+    let nextNumber = allCheckedInTeams.map((x) => Number(x.number)).find((x) => !isNaN(x)) ?? 0;
     nextNumber++;
 
-    const entries = Object.entries(teams).filter(([id]) => !(id in allTeamsById));
+    const entries = Object.entries(teams).filter(
+      ([id]) => !(id in allCheckedInTeamsById) || teams[id] === "__undo__"
+    );
     const allStudents = await Promise.all(
       entries.map(([id]) =>
         t.get(db.eventStudents(eventRef.id).where("team", "==", db.eventTeam(eventRef.id, id)))
@@ -69,6 +72,24 @@ export async function checkIn(
 
     for (let { id, poolId, students } of zipped) {
       if (poolId === "__skip__" || students.docs.length === 0) continue;
+
+      if (poolId === "__undo__") {
+        const team = allCheckedInTeamsById[id];
+        if (!team) throw new Error("Team not found.");
+        t.update(db.eventTeam(eventRef.id, id), {
+          number: FieldValue.delete(),
+          checkInPool: FieldValue.delete(),
+        });
+        for (const student of students.docs) {
+          t.update(student.ref, {
+            number: FieldValue.delete(),
+            checkInPool: FieldValue.delete(),
+          });
+        }
+        const pool = pools.find((x) => x.id === team.checkInPool);
+        if (pool) pool.numStudents -= students.docs.length;
+        continue;
+      }
 
       if (poolId === "__auto__") {
         // Choose either the pool with the most capacity left, or one that matches exactly
@@ -164,7 +185,7 @@ export async function checkIn(
               ? `[${x.number}] ${x.name} — ${x.checkInPool}`
               : `${x.name} — Not Checked In`
           )
-          .join("\n");
+          .join("<br>");
 
         const studentsText = students.docs
           .map((x) => x.data())
@@ -173,7 +194,7 @@ export async function checkIn(
               ? `[${x.number}] ${x.fname} ${x.lname} — ${x.checkInPool}`
               : `${x.fname} ${x.lname} — Not Checked In`
           )
-          .join("\n");
+          .join("<br>");
 
         await sendgrid.send({
           to: org.data()?.adminData.email,
@@ -182,7 +203,7 @@ export async function checkIn(
           dynamicTemplateData: {
             event: event.name,
             org: orgData.name,
-            text: "Teams:\n\n" + teamsText + "\n\nStudents:\n\n" + studentsText,
+            text: "Teams:<br><br>" + teamsText + "<br><br>Students:<br><br>" + studentsText,
           },
         });
       })

@@ -23,7 +23,7 @@ import { validationError } from "remix-validated-form";
 import { z } from "zod";
 
 import { TeamsGrid } from "~/components/check-in";
-import { Alert, AlertStatus, Button, Select } from "~/components/ui";
+import { Alert, AlertStatus, Button, Checkbox, Label, Select } from "~/components/ui";
 import { requireUserType } from "~/lib/auth.server";
 import { checkIn } from "~/lib/check-in.server";
 import { db } from "~/lib/db.server";
@@ -140,7 +140,10 @@ export default function OrgsRoute() {
         <TeamsGrid {...selectedOrg}>
           {(team, _, allReady) =>
             team.checkInPool ? (
-              <p className="text-center text-sm">Already checked in</p>
+              <div className="relative flex items-center justify-center gap-2">
+                <Checkbox name={team.id} id={team.id} form="check-in" value="__undo__" />
+                <Label htmlFor={team.id}>Undo Check-in</Label>
+              </div>
             ) : (
               <Select
                 name={team.id}
