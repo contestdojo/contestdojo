@@ -14,6 +14,10 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
+const addId = (snap) => snap.ref.update({ _id: snap.ref.id });
+exports.updateDocumentId1 = functions.firestore.document("/{collectionId}/{documentId}").onCreate(addId);
+exports.updateDocumentId2 = functions.firestore.document("/{colId1}/{docId1}/{colId2}/{docId2}").onCreate(addId);
+
 const requireAuth = (accType, func) => async (args, context) => {
   if (!context.auth)
     throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
