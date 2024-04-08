@@ -540,6 +540,7 @@ const Event = () => {
         allowEditEmail={false}
         {...formState}
         defaultValues={student}
+        buttonText="Save Changes"
       />
       <Button colorScheme="red" variant="link" onClick={handleUnregister}>
         Unregister

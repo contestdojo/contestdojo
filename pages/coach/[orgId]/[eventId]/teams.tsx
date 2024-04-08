@@ -893,6 +893,7 @@ const TeamsContent = () => {
                 onSubmit={handleEditRegistration}
                 customFields={event.customOrgFields}
                 defaultValues={eventOrg}
+                buttonText="Save Changes"
                 {...formState}
               />
             </Box>
