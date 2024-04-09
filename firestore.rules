@@ -79,11 +79,11 @@ service cloud.firestore {
 
       match /orgs/{orgId} {
         allow read: if request.auth != null;
-        allow write: if isEventAdmin() || notFrozenAnd(isOrgAdminOf(orgRef(orgId)));
+        allow write: if isEventAdmin();
 
         match /invites/{email} {
           allow read: if isEventAdmin() || isOrgAdminOf(orgRef(orgId)) || request.auth.email == email;
-          allow write: if isEventAdmin() || notFrozenAnd(isOrgAdminOf(orgRef(orgId)));
+          allow write: if isEventAdmin();
         }
       }
 
