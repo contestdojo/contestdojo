@@ -104,13 +104,18 @@ service cloud.firestore {
       match /students/{studentId} {
         allow read: if true;
         allow create: if isEventAdmin() || notFrozenAnd(isOrgAdminOf(request.resource.data.get("org", null)) || userRef() == request.resource.data.user);
-        allow update, delete: if isEventAdmin() || (
+        allow update: if isEventAdmin() || (
           (isOrgAdminOf(resource.data.get("org", null)) || userRef() == resource.data.user)
           && notFrozenOr(resource.data.get("team", null) == request.resource.data.get("team", null))
           && (resource.data.get("checkInPool", null) == null || resource.data.get("checkInPool", null) == "")
           && (request.resource.data.get("org", null) == null || request.resource.data.get("team", null) == null
                 || get(request.resource.data.team).data.get("checkInPool", null) == null
                 || get(request.resource.data.team).data.get("checkInPool", null) == "")
+        );
+        allow delete: if isEventAdmin() || (
+          (isOrgAdminOf(resource.data.get("org", null)) || userRef() == resource.data.user)
+          && notFrozenOr(true)
+          && (resource.data.get("checkInPool", null) == null || resource.data.get("checkInPool", null) == "")
         );
       }
 
