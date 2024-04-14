@@ -113,6 +113,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const eventSnap = await db.event(params.eventId).get();
   const event = eventSnap.data();
   if (!event) throw new Response("Event not found.", { status: 404 });
+  if (!event.enableCoachCheckIn)
+    throw new Response("Online check-in is not enabled for this event.", { status: 400 });
 
   // Fetch org
   const orgSnap = await db.org(params.orgId).get();
