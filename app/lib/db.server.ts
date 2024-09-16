@@ -109,6 +109,8 @@ const Event = zfb.firestoreObject(
       .optional(),
     checkInWebhookUrl: z.string().optional(),
     addOns: z.array(EventAddOn).optional(),
+    maxStudents: z.number().optional(),
+    maxStudentsPerOrg: z.number().optional(),
   })
 );
 

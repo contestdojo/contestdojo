@@ -39,6 +39,8 @@ const EventDetailsForm = z.object({
   purchaseSeatsEnabled: zfd.checkbox(),
   purchaseSeats: zfd.text(z.string().optional()),
   studentRegistrationEnabled: zfd.checkbox(),
+  maxStudents: zfd.numeric(z.number().optional()),
+  maxStudentsPerOrg: zfd.numeric(z.number().optional()),
   _tz: zfd.text(),
 });
 
@@ -243,6 +245,12 @@ export default function SettingsRoute() {
             hide: { label: "Hidden to Public?" },
             purchaseSeats: { label: "Custom Seats Purchase URL" },
             studentRegistrationEnabled: { label: "Student Registration Enabled?" },
+            maxStudents: {
+              help: "Deny registration after this many seats have been purchased (DOESN'T WORK WITH STUDENT REGISTRATION)",
+            },
+            maxStudentsPerOrg: {
+              help: "Deny registration many seats have been purchased for an org (DOESN'T WORK WITH STUDENT REGISTRATION)",
+            },
             _tz: { hide: true },
           }}
         >
