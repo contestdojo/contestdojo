@@ -290,7 +290,6 @@ const Teams = ({
   onDeleteTeam,
   studentsByTeam,
   costPerStudent,
-  costAdjustments,
   onEditStudent,
   onDeleteStudent,
   maxStudents,
@@ -300,16 +299,6 @@ const Teams = ({
   const { data: event } = useEvent();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
-
-  let effectiveCostPerStudent = useMemo(() => {
-    let value = costPerStudent;
-    for (const adjustment of costAdjustments ?? []) {
-      if (testRule(adjustment.rule, eventOrg)) {
-        value += adjustment.adjustment;
-      }
-    }
-    return value;
-  }, [eventOrg, costPerStudent, costAdjustments]);
 
   const handleAddTeam = wrapAction(async (values) => {
     await onAddTeam(values);
@@ -331,13 +320,13 @@ const Teams = ({
         <>
           <p>
             Click the &ldquo;Add Team&rdquo; button to create a new team.
-            {effectiveCostPerStudent > 0 && (
+            {costPerStudent > 0 && (
               <>
                 {" "}
                 Before you can add students to teams, you must purchase seats.{" "}
                 {event.purchaseSeatsEnabled && !event.purchaseSeats && (
                   <>
-                    Each seat currently costs <b>${effectiveCostPerStudent} USD</b>.{" "}
+                    Each seat currently costs <b>${costPerStudent} USD</b>.{" "}
                   </>
                 )}
                 You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> remaining. Seats
@@ -360,7 +349,7 @@ const Teams = ({
               onUpdate={(update) => onUpdateTeam(x.id, update)}
               onDelete={() => onDeleteTeam(x.id)}
               students={studentsByTeam[x.id] ?? []}
-              needSeats={effectiveCostPerStudent > 0 && seatsRemaining <= 0}
+              needSeats={costPerStudent > 0 && seatsRemaining <= 0}
               waiver={waiver}
             />
           ))}
@@ -381,7 +370,7 @@ const Teams = ({
               </Box>
             </Tooltip>
           ))}
-        {effectiveCostPerStudent > 0 && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
+        {costPerStudent > 0 && stripeAccount && <PurchaseSeats stripeAccount={stripeAccount} event={event} />}
       </ButtonGroup>
       <AddTeamModal
         initial
@@ -689,6 +678,16 @@ const TeamsContent = () => {
     }
   }, [event, eventOrg]);
 
+  let effectiveCostPerStudent = useMemo(() => {
+    let value = event.costPerStudent;
+    for (const adjustment of event.costAdjustments ?? []) {
+      if (testRule(adjustment.rule, eventOrg)) {
+        value += adjustment.adjustment;
+      }
+    }
+    return Math.max(value, 0);
+  }, [eventOrg, event]);
+
   if (!eventOrg) {
     return null;
   }
@@ -785,7 +784,7 @@ const TeamsContent = () => {
 
   const handleDragEnd = ({ active, over }) => {
     if (!over) return;
-    if (!studentsById[active.id].team && event.costPerStudent && seatsRemaining <= 0) return;
+    if (!studentsById[active.id].team && effectiveCostPerStudent > 0 && seatsRemaining <= 0) return;
     if (
       over.id !== "unassigned" &&
       event.studentsPerTeam &&
@@ -850,8 +849,7 @@ const TeamsContent = () => {
           onAddTeam={handleAddTeam}
           onUpdateTeam={handleUpdateTeam}
           onDeleteTeam={handleDeleteTeam}
-          costPerStudent={event.costPerStudent}
-          costAdjustments={event.costAdjustments}
+          costPerStudent={effectiveCostPerStudent}
           maxStudents={eventOrg?.maxStudents ?? 0}
           seatsRemaining={seatsRemaining}
           stripeAccount={entity.stripeAccountId}
