@@ -45,7 +45,7 @@ const handler = withFirebaseAuth(async (req, res) => {
 
   // Calculate number of students
 
-  if (!addon && eventData.maxStudents) {
+  if (!addon && eventData.maxStudents != undefined) {
     const eventOrgs = await eventRef.collection("orgs").get();
     const numStudents = eventOrgs.docs.reduce((acc, cur) => acc + (cur.data().maxStudents ?? 0), 0);
     const remainingSeats = eventData.maxStudents - numStudents;
@@ -65,6 +65,19 @@ const handler = withFirebaseAuth(async (req, res) => {
     if (testRule(adjustment.rule, eventOrgData)) {
       effectiveCostPerStudent += adjustment.adjustment;
     }
+  }
+
+  // Calculate number of students per org
+
+  if (!addon && eventData.maxStudentsPerOrg != undefined) {
+    const remainingSeats = eventData.maxStudentsPerOrg - (eventOrgData.maxStudents ?? 0);
+    if (number > remainingSeats)
+      return res
+        .status(400)
+        .end(
+          `This event currently allows up to ${eventData.maxStudentsPerOrg} seats per organization. ` +
+            `Your organization can only purchase a maximum of ${remainingSeats} additional seats. `
+        );
   }
 
   // Do payment
