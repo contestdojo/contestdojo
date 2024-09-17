@@ -104,9 +104,13 @@ const handler = withFirebaseAuth(async (req, res) => {
       metadata,
       line_items: [
         {
-          name: addon ? `${addon.name} for ${eventData.name}` : `Student Seat for ${eventData.name}`,
-          currency: "usd",
-          amount,
+          price_data: {
+            unit_amount: amount,
+            currency: "usd",
+            product_data: {
+              name: addon ? `${addon.name} for ${eventData.name}` : `Student Seat for ${eventData.name}`,
+            },
+          },
           quantity: number,
         },
       ],

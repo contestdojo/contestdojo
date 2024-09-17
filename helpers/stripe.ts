@@ -6,10 +6,10 @@
 
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2020-08-27" });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2024-06-20" });
 
 export const getStripe = (stripeAccount: string) => {
-  return new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2020-08-27", stripeAccount });
+  return new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2024-06-20", stripeAccount });
 };
 
 export default stripe;
