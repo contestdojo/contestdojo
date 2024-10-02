@@ -106,7 +106,7 @@ const initialState: Partial<TableState> = {
 };
 
 function idOrName(prefix: string, id: string, name: string) {
-  return name.length <= 20 ? `${prefix}${name}` : `${prefix}{id}`;
+  return name.length <= 20 ? `${prefix}${name}` : `${prefix}${id}`;
 }
 
 export default function OrgsRoute() {
