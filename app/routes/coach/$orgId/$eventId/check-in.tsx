@@ -150,6 +150,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return { success: false, error: "Incomplete check-in form. See Step 1." };
 
     const teamsSnap = await db.eventTeams(params.eventId).where("org", "==", orgSnap.ref).get();
+    const teamNumbers = teamsSnap.docs.map((x) => x.data().number);
     const teams = mapToObject(teamsSnap.docs, (x) => [x.id, "__auto__"]);
 
     try {
@@ -157,6 +158,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
     } catch (_e) {
       let e = _e as Error;
       return json({ success: false, error: e.message });
+    }
+
+    if (event.checkInWebhookUrl && teamNumbers.length > 0) {
+      const numbers = teamNumbers.join(", ");
+      await fetch(event.checkInWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          embeds: [
+            {
+              author: { name: user.displayName },
+              title: "Checked In Teams",
+              fields: [{ name: org.name, value: numbers }],
+              color: 0xf40808,
+            },
+          ],
+        }),
+      });
     }
 
     return { success: true, error: null };
