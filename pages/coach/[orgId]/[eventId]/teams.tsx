@@ -147,7 +147,6 @@ const TeamCard = ({ event, team, students, onUpdate, onDelete, onEditStudent, ne
     >
       <HStack px={2}>
         {team.number && <Text color="gray.500">{team.number}</Text>}
-        {team.checkInPool && <Text color="gray.500">{team.checkInPool}</Text>}
         <Heading as="h4" size="md" position="relative" flex="1">
           {team.name}
         </Heading>

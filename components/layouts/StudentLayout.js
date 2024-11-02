@@ -10,7 +10,6 @@ import { useRouter } from "next/router";
 import { HiPlus } from "react-icons/hi";
 import { useFirestore, useFirestoreCollection, useFirestoreCollectionData } from "reactfire";
 
-
 import AuthWrapper from "~/components/AuthWrapper";
 import { useUserRef } from "~/helpers/utils";
 
@@ -31,7 +30,13 @@ const EventLink = ({ event, students, activeStyle }) => {
             </Tag>
           )}
         </HStack>
-        {teamData?.checkInPool && <Text color="gray.500">{teamData?.checkInPool}</Text>}
+        {teamData?.roomAssignments && (
+          <Text color="gray.500">
+            {Object.entries(teamData?.roomAssignments ?? {})
+              .map(([k, v]) => `${k}: ${v}`)
+              .join(" / ")}
+          </Text>
+        )}
       </Link>
     </NextLink>
   );

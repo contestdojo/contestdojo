@@ -93,11 +93,11 @@ service cloud.firestore {
         allow update: if isEventAdmin() || notFrozenAnd(
           isOrgAdminOf(resource.data.get("org", null))
           && isOrgAdminOf(request.resource.data.get("org", null))
-          && !("checkInPool" in resource.data && resource.data.checkInPool != null && resource.data.checkInPool != "")
+          && !("roomAssignments" in resource.data && resource.data.roomAssignments != null && resource.data.roomAssignments != "")
         );
         allow delete: if isEventAdmin() || notFrozenAnd(
           isOrgAdminOf(resource.data.get("org", null))
-          && !("checkInPool" in resource.data && resource.data.checkInPool != null && resource.data.checkInPool != "")
+          && !("roomAssignments" in resource.data && resource.data.roomAssignments != null && resource.data.roomAssignments != "")
         );
       }
 
@@ -107,15 +107,15 @@ service cloud.firestore {
         allow update: if isEventAdmin() || (
           (isOrgAdminOf(resource.data.get("org", null)) || userRef() == resource.data.user)
           && notFrozenOr(resource.data.get("team", null) == request.resource.data.get("team", null))
-          && (resource.data.get("checkInPool", null) == null || resource.data.get("checkInPool", null) == "")
+          && (resource.data.get("roomAssignments", null) == null || resource.data.get("roomAssignments", null) == "")
           && (request.resource.data.get("org", null) == null || request.resource.data.get("team", null) == null
-                || get(request.resource.data.team).data.get("checkInPool", null) == null
-                || get(request.resource.data.team).data.get("checkInPool", null) == "")
+                || get(request.resource.data.team).data.get("roomAssignments", null) == null
+                || get(request.resource.data.team).data.get("roomAssignments", null) == "")
         );
         allow delete: if isEventAdmin() || (
           (isOrgAdminOf(resource.data.get("org", null)) || userRef() == resource.data.user)
           && notFrozenOr(true)
-          && (resource.data.get("checkInPool", null) == null || resource.data.get("checkInPool", null) == "")
+          && (resource.data.get("roomAssignments", null) == null || resource.data.get("roomAssignments", null) == "")
         );
       }
 
