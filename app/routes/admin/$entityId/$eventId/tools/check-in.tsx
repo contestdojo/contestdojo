@@ -76,8 +76,29 @@ const schema = z.record(z.string());
 type ActionData = { success: false; error: string } | { success: true };
 
 export const action: ActionFunction = async ({ request, params }) => {
+  // if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
+  // const usere = await requireUserType(request, "admin");
+
+  // const teams = await db.eventTeams(params.eventId).get();
+  // for (const team of teams.docs) {
+  //   console.log(team.id);
+  //   const data = team.data();
+  //   if (data.number) {
+  //     if (!data.org) {
+  //       console.log("BAD TEAM", data);
+  //       continue;
+  //     }
+  //     await checkIn(usere, params.eventId, data.org.id, { [team.id]: "__auto__" });
+  //   }
+  // }
+  // return;
+  // ORIGINAL CODE
+
+  const orgId = new URL(request.url).searchParams.get("org");
+
   const user = await requireUserType(request, "admin");
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
+  if (!orgId) throw new Response("Org ID must be provided.", { status: 400 });
 
   const formData = await request.formData();
   const validator = withZod(schema);
@@ -85,7 +106,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (result.error) return validationError(result.error);
 
   try {
-    await checkIn(user, params.eventId, result.data, true);
+    await checkIn(user, params.eventId, orgId, result.data, true);
   } catch (_e) {
     let e = _e as Error;
     return json({ success: false, error: e.message });
@@ -139,7 +160,7 @@ export default function OrgsRoute() {
       {selectedOrg && (
         <TeamsGrid {...selectedOrg}>
           {(team, _, allReady) =>
-            team.checkInPool ? (
+            team.roomAssignments ? (
               <div className="relative flex items-center justify-center gap-2">
                 <Checkbox name={team.id} id={team.id} form="check-in" value="__undo__" />
                 <Label htmlFor={team.id}>Undo Check-in</Label>
@@ -150,13 +171,13 @@ export default function OrgsRoute() {
                 form="check-in"
                 defaultValue={allReady ? "__auto__" : "__skip__"}
               >
-                <option value="__auto__">Check In: Automatically Assign Pool</option>
+                <option value="__auto__">Check In &amp; Automatically Assign Rooms</option>
                 <option value="__skip__">Do Not Check In</option>
-                {event.checkInPools?.map((x) => (
+                {/* {event.checkInPools?.map((x) => (
                   <option key={x.id} value={x.id}>
                     Check In: {x.id}
                   </option>
-                ))}
+                ))} */}
               </Select>
             )
           }

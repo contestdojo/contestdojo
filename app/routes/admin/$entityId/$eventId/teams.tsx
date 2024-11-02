@@ -112,6 +112,13 @@ export default function TeamsRoute() {
   const actionData = useActionData<ActionData>();
   const orgsById = reduceToMap(orgs);
 
+  const roomAssignmentColumns = event.roomAssignments?.map((thing) =>
+    columnHelper.accessor((x) => x.roomAssignments?.[thing.id], {
+      id: `roomAssignments.${thing.id}`,
+      header: `[Room] ${thing.id}`,
+    })
+  );
+
   const customColumns = event.customTeamFields?.map((field) =>
     columnHelper.accessor((x) => x.customFields?.[field.id], {
       id: `customFields.${field.id}`,
@@ -146,6 +153,7 @@ export default function TeamsRoute() {
         ) : null;
       },
     }),
+    ...(roomAssignmentColumns ?? []),
     ...(customColumns ?? []),
   ];
 

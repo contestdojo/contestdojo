@@ -140,6 +140,21 @@ const CheckInForm = z.object({
     .optional(),
 });
 
+const RoomAssignmentsForm = z.object({
+  roomAssignments: z.array(
+    z.object({
+      id: zfd.text(),
+      rooms: z.array(
+        z.object({
+          id: zfd.text(),
+          maxStudents: zfd.numeric(),
+          preferTeamSize: z.array(zfd.numeric(z.number().optional())).optional(),
+        })
+      ),
+    })
+  ),
+});
+
 const AddOnsForm = z.object({
   addOns: zfd.repeatableOfType(
     z.object({
@@ -173,6 +188,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     ...setFormDefaults("Waiver", event),
     ...setFormDefaults("CheckIn", event),
     ...setFormDefaults("AddOns", event),
+    ...setFormDefaults("RoomAssignments", event),
   });
 };
 
@@ -199,6 +215,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (formData.get("_form") === "Waiver") validator = withZod(WaiverForm(event));
   if (formData.get("_form") === "CheckIn") validator = withZod(CheckInForm);
   if (formData.get("_form") === "AddOns") validator = withZod(AddOnsForm);
+  if (formData.get("_form") === "RoomAssignments") validator = withZod(RoomAssignmentsForm);
 
   if (validator) {
     const result = await validator.validate(formData);
@@ -361,6 +378,26 @@ export default function SettingsRoute() {
             checkInInstructions: { multiline: true },
             checkInFields: { label: "Check In Fields", ...customFieldsFieldProps },
             checkInPools: { label: "Check In Pools", elementClassName: "md:flex-row" },
+          }}
+        />
+      </Section>
+
+      <Section title="Room Assignments" className="col-span-2">
+        <SchemaForm
+          id="RoomAssignments"
+          method="post"
+          schema={RoomAssignmentsForm}
+          buttonLabel="Save"
+          fieldProps={{
+            roomAssignments: {
+              element: {
+                __label: "Section",
+                rooms: {
+                  label: "Rooms",
+                  elementClassName: "md:flex-row",
+                },
+              },
+            },
           }}
         />
       </Section>

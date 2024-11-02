@@ -78,6 +78,17 @@ const EventAddOn = z.object({
   enabled: z.boolean(),
 });
 
+const EventRoomAssignmentSection = z.object({
+  id: z.string(),
+  rooms: z.array(
+    z.object({
+      id: z.string(),
+      maxStudents: z.number(),
+      preferTeamSize: z.array(z.number()).optional(),
+    })
+  ),
+});
+
 const Event = zfb.firestoreObject(
   z.object({
     id: z.string(),
@@ -107,6 +118,7 @@ const Event = zfb.firestoreObject(
     checkInPools: z
       .array(z.object({ id: z.string(), maxStudents: z.number().optional() }))
       .optional(),
+    roomAssignments: z.array(EventRoomAssignmentSection).optional(),
     checkInWebhookUrl: z.string().optional(),
     addOns: z.array(EventAddOn).optional(),
     maxStudents: z.number().optional(),
@@ -141,6 +153,7 @@ const EventStudent = zfb.firestoreObject(
     notes: z.string().optional(),
     customFields: z.record(z.string().nullable()).optional(),
     checkInPool: z.string().optional(),
+    roomAssignments: z.record(z.string()).optional(),
   })
 );
 
@@ -155,6 +168,7 @@ const EventTeam = zfb.firestoreObject(
     customFields: z.record(z.string().nullable()).optional(),
     code: z.string().optional(),
     checkInPool: z.string().optional(),
+    roomAssignments: z.record(z.string()).optional(),
   })
 );
 

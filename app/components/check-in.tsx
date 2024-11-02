@@ -26,7 +26,7 @@ function Team({ team, students, children }: TeamProps) {
   return (
     <Box
       className={clsx`flex flex-col gap-4 p-4 ${
-        !team.checkInPool &&
+        !team.roomAssignments &&
         students.length > 0 &&
         (allReady
           ? "border-transparent ring-2 ring-green-500"
@@ -62,6 +62,18 @@ function Team({ team, students, children }: TeamProps) {
       </div>
 
       {children?.(team, students, allReady)}
+
+      {team.roomAssignments && (
+        <div className="flex flex-col gap-2">
+          <h3 className="font-medium">Room Assignments</h3>
+
+          {Object.entries(team.roomAssignments).map(([k, v]) => (
+            <p className="text-sm text-gray-500">
+              <span className="font-semibold">{k}:</span> {v}
+            </p>
+          ))}
+        </div>
+      )}
     </Box>
   );
 }

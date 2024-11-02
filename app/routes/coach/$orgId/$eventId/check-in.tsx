@@ -153,7 +153,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const teams = mapToObject(teamsSnap.docs, (x) => [x.id, "__auto__"]);
 
     try {
-      await checkIn(user, params.eventId, teams, false);
+      await checkIn(user, params.eventId, params.orgId, teams, false);
     } catch (_e) {
       let e = _e as Error;
       return json({ success: false, error: e.message });
@@ -320,10 +320,10 @@ export default function CheckInRoute() {
   const { event, eventOrg, teams, students } = useLoaderData<typeof loader>();
   const teamsUrl = new URL("teams", new URL(useLocation().pathname, "https://contestdojo.com/"));
 
-  if (teams.some((x) => x.checkInPool)) {
+  if (teams.some((x) => x.number)) {
     return (
       <div className="flex flex-col gap-4">
-        {teams.some((x) => !x.checkInPool) ? (
+        {teams.some((x) => !x.number) ? (
           <Alert status={AlertStatus.Warning} title="Partially Checked In" className="p-4">
             Some teams have not been checked in yet. This likely means you added additional teams
             after checking in. Please contact the tournament for guidance.
@@ -338,7 +338,7 @@ export default function CheckInRoute() {
         <div className="grid grid-cols-1 gap-4 transition-opacity md:grid-cols-2 lg:grid-cols-3">
           <TeamsGrid teams={teams} students={students}>
             {(team) =>
-              !team.checkInPool ? (
+              !team.number ? (
                 <p className="text-center text-sm font-medium text-red-500">Not checked in</p>
               ) : null
             }

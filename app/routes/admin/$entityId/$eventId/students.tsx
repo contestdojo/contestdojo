@@ -231,11 +231,19 @@ function StudentUpdateModal({ student, open, setOpen }: StudentUpdateModalProps)
     </Modal>
   );
 }
+
 export default function StudentsRoute() {
   const { event, students, orgs, teams } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
   const orgsById = reduceToMap(orgs);
   const teamsById = reduceToMap(teams);
+
+  const roomAssignmentColumns = event.roomAssignments?.map((thing) =>
+    columnHelper.accessor((x) => x.roomAssignments?.[thing.id], {
+      id: `roomAssignments.${thing.id}`,
+      header: `[Room] ${thing.id}`,
+    })
+  );
 
   const customColumns = event.customFields?.map((field) =>
     columnHelper.accessor((x) => x.customFields?.[field.id], {
@@ -281,6 +289,7 @@ export default function StudentsRoute() {
         ) : null;
       },
     }),
+    ...(roomAssignmentColumns ?? []),
     ...(customColumns ?? []),
     columnHelper.display({
       id: "update",
