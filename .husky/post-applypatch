@@ -1,0 +1,6 @@
+#!/bin/sh
+## START BRANCHLESS CONFIG
+
+git branchless hook post-applypatch "$@"
+
+## END BRANCHLESS CONFIG
