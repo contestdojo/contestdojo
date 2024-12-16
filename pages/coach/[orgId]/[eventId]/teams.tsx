@@ -154,7 +154,7 @@ const TeamCard = ({ event, team, students, onUpdate, onDelete, onEditStudent, ne
         <Menu>
           <MenuButton as={IconButton} icon={<HiDotsHorizontal />} variant="ghost" rounded="full" mr={-2}></MenuButton>
           <MenuList>
-            <MenuItem icon={<HiTrash />} onClick={onOpen}>
+            <MenuItem icon={<HiPencil />} onClick={onOpen}>
               Edit
             </MenuItem>
             <MenuItem icon={<HiTrash />} color="red.500" onClick={onDelete}>
