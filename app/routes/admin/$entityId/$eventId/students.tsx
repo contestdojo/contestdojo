@@ -40,7 +40,7 @@ import { SchemaForm } from "~/components/schema-form";
 import { Dropdown, IconButton, Modal } from "~/components/ui";
 import { db } from "~/lib/db.server";
 import { isNotEmpty } from "~/lib/utils/array-utils";
-import { reduceToMap } from "~/lib/utils/misc";
+import { reduceToMap, useSumColumn } from "~/lib/utils/misc";
 import { UnifiedDocumentReference } from "~/lib/zfb";
 
 const StudentUpdateForm = (eventId: Event["id"], customFields: Event["customFields"]) => {
@@ -255,7 +255,11 @@ export default function StudentsRoute() {
   const columns = [
     columnHelper.accessor("id", { header: "ID" }),
     columnHelper.accessor("number", { header: "Number" }),
-    columnHelper.accessor((x) => `${x.fname} ${x.lname}`, { id: "name", header: "Name" }),
+    columnHelper.accessor((x) => `${x.fname} ${x.lname}`, {
+      id: "name",
+      header: "Name",
+      footer: useSumColumn(students, () => 1).toString(),
+    }),
     columnHelper.accessor("email", { header: "Email" }),
     columnHelper.accessor("grade", { header: "Grade" }),
     columnHelper.accessor((x) => x.org?.id, {
@@ -266,6 +270,7 @@ export default function StudentsRoute() {
         const org = id ? orgsById.get(id) : undefined;
         return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue();
       },
+      footer: useSumColumn(students, (x) => (x.org ? 1 : 0)).toString(),
     }),
     columnHelper.accessor((x) => x.team?.id, {
       id: "team_id",
@@ -275,6 +280,7 @@ export default function StudentsRoute() {
         const team = id ? teamsById.get(id) : undefined;
         return team ? <EventTeamReferenceEmbed team={team} /> : id;
       },
+      footer: useSumColumn(students, (x) => (x.team ? 1 : 0)).toString(),
     }),
     columnHelper.accessor("checkInPool", { header: "Check-in Pool" }),
     columnHelper.accessor("notes", { header: "Notes" }),
@@ -288,6 +294,7 @@ export default function StudentsRoute() {
           </IconButton>
         ) : null;
       },
+      footer: useSumColumn(students, (x) => (x.waiver ? 1 : 0)).toString(),
     }),
     ...(roomAssignmentColumns ?? []),
     ...(customColumns ?? []),

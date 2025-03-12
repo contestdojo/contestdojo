@@ -20,7 +20,7 @@ import { useMemo } from "react";
 import { CSVLink } from "react-csv";
 import { ClientOnly } from "remix-utils/client-only";
 
-import { Button, Dropdown, Table, Tbody, Td, Th, Thead, Tr } from "~/components/ui";
+import { Button, Dropdown, Table, Tbody, Td, Th, Thead, Tfoot, Tr } from "~/components/ui";
 
 type TableProps<T extends RowData> = PropsWithChildren<{
   filename: string;
@@ -119,6 +119,22 @@ function Body<T extends RowData>({ table }: TableProps<T>) {
   );
 }
 
+function Footers<T extends RowData>({ table }: TableProps<T>) {
+  return (
+    <Tfoot>
+      {table.getFooterGroups().map((group) => (
+        <Tr key={group.id}>
+          {group.headers.map((x) => (
+            <Th key={x.id} colSpan={x.colSpan} scope="col">
+              <div className="flex">{flexRender(x.column.columnDef.footer, x.getContext())}</div>
+            </Th>
+          ))}
+        </Tr>
+      ))}
+    </Tfoot>
+  );
+}
+
 type DataTableProps<T extends RowData> = PropsWithChildren<{
   filename: string;
   data: T[];
@@ -149,6 +165,7 @@ export function DataTable<T extends RowData>({
         <Table>
           <Headers filename={filename} table={table} />
           <Body filename={filename} table={table} />
+          <Footers filename={filename} table={table} />
         </Table>
       </div>
     </div>

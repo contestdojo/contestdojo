@@ -28,7 +28,7 @@ import {
 } from "~/components/reference-embed";
 import { Dropdown, IconButton } from "~/components/ui";
 import { db } from "~/lib/db.server";
-import { reduceToMap } from "~/lib/utils/misc";
+import { reduceToMap, useSumColumn } from "~/lib/utils/misc";
 
 type LoaderData = {
   event: Event;
@@ -129,7 +129,10 @@ export default function TeamsRoute() {
   const columns = [
     columnHelper.accessor("id", { header: "ID" }),
     columnHelper.accessor("number", { header: "Number" }),
-    columnHelper.accessor("name", { header: "Name" }),
+    columnHelper.accessor("name", {
+      header: "Name",
+      footer: useSumColumn(teams, () => 1).toString(),
+    }),
     columnHelper.accessor((x) => x.org?.id, {
       id: "org_id",
       header: "Organization",
@@ -152,6 +155,7 @@ export default function TeamsRoute() {
           </IconButton>
         ) : null;
       },
+      footer: useSumColumn(teams, (x) => (x.scoreReport ? 1 : 0)).toString(),
     }),
     ...(roomAssignmentColumns ?? []),
     ...(customColumns ?? []),

@@ -24,7 +24,7 @@ import { DataTable } from "~/components/data-table";
 import { EventOrganizationReferenceEmbed } from "~/components/reference-embed";
 import { Dropdown } from "~/components/ui";
 import { db } from "~/lib/db.server";
-import { reduceToMap } from "~/lib/utils/misc";
+import { reduceToMap, useSumColumn } from "~/lib/utils/misc";
 
 type LoaderData = {
   event: Event;
@@ -80,24 +80,6 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 const columnHelper = createColumnHelper<Organization & EventOrganization>();
 
-const columns = [
-  columnHelper.accessor("id", { header: "ID" }),
-  columnHelper.accessor("name", { header: "Name" }),
-  columnHelper.accessor((x) => `${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`, {
-    id: "address",
-    header: "Address",
-  }),
-  columnHelper.accessor("admin.id", { header: "Contact ID" }),
-  columnHelper.accessor((x) => `${x.adminData.fname} ${x.adminData.lname}`, {
-    id: "admin_name",
-    header: "Contact Name",
-  }),
-  columnHelper.accessor("adminData.email", { id: "admin_email", header: "Contact Email" }),
-  columnHelper.accessor("maxStudents", { header: "Seats Purchased" }),
-  columnHelper.accessor("code", { header: "Join Code" }),
-  columnHelper.accessor("notes", { header: "Notes" }),
-];
-
 const initialState: Partial<TableState> = {
   columnVisibility: {
     address: false,
@@ -115,10 +97,35 @@ export default function OrgsRoute() {
 
   const orgsById = reduceToMap(orgs);
 
+  const columns = [
+    columnHelper.accessor("id", { header: "ID" }),
+    columnHelper.accessor("name", {
+      header: "Name",
+      footer: useSumColumn(orgs, () => 1).toString(),
+    }),
+    columnHelper.accessor((x) => `${x.address}, ${x.city}, ${x.state}, ${x.country} ${x.zip}`, {
+      id: "address",
+      header: "Address",
+    }),
+    columnHelper.accessor("admin.id", { header: "Contact ID" }),
+    columnHelper.accessor((x) => `${x.adminData.fname} ${x.adminData.lname}`, {
+      id: "admin_name",
+      header: "Contact Name",
+    }),
+    columnHelper.accessor("adminData.email", { id: "admin_email", header: "Contact Email" }),
+    columnHelper.accessor("maxStudents", {
+      header: "Seats Purchased",
+      footer: useSumColumn(orgs, (x) => x.maxStudents).toString(),
+    }),
+    columnHelper.accessor("code", { header: "Join Code" }),
+    columnHelper.accessor("notes", { header: "Notes" }),
+  ];
+
   const addOnColumns = event.addOns?.map((addOn) =>
     columnHelper.accessor((x) => x.addOns?.[addOn.id], {
       id: `addOns.${addOn.id}`,
       header: idOrName("[Add-on] ", addOn.id, addOn.name),
+      footer: useSumColumn(orgs, (x) => x.addOns?.[addOn.id]).toString(),
     })
   );
 

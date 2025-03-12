@@ -20,6 +20,10 @@ export function Tbody({ className, ...props }: JSX.IntrinsicElements["tbody"]) {
   return <tbody className={clsx`divide-y divide-gray-200 bg-white ${className}`} {...props} />;
 }
 
+export function Tfoot({ className, ...props }: JSX.IntrinsicElements["thead"]) {
+  return <thead className={clsx`divide-y divide-gray-200 bg-gray-50 ${className}`} {...props} />;
+}
+
 export function Tr({ className, ...props }: JSX.IntrinsicElements["tr"]) {
   return <tr className={clsx`divide-x divide-gray-200 ${className}`} {...props} />;
 }
