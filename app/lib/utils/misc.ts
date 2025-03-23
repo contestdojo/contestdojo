@@ -23,5 +23,5 @@ export function useSumColumn<Data>(
   data: Data[],
   accessor: (x: Data) => number | undefined
 ): number {
-  return useMemo(() => data.map((x) => accessor(x) ?? 0).reduce((a, b) => a + b), [data]);
+  return useMemo(() => data.map((x) => accessor(x) ?? 0).reduce((a, b) => a + b, 0), [data]);
 }
