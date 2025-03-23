@@ -10,7 +10,7 @@ import type { FetcherWithComponents } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
 import type { FormProps } from "remix-validated-form";
 import type { z, ZodObject, ZodRawShape } from "zod";
-import type { FieldProps } from "./from-zod";
+import type { FieldProps, Overrides } from "./from-zod";
 
 import { withZod } from "@remix-validated-form/with-zod";
 import clsx from "clsx";
@@ -43,10 +43,11 @@ type SchemaFormOwnProps<S extends ZodRawShape, T extends ZodObject<S>> = {
   buttonLabel?: string;
   showButton?: boolean;
   fieldProps?: FieldProps<T>;
+  overrides?: Overrides<T>;
 };
 
 type SchemaFormProps<S extends ZodRawShape, T extends ZodObject<S>> = SchemaFormOwnProps<S, T> &
-  Omit<FormProps<z.infer<T>>, "validator">;
+  Omit<FormProps<z.infer<T>, undefined>, "validator">;
 
 export function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
   fetcher,
@@ -55,6 +56,7 @@ export function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
   buttonLabel,
   showButton = true,
   fieldProps,
+  overrides,
   className,
   children,
   ...props
@@ -70,7 +72,7 @@ export function SchemaForm<S extends ZodRawShape, T extends ZodObject<S>>({
       {...props}
     >
       <div className="flex flex-col gap-5">
-        <FromZodObject fieldProps={fieldProps} type={schema} />
+        <FromZodObject fieldProps={fieldProps} overrides={overrides} type={schema} />
         <input type="hidden" name="_form" value={id} />
         {children}
       </div>

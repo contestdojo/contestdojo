@@ -55,6 +55,7 @@
     "@types/uuid": "^8.3.4",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^8.10.0",
+    "eslint-plugin-import": "^2.31.0",
     "git-format-staged": "^3.1.1",
     "husky": "^8.0.3",
     "lint-staged": "^13.3.0",

@@ -8,7 +8,7 @@
 
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { ZodArray, ZodTypeAny } from "zod";
-import type { FieldProps, FromZodProps } from "./from-zod";
+import type { FieldProps, FromZodProps, Overrides } from "./from-zod";
 
 import {
   closestCenter,
@@ -77,9 +77,14 @@ export type ArrayFieldProps<T extends ZodArray<ZodTypeAny>> = {
   element?: FieldProps<T["element"]>;
 };
 
+export type ArrayOverrides<T extends ZodArray<ZodTypeAny>> = {
+  element?: Overrides<T["element"]>;
+};
+
 export function FromZodArray<T extends ZodArray<ZodTypeAny>>({
   name,
   fieldProps,
+  overrides,
   type,
 }: FromZodProps<T>) {
   const [items, { push, move, remove }, error] = useFieldArray(name);
@@ -116,6 +121,7 @@ export function FromZodArray<T extends ZodArray<ZodTypeAny>>({
             name={`${name}[${index}]`}
             type={type.element}
             fieldProps={fieldProps?.element}
+            overrides={overrides?.element}
             className={fieldProps?.elementClassName}
           />
         ))}

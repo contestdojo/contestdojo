@@ -38,7 +38,6 @@ function Team({ team, students, children }: TeamProps) {
         {team.number && (
           <span className="rounded-lg bg-gray-100 px-2 text-sm text-gray-500">{team.number}</span>
         )}
-        {team.checkInPool && <span className="text-sm text-gray-500">{team.checkInPool}</span>}
       </h3>
 
       <div className="flex flex-1 flex-col gap-2 text-sm">
@@ -68,7 +67,7 @@ function Team({ team, students, children }: TeamProps) {
           <h3 className="font-medium">Room Assignments</h3>
 
           {Object.entries(team.roomAssignments).map(([k, v]) => (
-            <p className="text-sm text-gray-500">
+            <p key={k} className="text-sm text-gray-500">
               <span className="font-semibold">{k}:</span> {v}
             </p>
           ))}

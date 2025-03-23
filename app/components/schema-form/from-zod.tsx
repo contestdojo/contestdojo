@@ -17,8 +17,10 @@ import type {
   ZodType as ZodTypeAny,
 } from "zod";
 import type { FormControlProps } from "~/components/ui";
-import type { ArrayFieldProps } from "./from-zod-array";
-import type { ZodObjectFieldProps } from "./from-zod-object";
+import type { ArrayFieldProps, ArrayOverrides } from "./from-zod-array";
+import type { ZodObjectFieldProps, ZodObjectOverrides } from "./from-zod-object";
+
+import { isValidElement } from "react";
 
 import { Alert, AlertStatus } from "~/components/ui";
 
@@ -46,13 +48,26 @@ export type FieldProps<T extends ZodTypeAny> =
   : T extends ZodString              ? BaseFieldProps & { hide?: boolean; multiline?: boolean }
   : BaseFieldProps
 
+// prettier-ignore
+export type Overrides<T extends ZodTypeAny> =
+    T extends ZodObject<ZodRawShape> ? ZodObjectOverrides<T>
+  : T extends ZodArray<ZodTypeAny>   ? ArrayOverrides<T>
+  : T extends ZodEffects<infer U>    ? Overrides<U>
+  : T extends ZodOptional<infer U>   ? Overrides<U>
+  : JSX.Element
+
 export type FromZodProps<T extends ZodTypeAny> = {
   name: string;
   type: T;
   fieldProps?: FieldProps<T>;
+  overrides?: Overrides<T>;
 };
 
 export function FromZod(props: FromZodProps<ZodFirstPartySchemaTypes>) {
+  if (isValidElement(props.overrides)) {
+    return props.overrides;
+  }
+
   if (guardProps.ZodString(props)) return <FromZodString {...props} />;
   if (guardProps.ZodNumber(props)) return <FromZodNumber {...props} />;
   if (guardProps.ZodBoolean(props)) return <FromZodBoolean {...props} />;

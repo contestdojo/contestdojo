@@ -37,11 +37,12 @@ import {
   EventTeamReferenceEmbed,
 } from "~/components/reference-embed";
 import { SchemaForm } from "~/components/schema-form";
-import { Dropdown, IconButton, Modal } from "~/components/ui";
+import { Dropdown, IconButton, Modal, Select } from "~/components/ui";
 import { db } from "~/lib/db.server";
 import { isNotEmpty } from "~/lib/utils/array-utils";
 import { reduceToMap, useSumColumn } from "~/lib/utils/misc";
 import { UnifiedDocumentReference } from "~/lib/zfb";
+import { Field } from "~/components/schema-form/field";
 
 const StudentUpdateForm = (eventId: Event["id"], customFields: Event["customFields"]) => {
   const customFieldsSchema =
@@ -89,7 +90,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (!event) throw new Response("Event not found.", { status: 404 });
 
   const studentsSnap = await db.eventStudents(params.eventId).get();
-  const students = studentsSnap.docs.map((x) => x.data());
+  const students = studentsSnap.docs.map((x) => x.data()).slice(0, 20);
 
   const eventOrgsSnap = await db.eventOrgs(params.eventId).get();
   const eventOrgs = new Map(eventOrgsSnap.docs.map((x) => [x.id, x.data()]));
@@ -196,8 +197,20 @@ type StudentUpdateModalProps = {
 };
 
 function StudentUpdateModal({ student, open, setOpen }: StudentUpdateModalProps) {
-  const { event } = useLoaderData<LoaderData>();
+  const { event, orgs, teams: _teams } = useLoaderData<LoaderData>();
   const form = useMemo(() => StudentUpdateForm(event.id, event.customFields), [event]);
+  const orgsById = reduceToMap(orgs);
+  const teams = useMemo(
+    () =>
+      _teams.sort((a, b) => {
+        const aOrg = a.org && orgsById.get(a.org.id);
+        const bOrg = b.org && orgsById.get(b.org.id);
+        if (!aOrg) return 1;
+        if (!bOrg) return -1;
+        return aOrg.name.localeCompare(bOrg.name);
+      }),
+    [_teams, orgsById]
+  );
 
   // TODO: Streamline DocumentReference fields
   const defaultValues = { ...student, org: student.org?.id, team: student.team?.id };
@@ -217,15 +230,39 @@ function StudentUpdateModal({ student, open, setOpen }: StudentUpdateModalProps)
         method="post"
         schema={form}
         buttonLabel="Update"
-        // TODO: Fix issue with DocumentReference fields
+        // TODO: Fix issue with grade
         // @ts-ignore
         defaultValues={defaultValues}
         fieldProps={{
+          id: { readOnly: true },
           customFields:
             event.customFields &&
             Object.fromEntries(
               event.customFields.map((x) => [x.id, { label: `[Custom] ${x.label}` }])
             ),
+        }}
+        // TODO: Clean this up
+        overrides={{
+          org: (
+            <Field className="flex-1" as={Select} name="org">
+              <option value="">Select...</option>
+              {orgs.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.name}
+                </option>
+              ))}
+            </Field>
+          ),
+          team: (
+            <Field className="flex-1" as={Select} name="team">
+              <option value="">Select...</option>
+              {teams.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.org ? orgsById.get(x.org.id)?.name ?? x.org.id : "Independent"} • {x.name}
+                </option>
+              ))}
+            </Field>
+          ),
         }}
       />
     </Modal>

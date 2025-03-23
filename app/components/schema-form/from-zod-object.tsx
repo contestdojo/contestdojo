@@ -6,8 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import type { FieldProps, FromZodProps, Overrides } from "./from-zod";
 import type { ZodObject, ZodRawShape } from "zod";
-import type { FieldProps, FromZodProps } from "./from-zod";
 
 import { twMerge } from "tailwind-merge";
 
@@ -21,10 +21,15 @@ export type ZodObjectFieldProps<T extends ZodObject<ZodRawShape>> = {
   __className?: string;
 };
 
+export type ZodObjectOverrides<T extends ZodObject<ZodRawShape>> = {
+  [key in keyof T["shape"]]?: Overrides<T["shape"][key]>;
+};
+
 export function FromZodObject<T extends ZodObject<ZodRawShape>>({
   name,
   type,
   fieldProps,
+  overrides,
 }: Omit<FromZodProps<T>, "name"> & { name?: string }) {
   const items = Object.entries(type.shape);
 
@@ -37,6 +42,7 @@ export function FromZodObject<T extends ZodObject<ZodRawShape>>({
             key={itemName}
             name={name ? `${name}.${itemName}` : itemName}
             fieldProps={fieldProps?.[itemName]}
+            overrides={overrides?.[itemName]}
             type={itemType}
           />
         );
