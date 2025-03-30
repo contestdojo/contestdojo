@@ -90,7 +90,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (!event) throw new Response("Event not found.", { status: 404 });
 
   const studentsSnap = await db.eventStudents(params.eventId).get();
-  const students = studentsSnap.docs.map((x) => x.data()).slice(0, 20);
+  const students = studentsSnap.docs.map((x) => x.data());
 
   const eventOrgsSnap = await db.eventOrgs(params.eventId).get();
   const eventOrgs = new Map(eventOrgsSnap.docs.map((x) => [x.id, x.data()]));
