@@ -21,7 +21,7 @@ export type User = {
 
 const session = createCookie("session", {
   httpOnly: true,
-  maxAge: 60 * 60 * 24 * 5,
+  maxAge: 60 * 60 * 24 * 30,
 });
 
 async function migrateLegacyProfile(uid: string) {
