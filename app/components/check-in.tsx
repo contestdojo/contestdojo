@@ -6,13 +6,27 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { EventStudent, EventTeam } from "~/lib/db.server";
+import type { Event, EventOrganization, EventStudent, EventTeam } from "~/lib/db.server";
 
 import { CheckIcon, ExclamationTriangleIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import React, { useMemo } from "react";
+import { z } from "zod";
 
+import { customFieldsFieldProps, customFieldsSchema } from "~/lib/custom-fields";
 import { Box } from "~/components/ui";
+
+export const CheckInForm = (event: Omit<Event, "date">, eventOrg: EventOrganization) => {
+  if (!event.checkInFields) return z.object({});
+  return z.object({
+    checkInFields: customFieldsSchema(event.checkInFields, eventOrg.checkInFields),
+  });
+};
+
+export const checkInFieldProps = (event: Omit<Event, "date">, eventOrg: EventOrganization) => {
+  if (!event.checkInFields) return {};
+  return { checkInFields: customFieldsFieldProps(event.checkInFields, eventOrg.checkInFields) };
+};
 
 type TeamProps = {
   team: EventTeam;

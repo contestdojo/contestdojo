@@ -7,7 +7,6 @@
  */
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import type { Event, EventOrganization } from "~/lib/db.server";
 
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import {
@@ -25,28 +24,15 @@ import { setFormDefaults, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
-import { TeamsGrid } from "~/components/check-in";
+import { CheckInForm, TeamsGrid, checkInFieldProps } from "~/components/check-in";
 import Markdown from "~/components/markdown";
 import { SchemaForm, SubmitButton } from "~/components/schema-form";
 import { Alert, AlertStatus, Box, Button, IconButton } from "~/components/ui";
 import Steps from "~/components/ui/steps";
 import { requireUserType } from "~/lib/auth.server";
 import { checkIn } from "~/lib/check-in.server";
-import { customFieldsFieldProps, customFieldsSchema } from "~/lib/custom-fields";
 import { db } from "~/lib/db.server";
 import { mapToObject } from "~/lib/utils/array-utils";
-
-const CheckInForm = (event: Omit<Event, "date">, eventOrg: EventOrganization) => {
-  if (!event.checkInFields) return z.object({});
-  return z.object({
-    checkInFields: customFieldsSchema(event.checkInFields, eventOrg.checkInFields),
-  });
-};
-
-const checkInFieldProps = (event: Omit<Event, "date">, eventOrg: EventOrganization) => {
-  if (!event.checkInFields) return {};
-  return { checkInFields: customFieldsFieldProps(event.checkInFields, eventOrg.checkInFields) };
-};
 
 const FinalizeForm = z.object({
   acknowledgeCoach: zfd.checkbox().refine((x) => x),
