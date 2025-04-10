@@ -204,6 +204,24 @@ const TeamCard = ({ event, team, students, onUpdate, onDelete, onEditStudent, ne
         </Wrap>
       )}
 
+      {team.roomAssignments && (
+        <>
+          <Divider my={2} />
+
+          <Stack spacing={1}>
+            <Heading as="h4" size="sm" position="relative">
+              Room Assignments
+            </Heading>
+
+            {Object.entries(team.roomAssignments).map(([k, v]) => (
+              <p key={k}>
+                <span className="font-semibold">{k}:</span> {v}
+              </p>
+            ))}
+          </Stack>
+        </>
+      )}
+
       <AddTeamModal
         heading="Edit Team"
         isOpen={isOpen}
