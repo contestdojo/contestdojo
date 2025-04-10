@@ -7,10 +7,11 @@
  */
 
 import type { User } from "./auth.server";
+import type { EventTeam} from "~/lib/db.server";
 
 import { FieldPath, FieldValue, type Transaction } from "firebase-admin/firestore";
 
-import { EventTeam, db } from "~/lib/db.server";
+import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
 import sendgrid from "~/lib/sendgrid.server";
 
@@ -131,7 +132,7 @@ export async function checkIn(
         }
 
         // prettier-ignore
-        const room = rooms.reduce((a, b) =>
+        let room = rooms.reduce((a, b) =>
             // If any room prefers this team size, choose that one
             a.preferTeamSize?.includes(students.docs.length) ? a
           : b.preferTeamSize?.includes(students.docs.length) ? b
@@ -145,6 +146,16 @@ export async function checkIn(
           : a.maxStudents - a.numStudents > b.maxStudents - b.numStudents ? a
           : b
         );
+
+        if (
+          // TODO: Remove hunt-specific code
+          event.id === "GE7QHKkZHm24v2ZOUJN0" &&
+          students.docs.some((x) => x.id === "0elMXNHBuMROD2Grunfb6jDQEdb2")
+        ) {
+          const theRoom = thing.rooms.find((x) => x.id === "Dwinelle 219");
+          if (!theRoom) throw new Error("Error assigning rooms. Please contact BMT.");
+          room = theRoom;
+        }
 
         room.numStudents += students.docs.length;
         chosenRooms[thing.id] = room;
