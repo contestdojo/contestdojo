@@ -136,13 +136,25 @@ export default function OrgsRoute() {
     })
   );
 
+  const checkInColumns = event.checkInFields?.map((field) =>
+    columnHelper.accessor((x) => x.checkInFields?.[field.id], {
+      id: `checkInFields.${field.id}`,
+      header: idOrName("[Check-in] ", field.id, field.label),
+    })
+  );
+
   const [open, setOpen] = useState(false);
 
   return (
     <DataTable
       filename={`${new Date().toISOString()} - ${event.name} - orgs.csv`}
       data={orgs}
-      columns={[...columns, ...(addOnColumns ?? []), ...(customColumns ?? [])]}
+      columns={[
+        ...columns,
+        ...(addOnColumns ?? []),
+        ...(customColumns ?? []),
+        ...(checkInColumns ?? []),
+      ]}
       initialState={initialState}
     >
       <Dropdown>
