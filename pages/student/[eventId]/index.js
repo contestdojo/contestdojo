@@ -487,12 +487,7 @@ const Event = () => {
             </Card>
           )}
 
-          {team.scoreReport && (
-            <Card p={4} as={HStack} justifyContent="space-between" spacing={4}>
-              <Heading size="md">Team Score Report</Heading>
-              <DownloadScoreReport scoreReport={team.scoreReport}>Download</DownloadScoreReport>
-            </Card>
-          )}
+          {team.scoreReport && <p>Your coach can download the overall team score report.</p>}
         </>
       )}
 

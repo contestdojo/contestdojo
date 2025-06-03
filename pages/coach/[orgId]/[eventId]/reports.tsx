@@ -32,9 +32,9 @@ const DownloadReport = ({ scoreReport }) => {
 };
 
 const ReportCard = ({ number, name, scoreReport }) => (
-  <Card as={HStack} spacing={4} py={2} pl={4} pr={2} minW="md">
+  <Card as={HStack} spacing={4} py={0} pl={2} pr={2} minW="xs">
     {number && <Text color="gray.500">{number}</Text>}
-    <Heading as="h4" size="md" position="relative" flex="1">
+    <Heading as="h4" size="sm" position="relative" flex="1">
       {name}
     </Heading>
     <DownloadReport scoreReport={scoreReport} />
@@ -53,26 +53,58 @@ const Reports = () => {
   const teamsRef = eventRef.collection("teams");
   const { data: teams } = useFirestoreCollectionData(teamsRef.where("org", "==", orgRef), { idField: "id" });
 
+  // Get students
+  const studentsRef = eventRef.collection("students");
+  const { data: students } = useFirestoreCollectionData(studentsRef.where("org", "==", orgRef), { idField: "id" });
+
+  // Collapse into dict
+  const studentsByTeam = {};
+  for (const student of students) {
+    const key = student.team?.id ?? null;
+    if (!studentsByTeam.hasOwnProperty(key)) studentsByTeam[key] = [];
+    studentsByTeam[key].push(student);
+  }
+
   return (
     <Stack spacing={6} flex={1}>
       <HStack alignItems="flex-end" spacing={6}>
         <Heading size="2xl">{event.name}</Heading>
         <Heading size="lg">{org.name}</Heading>
       </HStack>
+
       <Divider />
+
       <Stack spacing={4}>
         <Heading size="lg">Score Reports</Heading>
-        <p>Available score reports for your organization&quot;s teams are listed below.</p>
+        <p>Available score reports for your organization&apos;s teams are listed below.</p>
       </Stack>
-      <Wrap>
-        {teams
-          .filter((x) => x.scoreReport)
-          .map((x) => (
-            <WrapItem key={x.id}>
-              <ReportCard {...x} />
-            </WrapItem>
-          ))}
-      </Wrap>
+
+      {teams.map((x) => (
+        <Stack spacing={4}>
+          <HStack>
+            {x.number && <Text color="gray.500">{x.number}</Text>}
+            <Heading size="md">{x.name}</Heading>
+          </HStack>
+          {x.scoreReport || studentsByTeam[x.id].some((s) => s.scoreReport) ? (
+            <Wrap>
+              {x.scoreReport && (
+                <WrapItem>
+                  <ReportCard number={x.number} name="Team Score Report" scoreReport={x.scoreReport} />
+                </WrapItem>
+              )}
+              {studentsByTeam[x.id]
+                .filter((x) => x.scoreReport)
+                .map((s) => (
+                  <WrapItem>
+                    <ReportCard number={s.number} name={`${s.fname} ${s.lname}`} scoreReport={s.scoreReport} />
+                  </WrapItem>
+                ))}
+            </Wrap>
+          ) : (
+            <Text>No reports available.</Text>
+          )}
+        </Stack>
+      ))}
 
       <ButtonLink href={`/coach/${orgRef.id}/${eventRef.id}`} colorScheme="blue" alignSelf="flex-start">
         Back to {event.name}
