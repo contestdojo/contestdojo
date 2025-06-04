@@ -80,7 +80,7 @@ const Reports = () => {
       </Stack>
 
       {teams.map((x) => (
-        <Stack spacing={4}>
+        <Stack spacing={4} key={x.id}>
           <HStack>
             {x.number && <Text color="gray.500">{x.number}</Text>}
             <Heading size="md">{x.name}</Heading>
@@ -95,7 +95,7 @@ const Reports = () => {
               {studentsByTeam[x.id]
                 .filter((x) => x.scoreReport)
                 .map((s) => (
-                  <WrapItem>
+                  <WrapItem key={s.id}>
                     <ReportCard number={s.number} name={`${s.fname} ${s.lname}`} scoreReport={s.scoreReport} />
                   </WrapItem>
                 ))}
