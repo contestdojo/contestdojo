@@ -51,6 +51,15 @@ const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }
       reducer: countReducer,
       hideInCsv: true,
     },
+    {
+      label: "Score Report",
+      key: "scoreReport",
+      renderer: iconButtonRenderer(HiDownload, Boolean, async (val) =>
+        window.open(await root.child(val).getDownloadURL(), "_blank")
+      ),
+      reducer: countReducer,
+      hideInCsv: true,
+    },
     { label: "Notes", key: "notes", hideByDefault: true, renderer: updateRenderer(onUpdate, "notes") },
     {
       label: "Impersonate",
