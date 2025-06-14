@@ -150,6 +150,7 @@ const EventStudent = zfb.firestoreObject(
     team: zfb.documentReference().optional().nullable(),
     number: z.string().optional(),
     waiver: z.boolean().or(z.string()).optional().nullable(),
+    scoreReport: z.string().optional(),
     notes: z.string().optional(),
     customFields: z.record(z.string().nullable()).optional(),
     checkInPool: z.string().optional(),

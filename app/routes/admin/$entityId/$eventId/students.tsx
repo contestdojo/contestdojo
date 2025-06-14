@@ -333,6 +333,18 @@ export default function StudentsRoute() {
       },
       footer: useSumColumn(students, (x) => (x.waiver ? 1 : 0)).toString(),
     }),
+    columnHelper.accessor("scoreReport", {
+      header: "Score Report",
+      cell: (props) => {
+        const path = props.getValue();
+        return path ? (
+          <IconButton as={Link} to={`/storage/${path}`} reloadDocument>
+            <ArrowDownTrayIcon className="h-4 w-4" />
+          </IconButton>
+        ) : null;
+      },
+      footer: useSumColumn(teams, (x) => (x.scoreReport ? 1 : 0)).toString(),
+    }),
     ...(roomAssignmentColumns ?? []),
     ...(customColumns ?? []),
     columnHelper.display({
