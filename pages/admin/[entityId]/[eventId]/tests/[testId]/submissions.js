@@ -110,6 +110,7 @@ const Submissions = () => {
       reducer: (arr) => sumReducer(arr.map(Boolean)),
     })),
     ...problems.map((x, idx) => ({ label: `T${idx + 1}`, key: `t${idx}`, hideByDefault: true })),
+    ...problems.map((x, idx) => ({ label: `R${idx + 1}`, key: `r${idx}`, hideByDefault: true })),
   ];
 
   const rows = submissions.map((s) => {
@@ -121,6 +122,7 @@ const Submissions = () => {
       `t${idx}`,
       s[`${idx}t`] && dayjs.duration(dayjs(s[`${idx}t`].toDate()).diff(startTime)).format("HH:mm:ss"),
     ]);
+    const rendered = problems.map((x, idx) => [`r${idx}`, s[`${idx}r`] ? `'${s[`${idx}r`]}` : null]);
     const total = sumReducer(correct.map(([idx, x]) => Boolean(x)));
 
     return {
@@ -132,6 +134,7 @@ const Submissions = () => {
       ...Object.fromEntries(answers),
       ...Object.fromEntries(correct),
       ...Object.fromEntries(times),
+      ...Object.fromEntries(rendered),
     };
   });
 
