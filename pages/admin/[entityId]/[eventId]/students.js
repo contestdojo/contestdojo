@@ -92,6 +92,7 @@ const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }
       org: org?.name,
       team: team?.name ?? "",
       waiver: x.waiver,
+      scoreReport: x.scoreReport,
       notes: x.notes ?? "",
       ...Object.fromEntries(customFields.map((f) => [`custom_${f.id}`, x.customFields?.[f.id]])),
     };
