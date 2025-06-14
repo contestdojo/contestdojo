@@ -14,9 +14,8 @@ import { storage } from "~/lib/firebase.server";
 
 export const loader: LoaderFunction = async ({ params }) => {
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
-  if (!params.filename) throw new Response("Filename must be provided.", { status: 400 });
 
-  const file = storage.file(`events/${params.eventId}/reports/${params.filename}`);
+  const file = storage.file(`events/${params.eventId}/reports/${params["*"]}`);
 
   const [exists] = await file.exists();
   if (!exists) {
