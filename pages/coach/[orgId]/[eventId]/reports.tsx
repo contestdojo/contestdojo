@@ -85,7 +85,7 @@ const Reports = () => {
             {x.number && <Text color="gray.500">{x.number}</Text>}
             <Heading size="md">{x.name}</Heading>
           </HStack>
-          {x.scoreReport || studentsByTeam[x.id].some((s) => s.scoreReport) ? (
+          {x.scoreReport || studentsByTeam[x.id]?.some((s) => s.scoreReport) ? (
             <Wrap>
               {x.scoreReport && (
                 <WrapItem>
