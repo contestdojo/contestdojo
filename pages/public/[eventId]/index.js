@@ -13,6 +13,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
 
@@ -40,6 +41,19 @@ const EventPreviewContent = () => {
             <Divider />
           </>
         )}
+
+        <Stack spacing={4} align="center">
+          <Box width={150}>
+            <Image src="/logo.svg" width={150} height={150} alt="ContestDojo" />
+          </Box>
+
+          <Text textAlign="center" color="gray.600">
+            ContestDojo is an online math competition platform used by events such as the Stanford Math Tournament and
+            the Berkeley Math Tournament.
+          </Text>
+        </Stack>
+
+        <Divider />
 
         <Stack spacing={4} textAlign="center">
           <Text fontSize="lg">
