@@ -1,0 +1,76 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
+/* Copyright (c) 2021 Oliver Ni */
+
+import {
+  Box,
+  Button,
+  Center,
+  Divider,
+  Heading,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import NextLink from "next/link";
+
+import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
+import EmptyLayout from "~/components/layouts/EmptyLayout";
+import Markdown from "~/components/Markdown";
+
+const EventPreviewContent = () => {
+  const { data: event } = useEvent();
+  const router = useRouter();
+  const { eventId } = router.query;
+
+  return (
+    <Center minH="100vh" p={8}>
+      <Stack spacing={6} maxW={600} w="full">
+        <Heading size="2xl" textAlign="center">
+          {event.name}
+        </Heading>
+
+        {event.description && (
+          <>
+            <Box>
+              <Markdown>{event.description}</Markdown>
+            </Box>
+            <Divider />
+          </>
+        )}
+
+        <Stack spacing={4} textAlign="center">
+          <Text fontSize="lg">
+            To register for this event, please login or create an account.
+          </Text>
+
+          <Stack direction={{ base: "column", sm: "row" }} spacing={4} justifyContent="center">
+            <NextLink href={`/login?next=/public/${eventId}`} passHref>
+              <Button as="a" colorScheme="blue" size="lg">
+                Login
+              </Button>
+            </NextLink>
+
+            <NextLink href={`/register?next=/public/${eventId}`} passHref>
+              <Button as="a" colorScheme="green" size="lg">
+                Sign Up
+              </Button>
+            </NextLink>
+          </Stack>
+        </Stack>
+      </Stack>
+    </Center>
+  );
+};
+
+const EventPreview = () => (
+  <EventProvider>
+    <EventPreviewContent />
+  </EventProvider>
+);
+
+EventPreview.layout = EmptyLayout;
+
+export default EventPreview;
