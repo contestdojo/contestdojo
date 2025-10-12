@@ -30,9 +30,33 @@ import { useAuth, useUser } from "reactfire";
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useFormState } from "~/helpers/utils";
 
-const Navigation = ({ sidebar, onOpen }) => {
+const SidebarContent = ({ sidebar, pt }) => {
   const auth = useAuth();
 
+  return (
+    <Stack height="100%" spacing={0} divider={<Divider />}>
+      <Box padding={6} mx="auto" pt={pt}>
+        <NextLink href="/">
+          <a>
+            <Image src="/logo.svg" width={100} height={100} alt="ContestDojo" />
+          </a>
+        </NextLink>
+      </Box>
+
+      <Stack spacing={6} p={8} flex={1}>
+        {sidebar}
+        <Spacer />
+        <Button onClick={() => auth.signOut()}>Sign Out</Button>
+      </Stack>
+
+      <Text py={2} align="center" color="gray.500" fontSize="sm">
+        &copy; 2025 Oliver Ni
+      </Text>
+    </Stack>
+  );
+};
+
+const Navigation = ({ sidebar, onOpen }) => {
   return (
     <>
       <IconButton
@@ -42,35 +66,12 @@ const Navigation = ({ sidebar, onOpen }) => {
         top={4}
         left={4}
         zIndex={1}
-        display={{ base: "flex", md: "none" }}
+        display={{ base: "flex", lg: "none" }}
         aria-label="Open menu"
       />
 
-      <Stack
-        overflow="scroll"
-        flexBasis={300}
-        shadow="md"
-        spacing={0}
-        divider={<Divider />}
-        display={{ base: "none", md: "flex" }}
-      >
-        <Box padding={6} mx="auto">
-          <NextLink href="/">
-            <a>
-              <Image src="/logo.svg" width={100} height={100} alt="ContestDojo" />
-            </a>
-          </NextLink>
-        </Box>
-
-        <Stack spacing={6} p={8} flex={1}>
-          {sidebar}
-          <Spacer />
-          <Button onClick={() => auth.signOut()}>Sign Out</Button>
-        </Stack>
-
-        <Text py={2} align="center" color="gray.500" fontSize="sm">
-          &copy; 2021 Oliver Ni
-        </Text>
+      <Stack overflow="scroll" flexBasis={300} shadow="md" spacing={0} display={{ base: "none", lg: "flex" }}>
+        <SidebarContent sidebar={sidebar} />
       </Stack>
     </>
   );
@@ -115,25 +116,7 @@ const MainLayout = ({ sidebar, children }) => {
           <DrawerContent>
             <DrawerCloseButton />
             <DrawerBody p={0}>
-              <Stack height="100%" spacing={0} divider={<Divider />}>
-                <Box padding={6} mx="auto" pt={12}>
-                  <NextLink href="/">
-                    <a>
-                      <Image src="/logo.svg" width={100} height={100} alt="ContestDojo" />
-                    </a>
-                  </NextLink>
-                </Box>
-
-                <Stack spacing={6} p={8} flex={1}>
-                  {sidebar}
-                  <Spacer />
-                  <Button onClick={() => auth.signOut()}>Sign Out</Button>
-                </Stack>
-
-                <Text py={2} align="center" color="gray.500" fontSize="sm">
-                  &copy; 2021 Oliver Ni
-                </Text>
-              </Stack>
+              <SidebarContent sidebar={sidebar} pt={12} />
             </DrawerBody>
           </DrawerContent>
         </Drawer>
