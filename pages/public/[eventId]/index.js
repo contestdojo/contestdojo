@@ -4,16 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import {
-  Box,
-  Button,
-  Center,
-  Divider,
-  Heading,
-  Spinner,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Button, Center, Divider, Heading, HStack, Spinner, Stack, Text } from "@chakra-ui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
@@ -46,16 +37,16 @@ const EventPreviewContentInner = () => {
           </>
         )}
 
-        <Stack spacing={4} align="center">
+        <HStack spacing={4} align="center">
           <Box width={150}>
             <Image src="/logo.svg" width={150} height={150} alt="ContestDojo" />
           </Box>
 
-          <Text textAlign="center" color="gray.600">
+          <Text textAlign="left" color="gray.600">
             ContestDojo is an online math competition platform used by events such as the Stanford Math Tournament and
             the Berkeley Math Tournament.
           </Text>
-        </Stack>
+        </HStack>
 
         <Divider />
 
@@ -73,9 +64,7 @@ const EventPreviewContentInner = () => {
             </>
           ) : (
             <>
-              <Text fontSize="lg">
-                To register for this event, please login or create an account.
-              </Text>
+              <Text fontSize="lg">To register for this event, please login or create an account.</Text>
 
               <Stack direction={{ base: "column", sm: "row" }} spacing={4} justifyContent="center">
                 <NextLink href={`/login?next=/public/${eventId}`} passHref>
