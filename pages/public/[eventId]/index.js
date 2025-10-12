@@ -10,19 +10,23 @@ import {
   Center,
   Divider,
   Heading,
+  Spinner,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
+import { Suspense } from "react";
+import { useUser } from "reactfire";
 
 import EventProvider, { useEvent } from "~/components/contexts/EventProvider";
 import EmptyLayout from "~/components/layouts/EmptyLayout";
 import Markdown from "~/components/Markdown";
 
-const EventPreviewContent = () => {
+const EventPreviewContentInner = () => {
   const { data: event } = useEvent();
+  const { data: user } = useUser();
   const router = useRouter();
   const { eventId } = router.query;
 
@@ -56,28 +60,49 @@ const EventPreviewContent = () => {
         <Divider />
 
         <Stack spacing={4} textAlign="center">
-          <Text fontSize="lg">
-            To register for this event, please login or create an account.
-          </Text>
+          {user ? (
+            <>
+              <Text fontSize="lg" color="green.600">
+                You&apos;re already logged in!
+              </Text>
+              <NextLink href="/" passHref>
+                <Button as="a" colorScheme="blue" size="lg">
+                  Go to Dashboard
+                </Button>
+              </NextLink>
+            </>
+          ) : (
+            <>
+              <Text fontSize="lg">
+                To register for this event, please login or create an account.
+              </Text>
 
-          <Stack direction={{ base: "column", sm: "row" }} spacing={4} justifyContent="center">
-            <NextLink href={`/login?next=/public/${eventId}`} passHref>
-              <Button as="a" colorScheme="blue" size="lg">
-                Login
-              </Button>
-            </NextLink>
+              <Stack direction={{ base: "column", sm: "row" }} spacing={4} justifyContent="center">
+                <NextLink href={`/login?next=/public/${eventId}`} passHref>
+                  <Button as="a" colorScheme="blue" size="lg">
+                    Login
+                  </Button>
+                </NextLink>
 
-            <NextLink href={`/register?next=/public/${eventId}`} passHref>
-              <Button as="a" colorScheme="green" size="lg">
-                Sign Up
-              </Button>
-            </NextLink>
-          </Stack>
+                <NextLink href={`/register?next=/public/${eventId}`} passHref>
+                  <Button as="a" colorScheme="green" size="lg">
+                    Sign Up
+                  </Button>
+                </NextLink>
+              </Stack>
+            </>
+          )}
         </Stack>
       </Stack>
     </Center>
   );
 };
+
+const EventPreviewContent = () => (
+  <Suspense fallback={<Center minH="100vh"><Spinner size="xl" /></Center>}>
+    <EventPreviewContentInner />
+  </Suspense>
+);
 
 const EventPreview = () => (
   <EventProvider>
