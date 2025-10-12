@@ -4,22 +4,38 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, Button, Divider, Flex, Spacer, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Divider,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerOverlay,
+  Flex,
+  IconButton,
+  Spacer,
+  Stack,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import Image from "next/image";
 import NextLink from "next/link";
 import { useEffect } from "react";
+import { HiMenu } from "react-icons/hi";
 import { StickyContainer } from "react-sticky";
 import { useAuth, useUser } from "reactfire";
 
 import { useDialog } from "~/components/contexts/DialogProvider";
 import { useFormState } from "~/helpers/utils";
 
-const Navigation = ({ sidebar }) => {
+const SidebarContent = ({ sidebar, pt }) => {
   const auth = useAuth();
 
   return (
-    <Stack overflow="scroll" flexBasis={300} shadow="md" spacing={0} divider={<Divider />}>
-      <Box padding={6} mx="auto">
+    <Stack height="100%" spacing={0} divider={<Divider />}>
+      <Box padding={6} mx="auto" pt={pt}>
         <NextLink href="/">
           <a>
             <Image src="/logo.svg" width={100} height={100} alt="ContestDojo" />
@@ -34,9 +50,30 @@ const Navigation = ({ sidebar }) => {
       </Stack>
 
       <Text py={2} align="center" color="gray.500" fontSize="sm">
-        &copy; 2021 Oliver Ni
+        &copy; 2025 Oliver Ni
       </Text>
     </Stack>
+  );
+};
+
+const Navigation = ({ sidebar, onOpen }) => {
+  return (
+    <>
+      <IconButton
+        icon={<HiMenu />}
+        onClick={onOpen}
+        position="fixed"
+        top={4}
+        left={4}
+        zIndex={1}
+        display={{ base: "flex", lg: "none" }}
+        aria-label="Open menu"
+      />
+
+      <Stack overflow="scroll" flexBasis={300} shadow="md" spacing={0} display={{ base: "none", lg: "flex" }}>
+        <SidebarContent sidebar={sidebar} />
+      </Stack>
+    </>
   );
 };
 
@@ -44,6 +81,8 @@ const MainLayout = ({ sidebar, children }) => {
   const [openDialog] = useDialog();
   const { data: user } = useUser();
   const [{ isLoading, error }, wrapAction] = useFormState();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const auth = useAuth();
 
   const handleResend = wrapAction(async () => {
     await user.sendEmailVerification({ url: window.location.href });
@@ -70,7 +109,18 @@ const MainLayout = ({ sidebar, children }) => {
       )}
 
       <Flex flex={1} overflow="auto">
-        <Navigation sidebar={sidebar} />
+        <Navigation sidebar={sidebar} onOpen={onOpen} />
+
+        <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerBody p={0}>
+              <SidebarContent sidebar={sidebar} pt={12} />
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+
         <Box as={StickyContainer} flex={1} padding={12} overflow="scroll">
           {children}
         </Box>
