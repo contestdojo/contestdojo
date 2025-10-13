@@ -15,7 +15,7 @@
         default = pkgs.mkShell {
           packages = with pkgs; [
             pkg-config
-            nodejs_20
+            nodejs_22
             darwin.apple_sdk.frameworks.CoreServices
           ];
         };
