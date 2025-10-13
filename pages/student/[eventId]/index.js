@@ -167,7 +167,7 @@ const StudentRegistration = ({ event }) => {
       <RadioToggle
         options={[
           ["Register without a coach", "student", !event.studentRegistrationEnabled],
-          ["Register with an organization/coach", "org"],
+          ["Register with an organization/coach", "org", event.coachRegistrationDisabled],
         ]}
         name="registrationType"
         value={registrationType}
