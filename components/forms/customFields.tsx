@@ -9,10 +9,12 @@ import { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import * as yup from "yup";
 
 import FormField from "~/components/FormField";
+import FileUploadField from "~/components/FileUploadField";
 
 export type CustomField = {
   id: string;
   label: string;
+  type?: "text" | "file";
   choices?: string[];
   flags: {
     required?: boolean;
@@ -31,9 +33,14 @@ export const makeCustomFieldsSchema = (initial: boolean, customFields: CustomFie
         .filter((v) => v.flags.editable || initial)
         .map((v) => {
           let field = yup.string().label(v.label);
-          if (v.flags.required) field = field.required();
-          if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
-          if (v.validationRegex) field = field.matches(new RegExp(v.validationRegex));
+          if (v.type === "file") {
+            field = yup.string().label(v.label);
+            if (v.flags.required && initial) field = field.required();
+          } else {
+            if (v.flags.required) field = field.required();
+            if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
+            if (v.validationRegex) field = field.matches(new RegExp(v.validationRegex));
+          }
           return [v.id, field];
         })
     )
@@ -43,12 +50,25 @@ export const renderCustomFields = (
   initial: boolean,
   customFields: CustomField[],
   register: UseFormRegister<any>,
-  errors: Partial<FieldErrorsImpl<any>>
+  errors: Partial<FieldErrorsImpl<any>>,
+  existingValues?: { [key: string]: string | undefined }
 ) =>
   customFields
     .filter((v) => !v.flags.hidden)
     .map((x) => {
-      const field = (
+      const field = x.type === "file" ? (
+        // @ts-ignore
+        <FileUploadField
+          {...register(`customFields.${x.id}`)}
+          label={x.label}
+          // @ts-ignore
+          error={errors.customFields?.[x.id]}
+          isRequired={x.flags.required}
+          isDisabled={!x.flags.editable && !initial}
+          helperText={x.helpText}
+          existingFileUrl={existingValues?.[x.id]}
+        />
+      ) : (
         // @ts-ignore
         <FormField
           {...register(`customFields.${x.id}`)}
