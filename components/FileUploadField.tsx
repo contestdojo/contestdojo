@@ -4,7 +4,17 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Button, FormControl, FormErrorMessage, FormHelperText, FormLabel, HStack, Input, Link, Text } from "@chakra-ui/react";
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  HStack,
+  Input,
+  Link,
+  Text,
+} from "@chakra-ui/react";
 import { forwardRef, useRef, useState } from "react";
 
 const FileUploadField = forwardRef(
@@ -40,23 +50,20 @@ const FileUploadField = forwardRef(
               View existing file
             </Link>
           )}
-          {!fileName && !existingFileUrl && <Text fontSize="sm" color="gray.500">No file chosen</Text>}
+          {!fileName && !existingFileUrl && (
+            <Text fontSize="sm" color="gray.500">
+              No file chosen
+            </Text>
+          )}
         </HStack>
-        <Input
-          ref={fileInputRef}
-          type="file"
-          name={name}
-          accept={accept}
-          onChange={handleFileSelect}
-          display="none"
-        />
+        <Input ref={fileInputRef} type="file" name={name} accept={accept} onChange={handleFileSelect} display="none" />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
         {error?.map((x: any) => (
           <FormErrorMessage key={x}>{x.message}</FormErrorMessage>
         ))}
       </FormControl>
     );
-  }
+  },
 );
 
 export default FileUploadField;

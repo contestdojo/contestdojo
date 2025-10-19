@@ -12,7 +12,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse, context: { uid
   if (req.method !== "POST") return res.status(405).end();
 
   const { eventId, entityType, entityId, fieldId, fileData, fileName } = req.body;
-  
+
   if (typeof eventId !== "string") return res.status(400).json({ error: "eventId is required" });
   if (typeof entityType !== "string") return res.status(400).json({ error: "entityType is required" });
   if (typeof entityId !== "string") return res.status(400).json({ error: "entityId is required" });
@@ -21,21 +21,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse, context: { uid
 
   const extension = fileName ? fileName.split(".").pop() : "bin";
   const filePath = `events/${eventId}/custom-fields/${entityType}/${entityId}/${fieldId}.${extension}`;
-  
+
   const file = storage.file(filePath);
   const buffer = Buffer.from(fileData.replace(/^data:[^;]+;base64,/, ""), "base64");
-  
+
   const mimeMatch = fileData.match(/^data:([^;]+);base64,/);
   const contentType = mimeMatch ? mimeMatch[1] : "application/octet-stream";
-  
+
   await file.save(buffer, { contentType });
 
-  const entityRef = firestore
-    .collection("events")
-    .doc(eventId)
-    .collection(entityType)
-    .doc(entityId);
-  
+  const entityRef = firestore.collection("events").doc(eventId).collection(entityType).doc(entityId);
+
   await entityRef.update({
     [`customFields.${fieldId}`]: filePath,
   });
