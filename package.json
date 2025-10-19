@@ -38,6 +38,7 @@
     "remark-gfm": "^4.0.0",
     "remix-utils": "^7.5.0",
     "remix-validated-form": "^5.1.5",
+    "resend": "^6.2.0",
     "tailwind-merge": "^1.14.0",
     "uuid": "^9.0.1",
     "vite-env-only": "^2.2.1",

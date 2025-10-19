@@ -173,6 +173,21 @@ const EventTeam = zfb.firestoreObject(
   })
 );
 
+const EmailBlast = zfb.firestoreObject(
+  z.object({
+    id: z.string(),
+    subject: z.string(),
+    content: z.string(),
+    recipients: z.enum(["organizations", "students", "both"]),
+    createdAt: zfb.timestamp(),
+    sentAt: zfb.timestamp().optional().nullable(),
+    status: z.enum(["draft", "sending", "sent", "failed"]),
+    totalRecipients: z.number().optional(),
+    sentCount: z.number().optional(),
+    failedCount: z.number().optional(),
+  })
+);
+
 export type User = z.infer<typeof User>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Entity = z.infer<typeof Entity>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EventCustomField = z.infer<typeof EventCustomField>; // eslint-disable-line @typescript-eslint/no-redeclare
@@ -181,6 +196,7 @@ export type Organization = z.infer<typeof Organization>; // eslint-disable-line 
 export type EventOrganization = z.infer<typeof EventOrganization>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EventStudent = z.infer<typeof EventStudent>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EventTeam = z.infer<typeof EventTeam>; // eslint-disable-line @typescript-eslint/no-redeclare
+export type EmailBlast = z.infer<typeof EmailBlast>; // eslint-disable-line @typescript-eslint/no-redeclare
 
 export namespace db {
   // Collections
@@ -207,6 +223,10 @@ export namespace db {
 
   export function eventTeams(eventId: string) {
     return events.doc(eventId).collection("teams").withConverter(EventTeam.converter);
+  }
+
+  export function eventEmailBlasts(eventId: string) {
+    return events.doc(eventId).collection("emailBlasts").withConverter(EmailBlast.converter);
   }
 
   // Documents
@@ -237,6 +257,10 @@ export namespace db {
 
   export function eventTeam(eventId: string, id: string) {
     return eventTeams(eventId).doc(id).withConverter(EventTeam.converter);
+  }
+
+  export function eventEmailBlast(eventId: string, id: string) {
+    return eventEmailBlasts(eventId).doc(id).withConverter(EmailBlast.converter);
   }
 
   // Utils
