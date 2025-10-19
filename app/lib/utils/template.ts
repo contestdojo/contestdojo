@@ -6,10 +6,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import { marked } from "marked";
+
 export function renderTemplate(template: string, variables: Record<string, string>): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+  return template.replace(/\{\{([\w.]+)\}\}/g, (match, key) => {
     return variables[key] ?? match;
   });
+}
+
+export async function renderMarkdownToHtml(markdown: string): Promise<string> {
+  return await marked(markdown);
 }
 
 export function getAvailableVariables(type: "organization" | "student"): string[] {

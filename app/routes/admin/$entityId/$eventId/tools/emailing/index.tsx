@@ -31,7 +31,7 @@ import { SchemaForm } from "~/components/schema-form";
 import { Button, Modal } from "~/components/ui";
 import { db } from "~/lib/db.server";
 import { resend } from "~/lib/resend.server";
-import { getAvailableVariables, renderTemplate } from "~/lib/utils/template";
+import { getAvailableVariables, renderMarkdownToHtml, renderTemplate } from "~/lib/utils/template";
 
 type LoaderData = {
   event: Event;
@@ -189,13 +189,14 @@ export const action: ActionFunction = async ({ request, params }) => {
     for (const recipient of recipients) {
       try {
         const subject = renderTemplate(emailBlast.subject, recipient.variables);
-        const content = renderTemplate(emailBlast.content, recipient.variables);
+        const markdownContent = renderTemplate(emailBlast.content, recipient.variables);
+        const htmlContent = await renderMarkdownToHtml(markdownContent);
 
         await resend.emails.send({
           from: "ContestDojo <noreply@contestdojo.com>",
           to: recipient.email,
           subject,
-          html: content,
+          html: htmlContent,
         });
 
         sentCount++;
