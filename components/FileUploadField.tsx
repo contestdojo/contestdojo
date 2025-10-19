@@ -17,7 +17,19 @@ import {
 } from "@chakra-ui/react";
 import { forwardRef, useRef, useState } from "react";
 
-const FileUploadField = forwardRef(
+interface FileUploadFieldProps {
+  name: string;
+  label: string;
+  helperText?: string;
+  error?: any;
+  isRequired?: boolean;
+  isDisabled?: boolean;
+  accept?: string;
+  existingFileUrl?: string;
+  [key: string]: any;
+}
+
+const FileUploadField = forwardRef<HTMLInputElement, FileUploadFieldProps>(
   ({ name, label, helperText, error, isRequired, isDisabled, accept = "*", existingFileUrl, ...props }, ref) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState<string | null>(null);
@@ -65,5 +77,7 @@ const FileUploadField = forwardRef(
     );
   },
 );
+
+FileUploadField.displayName = "FileUploadField";
 
 export default FileUploadField;
