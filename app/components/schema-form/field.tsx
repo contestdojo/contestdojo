@@ -47,6 +47,17 @@ export function Field<T extends React.ElementType = typeof Input>({
   } else if (type === "datetime-local") {
     allProps.value = format(parseISO(value), "yyyy-MM-dd'T'HH:mm:ss.SSS");
     allProps.onChange = (e) => setValue(e.target.value);
+  } else if (type === "file") {
+    allProps.onChange = (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setValue(event.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
   } else {
     allProps.value = value ?? "";
     allProps.onChange = (e) => setValue(e.target.value);
