@@ -25,11 +25,7 @@ function getDefaultProps(name: string) {
   return { label, placeholder };
 }
 
-export function Field<T extends React.ElementType = typeof Input>({
-  name,
-  type,
-  ...props
-}: FormControlProps<T>) {
+export function Field<T extends React.ElementType = typeof Input>({ name, type, ...props }: FormControlProps<T>) {
   const { error, getInputProps } = useField(name);
   const [value, setValue] = useControlField<any>(name);
 
@@ -64,9 +60,7 @@ export function Field<T extends React.ElementType = typeof Input>({
   }
 
   const { defaultChecked, ...rvfProps } = getInputProps(allProps as ComponentPropsWithRef<T>);
-  const control = (
-    <FormControl {...allProps} {...rvfProps} disabled={allProps.disabled || allProps.readOnly} />
-  );
+  const control = <FormControl {...allProps} {...rvfProps} disabled={allProps.disabled || allProps.readOnly} />;
 
   if (allProps.disabled) {
     return (

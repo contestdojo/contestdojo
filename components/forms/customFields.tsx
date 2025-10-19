@@ -42,8 +42,8 @@ export const makeCustomFieldsSchema = (initial: boolean, customFields: CustomFie
             if (v.validationRegex) field = field.matches(new RegExp(v.validationRegex));
           }
           return [v.id, field];
-        })
-    )
+        }),
+    ),
   );
 
 export const renderCustomFields = (
@@ -51,44 +51,45 @@ export const renderCustomFields = (
   customFields: CustomField[],
   register: UseFormRegister<any>,
   errors: Partial<FieldErrorsImpl<any>>,
-  existingValues?: { [key: string]: string | undefined }
+  existingValues?: { [key: string]: string | undefined },
 ) =>
   customFields
     .filter((v) => !v.flags.hidden)
     .map((x) => {
-      const field = x.type === "file" ? (
-        // @ts-ignore
-        <FileUploadField
-          {...register(`customFields.${x.id}`)}
-          label={x.label}
+      const field =
+        x.type === "file" ? (
           // @ts-ignore
-          error={errors.customFields?.[x.id]}
-          isRequired={x.flags.required}
-          isDisabled={!x.flags.editable && !initial}
-          helperText={x.helpText}
-          existingFileUrl={existingValues?.[x.id]}
-        />
-      ) : (
-        // @ts-ignore
-        <FormField
-          {...register(`customFields.${x.id}`)}
-          label={x.label}
+          <FileUploadField
+            {...register(`customFields.${x.id}`)}
+            label={x.label}
+            // @ts-ignore
+            error={errors.customFields?.[x.id]}
+            isRequired={x.flags.required}
+            isDisabled={!x.flags.editable && !initial}
+            helperText={x.helpText}
+            existingFileUrl={existingValues?.[x.id]}
+          />
+        ) : (
           // @ts-ignore
-          error={errors.customFields?.[x.id]}
-          isRequired={x.flags.required}
-          as={x.choices ? Select : undefined}
-          placeholder={x.choices ? "Select..." : ""}
-          isDisabled={!x.flags.editable && !initial}
-          helperText={x.helpText}
-        >
-          {x.choices &&
-            x.choices.map((v, i) => (
-              <option key={i} value={v}>
-                {v}
-              </option>
-            ))}
-        </FormField>
-      );
+          <FormField
+            {...register(`customFields.${x.id}`)}
+            label={x.label}
+            // @ts-ignore
+            error={errors.customFields?.[x.id]}
+            isRequired={x.flags.required}
+            as={x.choices ? Select : undefined}
+            placeholder={x.choices ? "Select..." : ""}
+            isDisabled={!x.flags.editable && !initial}
+            helperText={x.helpText}
+          >
+            {x.choices &&
+              x.choices.map((v, i) => (
+                <option key={i} value={v}>
+                  {v}
+                </option>
+              ))}
+          </FormField>
+        );
 
       if (!x.flags.editable && !initial) {
         return (

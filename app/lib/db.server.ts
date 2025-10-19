@@ -21,7 +21,7 @@ const User = zfb.firestoreObject(
     fname: z.string(),
     lname: z.string(),
     type: z.string(),
-  })
+  }),
 );
 
 const Organization = zfb.firestoreObject(
@@ -40,7 +40,7 @@ const Organization = zfb.firestoreObject(
       lname: z.string(),
       type: z.string(),
     }),
-  })
+  }),
 );
 
 const Entity = zfb.firestoreObject(
@@ -49,7 +49,7 @@ const Entity = zfb.firestoreObject(
     name: z.string(),
     admins: z.array(zfb.documentReference()),
     stripeAccount: z.string().optional(),
-  })
+  }),
 );
 
 const EventCustomField = z.object({
@@ -86,7 +86,7 @@ const EventRoomAssignmentSection = z.object({
       id: z.string(),
       maxStudents: z.number(),
       preferTeamSize: z.array(z.number()).optional(),
-    })
+    }),
   ),
 });
 
@@ -116,15 +116,13 @@ const Event = zfb.firestoreObject(
     enableCoachCheckIn: z.boolean().optional(),
     checkInInstructions: z.string().optional(),
     checkInFields: z.array(EventCustomField).optional(),
-    checkInPools: z
-      .array(z.object({ id: z.string(), maxStudents: z.number().optional() }))
-      .optional(),
+    checkInPools: z.array(z.object({ id: z.string(), maxStudents: z.number().optional() })).optional(),
     roomAssignments: z.array(EventRoomAssignmentSection).optional(),
     checkInWebhookUrl: z.string().optional(),
     addOns: z.array(EventAddOn).optional(),
     maxStudents: z.number().optional(),
     maxStudentsPerOrg: z.number().optional(),
-  })
+  }),
 );
 
 const EventOrganization = zfb.firestoreObject(
@@ -136,7 +134,7 @@ const EventOrganization = zfb.firestoreObject(
     customFields: z.record(z.string().nullable()).optional(),
     checkInFields: z.record(z.string()).optional(),
     code: z.string().optional(),
-  })
+  }),
 );
 
 const EventStudent = zfb.firestoreObject(
@@ -156,7 +154,7 @@ const EventStudent = zfb.firestoreObject(
     customFields: z.record(z.string().nullable()).optional(),
     checkInPool: z.string().optional(),
     roomAssignments: z.record(z.string()).optional(),
-  })
+  }),
 );
 
 const EventTeam = zfb.firestoreObject(
@@ -171,7 +169,7 @@ const EventTeam = zfb.firestoreObject(
     code: z.string().optional(),
     checkInPool: z.string().optional(),
     roomAssignments: z.record(z.string()).optional(),
-  })
+  }),
 );
 
 export type User = z.infer<typeof User>; // eslint-disable-line @typescript-eslint/no-redeclare
@@ -190,9 +188,7 @@ export namespace db {
   export const orgs = firestore.collection("orgs").withConverter(Organization.converter);
   export const entities = firestore.collection("entities").withConverter(Entity.converter);
   export const events = firestore.collection("events").withConverter(Event.converter);
-  export const orgsGroup = firestore
-    .collectionGroup("orgs")
-    .withConverter(EventOrganization.converter);
+  export const orgsGroup = firestore.collectionGroup("orgs").withConverter(EventOrganization.converter);
 
   export function doc(path: string) {
     return firestore.doc(path);

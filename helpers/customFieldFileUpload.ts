@@ -12,17 +12,17 @@ export const processCustomFieldFiles = async (
   eventId: string,
   entityType: string,
   entityId: string,
-  authToken: string
+  authToken: string,
 ): Promise<{ [key: string]: string }> => {
   const processedFields: { [key: string]: string } = {};
 
   for (const field of customFields) {
     if (field.type === "file" && formData.customFields?.[field.id]) {
       const fileInput = document.querySelector(`input[name="customFields.${field.id}"]`) as HTMLInputElement;
-      
+
       if (fileInput?.files?.[0]) {
         const file = fileInput.files[0];
-        
+
         const reader = new FileReader();
         const fileData = await new Promise<string>((resolve, reject) => {
           reader.onload = (e) => resolve(e.target?.result as string);
