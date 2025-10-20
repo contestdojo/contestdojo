@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { DragEndEvent } from "@dnd-kit/core";
+import type { DragEndEvent, UniqueIdentifier } from "@dnd-kit/core";
 import type { ZodArray, ZodTypeAny } from "zod";
 import type { FieldProps, FromZodProps, Overrides } from "./from-zod";
 
@@ -88,7 +88,7 @@ export function FromZodArray<T extends ZodArray<ZodTypeAny>>({
   type,
 }: FromZodProps<T>) {
   const [items, { push, move, remove }, error] = useFieldArray(name);
-  const itemIds = items.map((x) => x.__sortableId ?? x.id);
+  const itemIds: UniqueIdentifier[] = items.map((x) => x.key);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -98,8 +98,9 @@ export function FromZodArray<T extends ZodArray<ZodTypeAny>>({
   );
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over) return;
     const from = itemIds.indexOf(active.id);
-    const to = itemIds.indexOf(over?.id);
+    const to = itemIds.indexOf(over.id);
     if (from > -1 && to > -1) move(from, to);
   };
 
@@ -115,8 +116,8 @@ export function FromZodArray<T extends ZodArray<ZodTypeAny>>({
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
         {items.map((item, index) => (
           <ArrayItem
-            key={item.__sortableId ?? item.id}
-            sortableId={item.__sortableId ?? item.id}
+            key={item.key}
+            sortableId={item.key}
             onRemove={() => remove(index)}
             name={`${name}[${index}]`}
             type={type.element}
