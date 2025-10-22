@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import type { PropsWithChildren } from "react";
+import type { ComponentType, PropsWithChildren, ReactNode } from "react";
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
@@ -16,9 +16,30 @@ type ModalProps = PropsWithChildren<{
   open: boolean;
   setOpen: (open: boolean) => void;
   className?: string;
+  icon?: ComponentType<{ className?: string }>;
+  iconColor?: "blue" | "green" | "red" | "yellow" | "purple";
+  title?: ReactNode;
+  description?: ReactNode;
 }>;
 
-export function Modal({ open, setOpen, className, children }: ModalProps) {
+const iconColorClasses = {
+  blue: "bg-blue-100 text-blue-600",
+  green: "bg-green-100 text-green-600",
+  red: "bg-red-100 text-red-600",
+  yellow: "bg-yellow-100 text-yellow-600",
+  purple: "bg-purple-100 text-purple-600",
+};
+
+export function Modal({
+  open,
+  setOpen,
+  className,
+  icon: Icon,
+  iconColor = "blue",
+  title,
+  description,
+  children,
+}: ModalProps) {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-20" onClose={setOpen}>
@@ -51,6 +72,29 @@ export function Modal({ open, setOpen, className, children }: ModalProps) {
                   className
                 )}
               >
+                {Icon && (
+                  <div
+                    className={twMerge(
+                      "mx-auto flex h-12 w-12 items-center justify-center rounded-full",
+                      iconColorClasses[iconColor]
+                    )}
+                  >
+                    <Icon className="h-6 w-6" aria-hidden="true" />
+                  </div>
+                )}
+
+                {title && (
+                  <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
+                    {title}
+                  </Dialog.Title>
+                )}
+
+                {description && (
+                  <Dialog.Description className="text-center text-sm text-gray-500">
+                    {description}
+                  </Dialog.Description>
+                )}
+
                 {children}
               </Dialog.Panel>
             </Transition.Child>

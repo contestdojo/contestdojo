@@ -17,7 +17,6 @@ import type {
   Organization,
 } from "~/lib/db.server";
 
-import { Dialog } from "@headlessui/react";
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { json } from "@remix-run/node";
@@ -216,15 +215,14 @@ function StudentUpdateModal({ student, open, setOpen }: StudentUpdateModalProps)
   const defaultValues = { ...student, org: student.org?.id, team: student.team?.id };
 
   return (
-    <Modal open={open} setOpen={setOpen} className="flex max-w-2xl flex-col gap-4">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-        <PencilSquareIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
-      </div>
-
-      <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
-        Update {student.fname} {student.lname}
-      </Dialog.Title>
-
+    <Modal
+      open={open}
+      setOpen={setOpen}
+      className="flex max-w-2xl flex-col gap-4"
+      icon={PencilSquareIcon}
+      iconColor="blue"
+      title={`Update ${student.fname} ${student.lname}`}
+    >
       <SchemaForm
         id="StudentUpdate"
         method="post"

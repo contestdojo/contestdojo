@@ -8,9 +8,25 @@
 
 import { marked } from "marked";
 
-export function renderTemplate(template: string, variables: Record<string, string>): string {
-  return template.replace(/\{\{([\w.]+)\}\}/g, (match, key) => {
-    return variables[key] ?? match;
+export function renderTemplate(
+  template: string,
+  variables: Record<string, string | undefined>
+): string {
+  // Support {{key|fallback1|fallback2}} syntax for variable fallbacks
+  return template.replace(/\{\{([\w.]+(?:\|[\w.]+)*)\}\}/g, (match, keysString) => {
+    // Split by | to get all potential keys to try
+    const keys = keysString.split("|");
+
+    // Try each key in order until we find a non-empty value
+    for (const key of keys) {
+      const value = variables[key.trim()];
+      if (value !== undefined && value !== null && value !== "") {
+        return value;
+      }
+    }
+
+    // If no value found, return empty string
+    return "";
   });
 }
 
@@ -27,9 +43,9 @@ export function getAvailableVariables(type: "organization" | "student"): string[
       "org.state",
       "org.country",
       "org.zip",
-      "coach.fname",
-      "coach.lname",
-      "coach.email",
+      "org.coach.fname",
+      "org.coach.lname",
+      "org.coach.email",
     ];
   } else {
     return [
@@ -38,7 +54,15 @@ export function getAvailableVariables(type: "organization" | "student"): string[
       "student.email",
       "student.grade",
       "student.number",
-      "org.name",
+      "student.org.name",
+      "student.org.address",
+      "student.org.city",
+      "student.org.state",
+      "student.org.country",
+      "student.org.zip",
+      "student.org.coach.fname",
+      "student.org.coach.lname",
+      "student.org.coach.email",
     ];
   }
 }

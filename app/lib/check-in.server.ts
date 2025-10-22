@@ -7,7 +7,7 @@
  */
 
 import type { User } from "./auth.server";
-import type { EventTeam} from "~/lib/db.server";
+import type { EventTeam } from "~/lib/db.server";
 
 import { FieldPath, FieldValue, type Transaction } from "firebase-admin/firestore";
 
@@ -119,8 +119,6 @@ export async function checkIn(
 
       const chosenRooms: { [k: string]: (typeof roomAssignments)[number]["rooms"][number] } = {};
 
-      console.log(id, action);
-
       for (const thing of Object.values(roomAssignments)) {
         // Choose either the pool with the most capacity left, or one that matches exactly
         const rooms = thing.rooms.filter(
@@ -171,8 +169,6 @@ export async function checkIn(
 
       const doneRoomAssignments = mapValues(chosenRooms, (x) => x.id);
 
-      console.log(doneRoomAssignments);
-
       t.update(db.eventTeam(eventRef.id, id), {
         number,
         roomAssignments: doneRoomAssignments,
@@ -197,7 +193,6 @@ export async function checkIn(
   };
 
   let teamIds = await firestore.runTransaction(transactionFunc);
-  console.log(teamIds);
 
   try {
     const org = await db.org(orgId).get();

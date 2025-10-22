@@ -9,7 +9,6 @@
 import type { CollectionReference, UpdateData } from "firebase-admin/firestore";
 import type { EventCustomField } from "~/lib/db.server";
 
-import { Dialog } from "@headlessui/react";
 import { ArrowUpTrayIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { parse } from "csv/browser/esm";
 import { useMemo } from "react";
@@ -185,15 +184,14 @@ export function BulkUpdateSuccessModal<U>({
   setOpen,
 }: BulkUpdateSuccessModalProps<U>) {
   return (
-    <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-        <CheckIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
-      </div>
-
-      <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
-        Bulk update successful
-      </Dialog.Title>
-
+    <Modal
+      open={open}
+      setOpen={setOpen}
+      className="flex max-w-4xl flex-col gap-4"
+      icon={CheckIcon}
+      iconColor="green"
+      title="Bulk update successful"
+    >
       <div className="overflow-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
         <Table>
           <Thead>
@@ -254,17 +252,15 @@ export function BulkUpdateModal<S extends z.ZodRawShape, T extends z.ZodObject<S
   ];
 
   return (
-    <Modal open={open} setOpen={setOpen} className="flex max-w-4xl flex-col gap-4">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-        <ArrowUpTrayIcon className="h-6 w-6 text-blue-600" aria-hidden="true" />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Dialog.Title as="h3" className="text-center text-lg font-medium text-gray-900">
-          Bulk Update
-        </Dialog.Title>
-
-        <p className="flex flex-row flex-wrap items-center gap-2 text-sm text-gray-500">
+    <Modal
+      open={open}
+      setOpen={setOpen}
+      className="flex max-w-4xl flex-col gap-4"
+      icon={ArrowUpTrayIcon}
+      iconColor="blue"
+      title="Bulk Update"
+      description={
+        <p className="flex flex-row flex-wrap items-center justify-center gap-2">
           <span>Fields:</span>
           {fields.map((x) => (
             <span key={x} className="rounded bg-gray-200 px-1 font-mono">
@@ -272,8 +268,8 @@ export function BulkUpdateModal<S extends z.ZodRawShape, T extends z.ZodObject<S
             </span>
           ))}
         </p>
-      </div>
-
+      }
+    >
       <SchemaForm
         id="BulkUpdate"
         method="post"
