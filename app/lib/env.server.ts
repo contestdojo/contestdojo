@@ -13,4 +13,5 @@ export const env = cleanEnv(process.env, {
   FIREBASE_SERVICE_ACCOUNT: json(),
   NODE_ENV: str({ choices: ["development", "production"] }),
   SENDGRID_KEY: str(),
+  RESEND_API_KEY: str(),
 });
