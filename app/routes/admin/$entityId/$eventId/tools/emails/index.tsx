@@ -43,10 +43,16 @@ type LoaderData = {
   emailBlasts: EmailBlast[];
   orgs: (Organization & EventOrganization)[];
   students: EventStudent[];
+  hasReplyToAddress: boolean;
 };
 
 export const loader: LoaderFunction = async ({ params }) => {
+  if (!params.entityId) throw new Response("Entity ID must be provided.", { status: 400 });
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
+
+  const entitySnap = await db.entity(params.entityId).get();
+  const entity = entitySnap.data();
+  if (!entity) throw new Response("Entity not found.", { status: 404 });
 
   const eventSnap = await db.event(params.eventId).get();
   const event = eventSnap.data();
@@ -72,7 +78,13 @@ export const loader: LoaderFunction = async ({ params }) => {
   const studentsSnap = await db.eventStudents(params.eventId).get();
   const students = studentsSnap.docs.map((x) => x.data());
 
-  return json<LoaderData>({ event, emailBlasts, orgs, students });
+  return json<LoaderData>({
+    event,
+    emailBlasts,
+    orgs,
+    students,
+    hasReplyToAddress: !!entity.emailReplyToAddress,
+  });
 };
 
 const CreateEmailBlastForm = z.object({
@@ -100,6 +112,7 @@ type ActionData =
     };
 
 export const action: ActionFunction = async ({ request, params }) => {
+  if (!params.entityId) throw new Response("Entity ID must be provided.", { status: 400 });
   if (!params.eventId) throw new Response("Event ID must be provided.", { status: 400 });
   const eventSnap = await db.event(params.eventId).get();
   const event = eventSnap.data();
@@ -139,14 +152,21 @@ export const action: ActionFunction = async ({ request, params }) => {
     const recipientType = formData.get("recipientType") as "organization" | "student";
     const recipientId = formData.get("recipientId") as string;
 
-    await sendTestEmail(event.id, emailBlastId, testEmail, recipientType, recipientId);
+    await sendTestEmail(
+      params.entityId,
+      event.id,
+      emailBlastId,
+      testEmail,
+      recipientType,
+      recipientId
+    );
 
     return json<ActionData>({ _form: "SendTestEmail", success: true });
   }
 
   if (formData.get("_form") === "SendEmailBlast") {
     const emailBlastId = formData.get("emailBlastId") as string;
-    await sendEmailBlast(event.id, emailBlastId);
+    await sendEmailBlast(params.entityId, event.id, emailBlastId);
 
     return json<ActionData>({ _form: "SendEmailBlast", success: true });
   }
@@ -310,143 +330,6 @@ function EditEmailBlastModal({ emailBlast, open, setOpen }: EditEmailBlastModalP
   );
 }
 
-type SendTestEmailModalProps = {
-  emailBlast: SerializeFrom<EmailBlast>;
-  open: boolean;
-  setOpen: (open: boolean) => void;
-};
-
-function SendTestEmailModal({ emailBlast, open, setOpen }: SendTestEmailModalProps) {
-  const { orgs, students } = useLoaderData<LoaderData>();
-  const fetcher = useFetcher<ActionData>();
-  const [testEmail, setTestEmail] = useState("");
-
-  const annotatedOrgs = orgs.map((o) => ({
-    type: "organization" as const,
-    id: o.id,
-    name: o.name,
-    email: o.adminData.email,
-  }));
-
-  const annotatedStudents = students.map((s) => ({
-    type: "student" as const,
-    id: s.id,
-    name: `${s.fname} ${s.lname}`,
-    email: s.email,
-  }));
-
-  const recipients =
-    emailBlast?.recipients === "organizations"
-      ? annotatedOrgs
-      : emailBlast?.recipients === "students"
-      ? annotatedStudents
-      : [...annotatedOrgs, ...annotatedStudents];
-
-  const [selectedRecipient, setSelectedRecipient] = useState<(typeof recipients)[0] | null>(null);
-
-  // Reset form when modal closes
-  useEffect(() => {
-    if (!open) {
-      setTestEmail("");
-      setSelectedRecipient(null);
-    }
-  }, [open]);
-
-  // Show success message
-  useEffect(() => {
-    if (fetcher.data?._form === "SendTestEmail" && fetcher.data.success) {
-      setOpen(false);
-    }
-  }, [fetcher.data]);
-
-  return (
-    <Modal
-      open={open}
-      setOpen={setOpen}
-      className="flex max-w-2xl flex-col gap-4"
-      icon={EnvelopeIcon}
-      iconColor="blue"
-      title="Send Test Email"
-    >
-      <div className="flex flex-col gap-4 text-sm">
-        <div>
-          <label className="mb-2 block font-medium text-gray-700">
-            Test Email Address
-            <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            value={testEmail}
-            onChange={(e) => setTestEmail(e.target.value)}
-            placeholder="your@email.com"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            required
-          />
-          <p className="mt-1 text-gray-500">
-            The test email will be sent to this address with [TEST] prefix in the subject.
-          </p>
-        </div>
-
-        <div>
-          <label className="mb-2 block font-medium text-gray-700">
-            Template Recipient
-            <span className="text-red-500">*</span>
-          </label>
-          <p className="mb-2 text-gray-500">
-            Select a recipient to use their data for template variables.
-          </p>
-          <div className="max-h-64 overflow-y-auto rounded-lg border bg-white">
-            {recipients.map((r) => (
-              <button
-                key={`${r.type}-${r.id}`}
-                type="button"
-                onClick={() => setSelectedRecipient(r)}
-                className={`flex w-full items-center border-b px-4 py-2 text-left hover:bg-gray-50 ${
-                  selectedRecipient?.id === r.id && selectedRecipient?.type === r.type
-                    ? "bg-blue-50"
-                    : ""
-                }`}
-              >
-                <div className="flex-1">
-                  <div className="font-medium">{r.name}</div>
-                  <div className="text-gray-500">{r.email}</div>
-                </div>
-                {selectedRecipient?.id === r.id && selectedRecipient?.type === r.type && (
-                  <div className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white">
-                    ✓
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-2">
-        <Button onClick={() => setOpen(false)}>Cancel</Button>
-        <fetcher.Form method="post">
-          <input type="hidden" name="_form" value="SendTestEmail" />
-          <input type="hidden" name="emailBlastId" value={emailBlast.id} />
-          <input type="hidden" name="testEmail" value={testEmail} />
-          {selectedRecipient && (
-            <>
-              <input type="hidden" name="recipientType" value={selectedRecipient.type} />
-              <input type="hidden" name="recipientId" value={selectedRecipient.id} />
-            </>
-          )}
-          <Button
-            type="submit"
-            disabled={!testEmail || !selectedRecipient || fetcher.state === "submitting"}
-            className="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {fetcher.state === "submitting" ? "Sending..." : "Send Test Email"}
-          </Button>
-        </fetcher.Form>
-      </div>
-    </Modal>
-  );
-}
-
 type DeleteEmailBlastModalProps = {
   emailBlast: SerializeFrom<EmailBlast>;
   open: boolean;
@@ -487,8 +370,10 @@ type PreviewEmailModalProps = {
 };
 
 function PreviewEmailModal({ emailBlast, open, setOpen }: PreviewEmailModalProps) {
-  const { orgs, students } = useLoaderData<LoaderData>();
+  const { orgs, students, hasReplyToAddress } = useLoaderData<LoaderData>();
   const fetcher = useFetcher<ActionData>();
+  const testEmailFetcher = useFetcher<ActionData>();
+  const [testEmail, setTestEmail] = useState("");
 
   const annotatedOrgs = orgs.map((o) => ({
     type: "organization" as const,
@@ -513,6 +398,21 @@ function PreviewEmailModal({ emailBlast, open, setOpen }: PreviewEmailModalProps
 
   const preview = fetcher.data?._form === "PreviewEmailBlast" && fetcher.data.preview;
 
+  // Reset test email when modal closes
+  useEffect(() => {
+    if (!open) {
+      setTestEmail("");
+    }
+  }, [open]);
+
+  // Show success message
+  useEffect(() => {
+    if (testEmailFetcher.data?._form === "SendTestEmail" && testEmailFetcher.data.success) {
+      alert("Test email sent successfully!");
+      setTestEmail("");
+    }
+  }, [testEmailFetcher.data]);
+
   return (
     <Modal
       open={open}
@@ -522,13 +422,15 @@ function PreviewEmailModal({ emailBlast, open, setOpen }: PreviewEmailModalProps
       iconColor="blue"
       title="Preview Email Blast"
     >
-      <div className="grid grid-cols-2 gap-4 text-sm">
-        <div className="flex flex-col gap-2">
+      <div className="grid max-h-[min(60vh,48rem)] grid-cols-2 gap-4 text-sm">
+        <div className="flex min-h-0 flex-col gap-2">
           <h4 className="font-semibold text-gray-700">Recipients ({recipients.length})</h4>
-          <div className="max-h-96 overflow-y-auto rounded-lg border bg-white">
+          <div className="overflow-y-auto rounded-lg border bg-white">
             {recipients.map((r) => {
               const isLoadingThis =
                 fetcher.state === "submitting" && fetcher.formData?.get("recipientId") === r.id;
+              const isCurrentlyPreviewed =
+                preview && preview.recipientId === r.id && preview.recipientType === r.type;
 
               return (
                 <fetcher.Form key={r.id} method="post">
@@ -539,14 +441,24 @@ function PreviewEmailModal({ emailBlast, open, setOpen }: PreviewEmailModalProps
                   <button
                     type="submit"
                     disabled={fetcher.state === "submitting"}
-                    className="flex w-full items-center justify-between border-b px-4 py-2 text-left hover:bg-gray-50 disabled:opacity-50"
+                    className={`flex w-full items-center justify-between border-b py-2 text-left hover:bg-gray-50 disabled:opacity-50 ${
+                      isCurrentlyPreviewed
+                        ? "border-l-4 border-l-blue-600 bg-blue-50 pl-[calc(1rem-4px)] pr-4"
+                        : "px-4"
+                    }`}
                   >
                     <div className="flex-1">
                       <div className="font-medium">{r.name}</div>
                       <div className="text-gray-500">{r.email}</div>
                     </div>
-                    {isLoadingThis && (
+                    {isLoadingThis ? (
                       <div className="ml-2 h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+                    ) : (
+                      isCurrentlyPreviewed && (
+                        <div className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-xs text-white">
+                          ✓
+                        </div>
+                      )
                     )}
                   </button>
                 </fetcher.Form>
@@ -555,26 +467,68 @@ function PreviewEmailModal({ emailBlast, open, setOpen }: PreviewEmailModalProps
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex min-h-0 flex-col gap-2">
           <h4 className="font-semibold text-gray-700">Preview</h4>
           {preview ? (
-            <div className="flex flex-col gap-4 rounded-lg border bg-white p-4">
-              <div className="flex flex-col gap-2 border-b pb-4">
-                <p>
-                  <span className="font-medium text-gray-500">To:</span>{" "}
-                  <span>{preview.recipientEmail}</span>
-                </p>
-                <p>
-                  <span className="font-medium text-gray-500">Subject:</span>{" "}
-                  <span>{preview.subject}</span>
-                </p>
+            <div className="flex min-h-0 flex-1 flex-col gap-4">
+              <div className="rounded-lg border bg-white p-4">
+                <h5 className="mb-2 font-medium text-gray-700">Send Test Email</h5>
+                {!hasReplyToAddress ? (
+                  <div className="rounded-md bg-yellow-50 p-3 text-sm text-yellow-800">
+                    <p className="font-medium">Reply-to address required</p>
+                    <p className="mt-1">
+                      You must configure an email reply-to address for this entity before sending
+                      emails.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="mb-2 text-sm text-gray-500">
+                      Send a test email with this preview to any email address
+                    </p>
+                    <testEmailFetcher.Form method="post" className="flex gap-2">
+                      <input type="hidden" name="_form" value="SendTestEmail" />
+                      <input type="hidden" name="emailBlastId" value={emailBlast.id} />
+                      <input type="hidden" name="recipientType" value={preview.recipientType} />
+                      <input type="hidden" name="recipientId" value={preview.recipientId} />
+                      <input
+                        type="email"
+                        name="testEmail"
+                        value={testEmail}
+                        onChange={(e) => setTestEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        required
+                      />
+                      <Button
+                        type="submit"
+                        disabled={!testEmail || testEmailFetcher.state === "submitting"}
+                        className="bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {testEmailFetcher.state === "submitting" ? "Sending..." : "Send Test"}
+                      </Button>
+                    </testEmailFetcher.Form>
+                  </>
+                )}
               </div>
-              <div className="prose prose-sm max-w-none">
-                <Markdown>{preview.content}</Markdown>
+              <div className="flex flex-col gap-4 overflow-y-auto rounded-lg border bg-white p-4">
+                <div className="flex flex-col gap-2 border-b pb-4">
+                  <p>
+                    <span className="font-medium text-gray-500">To:</span>{" "}
+                    <span>{preview.recipientEmail}</span>
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-500">Subject:</span>{" "}
+                    <span>{preview.subject}</span>
+                  </p>
+                </div>
+                <div className="prose prose-sm max-w-none">
+                  <Markdown>{preview.content}</Markdown>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="flex h-64 items-center justify-center rounded-lg border bg-gray-50 text-gray-500">
+            <div className="flex h-full items-center justify-center rounded-lg border bg-gray-50 text-gray-500">
               Select a recipient to preview the email
             </div>
           )}
@@ -588,7 +542,14 @@ function PreviewEmailModal({ emailBlast, open, setOpen }: PreviewEmailModalProps
         <Form method="post">
           <input type="hidden" name="_form" value="SendEmailBlast" />
           <input type="hidden" name="emailBlastId" value={emailBlast.id} />
-          <Button type="submit" className="bg-blue-600 text-white hover:bg-blue-700">
+          <Button
+            type="submit"
+            disabled={!hasReplyToAddress}
+            className="bg-blue-600 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            title={
+              !hasReplyToAddress ? "Email reply-to address must be configured before sending" : ""
+            }
+          >
             Send Email Blast
           </Button>
         </Form>
@@ -601,7 +562,6 @@ export default function EmailsRoute() {
   const { emailBlasts } = useLoaderData<LoaderData>();
   const [createOpen, setCreateOpen] = useState(false);
   const [editEmailBlast, setEditEmailBlast] = useState<SerializeFrom<EmailBlast> | null>(null);
-  const [testEmailBlast, setTestEmailBlast] = useState<SerializeFrom<EmailBlast> | null>(null);
   const [previewEmailBlast, setPreviewEmailBlast] = useState<SerializeFrom<EmailBlast> | null>(
     null
   );
@@ -651,7 +611,6 @@ export default function EmailsRoute() {
                       >
                         <TrashIcon className="h-4 w-4" />
                       </IconButton>
-                      <Button onClick={() => setTestEmailBlast(blast)}>Send Test Email</Button>
                       <Button onClick={() => setPreviewEmailBlast(blast)}>
                         Preview &amp; Send
                       </Button>
@@ -660,11 +619,6 @@ export default function EmailsRoute() {
                         emailBlast={blast}
                         open={blast.id === editEmailBlast?.id}
                         setOpen={(open) => !open && setEditEmailBlast(null)}
-                      />
-                      <SendTestEmailModal
-                        emailBlast={blast}
-                        open={blast.id === testEmailBlast?.id}
-                        setOpen={(open) => !open && setTestEmailBlast(null)}
                       />
                       <PreviewEmailModal
                         emailBlast={blast}

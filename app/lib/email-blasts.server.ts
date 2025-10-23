@@ -13,6 +13,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { db } from "~/lib/db.server";
 import { resend } from "~/lib/resend.server";
 import { renderMarkdownToHtml, renderTemplate } from "~/lib/utils/template";
+import { CreateEmailOptions } from "resend";
 
 type EmailRecipient = {
   email: string;
@@ -77,6 +78,7 @@ export async function deleteEmailBlast(eventId: string, emailBlastId: string) {
 }
 
 export async function sendTestEmail(
+  entityId: string,
   eventId: string,
   emailBlastId: string,
   testEmail: string,
@@ -87,6 +89,16 @@ export async function sendTestEmail(
   const emailBlast = emailBlastSnap.data();
 
   if (!emailBlast) throw new Response("Email blast not found.", { status: 404 });
+
+  // Get entity for reply-to address
+  const entitySnap = await db.entity(entityId).get();
+  const entity = entitySnap.data();
+  if (!entity) throw new Response("Entity not found.", { status: 404 });
+  if (!entity.emailReplyToAddress) {
+    throw new Response("Email reply-to address must be configured before sending emails.", {
+      status: 400,
+    });
+  }
 
   let variables: Record<string, string | undefined>;
 
@@ -124,12 +136,20 @@ export async function sendTestEmail(
   const markdownContent = renderTemplate(emailBlast.content, variables);
   const htmlContent = await renderMarkdownToHtml(markdownContent);
 
-  await resend.emails.send({
-    from: "Berkeley Math Tournament <team@berkeley.mt>",
+  const emailOptions: CreateEmailOptions = {
+    from: `${entity.name} <${entity.emailReplyToAddress}>`,
     to: testEmail,
     subject: `[TEST] ${subject}`,
     html: htmlContent,
-  });
+    replyTo: entity.emailReplyToAddress,
+  };
+
+  const result = await resend.emails.send(emailOptions);
+
+  if (result.error) {
+    console.error("Failed to send test email:", result.error);
+    throw new Response(`Failed to send test email: ${result.error.message}`, { status: 500 });
+  }
 
   return { success: true };
 }
@@ -213,11 +233,21 @@ function buildRecipients(
   return recipients;
 }
 
-export async function sendEmailBlast(eventId: string, emailBlastId: string) {
+export async function sendEmailBlast(entityId: string, eventId: string, emailBlastId: string) {
   const emailBlastSnap = await db.eventEmailBlast(eventId, emailBlastId).get();
   const emailBlast = emailBlastSnap.data();
 
   if (!emailBlast) throw new Response("Email blast not found.", { status: 404 });
+
+  // Get entity for reply-to address
+  const entitySnap = await db.entity(entityId).get();
+  const entity = entitySnap.data();
+  if (!entity) throw new Response("Entity not found.", { status: 404 });
+  if (!entity.emailReplyToAddress) {
+    throw new Response("Email reply-to address must be configured before sending emails.", {
+      status: 400,
+    });
+  }
 
   await db.eventEmailBlast(eventId, emailBlastId).update({
     status: "sending",
@@ -228,24 +258,49 @@ export async function sendEmailBlast(eventId: string, emailBlastId: string) {
 
   let sentCount = 0;
   let failedCount = 0;
+  const failedEmails: string[] = [];
 
-  for (const recipient of recipients) {
+  // Batch size for Resend API (max 100)
+  const BATCH_SIZE = 100;
+
+  // Process recipients in batches
+  for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
+    const batch = recipients.slice(i, i + BATCH_SIZE);
+
     try {
-      const subject = renderTemplate(emailBlast.subject, recipient.variables);
-      const markdownContent = renderTemplate(emailBlast.content, recipient.variables);
-      const htmlContent = await renderMarkdownToHtml(markdownContent);
+      // Prepare all emails in the batch
+      const emails = await Promise.all(
+        batch.map(async (recipient) => {
+          const subject = renderTemplate(emailBlast.subject, recipient.variables);
+          const markdownContent = renderTemplate(emailBlast.content, recipient.variables);
+          const htmlContent = await renderMarkdownToHtml(markdownContent);
 
-      await resend.emails.send({
-        from: "Berkeley Math Tournament <team@berkeley.mt>",
-        to: recipient.email,
-        subject,
-        html: htmlContent,
-      });
+          const emailOptions: CreateEmailOptions = {
+            from: `${entity.name} <${entity.emailReplyToAddress}>`,
+            to: recipient.email,
+            subject,
+            html: htmlContent,
+            replyTo: entity.emailReplyToAddress,
+          };
 
-      sentCount++;
+          return emailOptions;
+        })
+      );
+
+      // Send the batch
+      const result = await resend.batch.send(emails);
+
+      if (result.error) {
+        console.error(`Failed to send batch:`, result.error);
+        failedCount += batch.length;
+        // Add all emails in this batch to failed list
+        batch.forEach((recipient) => failedEmails.push(recipient.email));
+      }
     } catch (error) {
-      console.error(`Failed to send email to ${recipient.email}:`, error);
-      failedCount++;
+      console.error(`Failed to send batch:`, error);
+      failedCount += batch.length;
+      // Add all emails in this batch to failed list
+      batch.forEach((recipient) => failedEmails.push(recipient.email));
     }
   }
 
@@ -255,6 +310,7 @@ export async function sendEmailBlast(eventId: string, emailBlastId: string) {
     totalRecipients: recipients.length,
     sentCount,
     failedCount,
+    failedEmails: failedEmails.length > 0 ? failedEmails : undefined,
   });
 
   return { success: true, sentCount, failedCount };

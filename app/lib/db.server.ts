@@ -49,6 +49,7 @@ const Entity = zfb.firestoreObject(
     name: z.string(),
     admins: z.array(zfb.documentReference()),
     stripeAccount: z.string().optional(),
+    emailReplyToAddress: z.string().optional(),
   })
 );
 
@@ -185,6 +186,7 @@ const EmailBlast = zfb.firestoreObject(
     totalRecipients: z.number().optional(),
     sentCount: z.number().optional(),
     failedCount: z.number().optional(),
+    failedEmails: z.array(z.string()).optional(),
   })
 );
 
