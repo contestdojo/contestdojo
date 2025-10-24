@@ -99,14 +99,14 @@ const MainLayout = ({ sidebar, children }) => {
 
   return (
     <Stack height="100vh" spacing={0}>
-      {!user.emailVerified && (
+      {/* {!user.emailVerified && (
         <Box p={4} textAlign="center" bg="blue.700" color="white">
           <strong>Your email is not verified.</strong> You must verify your email before registering for events.{" "}
           <Button variant="link" color="gray.400" onClick={handleResend} isLoading={isLoading}>
             Send Verification Email
           </Button>
         </Box>
-      )}
+      )}*/}
 
       <Flex flex={1} overflow="auto">
         <Navigation sidebar={sidebar} onOpen={onOpen} />

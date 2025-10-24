@@ -111,13 +111,13 @@ const StudentRegistration = ({ event }) => {
   };
 
   const handleSubmit = wrapAction(async (_values) => {
-    if (!auth.currentUser.emailVerified) {
-      return openDialog({
-        type: "alert",
-        title: "Unable to Register",
-        description: "You must verify your email before registering for an event.",
-      });
-    }
+    // if (!auth.currentUser.emailVerified) {
+    //   return openDialog({
+    //     type: "alert",
+    //     title: "Unable to Register",
+    //     description: "You must verify your email before registering for an event.",
+    //   });
+    // }
 
     if (registrationType === "org") {
       const orgQuery = eventRef.collection("orgs").where("code", "==", orgJoinCode).limit(1);
