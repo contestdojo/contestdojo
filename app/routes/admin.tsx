@@ -197,7 +197,23 @@ export default function AdminRoute() {
                         <NavItem to={`${entity.id}/${event.id}/orgs`}>Organizations</NavItem>
                         <NavItem to={`${entity.id}/${event.id}/teams`}>Teams</NavItem>
                         <NavItem to={`${entity.id}/${event.id}/students`}>Students</NavItem>
-                        <NavItem to={`${entity.id}/${event.id}/tests`}>Tests</NavItem>
+                        <Dropdown>
+                          <Menu.Button className="rounded-md px-4 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
+                            Tools
+                            <ChevronDownIcon
+                              className="-mr-1 ml-1 inline h-4 w-4"
+                              aria-hidden="true"
+                            />
+                          </Menu.Button>
+                          <Dropdown.Items>
+                            <Dropdown.Item as={Link} to={`${entity.id}/${event.id}/tools/check-in`}>
+                              Check-In
+                            </Dropdown.Item>
+                            <Dropdown.Item as={Link} to={`${entity.id}/${event.id}/tools/emails`}>
+                              Emails
+                            </Dropdown.Item>
+                          </Dropdown.Items>
+                        </Dropdown>
                         <NavItem to={`${entity.id}/${event.id}/settings`}>Settings</NavItem>
                       </>
                     </div>
@@ -272,7 +288,12 @@ export default function AdminRoute() {
                     </MobileNavItem>
                     <MobileNavItem to={`${entity.id}/${event.id}/teams`}>Teams</MobileNavItem>
                     <MobileNavItem to={`${entity.id}/${event.id}/students`}>Students</MobileNavItem>
-                    <MobileNavItem to={`${entity.id}/${event.id}/tests`}>Tests</MobileNavItem>
+                    <MobileNavItem to={`${entity.id}/${event.id}/tools/check-in`}>
+                      Tools - Check-In
+                    </MobileNavItem>
+                    <MobileNavItem to={`${entity.id}/${event.id}/tools/emails`}>
+                      Tools - Emails
+                    </MobileNavItem>
                     <MobileNavItem to={`${entity.id}/${event.id}/settings`}>Settings</MobileNavItem>
                   </>
                 )}
