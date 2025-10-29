@@ -97,6 +97,22 @@ function NavDivider() {
   );
 }
 
+type NavDropdownProps = PropsWithChildren<{
+  label: string;
+}>;
+
+function NavDropdown({ label, children }: NavDropdownProps) {
+  return (
+    <Dropdown>
+      <Menu.Button className="rounded-md px-4 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
+        {label}
+        <ChevronDownIcon className="-mr-1 ml-1 inline h-4 w-4" aria-hidden="true" />
+      </Menu.Button>
+      <Dropdown.Items>{children}</Dropdown.Items>
+    </Dropdown>
+  );
+}
+
 type EntityEventSelectorProps<T> = {
   all: T[];
   current?: T;
@@ -197,23 +213,14 @@ export default function AdminRoute() {
                         <NavItem to={`${entity.id}/${event.id}/orgs`}>Organizations</NavItem>
                         <NavItem to={`${entity.id}/${event.id}/teams`}>Teams</NavItem>
                         <NavItem to={`${entity.id}/${event.id}/students`}>Students</NavItem>
-                        <Dropdown>
-                          <Menu.Button className="rounded-md px-4 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700 hover:text-white">
-                            Tools
-                            <ChevronDownIcon
-                              className="-mr-1 ml-1 inline h-4 w-4"
-                              aria-hidden="true"
-                            />
-                          </Menu.Button>
-                          <Dropdown.Items>
-                            <Dropdown.Item as={Link} to={`${entity.id}/${event.id}/tools/check-in`}>
-                              Check-In
-                            </Dropdown.Item>
-                            <Dropdown.Item as={Link} to={`${entity.id}/${event.id}/tools/emails`}>
-                              Emails
-                            </Dropdown.Item>
-                          </Dropdown.Items>
-                        </Dropdown>
+                        <NavDropdown label="Tools">
+                          <Dropdown.Item as={Link} to={`${entity.id}/${event.id}/tools/check-in`}>
+                            Check-In
+                          </Dropdown.Item>
+                          <Dropdown.Item as={Link} to={`${entity.id}/${event.id}/tools/emails`}>
+                            Emails
+                          </Dropdown.Item>
+                        </NavDropdown>
                         <NavItem to={`${entity.id}/${event.id}/settings`}>Settings</NavItem>
                       </>
                     </div>
