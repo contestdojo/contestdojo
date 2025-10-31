@@ -30,6 +30,8 @@ import { useEffect, useRef, useState } from "react";
 import { validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import { $typst } from "@myriaddreamin/typst.ts";
+import * as pdfjsLib from "pdfjs-dist";
 
 import { SchemaForm } from "~/components/schema-form";
 import { Button, IconButton, Modal } from "~/components/ui";
@@ -353,8 +355,6 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
         throw new Error("Selected item not found");
       }
 
-      const { $typst } = await import("@myriaddreamin/typst.ts");
-
       const inputs: Record<string, string> = {};
       Object.keys(selectedItem).forEach((key) => {
         const value = (selectedItem as any)[key];
@@ -371,7 +371,6 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
       setPdfData(pdf);
 
       if (canvasRef.current) {
-        const pdfjsLib = await import("pdfjs-dist");
         pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
         const loadingTask = pdfjsLib.getDocument({ data: pdf });
@@ -389,7 +388,6 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
         await page.render({
           canvasContext: context,
           viewport: viewport,
-          canvas: canvas,
         }).promise;
       }
     } catch (error) {
