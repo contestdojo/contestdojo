@@ -57,10 +57,16 @@ export async function checkIn(
   };
 
   const fetchCheckedInTeams = async (t: Transaction) => {
-    let query = db.eventTeams(eventRef.id).where("number", "!=", "").orderBy("number", "desc");
+    let query = db.eventTeams(eventRef.id).where("isCheckedIn", "==", true);
     const allCheckedInTeams = await t.get(query).then((x) => x.docs.map((y) => y.data()));
     const allCheckedInTeamsById = mapToObject(allCheckedInTeams, (x) => [x.id, x]);
     return allCheckedInTeamsById;
+  };
+
+  const fetchMaxNumber = async (t: Transaction) => {
+    let query = db.eventTeams(eventRef.id).where("number", "!=", "").orderBy("number", "desc");
+    const teamsWithNumbers = await t.get(query).then((x) => x.docs.map((y) => y.data()));
+    return teamsWithNumbers;
   };
 
   const fetchTeamsToCheckIn = async (
@@ -83,12 +89,10 @@ export async function checkIn(
   const transactionFunc = async (t: Transaction) => {
     const roomAssignments = await fetchRoomAssignments(t);
     const checkedInTeamsById = await fetchCheckedInTeams(t);
+    const teamsWithNumbers = await fetchMaxNumber(t);
     const teamsToCheckIn = await fetchTeamsToCheckIn(t, checkedInTeamsById);
 
-    let nextNumber =
-      Object.values(checkedInTeamsById)
-        .map((x) => Number(x.number))
-        .find((x) => !isNaN(x)) ?? 0;
+    let nextNumber = teamsWithNumbers.map((x) => Number(x.number)).find((x) => !isNaN(x)) ?? 0;
     nextNumber++;
 
     for (const { id, action, students } of teamsToCheckIn) {
@@ -111,6 +115,12 @@ export async function checkIn(
           if (room) room.numStudents -= students.docs.length;
         }
         continue;
+      }
+
+      if (id in checkedInTeamsById) {
+        throw new Error(
+          `Team ${id} is already checked in. Please undo check-in first before performing other actions.`,
+        );
       }
 
       const isAutoAssign = action === "__auto__";
