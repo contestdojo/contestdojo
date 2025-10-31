@@ -90,12 +90,12 @@ const StudentRegistration = ({ event }) => {
     })();
   }, [query]);
 
-  const handleStudentPurchase = async (values) => {
+  const handleStudentPurchase = async () => {
     const authorization = await auth.currentUser.getIdToken();
     const resp = await fetch(`/api/student/${eventRef.id}/pay`, {
       method: "POST",
       headers: { authorization, "content-type": "application/json" },
-      body: JSON.stringify({ email: user.email, registrationData: values }),
+      body: JSON.stringify({ email: user.email }),
     });
     if (!resp.ok) throw new Error(await resp.text());
     const data = await resp.json();
@@ -143,10 +143,12 @@ const StudentRegistration = ({ event }) => {
     }
 
     if (registrationType === "student") {
+      const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
       if (event.costPerStudent) {
-        await handleStudentPurchase(_values);
+        const pendingStudentRef = eventRef.collection("pending-students").doc(user.uid);
+        await pendingStudentRef.set(values, { merge: true });
+        await handleStudentPurchase();
       } else {
-        const values = { ..._values, id: userRef.id, email: user.email, user: userRef, org: null };
         await studentRef.set(values, { merge: true });
         const description = event.teamsEnabled
           ? "You have registered as an independent student. Note that you must create or join a team for your registration to be complete."

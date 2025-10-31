@@ -20,9 +20,8 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   const { eventId } = req.query;
   if (typeof eventId !== "string") return res.status(400).end();
 
-  const { email, registrationData } = req.body;
+  const { email } = req.body;
   if (typeof email !== "string") return res.status(400).end();
-  if (!registrationData) return res.status(400).end();
 
   // Get connected account
 
@@ -54,7 +53,6 @@ const handler = withFirebaseAuth(async (req, res, { uid }) => {
   const metadata = {
     __contestdojo__: true,
     registrationType: "student",
-    registrationData: JSON.stringify(registrationData),
     eventId,
     studentId: uid,
   };
