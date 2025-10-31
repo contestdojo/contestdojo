@@ -24,7 +24,6 @@ import {
 import { Component, useEffect, useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
-
 import BlankCard from "~/components/BlankCard";
 import Card from "~/components/Card";
 import { components as defaultComponents } from "~/components/Markdown";
@@ -90,9 +89,24 @@ const Signature = ({ node, id }) => {
       {value ? (
         <Card mb={4} h={120} w={300} backgroundImage={value} backgroundSize="cover" cursor="pointer" onClick={onOpen} />
       ) : (
-        <BlankCard mb={4} m={0} h={120} w={300} cursor="pointer" onClick={onOpen}>
-          Click to Sign
-        </BlankCard>
+        <BlankCard
+          as="input"
+          mb={4}
+          m={0}
+          h={120}
+          w={300}
+          cursor="pointer"
+          onClick={onOpen}
+          position="relative"
+          overflow="visible"
+          type="text"
+          required
+          tabIndex={-1}
+          textAlign="center"
+          placeholder="Click to Sign"
+          onFocus={(e) => e.target.blur()}
+          value=""
+        />
       )}
       <SignatureModal id={id} isOpen={isOpen} onClose={onClose} setValue={setValue} />
     </>

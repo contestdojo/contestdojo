@@ -162,7 +162,7 @@ const WaiverContent = () => {
               Your waiver is being generated. Please do not close this tab.
             </Alert>
           )}
-          <Button type="submit" colorScheme="blue" isDisabled={!completed} isLoading={isLoading}>
+          <Button type="submit" colorScheme="blue" isLoading={isLoading}>
             Submit
           </Button>
         </form>
