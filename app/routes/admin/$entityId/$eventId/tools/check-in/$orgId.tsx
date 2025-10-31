@@ -172,7 +172,7 @@ export default function OrgsRoute() {
 
   const orgsAlphabetical = useMemo(
     () => [...orgs].sort((a, b) => a.name.localeCompare(b.name)),
-    [orgs]
+    [orgs],
   );
 
   return (
@@ -183,7 +183,7 @@ export default function OrgsRoute() {
         <>
           <TeamsGrid {...selectedOrg}>
             {(team, _, allReady) =>
-              team.roomAssignments ? (
+              team.isCheckedIn ? (
                 <div className="relative flex items-center justify-center gap-2">
                   <Checkbox
                     name={`checkInActions.${team.id}`}
@@ -193,6 +193,17 @@ export default function OrgsRoute() {
                   />
                   <Label htmlFor={team.id}>Undo Check-in</Label>
                 </div>
+              ) : team.roomAssignments ? (
+                <Select
+                  name={`checkInActions.${team.id}`}
+                  form="CheckIn"
+                  defaultValue={allReady ? "__existing__" : "__skip__"}
+                >
+                  <option value="__existing__">Check In &amp; Use Previously Assigned Rooms</option>
+                  <option value="__auto__">Check In &amp; Automatically Reassign Rooms</option>
+                  <option value="__clear__">Clear Existing Check-in Data</option>
+                  <option value="__skip__">Do Not Check In</option>
+                </Select>
               ) : (
                 <Select
                   name={`checkInActions.${team.id}`}
@@ -201,11 +212,6 @@ export default function OrgsRoute() {
                 >
                   <option value="__auto__">Check In &amp; Automatically Assign Rooms</option>
                   <option value="__skip__">Do Not Check In</option>
-                  {/* {event.checkInPools?.map((x) => (
-                  <option key={x.id} value={x.id}>
-                    Check In: {x.id}
-                  </option>
-                ))} */}
                 </Select>
               )
             }

@@ -27,7 +27,7 @@ export async function checkIn(
   eventId: string,
   orgId: string,
   teams: { [teamId: string]: "__skip__" | "__auto__" | "__undo__" | string },
-  allowIncompleteWaivers: boolean = false
+  allowIncompleteWaivers: boolean = false,
 ) {
   const eventRef = db.event(eventId);
 
@@ -49,26 +49,32 @@ export async function checkIn(
             maxStudents,
             preferTeamSize,
             numStudents: (await t.get(studentsRef.where(fieldPath, "==", id))).docs.length,
-          }))
+          })),
         );
         return { id: roomAssignmentId, rooms };
-      })
+      }),
     );
   };
 
   const fetchCheckedInTeams = async (t: Transaction) => {
-    let query = db.eventTeams(eventRef.id).where("number", "!=", "").orderBy("number", "desc");
+    let query = db.eventTeams(eventRef.id).where("isCheckedIn", "==", true);
     const allCheckedInTeams = await t.get(query).then((x) => x.docs.map((y) => y.data()));
     const allCheckedInTeamsById = mapToObject(allCheckedInTeams, (x) => [x.id, x]);
     return allCheckedInTeamsById;
   };
 
+  const fetchMaxNumber = async (t: Transaction) => {
+    let query = db.eventTeams(eventRef.id).where("number", "!=", "").orderBy("number", "desc");
+    const teamsWithNumbers = await t.get(query).then((x) => x.docs.map((y) => y.data()));
+    return teamsWithNumbers;
+  };
+
   const fetchTeamsToCheckIn = async (
     t: Transaction,
-    checkedInTeamsById: { [k: string]: EventTeam }
+    checkedInTeamsById: { [k: string]: EventTeam },
   ) => {
     const teamsToCheckIn = Object.entries(teams).filter(
-      ([id]) => !(id in checkedInTeamsById) || teams[id] === "__undo__"
+      ([id]) => !(id in checkedInTeamsById) || teams[id] === "__undo__",
     );
 
     return Promise.all(
@@ -76,19 +82,17 @@ export async function checkIn(
         id,
         action,
         students: await t.get(studentsRef.where("team", "==", db.eventTeam(eventRef.id, id))),
-      }))
+      })),
     );
   };
 
   const transactionFunc = async (t: Transaction) => {
     const roomAssignments = await fetchRoomAssignments(t);
     const checkedInTeamsById = await fetchCheckedInTeams(t);
+    const teamsWithNumbers = await fetchMaxNumber(t);
     const teamsToCheckIn = await fetchTeamsToCheckIn(t, checkedInTeamsById);
 
-    let nextNumber =
-      Object.values(checkedInTeamsById)
-        .map((x) => Number(x.number))
-        .find((x) => !isNaN(x)) ?? 0;
+    let nextNumber = teamsWithNumbers.map((x) => Number(x.number)).find((x) => !isNaN(x)) ?? 0;
     nextNumber++;
 
     for (const { id, action, students } of teamsToCheckIn) {
@@ -98,13 +102,11 @@ export async function checkIn(
         const team = checkedInTeamsById[id];
         if (!team) throw new Error("Team not found.");
         t.update(db.eventTeam(eventRef.id, id), {
-          number: FieldValue.delete(),
-          roomAssignments: FieldValue.delete(),
+          isCheckedIn: false,
         });
         for (const student of students.docs) {
           t.update(student.ref, {
-            number: FieldValue.delete(),
-            roomAssignments: FieldValue.delete(),
+            isCheckedIn: false,
           });
         }
         for (const thing of Object.values(roomAssignments)) {
@@ -115,56 +117,127 @@ export async function checkIn(
         continue;
       }
 
-      if (action !== "__auto__") throw new Error("Only __auto__ supported");
+      if (id in checkedInTeamsById) {
+        throw new Error(
+          `Team ${id} is already checked in. Please undo check-in first before performing other actions.`,
+        );
+      }
+
+      const isAutoAssign = action === "__auto__";
+      const isUseExisting = action === "__existing__";
+      const isClear = action === "__clear__";
+
+      if (!isAutoAssign && !isUseExisting && !isClear) {
+        throw new Error("Only __auto__, __existing__, and __clear__ are supported");
+      }
+
+      const teamRef = db.eventTeam(eventRef.id, id);
+      const teamSnap = await t.get(teamRef);
+      const teamData = teamSnap.data();
+
+      if (isClear) {
+        t.update(teamRef, {
+          number: FieldValue.delete(),
+          roomAssignments: FieldValue.delete(),
+          isCheckedIn: FieldValue.delete(),
+        });
+        for (const student of students.docs) {
+          t.update(student.ref, {
+            number: FieldValue.delete(),
+            roomAssignments: FieldValue.delete(),
+            isCheckedIn: FieldValue.delete(),
+          });
+        }
+        continue;
+      }
 
       const chosenRooms: { [k: string]: (typeof roomAssignments)[number]["rooms"][number] } = {};
 
-      for (const thing of Object.values(roomAssignments)) {
-        // Choose either the pool with the most capacity left, or one that matches exactly
-        const rooms = thing.rooms.filter(
-          (x) => x.maxStudents - x.numStudents >= students.docs.length
-        );
-
-        if (rooms.length === 0) {
-          throw new Error(`No more space left in rooms for ${thing.id}.`);
+      if (isUseExisting) {
+        if (!teamData?.roomAssignments) {
+          throw new Error(`Team ${id} does not have existing room assignments.`);
         }
 
-        // prettier-ignore
-        let room = rooms.reduce((a, b) =>
-            // If any room prefers this team size, choose that one
-            a.preferTeamSize?.includes(students.docs.length) ? a
-          : b.preferTeamSize?.includes(students.docs.length) ? b
-            // If any room has exactly this team size of seats left, choose that one
-          : a.maxStudents - a.numStudents === students.docs.length ? a
-          : b.maxStudents - b.numStudents === students.docs.length ? b
-            // Choose the room with the lower proportion of seats filled
-          : a.numStudents / a.maxStudents < b.numStudents / b.maxStudents ? a
-          : b.numStudents / b.maxStudents < a.numStudents / a.maxStudents ? b
-            // Choose the room with the higher number of seats left
-          : a.maxStudents - a.numStudents > b.maxStudents - b.numStudents ? a
-          : b
-        );
+        for (const thing of Object.values(roomAssignments)) {
+          const existingRoomId = teamData.roomAssignments[thing.id];
 
-        if (
-          // TODO: Remove hunt-specific code
-          event.id === "GE7QHKkZHm24v2ZOUJN0" &&
-          students.docs.some((x) => x.id === "0elMXNHBuMROD2Grunfb6jDQEdb2")
-        ) {
-          const theRoom = thing.rooms.find((x) => x.id === "Dwinelle 219");
-          if (!theRoom) throw new Error("Error assigning rooms. Please contact BMT.");
-          room = theRoom;
+          if (!existingRoomId) {
+            throw new Error(`Team ${id} does not have a room assignment for ${thing.id}.`);
+          }
+
+          const room = thing.rooms.find((x) => x.id === existingRoomId);
+
+          if (!room) {
+            throw new Error(`Room ${existingRoomId} for ${thing.id} does not exist.`);
+          }
+
+          if (room.maxStudents - room.numStudents < students.docs.length) {
+            throw new Error(`Not enough space in room ${existingRoomId} for ${thing.id}.`);
+          }
+
+          room.numStudents += students.docs.length;
+          chosenRooms[thing.id] = room;
         }
+      } else {
+        for (const thing of Object.values(roomAssignments)) {
+          const rooms = thing.rooms.filter(
+            (x) => x.maxStudents - x.numStudents >= students.docs.length,
+          );
 
-        room.numStudents += students.docs.length;
-        chosenRooms[thing.id] = room;
+          if (rooms.length === 0) {
+            throw new Error(`No more space left in rooms for ${thing.id}.`);
+          }
+
+          const roomsMatchingPreference = rooms.filter(
+            (x) => !x.preferTeamSize || x.preferTeamSize.includes(students.docs.length),
+          );
+
+          const eligibleRooms =
+            roomsMatchingPreference.length > 0 ? roomsMatchingPreference : rooms;
+
+          // prettier-ignore
+          let room = eligibleRooms.reduce((a, b) =>
+              // If any room prefers this team size, choose that one
+              a.preferTeamSize?.includes(students.docs.length) ? a
+            : b.preferTeamSize?.includes(students.docs.length) ? b
+              // If any room has exactly this team size of seats left, choose that one
+            : a.maxStudents - a.numStudents === students.docs.length ? a
+            : b.maxStudents - b.numStudents === students.docs.length ? b
+              // Choose the room with the lower proportion of seats filled
+            : a.numStudents / a.maxStudents < b.numStudents / b.maxStudents ? a
+            : b.numStudents / b.maxStudents < a.numStudents / a.maxStudents ? b
+              // Choose the room with the higher number of seats left
+            : a.maxStudents - a.numStudents > b.maxStudents - b.numStudents ? a
+            : b
+          );
+
+          if (
+            // TODO: Remove hunt-specific code
+            event.id === "GE7QHKkZHm24v2ZOUJN0" &&
+            students.docs.some((x) => x.id === "0elMXNHBuMROD2Grunfb6jDQEdb2")
+          ) {
+            const theRoom = thing.rooms.find((x) => x.id === "Dwinelle 219");
+            if (!theRoom) throw new Error("Error assigning rooms. Please contact BMT.");
+            room = theRoom;
+          }
+
+          room.numStudents += students.docs.length;
+          chosenRooms[thing.id] = room;
+        }
       }
 
-      const number = String(nextNumber++).padStart(3, "0");
+      let number: string;
+      if (teamData?.number) {
+        number = teamData.number;
+      } else {
+        number = String(nextNumber++).padStart(3, "0");
+      }
+
       const taken = new Set(
         students.docs
           .map((x) => x.data().number)
           .map((x) => x?.startsWith(number) && x[x.length - 1])
-          .filter(Boolean)
+          .filter(Boolean),
       );
 
       const doneRoomAssignments = mapValues(chosenRooms, (x) => x.id);
@@ -172,20 +245,30 @@ export async function checkIn(
       t.update(db.eventTeam(eventRef.id, id), {
         number,
         roomAssignments: doneRoomAssignments,
+        isCheckedIn: true,
       });
 
       for (const student of students.docs) {
         if (!student.data().waiver && event.waiver && !allowIncompleteWaivers)
           throw new Error(
-            `Student ${student.data().fname} ${student.data().lname} has not signed waiver.`
+            `Student ${student.data().fname} ${student.data().lname} has not signed waiver.`,
           );
 
-        const letter = alphabet.find((x) => !taken.has(x));
+        const studentData = student.data();
+        let studentNumber: string;
+        if (studentData.number && studentData.number.startsWith(number)) {
+          studentNumber = studentData.number;
+        } else {
+          const letter = alphabet.find((x) => !taken.has(x));
+          studentNumber = `${number}${letter}`;
+          taken.add(letter);
+        }
+
         t.update(student.ref, {
-          number: `${number}${letter}`,
+          number: studentNumber,
           roomAssignments: doneRoomAssignments,
+          isCheckedIn: true,
         });
-        taken.add(letter);
       }
     }
 
@@ -229,7 +312,7 @@ export async function checkIn(
           ? `[${x.number}] ${x.name} — ${Object.entries(x.roomAssignments ?? {})
               .map(([k, v]) => `${k}: ${v}`)
               .join(" / ")}`
-          : `${x.name} — Not Checked In`
+          : `${x.name} — Not Checked In`,
       )
       .join("<br>");
 
@@ -240,7 +323,7 @@ export async function checkIn(
           ? `[${x.number}] ${x.fname} ${x.lname} — ${Object.entries(x.roomAssignments ?? {})
               .map(([k, v]) => `${k}: ${v}`)
               .join(" / ")}`
-          : `${x.fname} ${x.lname} — Not Checked In`
+          : `${x.fname} ${x.lname} — Not Checked In`,
       )
       .join("<br>");
 
