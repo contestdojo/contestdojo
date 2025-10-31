@@ -183,7 +183,7 @@ export default function OrgsRoute() {
         <>
           <TeamsGrid {...selectedOrg}>
             {(team, _, allReady) =>
-              team.roomAssignments && team.number ? (
+              team.isCheckedIn ? (
                 <div className="relative flex items-center justify-center gap-2">
                   <Checkbox
                     name={`checkInActions.${team.id}`}
@@ -201,6 +201,7 @@ export default function OrgsRoute() {
                 >
                   <option value="__existing__">Check In &amp; Use Previously Assigned Rooms</option>
                   <option value="__auto__">Check In &amp; Automatically Reassign Rooms</option>
+                  <option value="__clear__">Clear Existing Check-in Data</option>
                   <option value="__skip__">Do Not Check In</option>
                 </Select>
               ) : (

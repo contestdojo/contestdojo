@@ -98,11 +98,11 @@ export async function checkIn(
         const team = checkedInTeamsById[id];
         if (!team) throw new Error("Team not found.");
         t.update(db.eventTeam(eventRef.id, id), {
-          number: FieldValue.delete(),
+          isCheckedIn: false,
         });
         for (const student of students.docs) {
           t.update(student.ref, {
-            number: FieldValue.delete(),
+            isCheckedIn: false,
           });
         }
         for (const thing of Object.values(roomAssignments)) {
@@ -115,18 +115,35 @@ export async function checkIn(
 
       const isAutoAssign = action === "__auto__";
       const isUseExisting = action === "__existing__";
+      const isClear = action === "__clear__";
 
-      if (!isAutoAssign && !isUseExisting) {
-        throw new Error("Only __auto__ and __existing__ are supported");
+      if (!isAutoAssign && !isUseExisting && !isClear) {
+        throw new Error("Only __auto__, __existing__, and __clear__ are supported");
+      }
+
+      const teamRef = db.eventTeam(eventRef.id, id);
+      const teamSnap = await t.get(teamRef);
+      const teamData = teamSnap.data();
+
+      if (isClear) {
+        t.update(teamRef, {
+          number: FieldValue.delete(),
+          roomAssignments: FieldValue.delete(),
+          isCheckedIn: FieldValue.delete(),
+        });
+        for (const student of students.docs) {
+          t.update(student.ref, {
+            number: FieldValue.delete(),
+            roomAssignments: FieldValue.delete(),
+            isCheckedIn: FieldValue.delete(),
+          });
+        }
+        continue;
       }
 
       const chosenRooms: { [k: string]: (typeof roomAssignments)[number]["rooms"][number] } = {};
 
       if (isUseExisting) {
-        const teamRef = db.eventTeam(eventRef.id, id);
-        const teamSnap = await t.get(teamRef);
-        const teamData = teamSnap.data();
-
         if (!teamData?.roomAssignments) {
           throw new Error(`Team ${id} does not have existing room assignments.`);
         }
@@ -199,7 +216,13 @@ export async function checkIn(
         }
       }
 
-      const number = String(nextNumber++).padStart(3, "0");
+      let number: string;
+      if (teamData?.number) {
+        number = teamData.number;
+      } else {
+        number = String(nextNumber++).padStart(3, "0");
+      }
+
       const taken = new Set(
         students.docs
           .map((x) => x.data().number)
@@ -212,6 +235,7 @@ export async function checkIn(
       t.update(db.eventTeam(eventRef.id, id), {
         number,
         roomAssignments: doneRoomAssignments,
+        isCheckedIn: true,
       });
 
       for (const student of students.docs) {
@@ -220,12 +244,21 @@ export async function checkIn(
             `Student ${student.data().fname} ${student.data().lname} has not signed waiver.`,
           );
 
-        const letter = alphabet.find((x) => !taken.has(x));
+        const studentData = student.data();
+        let studentNumber: string;
+        if (studentData.number && studentData.number.startsWith(number)) {
+          studentNumber = studentData.number;
+        } else {
+          const letter = alphabet.find((x) => !taken.has(x));
+          studentNumber = `${number}${letter}`;
+          taken.add(letter);
+        }
+
         t.update(student.ref, {
-          number: `${number}${letter}`,
+          number: studentNumber,
           roomAssignments: doneRoomAssignments,
+          isCheckedIn: true,
         });
-        taken.add(letter);
       }
     }
 
