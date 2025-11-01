@@ -30,8 +30,7 @@ import { useEffect, useRef, useState } from "react";
 import { validationError } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { $typst } from "@myriaddreamin/typst.ts";
-import * as pdfjsLib from "pdfjs-dist";
+import { ClientOnly } from "remix-utils/client-only";
 
 import { SchemaForm } from "~/components/schema-form";
 import { Button, IconButton, Modal } from "~/components/ui";
@@ -338,6 +337,7 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
   }, [open]);
 
   const renderDocument = async () => {
+    if (typeof window === "undefined") return;
     if (!selectedId) return;
 
     setIsRendering(true);
@@ -363,6 +363,8 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
         }
       });
 
+      const { $typst } = await import("@myriaddreamin/typst.ts");
+
       const pdf = await $typst.pdf({
         mainContent: documentTemplate.typstSource,
         inputs,
@@ -371,7 +373,8 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
       setPdfData(pdf);
 
       if (canvasRef.current) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+        const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
         const loadingTask = pdfjsLib.getDocument({ data: pdf });
         const pdfDoc = await loadingTask.promise;
@@ -589,11 +592,15 @@ export default function DocumentsRoute() {
         />
       )}
       {previewingTemplate && (
-        <PreviewDocumentModal
-          documentTemplate={previewingTemplate}
-          open={!!previewingTemplate}
-          setOpen={(open) => !open && setPreviewingTemplate(null)}
-        />
+        <ClientOnly fallback={null}>
+          {() => (
+            <PreviewDocumentModal
+              documentTemplate={previewingTemplate}
+              open={!!previewingTemplate}
+              setOpen={(open) => !open && setPreviewingTemplate(null)}
+            />
+          )}
+        </ClientOnly>
       )}
     </div>
   );
