@@ -190,6 +190,17 @@ const EmailBlast = zfb.firestoreObject(
   })
 );
 
+const DocumentTemplate = zfb.firestoreObject(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    typstSource: z.string(),
+    dataSource: z.enum(["student", "organization", "team"]),
+    createdAt: zfb.timestamp(),
+    updatedAt: zfb.timestamp(),
+  })
+);
+
 export type User = z.infer<typeof User>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type Entity = z.infer<typeof Entity>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EventCustomField = z.infer<typeof EventCustomField>; // eslint-disable-line @typescript-eslint/no-redeclare
@@ -199,6 +210,7 @@ export type EventOrganization = z.infer<typeof EventOrganization>; // eslint-dis
 export type EventStudent = z.infer<typeof EventStudent>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EventTeam = z.infer<typeof EventTeam>; // eslint-disable-line @typescript-eslint/no-redeclare
 export type EmailBlast = z.infer<typeof EmailBlast>; // eslint-disable-line @typescript-eslint/no-redeclare
+export type DocumentTemplate = z.infer<typeof DocumentTemplate>; // eslint-disable-line @typescript-eslint/no-redeclare
 
 export namespace db {
   // Collections
@@ -229,6 +241,13 @@ export namespace db {
 
   export function eventEmailBlasts(eventId: string) {
     return events.doc(eventId).collection("emailBlasts").withConverter(EmailBlast.converter);
+  }
+
+  export function eventDocumentTemplates(eventId: string) {
+    return events
+      .doc(eventId)
+      .collection("documentTemplates")
+      .withConverter(DocumentTemplate.converter);
   }
 
   // Documents
@@ -263,6 +282,10 @@ export namespace db {
 
   export function eventEmailBlast(eventId: string, id: string) {
     return eventEmailBlasts(eventId).doc(id).withConverter(EmailBlast.converter);
+  }
+
+  export function eventDocumentTemplate(eventId: string, id: string) {
+    return eventDocumentTemplates(eventId).doc(id).withConverter(DocumentTemplate.converter);
   }
 
   // Utils

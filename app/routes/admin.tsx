@@ -220,6 +220,9 @@ export default function AdminRoute() {
                           <Dropdown.Item as={Link} to={`${entity.id}/${event.id}/tools/emails`}>
                             Emails
                           </Dropdown.Item>
+                          <Dropdown.Item as={Link} to={`${entity.id}/${event.id}/tools/documents`}>
+                            Documents
+                          </Dropdown.Item>
                         </NavDropdown>
                         <NavItem to={`${entity.id}/${event.id}/settings`}>Settings</NavItem>
                       </>
@@ -300,6 +303,9 @@ export default function AdminRoute() {
                     </MobileNavItem>
                     <MobileNavItem to={`${entity.id}/${event.id}/tools/emails`}>
                       Tools - Emails
+                    </MobileNavItem>
+                    <MobileNavItem to={`${entity.id}/${event.id}/tools/documents`}>
+                      Tools - Documents
                     </MobileNavItem>
                     <MobileNavItem to={`${entity.id}/${event.id}/settings`}>Settings</MobileNavItem>
                   </>
