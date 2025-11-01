@@ -363,7 +363,12 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
         }
       });
 
-      const { $typst } = await import("@myriaddreamin/typst.ts");
+      const { $typst, initOptions } = await import("@myriaddreamin/typst.ts/dist/esm/index.mjs");
+      const wasmUrl = (await import("@myriaddreamin/typst.ts/dist/wasm/typst_ts_bg.wasm?url"))
+        .default;
+      if (initOptions.setWasmUrl) {
+        initOptions.setWasmUrl(wasmUrl);
+      }
 
       const pdf = await $typst.pdf({
         mainContent: documentTemplate.typstSource,
@@ -373,7 +378,8 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
       setPdfData(pdf);
 
       if (canvasRef.current) {
-        const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf");
+        const mod = await import("pdfjs-dist/legacy/build/pdf");
+        const pdfjsLib = mod && "default" in mod ? mod.default : mod;
         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
         const loadingTask = pdfjsLib.getDocument({ data: pdf });
