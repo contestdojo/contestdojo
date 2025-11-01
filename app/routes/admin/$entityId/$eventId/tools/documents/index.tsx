@@ -364,10 +364,10 @@ function PreviewDocumentModal({ documentTemplate, open, setOpen }: PreviewDocume
       });
 
       const { $typst, initOptions } = await import("@myriaddreamin/typst.ts/dist/esm/index.mjs");
-      const wasmUrl = (await import("@myriaddreamin/typst.ts/dist/wasm/typst_ts_bg.wasm?url"))
-        .default;
       if (initOptions.setWasmUrl) {
-        initOptions.setWasmUrl(wasmUrl);
+        initOptions.setWasmUrl(
+          "https://unpkg.com/@myriaddreamin/typst.ts@0.7.0-rc1/dist/wasm/typst_ts_bg.wasm"
+        );
       }
 
       const pdf = await $typst.pdf({
