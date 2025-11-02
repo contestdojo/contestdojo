@@ -40,7 +40,7 @@ function Team({ team, students, children }: TeamProps) {
   return (
     <Box
       className={clsx`flex flex-col gap-4 p-4 ${
-        !team.roomAssignments &&
+        !team.isCheckedIn &&
         students.length > 0 &&
         (allReady
           ? "border-transparent ring-2 ring-green-500"
@@ -108,7 +108,7 @@ export function TeamsGrid({ teams, students, children }: TeamsProps) {
         }
         return acc;
       }, new Map()),
-    [students]
+    [students],
   );
 
   return (
