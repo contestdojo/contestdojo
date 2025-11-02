@@ -27,7 +27,7 @@ export async function checkIn(
   eventId: string,
   orgId: string,
   teams: { [teamId: string]: "__skip__" | "__auto__" | "__undo__" | string },
-  allowIncompleteWaivers: boolean = false,
+  allowIncompleteWaivers: boolean = false
 ) {
   const eventRef = db.event(eventId);
 
@@ -49,10 +49,10 @@ export async function checkIn(
             maxStudents,
             preferTeamSize,
             numStudents: (await t.get(studentsRef.where(fieldPath, "==", id))).docs.length,
-          })),
+          }))
         );
         return { id: roomAssignmentId, rooms };
-      }),
+      })
     );
   };
 
@@ -71,10 +71,10 @@ export async function checkIn(
 
   const fetchTeamsToCheckIn = async (
     t: Transaction,
-    checkedInTeamsById: { [k: string]: EventTeam },
+    checkedInTeamsById: { [k: string]: EventTeam }
   ) => {
     const teamsToCheckIn = Object.entries(teams).filter(
-      ([id]) => !(id in checkedInTeamsById) || teams[id] === "__undo__",
+      ([id]) => !(id in checkedInTeamsById) || teams[id] === "__undo__"
     );
 
     return Promise.all(
@@ -82,7 +82,7 @@ export async function checkIn(
         id,
         action,
         students: await t.get(studentsRef.where("team", "==", db.eventTeam(eventRef.id, id))),
-      })),
+      }))
     );
   };
 
@@ -119,7 +119,7 @@ export async function checkIn(
 
       if (id in checkedInTeamsById) {
         throw new Error(
-          `Team ${id} is already checked in. Please undo check-in first before performing other actions.`,
+          `Team ${id} is already checked in. Please undo check-in first before performing other actions.`
         );
       }
 
@@ -160,28 +160,26 @@ export async function checkIn(
 
         for (const thing of Object.values(roomAssignments)) {
           const existingRoomId = teamData.roomAssignments[thing.id];
-
           if (!existingRoomId) {
             throw new Error(`Team ${id} does not have a room assignment for ${thing.id}.`);
           }
 
           const room = thing.rooms.find((x) => x.id === existingRoomId);
-
           if (!room) {
             throw new Error(`Room ${existingRoomId} for ${thing.id} does not exist.`);
           }
 
-          if (room.maxStudents - room.numStudents < students.docs.length) {
+          // existing room assignment already counted in numStudents
+          if (room.maxStudents - room.numStudents < 0) {
             throw new Error(`Not enough space in room ${existingRoomId} for ${thing.id}.`);
           }
 
-          room.numStudents += students.docs.length;
           chosenRooms[thing.id] = room;
         }
       } else {
         for (const thing of Object.values(roomAssignments)) {
           const rooms = thing.rooms.filter(
-            (x) => x.maxStudents - x.numStudents >= students.docs.length,
+            (x) => x.maxStudents - x.numStudents >= students.docs.length
           );
 
           if (rooms.length === 0) {
@@ -207,16 +205,6 @@ export async function checkIn(
             : b
           );
 
-          if (
-            // TODO: Remove hunt-specific code
-            event.id === "GE7QHKkZHm24v2ZOUJN0" &&
-            students.docs.some((x) => x.id === "0elMXNHBuMROD2Grunfb6jDQEdb2")
-          ) {
-            const theRoom = thing.rooms.find((x) => x.id === "Dwinelle 219");
-            if (!theRoom) throw new Error("Error assigning rooms. Please contact BMT.");
-            room = theRoom;
-          }
-
           room.numStudents += students.docs.length;
           chosenRooms[thing.id] = room;
         }
@@ -233,7 +221,7 @@ export async function checkIn(
         students.docs
           .map((x) => x.data().number)
           .map((x) => x?.startsWith(number) && x[x.length - 1])
-          .filter(Boolean),
+          .filter(Boolean)
       );
 
       const doneRoomAssignments = mapValues(chosenRooms, (x) => x.id);
@@ -247,7 +235,7 @@ export async function checkIn(
       for (const student of students.docs) {
         if (!student.data().waiver && event.waiver && !allowIncompleteWaivers)
           throw new Error(
-            `Student ${student.data().fname} ${student.data().lname} has not signed waiver.`,
+            `Student ${student.data().fname} ${student.data().lname} has not signed waiver.`
           );
 
         const studentData = student.data();
@@ -308,7 +296,7 @@ export async function checkIn(
           ? `[${x.number}] ${x.name} — ${Object.entries(x.roomAssignments ?? {})
               .map(([k, v]) => `${k}: ${v}`)
               .join(" / ")}`
-          : `${x.name} — Not Checked In`,
+          : `${x.name} — Not Checked In`
       )
       .join("<br>");
 
@@ -319,7 +307,7 @@ export async function checkIn(
           ? `[${x.number}] ${x.fname} ${x.lname} — ${Object.entries(x.roomAssignments ?? {})
               .map(([k, v]) => `${k}: ${v}`)
               .join(" / ")}`
-          : `${x.fname} ${x.lname} — Not Checked In`,
+          : `${x.fname} ${x.lname} — Not Checked In`
       )
       .join("<br>");
 
