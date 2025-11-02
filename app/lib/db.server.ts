@@ -21,7 +21,7 @@ const User = zfb.firestoreObject(
     fname: z.string(),
     lname: z.string(),
     type: z.string(),
-  }),
+  })
 );
 
 const Organization = zfb.firestoreObject(
@@ -40,7 +40,7 @@ const Organization = zfb.firestoreObject(
       lname: z.string(),
       type: z.string(),
     }),
-  }),
+  })
 );
 
 const Entity = zfb.firestoreObject(
@@ -50,7 +50,7 @@ const Entity = zfb.firestoreObject(
     admins: z.array(zfb.documentReference()),
     stripeAccount: z.string().optional(),
     emailReplyToAddress: z.string().optional(),
-  }),
+  })
 );
 
 const EventCustomField = z.object({
@@ -86,7 +86,8 @@ const EventRoomAssignmentSection = z.object({
       id: z.string(),
       maxStudents: z.number(),
       preferTeamSize: z.array(z.number()).optional(),
-    }),
+      priority: z.number().optional(),
+    })
   ),
 });
 
@@ -124,7 +125,7 @@ const Event = zfb.firestoreObject(
     addOns: z.array(EventAddOn).optional(),
     maxStudents: z.number().optional(),
     maxStudentsPerOrg: z.number().optional(),
-  }),
+  })
 );
 
 const EventOrganization = zfb.firestoreObject(
@@ -136,7 +137,7 @@ const EventOrganization = zfb.firestoreObject(
     customFields: z.record(z.string().nullable()).optional(),
     checkInFields: z.record(z.string()).optional(),
     code: z.string().optional(),
-  }),
+  })
 );
 
 const EventStudent = zfb.firestoreObject(
@@ -157,7 +158,7 @@ const EventStudent = zfb.firestoreObject(
     customFields: z.record(z.string().nullable()).optional(),
     checkInPool: z.string().optional(),
     roomAssignments: z.record(z.string()).optional(),
-  }),
+  })
 );
 
 const EventTeam = zfb.firestoreObject(
@@ -173,7 +174,7 @@ const EventTeam = zfb.firestoreObject(
     code: z.string().optional(),
     checkInPool: z.string().optional(),
     roomAssignments: z.record(z.string()).optional(),
-  }),
+  })
 );
 
 const EmailBlast = zfb.firestoreObject(
@@ -189,7 +190,7 @@ const EmailBlast = zfb.firestoreObject(
     sentCount: z.number().optional(),
     failedCount: z.number().optional(),
     failedEmails: z.array(z.string()).optional(),
-  }),
+  })
 );
 
 export type User = z.infer<typeof User>; // eslint-disable-line @typescript-eslint/no-redeclare

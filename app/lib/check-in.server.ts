@@ -9,7 +9,7 @@
 import type { User } from "./auth.server";
 import type { EventTeam } from "~/lib/db.server";
 
-import { FieldPath, FieldValue, type Transaction } from "firebase-admin/firestore";
+import { FieldPath, FieldValue, type Transaction } from "firebasete-admin/firestore";
 
 import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
@@ -44,10 +44,11 @@ export async function checkIn(
       roomAssignments.map(async ({ id: roomAssignmentId, rooms: _rooms }) => {
         const fieldPath = new FieldPath("roomAssignments", roomAssignmentId);
         const rooms = await Promise.all(
-          _rooms.map(async ({ id, maxStudents, preferTeamSize }) => ({
+          _rooms.map(async ({ id, maxStudents, preferTeamSize, priority }) => ({
             id,
             maxStudents,
             preferTeamSize,
+            priority: priority ?? 0,
             numStudents: (await t.get(studentsRef.where(fieldPath, "==", id))).docs.length,
           }))
         );
@@ -194,8 +195,11 @@ export async function checkIn(
 
           // prettier-ignore
           let room = rooms.reduce((a, b) =>
+              // First, prioritize by priority (lower priority fills first)
+              a.priority < b.priority ? a
+            : b.priority < a.priority ? b
               // If any room prefers this team size, choose that one
-              a.preferTeamSize && a.preferTeamSize.includes(students.docs.length) ? a
+            : a.preferTeamSize && a.preferTeamSize.includes(students.docs.length) ? a
             : b.preferTeamSize && b.preferTeamSize.includes(students.docs.length) ? b
               // If any room prefers not this team size, don't choose that one
             : a.preferTeamSize && !a.preferTeamSize.includes(students.docs.length) ? b

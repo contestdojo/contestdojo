@@ -149,6 +149,7 @@ const RoomAssignmentsForm = z.object({
           id: zfd.text(),
           maxStudents: zfd.numeric(),
           preferTeamSize: z.array(zfd.numeric(z.number().optional())).optional(),
+          priority: zfd.numeric(z.number().optional()),
         })
       ),
     })
@@ -395,6 +396,12 @@ export default function SettingsRoute() {
                 rooms: {
                   label: "Rooms",
                   elementClassName: "md:flex-row",
+                  element: {
+                    priority: {
+                      label: "Priority",
+                      help: "Lower priority rooms fill first (default: 0)",
+                    },
+                  },
                 },
               },
             },
