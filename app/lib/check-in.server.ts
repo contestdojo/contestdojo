@@ -64,9 +64,13 @@ export async function checkIn(
   };
 
   const fetchMaxNumber = async (t: Transaction) => {
-    let query = db.eventTeams(eventRef.id).where("number", "!=", "").orderBy("number", "desc");
+    let query = db
+      .eventTeams(eventRef.id)
+      .where("number", "!=", "")
+      .orderBy("number", "desc")
+      .limit(1);
     const teamsWithNumbers = await t.get(query).then((x) => x.docs.map((y) => y.data()));
-    return teamsWithNumbers;
+    return teamsWithNumbers.map((x) => Number(x.number)).find((x) => !isNaN(x)) ?? 0;
   };
 
   const fetchTeamsToCheckIn = async (
@@ -78,24 +82,27 @@ export async function checkIn(
     );
 
     return Promise.all(
-      teamsToCheckIn.map(async ([id, action]) => ({
-        id,
-        action,
-        students: await t.get(studentsRef.where("team", "==", db.eventTeam(eventRef.id, id))),
-      }))
+      teamsToCheckIn.map(async ([id, action]) => {
+        const teamRef = db.eventTeam(eventRef.id, id);
+        return {
+          id,
+          action,
+          students: await t.get(studentsRef.where("team", "==", teamRef)),
+          teamSnap: await t.get(teamRef),
+        };
+      })
     );
   };
 
   const transactionFunc = async (t: Transaction) => {
     const roomAssignments = await fetchRoomAssignments(t);
     const checkedInTeamsById = await fetchCheckedInTeams(t);
-    const teamsWithNumbers = await fetchMaxNumber(t);
     const teamsToCheckIn = await fetchTeamsToCheckIn(t, checkedInTeamsById);
 
-    let nextNumber = teamsWithNumbers.map((x) => Number(x.number)).find((x) => !isNaN(x)) ?? 0;
+    let nextNumber = await fetchMaxNumber(t);
     nextNumber++;
 
-    for (const { id, action, students } of teamsToCheckIn) {
+    for (const { id, action, students, teamSnap } of teamsToCheckIn) {
       if (action === "__skip__" || students.docs.length === 0) continue;
 
       if (action === "__undo__") {
@@ -132,7 +139,6 @@ export async function checkIn(
       }
 
       const teamRef = db.eventTeam(eventRef.id, id);
-      const teamSnap = await t.get(teamRef);
       const teamData = teamSnap.data();
 
       if (isClear) {
