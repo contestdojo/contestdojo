@@ -188,18 +188,14 @@ export async function checkIn(
             throw new Error(`No more space left in rooms for ${thing.id}.`);
           }
 
-          const roomsMatchingPreference = rooms.filter(
-            (x) => !x.preferTeamSize || x.preferTeamSize.includes(students.docs.length),
-          );
-
-          const eligibleRooms =
-            roomsMatchingPreference.length > 0 ? roomsMatchingPreference : rooms;
-
           // prettier-ignore
-          let room = eligibleRooms.reduce((a, b) =>
+          let room = rooms.reduce((a, b) =>
               // If any room prefers this team size, choose that one
-              a.preferTeamSize?.includes(students.docs.length) ? a
-            : b.preferTeamSize?.includes(students.docs.length) ? b
+              a.preferTeamSize && a.preferTeamSize.includes(students.docs.length) ? a
+            : b.preferTeamSize && b.preferTeamSize.includes(students.docs.length) ? b
+              // If any room prefers not this team size, don't choose that one
+            : a.preferTeamSize && !a.preferTeamSize.includes(students.docs.length) ? b
+            : b.preferTeamSize && !b.preferTeamSize.includes(students.docs.length) ? a
               // If any room has exactly this team size of seats left, choose that one
             : a.maxStudents - a.numStudents === students.docs.length ? a
             : b.maxStudents - b.numStudents === students.docs.length ? b
