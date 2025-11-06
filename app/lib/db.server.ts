@@ -86,7 +86,7 @@ const EventRoomAssignmentSection = z.object({
       id: z.string(),
       maxStudents: z.number(),
       preferTeamSize: z.array(z.number()).optional(),
-      priority: z.number().optional(),
+      priority: z.number().default(0),
     })
   ),
 });
