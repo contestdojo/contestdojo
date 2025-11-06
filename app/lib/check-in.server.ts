@@ -9,7 +9,7 @@
 import type { User } from "./auth.server";
 import type { EventTeam } from "~/lib/db.server";
 
-import { FieldPath, FieldValue, type Transaction } from "firebasete-admin/firestore";
+import { FieldPath, FieldValue, type Transaction } from "firebase-admin/firestore";
 
 import { db } from "~/lib/db.server";
 import { firestore } from "~/lib/firebase.server";
