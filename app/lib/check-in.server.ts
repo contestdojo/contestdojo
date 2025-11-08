@@ -302,7 +302,7 @@ export async function checkIn(
     const teamsText = teams.docs
       .map((x) => x.data())
       .map((x) =>
-        x.number
+        x.isCheckedIn
           ? `[${x.number}] ${x.name} — ${Object.entries(x.roomAssignments ?? {})
               .map(([k, v]) => `${k}: ${v}`)
               .join(" / ")}`
@@ -313,7 +313,7 @@ export async function checkIn(
     const studentsText = students.docs
       .map((x) => x.data())
       .map((x) =>
-        x.number
+        x.isCheckedIn
           ? `[${x.number}] ${x.fname} ${x.lname} — ${Object.entries(x.roomAssignments ?? {})
               .map(([k, v]) => `${k}: ${v}`)
               .join(" / ")}`

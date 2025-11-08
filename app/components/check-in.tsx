@@ -59,7 +59,7 @@ function Team({ team, students, children }: TeamProps) {
           <div
             key={x.id}
             className={clsx`flex items-center gap-2 ${
-              x.waiver ? (x.number ? "text-gray-500" : "text-green-500") : "text-red-500"
+              x.waiver ? (x.isCheckedIn ? "text-gray-500" : "text-green-500") : "text-red-500"
             }`}
           >
             {x.waiver ? (
@@ -108,7 +108,7 @@ export function TeamsGrid({ teams, students, children }: TeamsProps) {
         }
         return acc;
       }, new Map()),
-    [students],
+    [students]
   );
 
   return (
