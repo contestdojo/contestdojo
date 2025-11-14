@@ -93,11 +93,11 @@ service cloud.firestore {
         allow update: if isEventAdmin() || notFrozenAnd(
           isOrgAdminOf(resource.data.get("org", null))
           && isOrgAdminOf(request.resource.data.get("org", null))
-          && !("roomAssignments" in resource.data && resource.data.roomAssignments != null && resource.data.roomAssignments != "")
+          && !resource.data.get("isCheckedIn", false)
         );
         allow delete: if isEventAdmin() || notFrozenAnd(
           isOrgAdminOf(resource.data.get("org", null))
-          && !("roomAssignments" in resource.data && resource.data.roomAssignments != null && resource.data.roomAssignments != "")
+          && !resource.data.get("isCheckedIn", false)
         );
       }
 
@@ -112,15 +112,14 @@ service cloud.firestore {
         allow update: if isEventAdmin() || (
           (isOrgAdminOf(resource.data.get("org", null)) || userRef() == resource.data.user)
           && notFrozenOr(resource.data.get("team", null) == request.resource.data.get("team", null))
-          && (resource.data.get("roomAssignments", null) == null || resource.data.get("roomAssignments", null) == "")
+          && !resource.data.get("isCheckedIn", false)
           && (request.resource.data.get("org", null) == null || request.resource.data.get("team", null) == null
-                || get(request.resource.data.team).data.get("roomAssignments", null) == null
-                || get(request.resource.data.team).data.get("roomAssignments", null) == "")
+                || !get(request.resource.data.team).data.get("isCheckedIn", false))
         );
         allow delete: if isEventAdmin() || (
           (isOrgAdminOf(resource.data.get("org", null)) || userRef() == resource.data.user)
           && notFrozenOr(true)
-          && (resource.data.get("roomAssignments", null) == null || resource.data.get("roomAssignments", null) == "")
+          && !resource.data.get("isCheckedIn", false)
         );
       }
 
