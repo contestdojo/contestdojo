@@ -59,6 +59,26 @@ const DownloadWaiver = ({ waiver }) => {
   );
 };
 
+const initiateStripeCheckout = async (eventId, email, stripeAccountId, auth) => {
+  const authorization = await auth.currentUser.getIdToken();
+  const resp = await fetch(`/api/student/${eventId}/pay`, {
+    method: "POST",
+    headers: { authorization, "content-type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!resp.ok) throw new Error(await resp.text());
+  const data = await resp.json();
+
+  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY, { stripeAccount: stripeAccountId });
+  const stripe = await stripePromise;
+  const result = await stripe.redirectToCheckout({
+    sessionId: data.id,
+  });
+
+  if (result.error) throw new Error(result.error.message);
+};
+
 const StudentRegistration = ({ event }) => {
   const [registrationType, setRegistrationType] = useState(event.studentRegistrationEnabled ? "student" : "org");
   const [orgJoinCode, setOrgJoinCode] = useState("");
@@ -91,23 +111,7 @@ const StudentRegistration = ({ event }) => {
   }, [query]);
 
   const handleStudentPurchase = async () => {
-    const authorization = await auth.currentUser.getIdToken();
-    const resp = await fetch(`/api/student/${eventRef.id}/pay`, {
-      method: "POST",
-      headers: { authorization, "content-type": "application/json" },
-      body: JSON.stringify({ email: user.email }),
-    });
-    if (!resp.ok) throw new Error(await resp.text());
-    const data = await resp.json();
-
-    const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY, { stripeAccount: entity.stripeAccountId });
-
-    const stripe = await stripePromise;
-    const result = await stripe.redirectToCheckout({
-      sessionId: data.id,
-    });
-
-    if (result.error) throw new Error(result.error.message);
+    await initiateStripeCheckout(eventRef.id, user.email, entity.stripeAccountId, auth);
   };
 
   const handleSubmit = wrapAction(async (_values) => {
@@ -202,6 +206,101 @@ const StudentRegistration = ({ event }) => {
         defaultValues={{ fname: user.fname, lname: user.lname, email: user.email }}
         {...formState}
         buttonText="Submit Registration"
+        initial
+      />
+    </Stack>
+  );
+};
+
+const PendingRegistration = ({ event, pendingStudent }) => {
+  const auth = useAuth();
+  const [openDialog] = useDialog();
+  const { ref: eventRef } = useEvent();
+  const { data: user } = useUserData();
+  const { data: entity } = useFirestoreDocData(event.owner);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formState, wrapAction] = useFormState();
+
+  const handleUpdate = wrapAction(async (_values) => {
+    const { id, email, user, ...values } = _values;
+    const pendingStudentRef = eventRef.collection("pending-students").doc(pendingStudent.id);
+    await pendingStudentRef.update(values);
+  });
+
+  const handleResumePayment = async () => {
+    setIsLoading(true);
+    try {
+      await initiateStripeCheckout(eventRef.id, user.email, entity.stripeAccountId, auth);
+    } catch (error) {
+      openDialog({
+        type: "alert",
+        title: "Payment Error",
+        description: error.message,
+      });
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelRegistration = async () => {
+    openDialog({
+      type: "confirm",
+      title: "Cancel Registration?",
+      description: "This will delete your pending registration. You can re-register at any time.",
+      onConfirm: async () => {
+        await eventRef.collection("pending-students").doc(user.uid).delete();
+        openDialog({
+          type: "alert",
+          title: "Registration Cancelled",
+          description: "Your pending registration has been cancelled.",
+        });
+      },
+    });
+  };
+
+  return (
+    <Stack spacing={6}>
+      <Box mb={-4}>
+        <Markdown>{event.description}</Markdown>
+      </Box>
+      <Divider />
+
+      <Alert
+        as={Stack}
+        spacing={4}
+        status="warning"
+        height="auto"
+        py={6}
+        flexDir="column"
+        textAlign="center"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <AlertIcon mr={0} boxSize="40px" />
+
+        <Stack spacing={1}>
+          <AlertTitle fontSize="lg">Payment Pending</AlertTitle>
+          <AlertDescription>
+            Your registration is incomplete. Please review your information and complete payment.
+          </AlertDescription>
+        </Stack>
+
+        <ButtonGroup justifyContent="center">
+          <Button colorScheme="blue" onClick={handleResumePayment} isLoading={isLoading || formState.isLoading}>
+            Complete Payment
+          </Button>
+          <Button onClick={handleCancelRegistration} isDisabled={isLoading || formState.isLoading}>
+            Cancel Registration
+          </Button>
+        </ButtonGroup>
+      </Alert>
+
+      <AddStudentForm
+        onSubmit={handleUpdate}
+        customFields={event.customFields ?? []}
+        allowEditEmail={false}
+        defaultValues={pendingStudent}
+        {...formState}
+        buttonText="Update Registration"
         initial
       />
     </Stack>
@@ -335,6 +434,9 @@ const Event = () => {
   const studentRef = eventRef.collection("students").doc(user.uid);
   const { data: student } = useFirestoreDocData(studentRef, { idField: "id" });
 
+  const pendingStudentRef = eventRef.collection("pending-students").doc(user.uid);
+  const { data: pendingStudent } = useFirestoreDocData(pendingStudentRef, { idField: "id" });
+
   const teamRef = student?.team ?? eventRef.collection("teams").doc("none"); // Hack for conditionals
   const teamMembersRef = eventRef.collection("students").where("team", "==", teamRef);
   const { data: teamMembers } = useFirestoreCollectionData(teamMembersRef, { idField: "id" });
@@ -399,6 +501,7 @@ const Event = () => {
     });
   };
 
+  if (!student && pendingStudent) return <PendingRegistration event={event} pendingStudent={pendingStudent} />;
   if (!student) return <NotRegistered event={event} />;
   if (student.team && !team) return null;
   if (student.org && !org) return null;

@@ -70,6 +70,9 @@ const processCheckoutSessionCompleted = async (
       { merge: true }
     );
 
+    // Delete the pending registration after successful payment
+    await pendingStudentRef.delete();
+
     return res.status(200).end();
   }
 
