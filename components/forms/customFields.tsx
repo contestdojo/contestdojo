@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, Select, Tooltip } from "@chakra-ui/react";
+import { Box, Select, Textarea, Tooltip } from "@chakra-ui/react";
 import { FieldErrorsImpl, UseFormRegister } from "react-hook-form";
 import * as yup from "yup";
 
@@ -18,6 +18,7 @@ export type CustomField = {
     required?: boolean;
     editable?: boolean;
     hidden?: boolean;
+    multiline?: boolean;
   };
   helpText?: string;
   validationRegex?: string;
@@ -43,20 +44,28 @@ export const renderCustomFields = (
   initial: boolean,
   customFields: CustomField[],
   register: UseFormRegister<any>,
-  errors: Partial<FieldErrorsImpl<any>>
+  errors: Partial<FieldErrorsImpl<any>>,
+  fieldPath: string = "customFields"
 ) =>
   customFields
     .filter((v) => !v.flags.hidden)
     .map((x) => {
+      let fieldAs = undefined;
+      if (x.choices) {
+        fieldAs = Select;
+      } else if (x.flags.multiline) {
+        fieldAs = Textarea;
+      }
+
       const field = (
         // @ts-ignore
         <FormField
-          {...register(`customFields.${x.id}`)}
+          {...register(`${fieldPath}.${x.id}`)}
           label={x.label}
           // @ts-ignore
-          error={errors.customFields?.[x.id]}
+          error={errors[fieldPath]?.[x.id]}
           isRequired={x.flags.required}
-          as={x.choices ? Select : undefined}
+          as={fieldAs}
           placeholder={x.choices ? "Select..." : ""}
           isDisabled={!x.flags.editable && !initial}
           helperText={x.helpText}

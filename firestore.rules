@@ -168,6 +168,19 @@ service cloud.firestore {
           );
         }
       }
+
+      match /forms/{formId} {
+        allow read: if request.auth != null;
+        allow write: if isEventAdmin();
+
+        match /responses/{studentId} {
+          function isStudentRegistered() {
+            return exists(studentRef(studentId)) || exists(/databases/$(database)/documents/events/$(eventId)/pending-students/$(studentId));
+          }
+          allow read: if isEventAdmin() || request.auth.uid == studentId;
+          allow write: if isEventAdmin() || (request.auth.uid == studentId && isStudentRegistered());
+        }
+      }
     }
 
     match /entities/{entityId} {

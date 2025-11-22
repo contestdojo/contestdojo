@@ -47,6 +47,7 @@ import WaiverRequestForm from "~/components/forms/WaiverRequestForm";
 import JoinTeamModal from "~/components/JoinTeamModal";
 import Markdown from "~/components/Markdown";
 import RadioToggle from "~/components/RadioToggle";
+import StudentForms from "~/components/StudentForms";
 import { useFormState, useUserData } from "~/helpers/utils";
 
 const DownloadWaiver = ({ waiver }) => {
@@ -293,6 +294,8 @@ const PendingRegistration = ({ event, pendingStudent }) => {
           </Button>
         </ButtonGroup>
       </Alert>
+
+      <StudentForms studentId={pendingStudent.id} />
 
       <AddStudentForm
         onSubmit={handleUpdate}
@@ -631,6 +634,8 @@ const Event = () => {
       )}
 
       <Divider />
+
+      <StudentForms studentId={student.id} />
 
       <Heading size="lg">Student Information</Heading>
       <AddStudentForm
