@@ -52,7 +52,7 @@ service cloud.firestore {
       }
 
       function isOrgAdminOf(orgRef) {
-        return studentRegistrationEnabled() && orgRef == null || userRef() == get(orgRef).data.admin;
+        return orgRef == null || userRef() == get(orgRef).data.admin;
       }
 
       function notFrozenAnd(cond) {
