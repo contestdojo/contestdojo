@@ -25,9 +25,9 @@ const Sidebar = () => {
   const entitiesRef = firestore.collection("entities").where("admins", "array-contains", userRef);
   const { data: entities } = useFirestoreCollectionData(entitiesRef, { idField: "id" });
   const entityRefs = entities.map((x) => firestore.collection("entities").doc(x.id));
-
+  
   // Get events
-  const eventsRef = firestore.collection("events").where("owner", "in", [...entityRefs, "0"]);
+  const eventsRef = firestore.collection("events").where("owner", "in", entityRefs);
   const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
 
   events.sort((a, b) => a.name.localeCompare(b.name));
