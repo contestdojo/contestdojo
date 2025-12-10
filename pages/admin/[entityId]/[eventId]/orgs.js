@@ -15,7 +15,7 @@ import AdminTableView, {
   updateRenderer,
 } from "~/components/AdminTableView";
 import { useEvent } from "~/components/contexts/EventProvider";
-import { toDict, useImpersonate } from "~/helpers/utils";
+import { toDict, toDictIgnoringNew, useImpersonate } from "~/helpers/utils";
 
 const OrgsTable = ({ event, orgs, customFields, studentsByOrg, onUpdate }) => {
   const impersonate = useImpersonate();
@@ -107,7 +107,7 @@ const OrgsTab = () => {
 
   const rootOrgsRef = firestore.collection("orgs");
   const { data: rootOrgs } = useFirestoreCollectionData(rootOrgsRef, { idField: "id" });
-  orgsById = rootOrgs.reduce(toDict, orgsById);
+  orgsById = rootOrgs.reduce(toDictIgnoringNew, orgsById);
 
   const studentsRef = eventRef.collection("students");
   const { data: students } = useFirestoreCollectionData(studentsRef, { idField: "id" });

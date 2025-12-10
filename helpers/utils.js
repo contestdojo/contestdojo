@@ -93,6 +93,11 @@ export const toDict = (obj, x) => {
   return obj;
 };
 
+export const toDictIgnoringNew = (obj, x) => {
+  if (!obj[x.id]) return obj;
+  return toDict(obj, x);
+};
+
 export const useImpersonate = () => {
   const auth = useAuth();
 
