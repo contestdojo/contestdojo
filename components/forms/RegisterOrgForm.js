@@ -10,7 +10,12 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
-import { makeCustomFieldsSchema, renderCustomFields } from "./customFields";
+import {
+  customFieldsFromFormData,
+  customFieldsToFormData,
+  makeCustomFieldsSchema,
+  renderCustomFields,
+} from "./customFields";
 
 const RegisterOrgForm = ({
   initial = false,
@@ -29,6 +34,14 @@ const RegisterOrgForm = ({
     [customFields]
   );
 
+  const transformedDefaultValues = useMemo(
+    () =>
+      defaultValues
+        ? { ...defaultValues, customFields: customFieldsToFormData(defaultValues.customFields) }
+        : defaultValues,
+    [defaultValues]
+  );
+
   const {
     register,
     handleSubmit,
@@ -36,11 +49,15 @@ const RegisterOrgForm = ({
   } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
-    defaultValues,
+    defaultValues: transformedDefaultValues,
   });
 
+  const handleFormSubmit = (values) => {
+    onSubmit({ ...values, customFields: customFieldsFromFormData(values.customFields) });
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
       <Stack spacing={4}>
         {error && (
           <Alert status="error">
