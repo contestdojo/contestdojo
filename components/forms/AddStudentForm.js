@@ -12,8 +12,12 @@ import * as yup from "yup";
 
 import FormField from "~/components/FormField";
 
-import { makeCustomFieldsSchema, renderCustomFields } from "./customFields";
-
+import {
+  customFieldsFromFormData,
+  customFieldsToFormData,
+  makeCustomFieldsSchema,
+  renderCustomFields,
+} from "./customFields";
 
 const AddStudentForm = ({
   id = "add-student",
@@ -40,6 +44,14 @@ const AddStudentForm = ({
     [customFields, allowEditEmail]
   );
 
+  const transformedDefaultValues = useMemo(
+    () =>
+      defaultValues
+        ? { ...defaultValues, customFields: customFieldsToFormData(defaultValues.customFields) }
+        : defaultValues,
+    [defaultValues]
+  );
+
   const {
     register,
     handleSubmit,
@@ -48,15 +60,19 @@ const AddStudentForm = ({
   } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
-    defaultValues,
+    defaultValues: transformedDefaultValues,
   });
 
   useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues]);
+    reset(transformedDefaultValues);
+  }, [transformedDefaultValues]);
+
+  const handleFormSubmit = (values) => {
+    onSubmit({ ...values, customFields: customFieldsFromFormData(values.customFields) });
+  };
 
   return (
-    <form id={id} onSubmit={handleSubmit(onSubmit)}>
+    <form id={id} onSubmit={handleSubmit(handleFormSubmit)}>
       <Stack spacing={4}>
         {error && (
           <Alert status="error">

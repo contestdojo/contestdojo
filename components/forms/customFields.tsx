@@ -24,6 +24,23 @@ export type CustomField = {
   validationRegex?: string;
 };
 
+// Helper to create a form-safe key from a custom field ID.
+// This prevents react-hook-form from interpreting numeric IDs as array indices.
+const toFormKey = (id: string) => `_${id}`;
+const fromFormKey = (key: string) => key.slice(1);
+
+// Transform custom field data from storage format to form format (add prefix to keys)
+export const customFieldsToFormData = (data: Record<string, unknown> | undefined): Record<string, unknown> => {
+  if (!data) return {};
+  return Object.fromEntries(Object.entries(data).map(([k, v]) => [toFormKey(k), v]));
+};
+
+// Transform custom field data from form format to storage format (remove prefix from keys)
+export const customFieldsFromFormData = (data: Record<string, unknown> | undefined): Record<string, unknown> => {
+  if (!data) return {};
+  return Object.fromEntries(Object.entries(data).map(([k, v]) => [fromFormKey(k), v]));
+};
+
 export const makeCustomFieldsSchema = (initial: boolean, customFields: CustomField[]) =>
   yup.object(
     Object.fromEntries(
@@ -35,7 +52,7 @@ export const makeCustomFieldsSchema = (initial: boolean, customFields: CustomFie
           if (v.flags.required) field = field.required();
           if (v.choices) field = field.oneOf(v.choices).transform((x) => (x === "" ? undefined : x));
           if (v.validationRegex) field = field.matches(new RegExp(v.validationRegex));
-          return [v.id, field];
+          return [toFormKey(v.id), field];
         })
     )
   );
@@ -57,13 +74,14 @@ export const renderCustomFields = (
         fieldAs = Textarea;
       }
 
+      const formKey = toFormKey(x.id);
       const field = (
         // @ts-ignore
         <FormField
-          {...register(`${fieldPath}.${x.id}`)}
+          {...register(`${fieldPath}.${formKey}`)}
           label={x.label}
           // @ts-ignore
-          error={errors[fieldPath]?.[x.id]}
+          error={errors[fieldPath]?.[formKey]}
           isRequired={x.flags.required}
           as={fieldAs}
           placeholder={x.choices ? "Select..." : ""}
@@ -82,7 +100,7 @@ export const renderCustomFields = (
       if (!x.flags.editable && !initial) {
         return (
           <Tooltip
-            key={`customFields.${x.id}`}
+            key={`customFields.${formKey}`}
             label="This field may not be edited. Please contact the tournament organizer if you have any questions or concerns."
           >
             <Box>{field}</Box>
