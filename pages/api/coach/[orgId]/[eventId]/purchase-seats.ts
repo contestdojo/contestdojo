@@ -22,7 +22,7 @@ const handler = withFirebaseAuth(async (req, res) => {
   if (typeof orgId !== "string") return res.status(400).end();
   if (typeof eventId !== "string") return res.status(400).end();
 
-  const { email, addonId, number } = req.body;
+  const { email, addonId, number, billByTeam } = req.body;
   if (typeof email !== "string") return res.status(400).end();
   if (typeof number !== "number") return res.status(400).end();
 
@@ -43,14 +43,23 @@ const handler = withFirebaseAuth(async (req, res) => {
   if (!entityData) return res.status(404).end();
   if (!entityData.stripeAccountId) return res.status(400).end("The event organizer has not yet configured payments.");
 
-  // Calculate number of students
+  // Calculate number of seats to purchase
+  // When billByTeam is true, multiply by studentsPerTeam
+  const studentsPerTeam = eventData.studentsPerTeam ?? 1;
+  const actualSeats = billByTeam ? number * studentsPerTeam : number;
 
   if (!addon && eventData.maxStudents != undefined) {
     const eventOrgs = await eventRef.collection("orgs").get();
     const numStudents = eventOrgs.docs.reduce((acc, cur) => acc + (cur.data().maxStudents ?? 0), 0);
     const remainingSeats = eventData.maxStudents - numStudents;
     if (remainingSeats < 0) return res.status(400).end("This event is no longer accepting registrations.");
-    if (number > remainingSeats) return res.status(400).end(`There are only ${remainingSeats} seats remaining.`);
+    if (actualSeats > remainingSeats) {
+      if (billByTeam) {
+        const remainingTeams = Math.floor(remainingSeats / studentsPerTeam);
+        return res.status(400).end(`There are only ${remainingTeams} teams remaining.`);
+      }
+      return res.status(400).end(`There are only ${remainingSeats} seats remaining.`);
+    }
   }
 
   // Calculate effective cost
@@ -71,13 +80,25 @@ const handler = withFirebaseAuth(async (req, res) => {
 
   if (!addon && eventData.maxStudentsPerOrg != undefined) {
     const remainingSeats = eventData.maxStudentsPerOrg - (eventOrgData.maxStudents ?? 0);
-    if (number > remainingSeats)
+    if (actualSeats > remainingSeats) {
+      if (billByTeam) {
+        const remainingTeams = Math.floor(remainingSeats / studentsPerTeam);
+        return res
+          .status(400)
+          .end(
+            `This event currently allows up to ${Math.floor(
+              eventData.maxStudentsPerOrg / studentsPerTeam
+            )} teams per organization. ` +
+              `Your organization can only purchase a maximum of ${remainingTeams} additional teams. `
+          );
+      }
       return res
         .status(400)
         .end(
           `This event currently allows up to ${eventData.maxStudentsPerOrg} seats per organization. ` +
             `Your organization can only purchase a maximum of ${remainingSeats} additional seats. `
         );
+    }
   }
 
   // Do payment
@@ -91,10 +112,22 @@ const handler = withFirebaseAuth(async (req, res) => {
   }
 
   const { origin } = absoluteUrl(req);
-  const metadata = { __contestdojo__: true, registrationType: "org", orgId, eventId, addonId, number };
+  // Store actualSeats in metadata so the webhook knows how many seats to add
+  const metadata = { __contestdojo__: true, registrationType: "org", orgId, eventId, addonId, number: actualSeats };
 
-  const amount = (addon ? addon.cost : effectiveCostPerStudent) * 100;
-  const application_fee_amount = (eventData.fee ?? (eventData.feeFactor ?? 0) * amount) * number;
+  // For billByTeam, charge per team (cost per student * students per team)
+  // For regular seats, charge per student
+  const unitAmount = billByTeam
+    ? effectiveCostPerStudent * studentsPerTeam * 100
+    : (addon ? addon.cost : effectiveCostPerStudent) * 100;
+  const application_fee_amount = (eventData.fee ?? (eventData.feeFactor ?? 0) * unitAmount) * number;
+
+  // Product name reflects what the user is purchasing
+  const productName = addon
+    ? `${addon.name} for ${eventData.name}`
+    : billByTeam
+    ? `Team for ${eventData.name}`
+    : `Student Seat for ${eventData.name}`;
 
   const session = await stripe.checkout.sessions.create(
     {
@@ -105,10 +138,10 @@ const handler = withFirebaseAuth(async (req, res) => {
       line_items: [
         {
           price_data: {
-            unit_amount: amount,
+            unit_amount: unitAmount,
             currency: "usd",
             product_data: {
-              name: addon ? `${addon.name} for ${eventData.name}` : `Student Seat for ${eventData.name}`,
+              name: productName,
             },
           },
           quantity: number,

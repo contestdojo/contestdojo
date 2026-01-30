@@ -254,13 +254,19 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
   const { data: user } = useUser();
   const auth = useAuth();
 
+  const billByTeam = event.billByTeam;
+  const buttonLabel = billByTeam ? "Purchase Teams" : "Purchase Seats";
+  const disabledLabel = billByTeam
+    ? "This event has disabled purchasing teams."
+    : "This event has disabled purchasing seats.";
+
   const handlePurchaseSeats = wrapAction(async (values) => {
     const number = Number(values.number);
     const authorization = await auth.currentUser.getIdToken();
     const resp = await fetch(`/api/coach/${orgId}/${eventId}/purchase-seats`, {
       method: "POST",
       headers: { authorization, "content-type": "application/json" },
-      body: JSON.stringify({ email: user.email, number }),
+      body: JSON.stringify({ email: user.email, number, billByTeam }),
     });
     if (!resp.ok) throw new Error(await resp.text());
     const data = await resp.json();
@@ -278,21 +284,27 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
   });
 
   return event.frozen || !event.purchaseSeatsEnabled ? (
-    <Tooltip label="This event has disabled purchasing seats.">
+    <Tooltip label={disabledLabel}>
       <Button colorScheme="blue" isDisabled={true}>
-        Purchase Seats
+        {buttonLabel}
       </Button>
     </Tooltip>
   ) : event.purchaseSeats ? (
     <ButtonLink href={event.purchaseSeats} colorScheme="blue" isDisabled={!!event.frozen}>
-      Purchase Seats
+      {buttonLabel}
     </ButtonLink>
   ) : (
     <>
       <Button colorScheme="blue" onClick={onOpen} isDisabled={!!event.frozen}>
-        Purchase Seats
+        {buttonLabel}
       </Button>
-      <PurchaseSeatsModal isOpen={isOpen} onClose={onClose} onSubmit={handlePurchaseSeats} {...formState} />
+      <PurchaseSeatsModal
+        title={billByTeam ? "Teams" : "Seats"}
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handlePurchaseSeats}
+        {...formState}
+      />
     </>
   );
 };
@@ -317,6 +329,14 @@ const Teams = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
 
+  const billByTeam = event.billByTeam;
+  const studentsPerTeam = event.studentsPerTeam ?? 1;
+
+  // When billByTeam is enabled, calculate max teams from purchased seats
+  const effectiveMaxTeams = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : maxTeams ?? 100;
+
+  const teamsPurchased = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : null;
+
   const handleAddTeam = wrapAction(async (values) => {
     await onAddTeam(values);
     onClose();
@@ -339,15 +359,31 @@ const Teams = ({
             Click the &ldquo;Add Team&rdquo; button to create a new team.
             {costPerStudent > 0 && (
               <>
-                {" "}
-                Before you can add students to teams, you must purchase seats.{" "}
-                {event.purchaseSeatsEnabled && !event.purchaseSeats && (
+                {billByTeam ? (
                   <>
-                    Each seat currently costs <b>${costPerStudent} USD</b>.{" "}
+                    {" "}
+                    Before you can add teams, you must purchase them.{" "}
+                    {event.purchaseSeatsEnabled && !event.purchaseSeats && (
+                      <>
+                        Each team currently costs <b>${costPerStudent * studentsPerTeam} USD</b>.{" "}
+                      </>
+                    )}
+                    You have currently paid for <b>{teamsPurchased}</b> team{teamsPurchased !== 1 ? "s" : ""}, with{" "}
+                    <b>{effectiveMaxTeams - teams.length}</b> remaining.
+                  </>
+                ) : (
+                  <>
+                    {" "}
+                    Before you can add students to teams, you must purchase seats.{" "}
+                    {event.purchaseSeatsEnabled && !event.purchaseSeats && (
+                      <>
+                        Each seat currently costs <b>${costPerStudent} USD</b>.{" "}
+                      </>
+                    )}
+                    You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> remaining.
+                    Seats are not associated with any particular student, and unassigned students do not use a seat.
                   </>
                 )}
-                You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> remaining. Seats
-                are not associated with any particular student, and unassigned students do not use a seat.
               </>
             )}
           </p>
@@ -374,12 +410,12 @@ const Teams = ({
       )}
       <ButtonGroup>
         {event.teamsEnabled &&
-          (teams.length < (maxTeams ?? 100) ? (
+          (teams.length < effectiveMaxTeams ? (
             <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} isDisabled={!!event.frozen}>
               Add Team
             </Button>
           ) : (
-            <Tooltip label="You may not add more teams.">
+            <Tooltip label={billByTeam ? "You must purchase more teams." : "You may not add more teams."}>
               <Box>
                 <Button colorScheme="blue" disabled>
                   Add Team
