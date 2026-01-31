@@ -265,7 +265,7 @@ export default function SettingsRoute() {
             purchaseSeats: { label: "Custom Seats Purchase URL" },
             billByTeam: {
               label: "Bill by Team?",
-              help: "When enabled, coaches purchase teams instead of seats. Each team purchase adds studentsPerTeam seats internally.",
+              help: "When enabled, coaches purchase teams instead of seats. Coaches can only create up to the number of teams they have purchased.",
             },
             studentRegistrationEnabled: { label: "Student Registration Enabled?" },
             maxStudents: {
