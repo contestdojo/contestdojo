@@ -266,7 +266,7 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
     const resp = await fetch(`/api/coach/${orgId}/${eventId}/purchase-seats`, {
       method: "POST",
       headers: { authorization, "content-type": "application/json" },
-      body: JSON.stringify({ email: user.email, number, billByTeam }),
+      body: JSON.stringify({ email: user.email, number }),
     });
     if (!resp.ok) throw new Error(await resp.text());
     const data = await resp.json();
@@ -335,7 +335,12 @@ const Teams = ({
   // When billByTeam is enabled, calculate max teams from purchased seats
   const effectiveMaxTeams = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : maxTeams ?? 100;
 
-  const teamsPurchased = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : null;
+  // Compute display values based on billing mode
+  const unitName = billByTeam ? "team" : "seat";
+  const unitNamePlural = billByTeam ? "teams" : "seats";
+  const unitCost = billByTeam ? costPerStudent * studentsPerTeam : costPerStudent;
+  const unitsPurchased = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : maxStudents;
+  const unitsRemaining = billByTeam ? effectiveMaxTeams - teams.length : seatsRemaining;
 
   const handleAddTeam = wrapAction(async (values) => {
     await onAddTeam(values);
@@ -359,31 +364,19 @@ const Teams = ({
             Click the &ldquo;Add Team&rdquo; button to create a new team.
             {costPerStudent > 0 && (
               <>
-                {billByTeam ? (
+                {" "}
+                {billByTeam
+                  ? "Before you can add teams, you must purchase them."
+                  : "Before you can add students to teams, you must purchase seats."}{" "}
+                {event.purchaseSeatsEnabled && !event.purchaseSeats && (
                   <>
-                    {" "}
-                    Before you can add teams, you must purchase them.{" "}
-                    {event.purchaseSeatsEnabled && !event.purchaseSeats && (
-                      <>
-                        Each team currently costs <b>${costPerStudent * studentsPerTeam} USD</b>.{" "}
-                      </>
-                    )}
-                    You have currently paid for <b>{teamsPurchased}</b> team{teamsPurchased !== 1 ? "s" : ""}, with{" "}
-                    <b>{effectiveMaxTeams - teams.length}</b> remaining.
-                  </>
-                ) : (
-                  <>
-                    {" "}
-                    Before you can add students to teams, you must purchase seats.{" "}
-                    {event.purchaseSeatsEnabled && !event.purchaseSeats && (
-                      <>
-                        Each seat currently costs <b>${costPerStudent} USD</b>.{" "}
-                      </>
-                    )}
-                    You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> remaining.
-                    Seats are not associated with any particular student, and unassigned students do not use a seat.
+                    Each {unitName} currently costs <b>${unitCost} USD</b>.{" "}
                   </>
                 )}
+                You have currently paid for <b>{unitsPurchased}</b> {unitsPurchased !== 1 ? unitNamePlural : unitName},
+                with <b>{unitsRemaining}</b> remaining.
+                {!billByTeam &&
+                  " Seats are not associated with any particular student, and unassigned students do not use a seat."}
               </>
             )}
           </p>

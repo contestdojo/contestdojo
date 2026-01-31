@@ -22,7 +22,7 @@ const handler = withFirebaseAuth(async (req, res) => {
   if (typeof orgId !== "string") return res.status(400).end();
   if (typeof eventId !== "string") return res.status(400).end();
 
-  const { email, addonId, number, billByTeam } = req.body;
+  const { email, addonId, number } = req.body;
   if (typeof email !== "string") return res.status(400).end();
   if (typeof number !== "number") return res.status(400).end();
 
@@ -45,6 +45,7 @@ const handler = withFirebaseAuth(async (req, res) => {
 
   // Calculate number of seats to purchase
   // When billByTeam is true, multiply by studentsPerTeam
+  const billByTeam = eventData.billByTeam;
   const studentsPerTeam = eventData.studentsPerTeam ?? 1;
   const actualSeats = billByTeam ? number * studentsPerTeam : number;
 
