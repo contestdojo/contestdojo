@@ -254,6 +254,12 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
   const { data: user } = useUser();
   const auth = useAuth();
 
+  const billByTeam = event.billByTeam;
+  const buttonLabel = billByTeam ? "Purchase Team Seats" : "Purchase Seats";
+  const disabledLabel = billByTeam
+    ? "This event has disabled purchasing team seats."
+    : "This event has disabled purchasing seats.";
+
   const handlePurchaseSeats = wrapAction(async (values) => {
     const number = Number(values.number);
     const authorization = await auth.currentUser.getIdToken();
@@ -278,21 +284,27 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
   });
 
   return event.frozen || !event.purchaseSeatsEnabled ? (
-    <Tooltip label="This event has disabled purchasing seats.">
+    <Tooltip label={disabledLabel}>
       <Button colorScheme="blue" isDisabled={true}>
-        Purchase Seats
+        {buttonLabel}
       </Button>
     </Tooltip>
   ) : event.purchaseSeats ? (
     <ButtonLink href={event.purchaseSeats} colorScheme="blue" isDisabled={!!event.frozen}>
-      Purchase Seats
+      {buttonLabel}
     </ButtonLink>
   ) : (
     <>
       <Button colorScheme="blue" onClick={onOpen} isDisabled={!!event.frozen}>
-        Purchase Seats
+        {buttonLabel}
       </Button>
-      <PurchaseSeatsModal isOpen={isOpen} onClose={onClose} onSubmit={handlePurchaseSeats} {...formState} />
+      <PurchaseSeatsModal
+        title={billByTeam ? "Team Seats" : "Seats"}
+        isOpen={isOpen}
+        onClose={onClose}
+        onSubmit={handlePurchaseSeats}
+        {...formState}
+      />
     </>
   );
 };
@@ -317,6 +329,19 @@ const Teams = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [formState, wrapAction] = useFormState();
 
+  const billByTeam = event.billByTeam;
+  const studentsPerTeam = event.studentsPerTeam ?? 1;
+
+  // When billByTeam is enabled, calculate max teams from purchased seats
+  const effectiveMaxTeams = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : maxTeams ?? 100;
+
+  // Compute display values based on billing mode
+  const unitName = billByTeam ? "team seat" : "seat";
+  const unitNamePlural = billByTeam ? "team seats" : "seats";
+  const unitCost = billByTeam ? costPerStudent * studentsPerTeam : costPerStudent;
+  const unitsPurchased = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : maxStudents;
+  const unitsRemaining = billByTeam ? effectiveMaxTeams - teams.length : seatsRemaining;
+
   const handleAddTeam = wrapAction(async (values) => {
     await onAddTeam(values);
     onClose();
@@ -340,14 +365,18 @@ const Teams = ({
             {costPerStudent > 0 && (
               <>
                 {" "}
-                Before you can add students to teams, you must purchase seats.{" "}
+                {billByTeam
+                  ? "You must purchase team seats before you can add teams."
+                  : "Before you can add students to teams, you must purchase seats."}{" "}
                 {event.purchaseSeatsEnabled && !event.purchaseSeats && (
                   <>
-                    Each seat currently costs <b>${costPerStudent} USD</b>.{" "}
+                    Each {unitName} currently costs <b>${unitCost} USD</b>.{" "}
                   </>
                 )}
-                You have currently paid for <b>{maxStudents}</b> seats, with <b>{seatsRemaining}</b> remaining. Seats
-                are not associated with any particular student, and unassigned students do not use a seat.
+                You have currently paid for <b>{unitsPurchased}</b> {unitsPurchased !== 1 ? unitNamePlural : unitName},
+                with <b>{unitsRemaining}</b> remaining.
+                {!billByTeam &&
+                  " Seats are not associated with any particular student, and unassigned students do not use a seat."}
               </>
             )}
           </p>
@@ -374,14 +403,14 @@ const Teams = ({
       )}
       <ButtonGroup>
         {event.teamsEnabled &&
-          (teams.length < (maxTeams ?? 100) ? (
+          (teams.length < effectiveMaxTeams ? (
             <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} isDisabled={!!event.frozen}>
               Add Team
             </Button>
           ) : (
-            <Tooltip label="You may not add more teams.">
+            <Tooltip label={billByTeam ? "You must purchase more team seats." : "You may not add more teams."}>
               <Box>
-                <Button colorScheme="blue" disabled>
+                <Button colorScheme="blue" isDisabled>
                   Add Team
                 </Button>
               </Box>
