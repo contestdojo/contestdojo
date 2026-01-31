@@ -38,6 +38,7 @@ const EventDetailsForm = z.object({
   hide: zfd.checkbox(),
   purchaseSeatsEnabled: zfd.checkbox(),
   purchaseSeats: zfd.text(z.string().optional()),
+  billByTeam: zfd.checkbox(),
   studentRegistrationEnabled: zfd.checkbox(),
   maxStudents: zfd.numeric(z.number().optional()),
   maxStudentsPerOrg: zfd.numeric(z.number().optional()),
@@ -262,6 +263,10 @@ export default function SettingsRoute() {
             description: { multiline: true, rows: 20 },
             hide: { label: "Hidden to Public?" },
             purchaseSeats: { label: "Custom Seats Purchase URL" },
+            billByTeam: {
+              label: "Bill by Team?",
+              help: "When enabled, coaches purchase teams instead of seats. Coaches can only create up to the number of teams they have purchased.",
+            },
             studentRegistrationEnabled: { label: "Student Registration Enabled?" },
             maxStudents: {
               help: "Deny registration after this many seats have been purchased (DOESN'T WORK WITH STUDENT REGISTRATION)",
