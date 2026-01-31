@@ -20,7 +20,7 @@ const processCheckoutSessionCompleted = async (
   if (!session.metadata?.__contestdojo__) return res.status(200).end("Not ContestDojo, ignoring");
 
   if (session.metadata?.registrationType === "org") {
-    let { number, addonId, eventId, orgId } = session.metadata ?? {};
+    let { number, addonId, eventId, orgId, billByTeam, numTeams } = session.metadata ?? {};
     if (typeof number !== "string" && typeof number !== "number") return res.status(400).end("Missing num seats");
     if (typeof eventId !== "string") return res.status(400).end("Missing event id");
     if (typeof orgId !== "string") return res.status(400).end("Missing org id");
@@ -35,6 +35,20 @@ const processCheckoutSessionCompleted = async (
       );
     } else {
       await eventOrgRef.set({ maxStudents: adminFirestore.FieldValue.increment(Number(number)) }, { merge: true });
+    }
+
+    // When billByTeam is enabled, auto-create teams after payment
+    if (billByTeam === "true" && numTeams) {
+      const teamsRef = firestore.collection("events").doc(eventId).collection("teams");
+      const orgRef = firestore.collection("orgs").doc(orgId);
+
+      const teamsToCreate = Number(numTeams);
+      for (let i = 0; i < teamsToCreate; i++) {
+        await teamsRef.add({
+          name: `Team ${Date.now()}-${i + 1}`,
+          org: orgRef,
+        });
+      }
     }
 
     return res.status(200).end();
