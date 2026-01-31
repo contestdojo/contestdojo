@@ -410,7 +410,7 @@ const Teams = ({
           ) : (
             <Tooltip label={billByTeam ? "You must purchase more teams." : "You may not add more teams."}>
               <Box>
-                <Button colorScheme="blue" disabled>
+                <Button colorScheme="blue" isDisabled>
                   Add Team
                 </Button>
               </Box>
