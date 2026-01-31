@@ -361,19 +361,20 @@ const Teams = ({
       {event.teamsEnabled && (
         <>
           <p>
-            {billByTeam
-              ? "Use the \"Purchase Teams\" button to add teams. Teams are created automatically when your purchase is complete."
-              : "Click the \"Add Team\" button to create a new team."}
+            Click the &ldquo;Add Team&rdquo; button to create a new team.
             {costPerStudent > 0 && (
               <>
                 {" "}
-                {!billByTeam && "Before you can add students to teams, you must purchase seats. "}
+                {billByTeam
+                  ? "You must purchase teams before you can add them."
+                  : "Before you can add students to teams, you must purchase seats."}{" "}
                 {event.purchaseSeatsEnabled && !event.purchaseSeats && (
                   <>
                     Each {unitName} currently costs <b>${unitCost} USD</b>.{" "}
                   </>
                 )}
-                You have currently paid for <b>{unitsPurchased}</b> {unitsPurchased !== 1 ? unitNamePlural : unitName}.
+                You have currently paid for <b>{unitsPurchased}</b> {unitsPurchased !== 1 ? unitNamePlural : unitName},
+                with <b>{unitsRemaining}</b> remaining.
                 {!billByTeam &&
                   " Seats are not associated with any particular student, and unassigned students do not use a seat."}
               </>
@@ -402,13 +403,12 @@ const Teams = ({
       )}
       <ButtonGroup>
         {event.teamsEnabled &&
-          !billByTeam &&
           (teams.length < effectiveMaxTeams ? (
             <Button colorScheme="blue" alignSelf="flex-start" onClick={onOpen} isDisabled={!!event.frozen}>
               Add Team
             </Button>
           ) : (
-            <Tooltip label="You may not add more teams.">
+            <Tooltip label={billByTeam ? "You must purchase more teams." : "You may not add more teams."}>
               <Box>
                 <Button colorScheme="blue" disabled>
                   Add Team

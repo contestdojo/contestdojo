@@ -114,19 +114,7 @@ const handler = withFirebaseAuth(async (req, res) => {
 
   const { origin } = absoluteUrl(req);
   // Store actualSeats in metadata so the webhook knows how many seats to add
-  // When billByTeam is enabled, also store numTeams so the webhook can create teams
-  const metadata: Record<string, any> = {
-    __contestdojo__: true,
-    registrationType: "org",
-    orgId,
-    eventId,
-    addonId,
-    number: actualSeats,
-  };
-  if (billByTeam) {
-    metadata.billByTeam = true;
-    metadata.numTeams = number;
-  }
+  const metadata = { __contestdojo__: true, registrationType: "org", orgId, eventId, addonId, number: actualSeats };
 
   // For billByTeam, charge per team (cost per student * students per team)
   // For regular seats, charge per student
