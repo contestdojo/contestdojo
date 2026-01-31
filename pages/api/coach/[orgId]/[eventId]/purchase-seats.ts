@@ -57,7 +57,7 @@ const handler = withFirebaseAuth(async (req, res) => {
     if (actualSeats > remainingSeats) {
       if (billByTeam) {
         const remainingTeams = Math.floor(remainingSeats / studentsPerTeam);
-        return res.status(400).end(`There are only ${remainingTeams} teams remaining.`);
+        return res.status(400).end(`There are only ${remainingTeams} team seats remaining.`);
       }
       return res.status(400).end(`There are only ${remainingSeats} seats remaining.`);
     }
@@ -89,8 +89,8 @@ const handler = withFirebaseAuth(async (req, res) => {
           .end(
             `This event currently allows up to ${Math.floor(
               eventData.maxStudentsPerOrg / studentsPerTeam
-            )} teams per organization. ` +
-              `Your organization can only purchase a maximum of ${remainingTeams} additional teams. `
+            )} team seats per organization. ` +
+              `Your organization can only purchase a maximum of ${remainingTeams} additional team seats. `
           );
       }
       return res
@@ -127,7 +127,7 @@ const handler = withFirebaseAuth(async (req, res) => {
   const productName = addon
     ? `${addon.name} for ${eventData.name}`
     : billByTeam
-    ? `Team for ${eventData.name}`
+    ? `Team Seat for ${eventData.name}`
     : `Student Seat for ${eventData.name}`;
 
   const session = await stripe.checkout.sessions.create(

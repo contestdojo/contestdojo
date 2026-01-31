@@ -255,9 +255,9 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
   const auth = useAuth();
 
   const billByTeam = event.billByTeam;
-  const buttonLabel = billByTeam ? "Purchase Teams" : "Purchase Seats";
+  const buttonLabel = billByTeam ? "Purchase Team Seats" : "Purchase Seats";
   const disabledLabel = billByTeam
-    ? "This event has disabled purchasing teams."
+    ? "This event has disabled purchasing team seats."
     : "This event has disabled purchasing seats.";
 
   const handlePurchaseSeats = wrapAction(async (values) => {
@@ -299,7 +299,7 @@ const PurchaseSeats = ({ stripeAccount, event }) => {
         {buttonLabel}
       </Button>
       <PurchaseSeatsModal
-        title={billByTeam ? "Teams" : "Seats"}
+        title={billByTeam ? "Team Seats" : "Seats"}
         isOpen={isOpen}
         onClose={onClose}
         onSubmit={handlePurchaseSeats}
@@ -336,8 +336,8 @@ const Teams = ({
   const effectiveMaxTeams = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : maxTeams ?? 100;
 
   // Compute display values based on billing mode
-  const unitName = billByTeam ? "team" : "seat";
-  const unitNamePlural = billByTeam ? "teams" : "seats";
+  const unitName = billByTeam ? "team seat" : "seat";
+  const unitNamePlural = billByTeam ? "team seats" : "seats";
   const unitCost = billByTeam ? costPerStudent * studentsPerTeam : costPerStudent;
   const unitsPurchased = billByTeam ? Math.floor(maxStudents / studentsPerTeam) : maxStudents;
   const unitsRemaining = billByTeam ? effectiveMaxTeams - teams.length : seatsRemaining;
@@ -366,7 +366,7 @@ const Teams = ({
               <>
                 {" "}
                 {billByTeam
-                  ? "You must purchase teams before you can add them."
+                  ? "You must purchase team seats before you can add teams."
                   : "Before you can add students to teams, you must purchase seats."}{" "}
                 {event.purchaseSeatsEnabled && !event.purchaseSeats && (
                   <>
@@ -408,7 +408,7 @@ const Teams = ({
               Add Team
             </Button>
           ) : (
-            <Tooltip label={billByTeam ? "You must purchase more teams." : "You may not add more teams."}>
+            <Tooltip label={billByTeam ? "You must purchase more team seats." : "You may not add more teams."}>
               <Box>
                 <Button colorScheme="blue" isDisabled>
                   Add Team
