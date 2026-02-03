@@ -20,7 +20,7 @@ import type {
 import { ArrowDownTrayIcon } from "@heroicons/react/20/solid";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { json } from "@remix-run/node";
-import { Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Link, useActionData, useLoaderData, useSearchParams } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
@@ -36,7 +36,7 @@ import {
   EventTeamReferenceEmbed,
 } from "~/components/reference-embed";
 import { SchemaForm } from "~/components/schema-form";
-import { Dropdown, IconButton, Modal, Select } from "~/components/ui";
+import { Dropdown, IconButton, Modal, Select, Tabs } from "~/components/ui";
 import { db } from "~/lib/db.server";
 import { isNotEmpty } from "~/lib/utils/array-utils";
 import { reduceToMap, useSumColumn } from "~/lib/utils/misc";
@@ -76,6 +76,7 @@ const StudentUpdateForm = (eventId: Event["id"], customFields: Event["customFiel
 type LoaderData = {
   event: Event;
   students: EventStudent[];
+  pendingStudents: EventStudent[];
   orgs: (Organization & EventOrganization)[];
   teams: EventTeam[];
 };
@@ -88,8 +89,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!event) throw new Response("Event not found.", { status: 404 });
 
-  const studentsSnap = await db.eventStudents(params.eventId).get();
+  const [studentsSnap, pendingStudentsSnap] = await Promise.all([
+    db.eventStudents(params.eventId).get(),
+    db.eventPendingStudents(params.eventId).get(),
+  ]);
   const students = studentsSnap.docs.map((x) => x.data());
+  const pendingStudents = pendingStudentsSnap.docs.map((x) => x.data());
 
   const eventOrgsSnap = await db.eventOrgs(params.eventId).get();
   const eventOrgs = new Map(eventOrgsSnap.docs.map((x) => [x.id, x.data()]));
@@ -103,7 +108,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const teamsSnap = await db.eventTeams(params.eventId).get();
   const teams = teamsSnap.docs.map((x) => x.data());
 
-  return json<LoaderData>({ event, students, orgs, teams });
+  return json<LoaderData>({ event, students, pendingStudents, orgs, teams });
 };
 
 const baseSchema = z.object({
@@ -268,8 +273,11 @@ function StudentUpdateModal({ student, open, setOpen }: StudentUpdateModalProps)
 }
 
 export default function StudentsRoute() {
-  const { event, students, orgs, teams } = useLoaderData<LoaderData>();
+  const { event, students, pendingStudents, orgs, teams } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const [searchParams] = useSearchParams();
+  const showPending = searchParams.get("view") === "pending";
+  const displayedStudents = showPending ? pendingStudents : students;
   const orgsById = reduceToMap(orgs);
   const teamsById = reduceToMap(teams);
 
@@ -293,7 +301,7 @@ export default function StudentsRoute() {
     columnHelper.accessor((x) => `${x.fname} ${x.lname}`, {
       id: "name",
       header: "Name",
-      footer: useSumColumn(students, () => 1).toString(),
+      footer: useSumColumn(displayedStudents, () => 1).toString(),
     }),
     columnHelper.accessor("email", { header: "Email" }),
     columnHelper.accessor("grade", { header: "Grade" }),
@@ -305,7 +313,7 @@ export default function StudentsRoute() {
         const org = id ? orgsById.get(id) : undefined;
         return org ? <EventOrganizationReferenceEmbed org={org} /> : props.getValue();
       },
-      footer: useSumColumn(students, (x) => (x.org ? 1 : 0)).toString(),
+      footer: useSumColumn(displayedStudents, (x) => (x.org ? 1 : 0)).toString(),
     }),
     columnHelper.accessor((x) => x.team?.id, {
       id: "team_id",
@@ -315,7 +323,7 @@ export default function StudentsRoute() {
         const team = id ? teamsById.get(id) : undefined;
         return team ? <EventTeamReferenceEmbed team={team} /> : id;
       },
-      footer: useSumColumn(students, (x) => (x.team ? 1 : 0)).toString(),
+      footer: useSumColumn(displayedStudents, (x) => (x.team ? 1 : 0)).toString(),
     }),
     columnHelper.accessor("checkInPool", { header: "Check-in Pool" }),
     columnHelper.accessor("notes", { header: "Notes" }),
@@ -329,7 +337,7 @@ export default function StudentsRoute() {
           </IconButton>
         ) : null;
       },
-      footer: useSumColumn(students, (x) => (x.waiver ? 1 : 0)).toString(),
+      footer: useSumColumn(displayedStudents, (x) => (x.waiver ? 1 : 0)).toString(),
     }),
     columnHelper.accessor("scoreReport", {
       header: "Score Report",
@@ -345,46 +353,67 @@ export default function StudentsRoute() {
     }),
     ...(roomAssignmentColumns ?? []),
     ...(customColumns ?? []),
-    columnHelper.display({
-      id: "update",
-      cell: function Cell(props) {
-        const [open, setOpen] = useState(false);
-        return (
-          <>
-            <IconButton onClick={() => setOpen(true)}>
-              <PencilSquareIcon className="h-4 w-4" />
-            </IconButton>
-            <StudentUpdateModal student={props.row.original} open={open} setOpen={setOpen} />
-          </>
-        );
-      },
-    }),
+    ...(!showPending
+      ? [
+          columnHelper.display({
+            id: "update",
+            cell: function Cell(props) {
+              const [open, setOpen] = useState(false);
+              return (
+                <>
+                  <IconButton onClick={() => setOpen(true)}>
+                    <PencilSquareIcon className="h-4 w-4" />
+                  </IconButton>
+                  <StudentUpdateModal student={props.row.original} open={open} setOpen={setOpen} />
+                </>
+              );
+            },
+          }),
+        ]
+      : []),
   ];
 
   const [open, setOpen] = useState(false);
 
   return (
     <DataTable
-      filename={`${new Date().toISOString()} - ${event.name} - students.csv`}
-      data={students}
+      filename={`${new Date().toISOString()} - ${event.name} - ${
+        showPending ? "pending-students" : "students"
+      }.csv`}
+      data={displayedStudents}
       columns={columns}
       initialState={initialState}
     >
-      <Dropdown>
-        <Dropdown.Button>Actions</Dropdown.Button>
-        <Dropdown.Items>
-          <Dropdown.Item onClick={() => setOpen(true)}>Bulk Update</Dropdown.Item>
-        </Dropdown.Items>
-      </Dropdown>
-
-      <BulkUpdateModal
-        baseSchema={baseSchema}
-        customFields={event.customFields ?? []}
-        RowHeader={({ data }) => <EventStudentReferenceEmbed student={data} />}
-        result={actionData?._form === "BulkUpdate" ? actionData.result : undefined}
-        open={open}
-        setOpen={setOpen}
+      <Tabs
+        tabs={[
+          { to: "?", label: `Registered (${students.length})`, active: !showPending },
+          {
+            to: "?view=pending",
+            label: `Pending (${pendingStudents.length})`,
+            active: showPending,
+          },
+        ]}
       />
+
+      {!showPending && (
+        <>
+          <Dropdown>
+            <Dropdown.Button>Actions</Dropdown.Button>
+            <Dropdown.Items>
+              <Dropdown.Item onClick={() => setOpen(true)}>Bulk Update</Dropdown.Item>
+            </Dropdown.Items>
+          </Dropdown>
+
+          <BulkUpdateModal
+            baseSchema={baseSchema}
+            customFields={event.customFields ?? []}
+            RowHeader={({ data }) => <EventStudentReferenceEmbed student={data} />}
+            result={actionData?._form === "BulkUpdate" ? actionData.result : undefined}
+            open={open}
+            setOpen={setOpen}
+          />
+        </>
+      )}
     </DataTable>
   );
 }

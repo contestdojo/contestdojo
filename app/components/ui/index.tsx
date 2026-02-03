@@ -14,3 +14,4 @@ export * from "./forms";
 export * from "./icon-button";
 export * from "./modal";
 export * from "./table";
+export * from "./tabs";

@@ -226,6 +226,10 @@ export namespace db {
     return events.doc(eventId).collection("students").withConverter(EventStudent.converter);
   }
 
+  export function eventPendingStudents(eventId: string) {
+    return events.doc(eventId).collection("pending-students").withConverter(EventStudent.converter);
+  }
+
   export function eventTeams(eventId: string) {
     return events.doc(eventId).collection("teams").withConverter(EventTeam.converter);
   }
