@@ -45,16 +45,23 @@ const Home = () => {
   const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
 
   // Get registered events
-
   const studentsQuery = firestore.collectionGroup("students").where("user", "==", userRef);
   const students = useFirestoreCollection(studentsQuery, { idField: "id" }).data.docs;
-  const myEventIds = students.map((x) => x.ref.parent.parent.id);
+  const studentEventIds = students.map((x) => x.ref.parent.parent.id);
+
+  // Get pending registrations
+  const pendingQuery = firestore.collectionGroup("pending-students").where("user", "==", userRef);
+  const pendingStudents = useFirestoreCollection(pendingQuery, { idField: "id" }).data.docs;
+  const pendingEventIds = pendingStudents.map((x) => x.ref.parent.parent.id);
+
+  const allMyEventIds = [...new Set([...studentEventIds, ...pendingEventIds])];
 
   const now = new Date();
 
-  const myEvents = events.filter((x) => (!x.hide || x.date.toDate() > now) && myEventIds.includes(x.id));
-  const otherEvents = events.filter((x) => !x.hide && !myEventIds.includes(x.id));
-  const pastEvents = events.filter((x) => x.hide && x.date.toDate() <= now && myEventIds.includes(x.id));
+  const myEvents = events.filter((x) => (!x.hide || x.date.toDate() > now) && studentEventIds.includes(x.id));
+  const pendingEvents = events.filter((x) => (!x.hide || x.date.toDate() > now) && pendingEventIds.includes(x.id) && !studentEventIds.includes(x.id));
+  const otherEvents = events.filter((x) => !x.hide && !allMyEventIds.includes(x.id));
+  const pastEvents = events.filter((x) => x.hide && x.date.toDate() <= now && allMyEventIds.includes(x.id));
 
   return (
     <Stack spacing={6} maxW={600} mx="auto">
@@ -65,6 +72,11 @@ const Home = () => {
 
       <Heading size="lg">My Events</Heading>
       {myEvents.map((x) => (
+        <EventCard key={x.id} {...x} mine />
+      ))}
+
+      {pendingEvents.length > 0 && <Heading size="lg">Pending Events</Heading>}
+      {pendingEvents.map((x) => (
         <EventCard key={x.id} {...x} mine />
       ))}
 

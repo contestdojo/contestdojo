@@ -51,15 +51,22 @@ const Sidebar = () => {
   const { data: events } = useFirestoreCollectionData(eventsRef, { idField: "id" });
 
   // Get registered events
-
   const studentsQuery = firestore.collectionGroup("students").where("user", "==", userRef);
   const students = useFirestoreCollection(studentsQuery, { idField: "id" }).data.docs;
-  const myEventIds = students.map((x) => x.ref.parent.parent.id);
+  const studentEventIds = students.map((x) => x.ref.parent.parent.id);
+
+  // Get pending registrations
+  const pendingQuery = firestore.collectionGroup("pending-students").where("user", "==", userRef);
+  const pendingStudents = useFirestoreCollection(pendingQuery, { idField: "id" }).data.docs;
+  const pendingEventIds = pendingStudents.map((x) => x.ref.parent.parent.id);
+
+  const allMyEventIds = [...new Set([...studentEventIds, ...pendingEventIds])];
 
   const now = new Date();
 
-  const myEvents = events.filter((x) => (!x.hide || x.date.toDate() > now) && myEventIds.includes(x.id));
-  const pastEvents = events.filter((x) => x.hide && x.date.toDate() <= now && myEventIds.includes(x.id));
+  const myEvents = events.filter((x) => (!x.hide || x.date.toDate() > now) && studentEventIds.includes(x.id));
+  const pendingEvents = events.filter((x) => (!x.hide || x.date.toDate() > now) && pendingEventIds.includes(x.id) && !studentEventIds.includes(x.id));
+  const pastEvents = events.filter((x) => x.hide && x.date.toDate() <= now && allMyEventIds.includes(x.id));
   pastEvents.sort((a, b) => b.date.toDate() - a.date.toDate());
 
   const activeStyle = { backgroundColor: "gray.100" };
@@ -80,6 +87,18 @@ const Sidebar = () => {
           </Link>
         </NextLink>
       </Stack>
+
+      {pendingEvents.length > 0 && (
+        <>
+          <div />
+          <Heading size={3}>Pending Events</Heading>
+          <Stack spacing={1} style={{ marginLeft: "-0.75rem", marginRight: "-0.75rem" }}>
+            {pendingEvents.map((x) => (
+              <EventLink key={x.id} event={x} students={pendingStudents} activeStyle={activeStyle} />
+            ))}
+          </Stack>
+        </>
+      )}
 
       <div />
 

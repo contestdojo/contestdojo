@@ -19,6 +19,10 @@ service cloud.firestore {
       match /students/{studentId} {
         allow read: if request.auth != null;
       }
+
+      match /pending-students/{studentId} {
+        allow read: if request.auth != null;
+      }
     }
 
     match /orgs/{orgId} {
@@ -102,8 +106,9 @@ service cloud.firestore {
       }
 
       match /pending-students/{studentId} {
-        allow read: if request.auth.uid == studentId;
-        allow create, update: if request.auth.uid == studentId && studentRegistrationEnabled();
+        allow read: if request.auth.uid == studentId || isEventAdmin();
+        allow create: if request.auth.uid == studentId && studentRegistrationEnabled();
+        allow update: if request.auth.uid == studentId;
         allow delete: if request.auth.uid == studentId || isEventAdmin();
       }
 

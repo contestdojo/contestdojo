@@ -258,6 +258,8 @@ const PendingRegistration = ({ event, pendingStudent }) => {
     });
   };
 
+  const canPurchase = event.purchaseSeatsEnabled;
+
   return (
     <Stack spacing={6}>
       <Box mb={-4}>
@@ -281,12 +283,19 @@ const PendingRegistration = ({ event, pendingStudent }) => {
         <Stack spacing={1}>
           <AlertTitle fontSize="lg">Payment Pending</AlertTitle>
           <AlertDescription>
-            Your registration is incomplete. Please review your information and complete payment.
+            {canPurchase
+              ? "Your registration is incomplete. Please review your information and complete payment."
+              : "Seat purchases are currently closed. Please check back later."}
           </AlertDescription>
         </Stack>
 
         <ButtonGroup justifyContent="center">
-          <Button colorScheme="blue" onClick={handleResumePayment} isLoading={isLoading || formState.isLoading}>
+          <Button
+            colorScheme="blue"
+            onClick={handleResumePayment}
+            isLoading={isLoading || formState.isLoading}
+            isDisabled={!canPurchase}
+          >
             Complete Payment
           </Button>
           <Button onClick={handleCancelRegistration} isDisabled={isLoading || formState.isLoading}>
@@ -305,6 +314,7 @@ const PendingRegistration = ({ event, pendingStudent }) => {
         {...formState}
         buttonText="Update Registration"
         initial
+        isDisabled={!canPurchase}
       />
     </Stack>
   );
