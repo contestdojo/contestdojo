@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Box, Button, ButtonGroup } from "@chakra-ui/react";
+import { Button, ButtonGroup } from "@chakra-ui/react";
 import { useState } from "react";
 import { HiDownload } from "react-icons/hi";
 import { useFirestore, useFirestoreCollectionData, useStorage } from "reactfire";
@@ -23,7 +23,7 @@ const toDict = (obj, x) => {
   return obj;
 };
 
-const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }) => {
+const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate, extraButtons }) => {
   const impersonate = useImpersonate();
   const storage = useStorage();
   const root = storage.ref();
@@ -99,7 +99,7 @@ const StudentsTable = ({ students, customFields, teamsById, orgsById, onUpdate }
     };
   });
 
-  return <AdminTableView cols={cols} rows={rows} defaultSortKey="number" filename="students.csv" />;
+  return <AdminTableView cols={cols} rows={rows} defaultSortKey="number" filename="students.csv" extraButtons={extraButtons} />;
 };
 
 const StudentsTab = () => {
@@ -138,42 +138,43 @@ const StudentsTab = () => {
 
   const [view, setView] = useState("students");
 
-  return (
-    <Box>
-      <ButtonGroup size="sm" isAttached variant="outline" mb={4}>
-        <Button
-          colorScheme={view === "students" ? "blue" : undefined}
-          variant={view === "students" ? "solid" : "outline"}
-          onClick={() => setView("students")}
-        >
-          Students ({students.length})
-        </Button>
-        <Button
-          colorScheme={view === "pending" ? "blue" : undefined}
-          variant={view === "pending" ? "solid" : "outline"}
-          onClick={() => setView("pending")}
-        >
-          Pending ({pendingStudents.length})
-        </Button>
-      </ButtonGroup>
-      {view === "students" ? (
-        <StudentsTable
-          students={students}
-          customFields={event.customFields ?? []}
-          teamsById={teamsById}
-          orgsById={orgsById}
-          onUpdate={handleStudentUpdate}
-        />
-      ) : (
-        <StudentsTable
-          students={pendingStudents}
-          customFields={event.customFields ?? []}
-          teamsById={teamsById}
-          orgsById={orgsById}
-          onUpdate={handlePendingStudentUpdate}
-        />
-      )}
-    </Box>
+  const viewToggle = (
+    <ButtonGroup size="md" isAttached variant="outline">
+      <Button
+        colorScheme={view === "students" ? "blue" : undefined}
+        variant={view === "students" ? "solid" : "outline"}
+        onClick={() => setView("students")}
+      >
+        Students ({students.length})
+      </Button>
+      <Button
+        colorScheme={view === "pending" ? "blue" : undefined}
+        variant={view === "pending" ? "solid" : "outline"}
+        onClick={() => setView("pending")}
+      >
+        Pending ({pendingStudents.length})
+      </Button>
+    </ButtonGroup>
+  );
+
+  return view === "students" ? (
+    <StudentsTable
+      students={students}
+      customFields={event.customFields ?? []}
+      teamsById={teamsById}
+      orgsById={orgsById}
+      onUpdate={handleStudentUpdate}
+      extraButtons={viewToggle}
+    />
+  ) : (
+    <StudentsTable
+      students={pendingStudents}
+      customFields={event.customFields ?? []}
+      teamsById={teamsById}
+      orgsById={orgsById}
+      onUpdate={handlePendingStudentUpdate}
+      extraButtons={viewToggle}
+    />
   );
 };
 
