@@ -14,7 +14,12 @@ import * as yup from "yup";
 import ButtonLink from "~/components/ButtonLink";
 import Card from "~/components/Card";
 import { useEvent } from "~/components/contexts/EventProvider";
-import { makeCustomFieldsSchema, renderCustomFields } from "~/components/forms/customFields";
+import {
+  customFieldsFromFormData,
+  customFieldsToFormData,
+  makeCustomFieldsSchema,
+  renderCustomFields,
+} from "~/components/forms/customFields";
 import Markdown from "~/components/Markdown";
 import { useFormState } from "~/helpers/utils";
 
@@ -49,14 +54,14 @@ const FormPage = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: hasSubmitted ? { responses: existingResponse[0].responses } : {},
+    defaultValues: hasSubmitted ? { responses: customFieldsToFormData(existingResponse[0].responses) } : {},
   });
 
   if (!form) return null;
 
   const onSubmit = wrapAction(async (values) => {
     await responseRef.set({
-      responses: values.responses,
+      responses: customFieldsFromFormData(values.responses),
       submittedAt: new Date(),
     });
     router.push(`/student/${eventId}`);
