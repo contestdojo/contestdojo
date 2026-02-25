@@ -231,10 +231,10 @@ const Instructions = () => (
       Berkeley Math Tournament.
     </Text>
 
-    <Heading size="md">Coaches &amp; Parents</Heading>
+    <Heading size="md">Coaches, Supervisors, Parents</Heading>
     <Text>
-      If you are a coach, please sign in with an existing coach account, or create a new coach account using the link
-      below. Once you sign in, you can register for contests.
+      If you are an adult looking to register your students for a contest, you need a coach account. (Check with each
+      event's organizers to see who qualifies as a "coach", as this may just mean any responsible adult.)
     </Text>
     <NextLink href="/register" passHref>
       <Link color="blue.500">Create a coach account</Link>
@@ -242,8 +242,8 @@ const Instructions = () => (
 
     <Heading size="md">Students</Heading>
     <Text>
-      If you are a participant, please ask your math club/team coach to register you for contests. Once registered, you
-      will receive an email with your login credentials.
+      If you are a participant, please ask your parent, math club/team coach, or another responsible adult to register
+      you for contests. Once registered, you will receive an email with your login credentials.
     </Text>
     <Text>
       Some events allow students to register independently. For those contests, please sign in with an existing student
