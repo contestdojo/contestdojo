@@ -234,7 +234,8 @@ const Instructions = () => (
     <Heading size="md">Coaches, Supervisors, Parents</Heading>
     <Text>
       If you are an adult looking to register your students for a contest, you need a coach account. (Check with each
-      event's organizers to see who qualifies as a "coach", as this may just mean any responsible adult.)
+      event&apos;s organizers to see who qualifies as a &lsquo;coach&rsquo;, as this may just mean any responsible
+      adult.)
     </Text>
     <NextLink href="/register" passHref>
       <Link color="blue.500">Create a coach account</Link>

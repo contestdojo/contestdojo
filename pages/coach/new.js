@@ -4,7 +4,7 @@
 
 /* Copyright (c) 2021 Oliver Ni */
 
-import { Heading, Stack } from "@chakra-ui/react";
+import { Heading, Stack, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useFirestore } from "reactfire";
 
@@ -34,6 +34,11 @@ const NewOrganization = () => {
   return (
     <Stack spacing={6} maxW={600} mx="auto">
       <Heading>New Organization</Heading>
+      <Text color="gray.600">
+        An organization is how you manage your students and register for events. What counts as an organization varies
+        by event — some events require a school, while others accept any group of students. Check with your
+        event&apos;s organizers if you&apos;re unsure. You can always update these details later.
+      </Text>
       <OrgForm onSubmit={handleSubmit} buttonText="Create Organization" confirmOrg {...formState} />
     </Stack>
   );
