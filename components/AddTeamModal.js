@@ -25,8 +25,12 @@ import * as yup from "yup";
 
 import FormField from "~/components/FormField";
 
-import { makeCustomFieldsSchema, renderCustomFields } from "./forms/customFields";
-
+import {
+  customFieldsFromFormData,
+  customFieldsToFormData,
+  makeCustomFieldsSchema,
+  renderCustomFields,
+} from "./forms/customFields";
 
 const AddTeamModal = ({
   initial = false,
@@ -50,6 +54,14 @@ const AddTeamModal = ({
     [customFields]
   );
 
+  const transformedDefaultValues = useMemo(
+    () =>
+      defaultValues
+        ? { ...defaultValues, customFields: customFieldsToFormData(defaultValues.customFields) }
+        : defaultValues,
+    [defaultValues]
+  );
+
   const {
     register,
     handleSubmit,
@@ -57,8 +69,12 @@ const AddTeamModal = ({
   } = useForm({
     mode: "onTouched",
     resolver: yupResolver(schema),
-    defaultValues,
+    defaultValues: transformedDefaultValues,
   });
+
+  const handleFormSubmit = (values) => {
+    onSubmit({ ...values, customFields: customFieldsFromFormData(values.customFields) });
+  };
 
   const ref = useRef();
 
@@ -69,7 +85,7 @@ const AddTeamModal = ({
         <ModalHeader>{heading}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <form id={formId} onSubmit={handleSubmit(onSubmit)}>
+          <form id={formId} onSubmit={handleSubmit(handleFormSubmit)}>
             <Stack spacing={4}>
               {error && (
                 <Alert status="error">
